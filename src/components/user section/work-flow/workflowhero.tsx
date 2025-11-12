@@ -1,0 +1,56 @@
+import { Box } from "@/components/ui/box";
+import { Button } from "@/components/ui/button";
+import { Center } from "@/components/ui/center";
+import { Flex } from "@/components/ui/flex";
+import { Stack } from "@/components/ui/stack";
+import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router";
+
+export const WorkflowHero = () => {
+  const navigate = useNavigate();
+
+  return (
+    <Box className="relative w-full h-[26rem] z-[40] bg-[#161616] overflow-hidden">
+      <Box className="w-full h-screen bg-[url(/workflow/workflow-bg.svg)] bg-cover bg-center absolute top-0 left-0 -z-10 opacity-50"></Box>
+
+      <Box className="w-full h-screen bg-[url(/workflow/workflow-bg2.png)] bg-cover bg-center absolute top-0 max-lg:-top-20 left-0 -z-10"></Box>
+
+      <Center className="items-center justify-center text-center gap-2">
+        <img src="/home/dotvizion.svg" alt="logo" className="size-24" />
+      </Center>
+
+      <Center className="px-2">
+        <Stack className="text-center max-sm:w-full justify-between items-center">
+          <Box className="text-[#F98618] font-semibold max-w-2xl max-sm:w-full text-5xl max-sm:text-3xl  ">
+            Power Your Team
+            <Box className="text-white font-[100]">With a Smarter Wrokflow</Box>
+          </Box>
+
+          <Box className="w-xl max-sm:w-full font-[200] text-white text-[15px]">
+            Experience a seamless process that connects your tools, teams, and
+            timelines—all in one streamlined platform.
+          </Box>
+
+          <Button
+            onClick={() => navigate("/pricing")}
+            className="p-2 mt-2 h-12 w-36 rounded-3xl bg-[#1797B9] cursor-pointer hover:bg-[#1797B9]/80"
+          >
+            Get Started
+            <ArrowRight />
+          </Button>
+
+          <Flex className="mt-4 max-sm:flex-col">
+            <img
+              src="/workflow/workflow-star.svg"
+              alt="star"
+              className="size-4"
+            />
+            <Box className="text-[16px] text-white font-light">
+              Watch How It Works
+            </Box>
+          </Flex>
+        </Stack>
+      </Center>
+    </Box>
+  );
+};
