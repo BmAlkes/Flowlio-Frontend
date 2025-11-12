@@ -64,7 +64,7 @@ export const Footer = () => {
           <Center className="w-full sm:w-1/2 md:w-auto items-start flex-col max-sm:items-center">
             <h3 className="font-semibold text-cyan-400 mb-4">Stay in Touch</h3>
             <Flex className="flex-col space-y-2 text-gray-400 items-start max-sm:items-center">
-              <span>support@flowlio.com</span>
+              <span>info@flowlio.com</span>
               <span>Available 24/7 through our platform</span>
             </Flex>
           </Center>
