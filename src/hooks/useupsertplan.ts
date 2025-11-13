@@ -21,10 +21,12 @@ export interface UpsertPlanRequest {
     maxUsers: number;
     maxProjects: number;
     maxStorage: number;
+    maxTasks: number;
     aiAssist: boolean;
     prioritySupport: boolean;
-    customBranding: boolean;
-    apiAccess: boolean;
+    calendarAccess?: boolean;
+    taskManagement?: boolean;
+    timeTracking?: boolean;
     customFeatures?: string[];
     [key: string]: any;
   };
