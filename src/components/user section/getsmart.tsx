@@ -12,7 +12,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
   const smartDetails = [
     {
       title: "Productivity",
-      description: "5 Ways Dotiziion Can Simplify Your Daily Workflow",
+      description: "5 Ways Dotizion Can Simplify Your Daily Workflow",
       img: "/home/smart1.png",
     },
     {
@@ -22,7 +22,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
     },
     {
       title: "Automation",
-      description: "Using Dotiziion AI to Automate Time-Consuming Tasks",
+      description: "Using Dotizion AI to Automate Time-Consuming Tasks",
       img: "/home/smart3.png",
     },
   ];
@@ -58,7 +58,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
           >
             Get Smarter, With{" "}
             <span className="text-[#F98618] font-semibold">
-              Dotiziion Insights
+              Dotizion Insights
             </span>
           </h1>
 
