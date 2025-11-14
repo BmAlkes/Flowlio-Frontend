@@ -31,9 +31,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
-import { ListFilter, Search } from "lucide-react";
+import { ListFilter, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "../ui/input";
 import { CalendarComponent } from "../ui/calendercomp";
+
+// Define pagination interface
+export interface PaginationConfig {
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  total: number;
+  onPageChange: (newPage: number) => void;
+}
 
 // Define the props interface for the reusable table
 export interface ReusableTableProps<TData> {
@@ -58,6 +67,8 @@ export interface ReusableTableProps<TData> {
   defaultColumnFilters?: ColumnFiltersState;
   // Optional external filters to control table filtering from parent
   externalColumnFilters?: ColumnFiltersState;
+  // Optional pagination configuration for server-side pagination
+  pagination?: PaginationConfig;
 }
 
 export const ReusableTable = <TData,>({
@@ -77,6 +88,7 @@ export const ReusableTable = <TData,>({
   defaultSorting = [],
   defaultColumnFilters = [],
   externalColumnFilters,
+  pagination,
 }: ReusableTableProps<TData>) => {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -97,7 +109,11 @@ export const ReusableTable = <TData,>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    getPaginationRowModel: getPaginationRowModel(),
+    // Only use client-side pagination if no external pagination is provided
+    getPaginationRowModel: pagination ? undefined : getPaginationRowModel(),
+    // Set manual pagination when external pagination is provided
+    manualPagination: !!pagination,
+    pageCount: pagination?.pageCount,
     globalFilterFn: (
       row: Row<TData>,
       _columnId: string,
@@ -114,6 +130,15 @@ export const ReusableTable = <TData,>({
       columnVisibility,
       rowSelection,
       globalFilter,
+      pagination: pagination
+        ? {
+            pageIndex: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+          }
+        : {
+            pageIndex: 0,
+            pageSize: 10,
+          },
     },
     enableRowSelection: true,
   });
@@ -274,6 +299,51 @@ export const ReusableTable = <TData,>({
           </TableBody>
         </Table>
       </Box>
+
+      {/* Pagination Controls */}
+      {pagination && (
+        <Flex className="items-center justify-between mt-4 px-2">
+          <Box className="text-sm text-gray-600">
+            {(() => {
+              const pageIndex = pagination.pageIndex ?? 0;
+              const pageSize = pagination.pageSize ?? 10;
+              const total = pagination.total ?? 0;
+
+              if (total === 0) {
+                return "Showing 0 results";
+              }
+
+              const from = pageIndex * pageSize + 1;
+              const to = Math.min((pageIndex + 1) * pageSize, total);
+
+              return `Showing ${from} to ${to} of ${total} results`;
+            })()}
+          </Box>
+          <Flex className="items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.pageIndex - 1)}
+              disabled={pagination.pageIndex === 0}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Box className="text-sm text-gray-600">
+              Page {pagination.pageIndex + 1} of {pagination.pageCount ?? 1}
+            </Box>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.pageIndex + 1)}
+              disabled={pagination.pageIndex >= (pagination.pageCount ?? 1) - 1}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Flex>
+        </Flex>
+      )}
     </Box>
   );
 };
