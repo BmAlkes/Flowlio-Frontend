@@ -182,11 +182,18 @@ const SuperAdminDemoAccountsPage = () => {
       return;
     try {
       setLoadingActions((prev) => ({ ...prev, [organizationId]: "delete" }));
+      toast.loading("Deleting demo account and all associated data...", {
+        id: `delete-${organizationId}`,
+      });
       await axios.delete(`/superadmin/organizations/${organizationId}`);
-      toast.success("Demo organization deleted");
+      toast.success("Demo organization deleted successfully", {
+        id: `delete-${organizationId}`,
+      });
       await fetchDemos();
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || "Failed to delete");
+      toast.error(e?.response?.data?.message || "Failed to delete demo account", {
+        id: `delete-${organizationId}`,
+      });
     } finally {
       setLoadingActions((prev) => {
         const updated = { ...prev };
@@ -470,8 +477,20 @@ const SuperAdminDemoAccountsPage = () => {
                   </TableRow>
                 ) : (
                   demos.map((d) => (
-                    <TableRow key={d.id}>
-                      <TableCell className="font-medium">{d.name}</TableCell>
+                    <TableRow
+                      key={d.id}
+                      className={
+                        loadingActions[d.id] === "delete"
+                          ? "opacity-60 bg-gray-50"
+                          : ""
+                      }
+                    >
+                      <TableCell className="font-medium">
+                        {loadingActions[d.id] === "delete" && (
+                          <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin text-red-600" />
+                        )}
+                        {d.name}
+                      </TableCell>
                       <TableCell>{d.userName || "-"}</TableCell>
                       <TableCell>{d.email || "-"}</TableCell>
                       <TableCell className="capitalize">
@@ -528,19 +547,17 @@ const SuperAdminDemoAccountsPage = () => {
                           </Button>
                           <Button
                             variant="ghost"
-                            className="hover:bg-red-50 cursor-pointer border bg-red-50 text-red-700"
+                            className="hover:bg-red-50 cursor-pointer border bg-red-50 text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => handleDelete(d.id)}
                             disabled={loadingActions[d.id] !== undefined}
                           >
                             {loadingActions[d.id] === "delete" ? (
-                              <>
+                              <span className="flex items-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                Deleting...
-                              </>
+                                <span className="hidden sm:inline">Deleting...</span>
+                              </span>
                             ) : (
-                              <>
-                                <Trash className="w-4 h-4" />
-                              </>
+                              <Trash className="w-4 h-4" />
                             )}
                           </Button>
                         </Center>
