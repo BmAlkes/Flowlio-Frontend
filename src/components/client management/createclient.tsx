@@ -78,18 +78,10 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Must be a valid email address.",
   }),
-  phonenumber: z.string().min(1, {
-    message: "Phone number is required.",
-  }),
-  cpfcnpj: z.string().min(2, {
-    message: "Must be a valid CPF/CNPJ",
-  }),
-  address: z.string().min(2, {
-    message: "Must be a valid address",
-  }),
-  industry: z.string().min(2, {
-    message: "Must be a valid industry",
-  }),
+  phonenumber: z.string().optional(),
+  cpfcnpj: z.string().optional(),
+  address: z.string().optional(),
+  industry: z.string().optional(),
   socialMediaLinks: z
     .array(
       z.object({
@@ -159,12 +151,12 @@ export const ClientForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullname: client?.name || "Client Name",
-      email: client?.email || "client@example.com",
-      phonenumber: client?.phone || "+1234567890",
-      cpfcnpj: client?.cpfcnpj || "1234567890",
-      address: client?.address || "123 Main St, Anytown, USA",
-      industry: client?.businessIndustry || "Technology",
+      fullname: client?.name,
+      email: client?.email,
+      phonenumber: client?.phone,
+      cpfcnpj: client?.cpfcnpj,
+      address: client?.address,
+      industry: client?.businessIndustry,
       socialMediaLinks: client?.socialMediaLinks
         ? JSON.parse(client.socialMediaLinks)
         : [],
@@ -180,10 +172,10 @@ export const ClientForm = ({
       form.reset({
         fullname: client.name,
         email: client.email,
-        phonenumber: client.phone || "+1234567890",
-        cpfcnpj: client.cpfcnpj || "1234567890",
-        address: client.address || "123 Main St, Anytown, USA",
-        industry: client.businessIndustry || "Technology",
+        phonenumber: client.phone,
+        cpfcnpj: client.cpfcnpj,
+        address: client.address,
+        industry: client.businessIndustry,
         socialMediaLinks: parsedSocialLinks,
       });
       setSocialMediaLinks(parsedSocialLinks);
@@ -237,36 +229,50 @@ export const ClientForm = ({
 
   // Function to compress image before upload
   const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d")!;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        reject(new Error("Canvas context not available"));
+        return;
+      }
+
       const img = new Image();
 
+      img.onerror = () => {
+        reject(new Error("Failed to load image"));
+      };
+
       img.onload = () => {
-        // Calculate new dimensions (max 800x800)
-        const maxSize = 800;
-        let { width, height } = img;
+        try {
+          // Calculate new dimensions (max 800x800)
+          const maxSize = 800;
+          let { width, height } = img;
 
-        if (width > height) {
-          if (width > maxSize) {
-            height = (height * maxSize) / width;
-            width = maxSize;
+          if (width > height) {
+            if (width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
           }
-        } else {
-          if (height > maxSize) {
-            width = (width * maxSize) / height;
-            height = maxSize;
-          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); // 70% quality
+
+          resolve(compressedBase64);
+        } catch (error) {
+          reject(error);
         }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and compress
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); // 70% quality
-
-        resolve(compressedBase64);
       };
 
       img.src = URL.createObjectURL(file);
@@ -274,11 +280,7 @@ export const ClientForm = ({
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // For create mode, require image upload
-    if (mode === "create" && !uploadedFile) {
-      setImageError("Please upload a profile image.");
-      return;
-    }
+    // Image upload is optional
     setImageError("");
 
     // Convert form data to match backend schema
@@ -375,30 +377,46 @@ export const ClientForm = ({
       }
     } else {
       // Create mode
-      setIsCompressing(true);
-      toast.info("Compressing image...");
+      if (uploadedFile) {
+        // Image provided - compress and upload
+        setIsCompressing(true);
+        toast.info("Compressing image...");
 
-      compressImage(uploadedFile!)
-        .then((compressedBase64) => {
-          setIsCompressing(false);
-          createClient(
-            { ...clientData, image: compressedBase64 },
-            {
-              onSuccess: () => {
-                toast.success("Client created successfully!");
-                onSuccess?.();
-                onClose?.();
-              },
-              onError: () => {
-                toast.error("Failed to create client. Please try again.");
-              },
-            }
-          );
-        })
-        .catch(() => {
-          setIsCompressing(false);
-          toast.error("Failed to compress image. Please try again.");
+        compressImage(uploadedFile)
+          .then((compressedBase64) => {
+            setIsCompressing(false);
+            createClient(
+              { ...clientData, image: compressedBase64 },
+              {
+                onSuccess: () => {
+                  toast.success("Client created successfully!");
+                  onSuccess?.();
+                  onClose?.();
+                },
+                onError: () => {
+                  toast.error("Failed to create client. Please try again.");
+                },
+              }
+            );
+          })
+          .catch((error) => {
+            setIsCompressing(false);
+            console.error("Image compression error:", error);
+            toast.error("Failed to compress image. Please try again.");
+          });
+      } else {
+        // No image provided - create client without image
+        createClient(clientData, {
+          onSuccess: () => {
+            toast.success("Client created successfully!");
+            onSuccess?.();
+            onClose?.();
+          },
+          onError: () => {
+            toast.error("Failed to create client. Please try again.");
+          },
         });
+      }
     }
   }
 
@@ -458,7 +476,7 @@ export const ClientForm = ({
             {!pdfPreview ? (
               <Box className="grid grid-cols-1">
                 <p className="text-md mb-2 font-normal">
-                  Upload Profile Picture
+                  Upload Profile Picture (Optional)
                 </p>
                 <Center
                   className="flex-col border-dashed border-2 border-[#62A1C0] bg-gray-100/50 rounded-lg min-h-40 w-44 max-md:w-full cursor-pointer"
@@ -471,11 +489,9 @@ export const ClientForm = ({
                   />
                   <Stack className="text-center gap-0 mt-4">
                     <p className="text-gray-800 text-sm font-medium">
-                      Image must be
+                      Upload Profile Picture (Optional)
                     </p>
-                    <p className="text-gray-800 text-sm font-medium">
-                      500px by 500px
-                    </p>
+                    <p className="text-gray-500 text-xs">500px by 500px</p>
                   </Stack>
                 </Center>
                 <input {...getInputProps()} />

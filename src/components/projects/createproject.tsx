@@ -45,9 +45,7 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Project Name must be at least 2 characters.",
   }),
-  projectNumber: z.string().min(1, {
-    message: "Project Number is required.",
-  }),
+  projectNumber: z.string().optional(),
   clientId: z.string().min(1, {
     message: "Please select a client.",
   }),
@@ -61,9 +59,7 @@ const formSchema = z.object({
     message: "Please select a team member to assign.",
   }),
   description: z.string().optional(),
-  address: z.string().min(2, {
-    message: "Address must be at least 2 characters.",
-  }),
+  address: z.string().optional(),
   contractfile: z.string().optional(),
   projectFiles: z
     .array(
@@ -257,13 +253,37 @@ export const CreateProject = () => {
       );
 
       // Include file data if uploaded
-      const projectData = {
-        ...values,
-        contractfile: uploadedFile
-          ? await convertFileToBase64(uploadedFile)
-          : undefined,
-        projectFiles:
-          convertedProjectFiles.length > 0 ? convertedProjectFiles : undefined,
+      const projectData: {
+        name: string;
+        projectNumber?: string;
+        clientId: string;
+        startDate: string;
+        endDate: string;
+        assignedTo: string;
+        description?: string;
+        address?: string;
+        contractfile?: string;
+        projectFiles?: Array<{
+          file: string;
+          type: string;
+          name: string;
+        }>;
+        organizationId: string;
+      } = {
+        name: values.name,
+        clientId: values.clientId,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        assignedTo: values.assignedTo,
+        ...(values.projectNumber && { projectNumber: values.projectNumber }),
+        ...(values.description && { description: values.description }),
+        ...(values.address && { address: values.address }),
+        ...(uploadedFile && {
+          contractfile: await convertFileToBase64(uploadedFile),
+        }),
+        ...(convertedProjectFiles.length > 0 && {
+          projectFiles: convertedProjectFiles,
+        }),
         organizationId: finalOrganizationId,
       };
 
@@ -487,10 +507,7 @@ export const CreateProject = () => {
                   name="projectNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Project Number:
-                        <span className="text-red-500 text-sm">*</span>
-                      </FormLabel>
+                      <FormLabel>Project Number:</FormLabel>
                       <FormControl>
                         <Input
                           className="bg-white rounded-full placeholder:text-gray-400"
@@ -618,7 +635,6 @@ export const CreateProject = () => {
                   <FormItem>
                     <FormLabel className="mt-4 -mb-4 max-md:mt-0 max-md:-mb-0">
                       Address:
-                      <span className="text-red-500 text-sm">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -641,7 +657,10 @@ export const CreateProject = () => {
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>
+                      Start Date:
+                      <span className="text-red-500 text-sm">*</span>
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">
@@ -688,7 +707,10 @@ export const CreateProject = () => {
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel>
+                      End Date:
+                      <span className="text-red-500 text-sm">*</span>
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">

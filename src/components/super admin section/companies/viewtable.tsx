@@ -29,15 +29,13 @@ export const columns: ColumnDef<Data>[] = [
   {
     accessorKey: "email",
     header: () => <Box className="text-black text-start">Email</Box>,
-    cell: ({ row }) => (
-      <Box className="captialize text-start">{row.original.email}</Box>
-    ),
+    cell: ({ row }) => <Box className="text-start">{row.original.email}</Box>,
   },
   {
     accessorKey: "role",
     header: () => <Box className="text-black text-start">Role</Box>,
     cell: ({ row }) => (
-      <Box className="captialize text-start">{row.original.role}</Box>
+      <Box className="text-start capitalize">{row.original.role}</Box>
     ),
   },
 
@@ -60,10 +58,23 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "joinedAt",
     header: () => <Box className="text-center text-black">Joined Date</Box>,
     cell: ({ row }) => {
-      const joinedDate = new Date(row.original.joinedAt);
-      return (
-        <Center className="space-x-2">{joinedDate.toLocaleDateString()}</Center>
-      );
+      if (!row.original.joinedAt) {
+        return <Center className="space-x-2 text-gray-400">N/A</Center>;
+      }
+      try {
+        const joinedDate = new Date(row.original.joinedAt);
+        // Check if date is valid and not epoch date (Jan 1, 1970)
+        if (isNaN(joinedDate.getTime()) || joinedDate.getTime() === 0) {
+          return <Center className="space-x-2 text-gray-400">N/A</Center>;
+        }
+        return (
+          <Center className="space-x-2">
+            {joinedDate.toLocaleDateString()}
+          </Center>
+        );
+      } catch {
+        return <Center className="space-x-2 text-gray-400">N/A</Center>;
+      }
     },
   },
 ];

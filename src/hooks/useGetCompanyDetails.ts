@@ -15,10 +15,26 @@ export interface CompanyUser {
     id: string;
     name: string;
     email: string;
-    image: string;
+    image: string | null;
+    phone?: string | null;
+    address?: string | null;
     emailVerified: boolean;
     createdAt: string;
   };
+}
+
+export interface PlanFeatures {
+  maxUsers?: number;
+  maxProjects?: number;
+  maxStorage?: number;
+  maxTasks?: number;
+  aiAssist?: boolean;
+  prioritySupport?: boolean;
+  calendarAccess?: boolean;
+  taskManagement?: boolean;
+  timeTracking?: boolean;
+  customFeatures?: string[];
+  [key: string]: any;
 }
 
 export interface CompanySubscription {
@@ -55,6 +71,10 @@ export interface CompanyDetails {
     status: string;
     createdAt: string;
     updatedAt: string;
+    settings?: {
+      demo?: boolean;
+      [key: string]: any;
+    };
   };
   users: CompanyUser[];
   subscription: CompanySubscription | null;
@@ -62,7 +82,9 @@ export interface CompanyDetails {
     id: string;
     name: string;
     email: string;
-    image?: string;
+    image?: string | null;
+    phone?: string | null;
+    address?: string | null;
   } | null;
   stats: CompanyStats;
 }

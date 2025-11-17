@@ -188,7 +188,9 @@ export const ClientManagementTable = () => {
       accessorKey: "cpfcnpj",
       header: () => <Box className="text-black text-center">CPF/CNPJ</Box>,
       cell: ({ row }) => (
-        <Box className="captialize text-center">{row.original.cpfcnpj}</Box>
+        <Box className="captialize text-center">
+          {row.original.cpfcnpj || "N/A"}
+        </Box>
       ),
     },
 
@@ -196,7 +198,9 @@ export const ClientManagementTable = () => {
       accessorKey: "address",
       header: () => <Box className="text-black text-center">Address</Box>,
       cell: ({ row }) => (
-        <Box className="captialize text-center">{row.original.address}</Box>
+        <Box className="captialize text-center">
+          {row.original.address || "N/A"}
+        </Box>
       ),
     },
 

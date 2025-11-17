@@ -31,6 +31,8 @@ import {
 import { useCreateUserMember } from "@/hooks/usecreateusermember";
 import { toast } from "sonner";
 import { useGetAllUserMembers } from "@/hooks/usegetallusermembers";
+import { useCanCreateUser } from "@/hooks/usePlanAccess";
+import { AlertCircle } from "lucide-react";
 
 const formSchema = z
   .object({
@@ -83,9 +85,15 @@ export const CreateUserMembers = () => {
 
   const createUserMember = useCreateUserMember();
   const { refetch } = useGetAllUserMembers();
+  const { data: planAccess } = useCanCreateUser();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const canCreate = planAccess?.data?.hasAccess ?? true;
+  const currentCount = planAccess?.data?.currentCount ?? 0;
+  const maxAllowed = planAccess?.data?.maxAllowed;
+  const limitReached = !canCreate;
 
   // File upload state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -182,20 +190,53 @@ export const CreateUserMembers = () => {
         <Stack className="gap-0">
           <h1 className="text-black text-xl font-medium">Add Members</h1>
           <h1 className="text-gray-500">
-            Fill in the details to create a new project
+            Fill in the details to create a new user member
           </h1>
         </Stack>
       </Center>
+
+      {/* Plan Limit Indicator */}
+      {maxAllowed !== undefined && (
+        <Box className="mt-4 p-4 rounded-lg border bg-blue-50 border-blue-200">
+          <Stack className="gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-blue-600" />
+              <h3 className="text-sm font-semibold text-blue-900">
+                User Limit: {currentCount} /{" "}
+                {maxAllowed === 0 ? "Unlimited" : maxAllowed}
+              </h3>
+            </div>
+            {limitReached ? (
+              <p className="text-sm text-red-600 ml-7">
+                {planAccess?.data?.reason ||
+                  "User limit reached. Please upgrade your plan to add more users."}
+              </p>
+            ) : (
+              <p className="text-sm text-blue-700 ml-7">
+                You can create{" "}
+                {maxAllowed === 0 ? "unlimited" : maxAllowed - currentCount}{" "}
+                more user
+                {maxAllowed === 0 || maxAllowed - currentCount !== 1 ? "s" : ""}
+                .
+              </p>
+            )}
+          </Stack>
+        </Box>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
           <Button
             variant="outline"
-            className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer mb-6 absolute top-15 right-5"
+            className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer mb-6 absolute top-15 right-5 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
-            disabled={createUserMember.isPending}
+            disabled={createUserMember.isPending || limitReached}
           >
-            {createUserMember.isPending ? "Creating..." : "Save Member"}
+            {createUserMember.isPending
+              ? "Creating..."
+              : limitReached
+              ? "Limit Reached"
+              : "Save Member"}
           </Button>
           <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-6 grid grid-cols-1">
             <Stack className="gap-0">
