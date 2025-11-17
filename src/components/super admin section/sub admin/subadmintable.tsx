@@ -32,6 +32,7 @@ export type SubAdminData = {
   contactNumber: string;
   permission: string;
   createdAt: string;
+  image?: string | null;
 };
 
 export const SubAdminTable = () => {
@@ -61,6 +62,7 @@ export const SubAdminTable = () => {
           contactNumber: item.contactNumber || "",
           permission: item.permission || "Active",
           createdAt: item.createdAt || new Date().toISOString(),
+          image: item.logo || item.image || item.user?.image || null,
         })) || []
     ) || [];
 
@@ -108,6 +110,27 @@ export const SubAdminTable = () => {
 
   // Create columns with access to handleDelete function
   const tableColumns: ColumnDef<SubAdminData>[] = [
+    {
+      accessorKey: "logo",
+      header: () => <Box className="text-black font-semibold p-3">Logo</Box>,
+      cell: ({ row }) => (
+        <Box className="p-3">
+          {row.original.image ? (
+            <img
+              src={row.original.image}
+              alt="Sub Admin"
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300">
+              <span className="text-[8px] text-gray-500 text-center px-1 leading-tight">
+                Null
+              </span>
+            </div>
+          )}
+        </Box>
+      ),
+    },
     {
       accessorKey: "name",
       header: () => <Box className="text-black font-semibold p-3">Name</Box>,
