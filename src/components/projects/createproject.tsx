@@ -41,36 +41,49 @@ import { useFetchAllOrganizations } from "../../hooks/usefetchallorganizations";
 import { useUser } from "../../providers/user.provider";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Project Name must be at least 2 characters.",
-  }),
-  projectNumber: z.string().optional(),
-  clientId: z.string().min(1, {
-    message: "Please select a client.",
-  }),
-  startDate: z.string().min(1, {
-    message: "Start Date is required.",
-  }),
-  endDate: z.string().min(1, {
-    message: "End Date is required.",
-  }),
-  assignedTo: z.string().min(1, {
-    message: "Please select a team member to assign.",
-  }),
-  description: z.string().optional(),
-  address: z.string().optional(),
-  contractfile: z.string().optional(),
-  projectFiles: z
-    .array(
-      z.object({
-        file: z.string(),
-        type: z.string(),
-        name: z.string(),
-      })
-    )
-    .optional(),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: "Project Name must be at least 2 characters.",
+    }),
+    projectNumber: z.string().optional(),
+    clientId: z.string().min(1, {
+      message: "Please select a client.",
+    }),
+    startDate: z.string().min(1, {
+      message: "Start Date is required.",
+    }),
+    endDate: z.string().min(1, {
+      message: "End Date is required.",
+    }),
+    assignedTo: z.string().min(1, {
+      message: "Please select a team member to assign.",
+    }),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    contractfile: z.string().optional(),
+    projectFiles: z
+      .array(
+        z.object({
+          file: z.string(),
+          type: z.string(),
+          name: z.string(),
+        })
+      )
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return end >= start;
+    },
+    {
+      message: "End Date must be after or equal to Start Date.",
+      path: ["endDate"],
+    }
+  );
 
 export const CreateProject = () => {
   const navigate = useNavigate();

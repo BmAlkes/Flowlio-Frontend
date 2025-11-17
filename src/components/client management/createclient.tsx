@@ -78,7 +78,16 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Must be a valid email address.",
   }),
-  phonenumber: z.string().optional(),
+  phonenumber: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.trim() === "" || /^\+?[1-9]\d{1,14}$/.test(val),
+      {
+        message:
+          "Must be a valid international phone number (e.g., +1234567890)",
+      }
+    ),
   cpfcnpj: z.string().optional(),
   address: z.string().optional(),
   industry: z.string().optional(),
