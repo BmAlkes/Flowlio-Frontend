@@ -5,10 +5,10 @@ import { axios, type ErrorWithMessage } from "@/configs/axios.config";
 interface CreateProjectData {
   name: string;
   projectNumber?: string;
-  clientId: string;
-  startDate: string;
-  endDate: string;
-  assignedTo: string;
+  clientId?: string;
+  startDate?: string;
+  endDate?: string;
+  assignedTo?: string;
   description?: string;
   address?: string;
   contractfile?: string;

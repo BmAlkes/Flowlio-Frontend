@@ -47,18 +47,10 @@ const formSchema = z
       message: "Project Name must be at least 2 characters.",
     }),
     projectNumber: z.string().optional(),
-    clientId: z.string().min(1, {
-      message: "Please select a client.",
-    }),
-    startDate: z.string().min(1, {
-      message: "Start Date is required.",
-    }),
-    endDate: z.string().min(1, {
-      message: "End Date is required.",
-    }),
-    assignedTo: z.string().min(1, {
-      message: "Please select a team member to assign.",
-    }),
+    clientId: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    assignedTo: z.string().optional(),
     description: z.string().optional(),
     address: z.string().optional(),
     contractfile: z.string().optional(),
@@ -163,7 +155,7 @@ export const CreateProject = () => {
       name: "",
       projectNumber: "",
       clientId: "",
-      startDate: new Date().toISOString(),
+      startDate: "",
       endDate: "",
       assignedTo: "",
       description: "",
@@ -193,7 +185,7 @@ export const CreateProject = () => {
         clientId: project.clientId || "",
         startDate: project.startDate
           ? new Date(project.startDate).toISOString()
-          : new Date().toISOString(),
+          : "",
         endDate: project.endDate ? new Date(project.endDate).toISOString() : "",
         assignedTo: project.assignedTo || "",
         description: project.description || "",
@@ -266,29 +258,13 @@ export const CreateProject = () => {
       );
 
       // Include file data if uploaded
-      const projectData: {
-        name: string;
-        projectNumber?: string;
-        clientId: string;
-        startDate: string;
-        endDate: string;
-        assignedTo: string;
-        description?: string;
-        address?: string;
-        contractfile?: string;
-        projectFiles?: Array<{
-          file: string;
-          type: string;
-          name: string;
-        }>;
-        organizationId: string;
-      } = {
+      const projectData = {
         name: values.name,
-        clientId: values.clientId,
-        startDate: values.startDate,
-        endDate: values.endDate,
-        assignedTo: values.assignedTo,
         ...(values.projectNumber && { projectNumber: values.projectNumber }),
+        ...(values.clientId && { clientId: values.clientId }),
+        ...(values.startDate && { startDate: values.startDate }),
+        ...(values.endDate && { endDate: values.endDate }),
+        ...(values.assignedTo && { assignedTo: values.assignedTo }),
         ...(values.description && { description: values.description }),
         ...(values.address && { address: values.address }),
         ...(uploadedFile && {
@@ -670,10 +646,7 @@ export const CreateProject = () => {
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Start Date:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>Start Date:</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">
@@ -720,10 +693,7 @@ export const CreateProject = () => {
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      End Date:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>End Date:</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">
@@ -773,10 +743,7 @@ export const CreateProject = () => {
                 name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Assign Client:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>Assign Client:</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -816,10 +783,7 @@ export const CreateProject = () => {
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Assign Team Member:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>Assign Team Member:</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
