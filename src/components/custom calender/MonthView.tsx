@@ -76,62 +76,72 @@ export const MonthView: React.FC<MonthViewProps> = ({
           {day}
         </Box>
         <Flex className="flex-col gap-1">
-          {dayEvents.slice(0, 3).map((event: any, idx: number) => (
-            <Box
-              key={idx}
-              className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded truncate cursor-pointer hover:bg-blue-200"
-              onClick={(e) => {
-                setSelectedEvent(event);
-                // Smart positioning to avoid popup going off-screen
-                const gridRect =
-                  gridContainerRef.current?.getBoundingClientRect();
-                const popupWidth = 300; // Approximate popup width
-                const popupHeight = 200; // Approximate popup height
+          {dayEvents.slice(0, 3).map((event: any, idx: number) => {
+            const eventText = `${formatHour(event.startHour)} ${event.title}`;
+            const maxLength = 20; // Maximum characters before truncation
+            const displayText =
+              eventText.length > maxLength
+                ? eventText.slice(0, maxLength) + "..."
+                : eventText;
 
-                if (gridRect) {
-                  const relativeX = e.clientX - gridRect.left;
-                  const relativeY = e.clientY - gridRect.top;
-                  const gridWidth = gridRect.width;
-                  const gridHeight = gridRect.height;
+            return (
+              <Box
+                key={idx}
+                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded truncate cursor-pointer hover:bg-blue-200 max-w-full overflow-hidden"
+                title={eventText} // Show full text on hover
+                onClick={(e) => {
+                  setSelectedEvent(event);
+                  // Smart positioning to avoid popup going off-screen
+                  const gridRect =
+                    gridContainerRef.current?.getBoundingClientRect();
+                  const popupWidth = 300; // Approximate popup width
+                  const popupHeight = 200; // Approximate popup height
 
-                  // Calculate smart positioning
-                  let left = relativeX + 10;
-                  let top = relativeY + 10;
+                  if (gridRect) {
+                    const relativeX = e.clientX - gridRect.left;
+                    const relativeY = e.clientY - gridRect.top;
+                    const gridWidth = gridRect.width;
+                    const gridHeight = gridRect.height;
 
-                  // Check if popup would go off the right edge
-                  if (left + popupWidth > gridWidth) {
-                    // Position popup to the left of the click point
-                    left = relativeX - popupWidth - 10;
+                    // Calculate smart positioning
+                    let left = relativeX + 10;
+                    let top = relativeY + 10;
+
+                    // Check if popup would go off the right edge
+                    if (left + popupWidth > gridWidth) {
+                      // Position popup to the left of the click point
+                      left = relativeX - popupWidth - 10;
+                    }
+
+                    // Check if popup would go off the bottom edge
+                    if (top + popupHeight > gridHeight) {
+                      // Position popup above the click point
+                      top = relativeY - popupHeight - 10;
+                    }
+
+                    // Final safety checks to ensure popup stays within bounds
+                    if (left < 0) {
+                      left = Math.max(10, gridWidth - popupWidth - 10);
+                    }
+
+                    if (top < 0) {
+                      top = Math.max(10, gridHeight - popupHeight - 10);
+                    }
+
+                    setPopupPosition({ top, left });
+                  } else {
+                    // Fallback positioning - always position to the left for safety
+                    setPopupPosition({
+                      top: e.clientY + 10,
+                      left: e.clientX - popupWidth - 200,
+                    });
                   }
-
-                  // Check if popup would go off the bottom edge
-                  if (top + popupHeight > gridHeight) {
-                    // Position popup above the click point
-                    top = relativeY - popupHeight - 10;
-                  }
-
-                  // Final safety checks to ensure popup stays within bounds
-                  if (left < 0) {
-                    left = Math.max(10, gridWidth - popupWidth - 10);
-                  }
-
-                  if (top < 0) {
-                    top = Math.max(10, gridHeight - popupHeight - 10);
-                  }
-
-                  setPopupPosition({ top, left });
-                } else {
-                  // Fallback positioning - always position to the left for safety
-                  setPopupPosition({
-                    top: e.clientY + 10,
-                    left: e.clientX - popupWidth - 200,
-                  });
-                }
-              }}
-            >
-              {formatHour(event.startHour)} {event.title}
-            </Box>
-          ))}
+                }}
+              >
+                {displayText}
+              </Box>
+            );
+          })}
           {dayEvents.length > 3 && (
             <Box className="text-xs text-gray-500">
               +{dayEvents.length - 3} more
