@@ -55,13 +55,39 @@ export const SignInForm: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { refetchUser } = useUser();
 
-  // Check for deactivation message in URL params
+  // Check for deactivation message in URL params and sessionStorage
   useEffect(() => {
     const message = searchParams.get("message");
-    if (message === "deactivated") {
+
+    // Check sessionStorage for error messages
+    const deactivationError = sessionStorage.getItem("deactivationError");
+    const trialExpiredError = sessionStorage.getItem("trialExpiredError");
+
+    if (deactivationError) {
+      toast.error(deactivationError);
+      setError(deactivationError);
+      sessionStorage.removeItem("deactivationError");
+    } else if (trialExpiredError) {
+      toast.error(trialExpiredError);
+      setError(trialExpiredError);
+      sessionStorage.removeItem("trialExpiredError");
+    } else if (message === "deactivated") {
       toast.error(
         "Your account has been deactivated. Please contact the administrator for assistance."
       );
+      setError(
+        "Your account has been deactivated. Please contact the administrator for assistance."
+      );
+    } else if (message === "organization_deactivated") {
+      const errorMsg =
+        "Your organization account has been deactivated. Please contact the administrator for assistance.";
+      toast.error(errorMsg);
+      setError(errorMsg);
+    } else if (message === "trial_expired") {
+      const errorMsg =
+        "Your trial period has expired. Please contact the administrator to upgrade your subscription.";
+      toast.error(errorMsg);
+      setError(errorMsg);
     }
   }, [searchParams]);
 
@@ -189,18 +215,110 @@ export const SignInForm: FC = () => {
           }
         },
         onError: (ctx) => {
+          setIsLoading(false);
+
+          // Log full error structure for debugging
+          console.log("Sign-in error:", ctx.error);
+          console.log("Error structure:", {
+            message: ctx.error?.message,
+            code: (ctx.error as any)?.code,
+            data: (ctx.error as any)?.data,
+            response: (ctx.error as any)?.response,
+            statusCode: (ctx.error as any)?.statusCode,
+            fullError: ctx.error,
+          });
+
+          // Extract error message from various possible locations
+          const errorMessage =
+            ctx.error?.message ||
+            (ctx.error as any)?.data?.message ||
+            (ctx.error as any)?.response?.data?.message ||
+            (ctx.error as any)?.response?.message ||
+            "";
+
+          // Extract error code from various possible locations
+          const errorCode =
+            (ctx.error as any)?.code ||
+            (ctx.error as any)?.data?.code ||
+            (ctx.error as any)?.response?.data?.code ||
+            (ctx.error as any)?.statusCode;
+
+          // Check for organization deactivation error
+          const isDeactivated =
+            errorCode === "ORGANIZATION_DEACTIVATED" ||
+            errorCode === 403 ||
+            errorMessage.toLowerCase().includes("deactivated") ||
+            errorMessage
+              .toLowerCase()
+              .includes("demo account has been deactivated") ||
+            errorMessage
+              .toLowerCase()
+              .includes("organization account has been deactivated");
+
+          if (isDeactivated) {
+            // Show the specific error message from backend
+            const displayMessage =
+              errorMessage ||
+              "Your organization account has been deactivated. Please contact the administrator for assistance.";
+            toast.error(displayMessage);
+            setError(displayMessage);
+            return;
+          }
+
+          // Handle trial expired error
+          if (
+            errorCode === "TRIAL_EXPIRED" ||
+            errorMessage.includes("trial period has expired")
+          ) {
+            toast.error(
+              errorMessage ||
+                "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+            );
+            setError(
+              errorMessage ||
+                "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+            );
+            return;
+          }
+
           // Handle specific sub admin deactivation error
           if (
-            ctx.error?.message?.includes("deactivated") ||
-            ctx.error?.code === "SUBADMIN_DEACTIVATED"
+            errorMessage.includes("deactivated") ||
+            errorCode === "SUBADMIN_DEACTIVATED"
           ) {
             toast.error(
               "Your account has been deactivated. Please contact the administrator for assistance."
             );
-          } else {
-            toast.error(ctx.error.message || "Login failed");
+            setError(
+              "Your account has been deactivated. Please contact the administrator for assistance."
+            );
+            return;
           }
-          setIsLoading(false);
+
+          // Handle other errors - but first check if it might be a deactivation error we missed
+          const lowerMessage = errorMessage.toLowerCase();
+          if (
+            lowerMessage.includes("deactivated") ||
+            lowerMessage.includes("suspended") ||
+            lowerMessage.includes("inactive") ||
+            errorCode === 403
+          ) {
+            // Might be a deactivation error in a different format
+            const displayMessage =
+              errorMessage ||
+              "Your account has been deactivated. Please contact the administrator for assistance.";
+            toast.error(displayMessage);
+            setError(displayMessage);
+            return;
+          }
+
+          // Handle other errors
+          const displayMessage =
+            errorMessage ||
+            ctx.error?.message ||
+            "Login failed. Please check your credentials and try again or check with admin for assistance.";
+          toast.error(displayMessage);
+          setError(displayMessage);
         },
       }
     );

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { useUser } from "@/providers/user.provider";
+import { backendURL } from "@/configs/axios.config";
 
 // Generate OTP for sign-in (no user context required)
 export const useGenerateSignInOTP = () => {
@@ -190,21 +191,16 @@ export const useEnable2FA = () => {
   return useMutation({
     mutationFn: async () => {
       // Update the twoFactorEnabled field to true after successful OTP verification
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
-        }/api/user/profile`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            twoFactorEnabled: true,
-          }),
-        }
-      );
+      const response = await fetch(`${backendURL}/api/user/profile`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          twoFactorEnabled: true,
+        }),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -232,22 +228,17 @@ export const useDisable2FA = () => {
   return useMutation({
     mutationFn: async ({ password }: { password: string }) => {
       // For disabling email OTP 2FA, we need to update the database directly
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"
-        }/api/user/profile`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            twoFactorEnabled: false,
-            password: password,
-          }),
-        }
-      );
+      const response = await fetch(`${backendURL}/api/user/profile`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          twoFactorEnabled: false,
+          password: password,
+        }),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -298,7 +289,7 @@ export const useToggle2FA = () => {
       } else {
         // For disabling email OTP 2FA, we need to update the database directly
         // Since Better Auth doesn't have a direct disable method for email OTP
-        const response = await fetch("/api/user/profile", {
+        const response = await fetch(`${backendURL}/api/user/profile`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
