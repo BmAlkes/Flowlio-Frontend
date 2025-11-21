@@ -17,6 +17,15 @@ interface UserProfile {
   isSuperAdmin: boolean;
   role: string;
   subadminId: string | null;
+  status?: string | null; // User status: "pending" | "active"
+  selectedPlanId?: string | null; // Selected plan ID for pending payment
+  pendingOrganizationData?: {
+    organizationName?: string;
+    organizationWebsite?: string;
+    organizationIndustry?: string;
+    organizationSize?: string;
+    planId?: string;
+  } | null; // Pending organization data
   createdAt: string;
   updatedAt: string;
   organizationId?: string | null;

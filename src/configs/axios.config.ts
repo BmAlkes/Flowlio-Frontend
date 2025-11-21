@@ -93,6 +93,36 @@ axios.interceptors.response.use(
         window.location.href = "/auth/signin?message=trial_expired";
         return Promise.reject(error);
       }
+
+      // Handle payment pending
+      if (errorCode === "PAYMENT_PENDING") {
+        if (errorMessage) {
+          sessionStorage.setItem("paymentPendingError", errorMessage);
+        }
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("user-session");
+        window.location.href = "/auth/signin?message=payment_pending";
+        return Promise.reject(error);
+      }
+
+      // Handle user pending (account not activated)
+      // Don't log out - redirect to checkout to complete payment
+      if (errorCode === "USER_PENDING") {
+        const pendingData = error.response?.data?.data;
+        if (errorMessage) {
+          sessionStorage.setItem("paymentPendingError", errorMessage);
+        }
+        // Store pending payment data
+        if (pendingData) {
+          sessionStorage.setItem(
+            "pendingPaymentData",
+            JSON.stringify(pendingData)
+          );
+        }
+        // Redirect to checkout instead of sign-in
+        window.location.href = "/checkout?pending=true";
+        return Promise.reject(error);
+      }
     }
 
     // Handle unauthorized access (401) - session expired or invalid

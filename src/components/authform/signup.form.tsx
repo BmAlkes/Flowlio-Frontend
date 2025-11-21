@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
-import { authClient } from "@/providers/user.provider";
+import { authClient, useUser } from "@/providers/user.provider";
 import type { FC } from "react";
 import { z } from "zod";
 import { Box } from "../ui/box";
@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Anchor } from "../ui/anchor";
 import { Flex } from "../ui/flex";
 import { IoEye, IoEyeOff } from "react-icons/io5";
+import { axios } from "@/configs/axios.config";
 
 const formSchema = z.object({
   username: z.string().min(1, { message: "Required field" }),
@@ -46,6 +47,7 @@ export const SignUpForm: FC = () => {
     document.title = "Sign Up - Flowlio";
   }, []);
   const navigate = useNavigate();
+  const { refetchUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -54,9 +56,9 @@ export const SignUpForm: FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       rememberMe: true,
-      createpassword: "",
-      email: ``,
-      username: ``,
+      createpassword: "Test@123",
+      email: `test@gmail.com`,
+      username: `test`,
     },
   });
 
@@ -77,9 +79,104 @@ export const SignUpForm: FC = () => {
             setIsLoading(true);
           },
           onSuccess: async () => {
-            toast.success(
-              "Account created successfully! Please select a plan."
-            );
+            toast.success("Account created successfully!");
+
+            // Wait for Better Auth session to be established
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // Refetch user data to ensure session is loaded
+            try {
+              await refetchUser();
+              // Wait a bit more for user data to be available
+              await new Promise((resolve) => setTimeout(resolve, 300));
+            } catch (error) {
+              console.error("Error refetching user:", error);
+              // Continue anyway - session might still be established
+            }
+
+            // Check user profile to see if payment is pending
+            try {
+              const profileResponse = await axios.get("/user/profile");
+              const userProfile = profileResponse.data?.data;
+
+              // Debug: Log user profile to see what we're getting
+              console.log("🔍 Signup - User Profile Data:", {
+                status: userProfile?.status,
+                selectedPlanId: userProfile?.selectedPlanId,
+                pendingOrganizationData: userProfile?.pendingOrganizationData,
+                fullProfile: userProfile,
+              });
+
+              // Check if user is pending (needs to complete payment or select a plan)
+              // Skip payment check for super admins, sub admins, and demo users
+              const isSuperAdmin = userProfile?.isSuperAdmin === true;
+              const isSubAdmin =
+                userProfile?.role === "subadmin" || !!userProfile?.subadminId;
+              const isDemoUser =
+                userProfile?.demoOrgInfo !== null &&
+                userProfile?.demoOrgInfo !== undefined;
+              const shouldSkipPaymentCheck =
+                isSuperAdmin || isSubAdmin || isDemoUser;
+
+              if (!shouldSkipPaymentCheck) {
+                const isPending =
+                  userProfile?.status === "pending" ||
+                  !userProfile?.status ||
+                  userProfile?.status === null ||
+                  userProfile?.status === undefined;
+                const hasPlanData =
+                  userProfile?.selectedPlanId ||
+                  userProfile?.pendingOrganizationData;
+
+                console.log("🔍 Signup - Payment Status Check:", {
+                  isPending,
+                  hasPlanData,
+                  status: userProfile?.status,
+                  selectedPlanId: userProfile?.selectedPlanId,
+                  pendingOrganizationData: userProfile?.pendingOrganizationData,
+                });
+
+                if (isPending && hasPlanData) {
+                  // User has pending payment, redirect to checkout
+                  toast.info(
+                    "Please complete your payment to activate your account"
+                  );
+
+                  // Plan index will be determined in checkout from planId
+
+                  // Redirect to checkout with pending payment info
+                  navigate("/checkout", {
+                    state: {
+                      selectedPlan: null, // Will be determined in checkout from planId
+                      createOrganization: true,
+                      pendingPayment: true,
+                      fromSignup: true, // Flag to indicate we just came from signup
+                      selectedPlanId: userProfile.selectedPlanId,
+                      pendingOrganizationData:
+                        userProfile.pendingOrganizationData,
+                    },
+                    replace: true,
+                  });
+                  setIsLoading(false);
+                  return;
+                } else if (isPending && !hasPlanData) {
+                  // User is pending but has no plan selected - redirect to pricing
+                  toast.info("Please select a plan to continue");
+                  navigate("/pricing", {
+                    state: {
+                      fromSignup: true,
+                      pendingAccount: true,
+                    },
+                    replace: true,
+                  });
+                  setIsLoading(false);
+                  return;
+                }
+              }
+            } catch (error) {
+              console.error("Error checking user profile:", error);
+              // Continue with normal flow if profile check fails
+            }
 
             // Check if user came from checkout with a plan selection
             const location = window.location;
@@ -94,34 +191,45 @@ export const SignUpForm: FC = () => {
 
             if (redirectTo === "checkout" && hasPlanDetails) {
               // User came from checkout, redirect back to checkout
+              toast.info("Redirecting to checkout...");
               navigate("/checkout", {
                 state: {
                   selectedPlan: navigationState.selectedPlan,
                   createOrganization: true,
+                  fromSignup: true, // Mark that we're coming from signup
                 },
+                replace: true,
               });
             } else if (fromCheckout && selectedPlan) {
               // User came from checkout via URL params, redirect back to checkout
+              toast.info("Redirecting to checkout...");
               navigate("/checkout", {
                 state: {
                   selectedPlan: parseInt(selectedPlan),
                   createOrganization: true,
+                  fromSignup: true, // Mark that we're coming from signup
                 },
+                replace: true,
               });
             } else if (navigationState?.selectedPlan !== undefined) {
               // Fallback: check navigation state directly
+              toast.info("Redirecting to checkout...");
               navigate("/checkout", {
                 state: {
                   selectedPlan: navigationState.selectedPlan,
                   createOrganization: true,
+                  fromSignup: true, // Mark that we're coming from signup
                 },
+                replace: true,
               });
             } else {
-              // Regular signup flow, redirect to pricing
+              // Regular signup flow, redirect to pricing to select a plan
+              toast.info("Please select a plan to continue");
               navigate("/pricing", {
                 state: {
                   fromSignup: true,
                 },
+                replace: true,
               });
             }
 
