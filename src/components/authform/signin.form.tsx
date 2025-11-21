@@ -212,11 +212,32 @@ export const SignInForm: FC = () => {
               userProfile.demoOrgInfo !== null &&
               userProfile.demoOrgInfo !== undefined;
 
+            // Also check if user has an organization with demo settings
+            // This handles cases where demoOrgInfo might not be set but the org is demo
+            const hasDemoOrganization =
+              userProfile.organization?.settings?.demo === true ||
+              (userProfile.organization &&
+                typeof userProfile.organization.settings === "object" &&
+                (userProfile.organization.settings as any)?.demo === true);
+
             const shouldSkipPaymentCheck =
-              isSuperAdmin || isSubAdmin || isDemoUser;
+              isSuperAdmin || isSubAdmin || isDemoUser || hasDemoOrganization;
+
+            // Log the check results for debugging
+            console.log("🔍 Payment check skip evaluation:", {
+              isSuperAdmin,
+              isSubAdmin,
+              isDemoUser,
+              hasDemoOrganization,
+              shouldSkipPaymentCheck,
+              demoOrgInfo: userProfile.demoOrgInfo,
+              organizationSettings: userProfile.organization?.settings,
+              userStatus: userProfile.status,
+            });
 
             // Check if user is pending (needs to complete payment or select a plan)
             // Only apply to regular users (not super admins, sub admins, or demo users)
+            // IMPORTANT: If shouldSkipPaymentCheck is true, we skip ALL payment checks
             if (!shouldSkipPaymentCheck) {
               // Check status case-insensitively and handle different formats
               const rawStatus = userProfile.status;
@@ -248,6 +269,10 @@ export const SignInForm: FC = () => {
                 isSuperAdmin: isSuperAdmin,
                 isSubAdmin: isSubAdmin,
                 isDemoUser: isDemoUser,
+                hasDemoOrganization: hasDemoOrganization,
+                demoOrgInfo: userProfile.demoOrgInfo,
+                organization: userProfile.organization,
+                shouldSkipPaymentCheck: shouldSkipPaymentCheck,
               });
 
               if (isPending) {
@@ -319,7 +344,16 @@ export const SignInForm: FC = () => {
                 isSuperAdmin: isSuperAdmin,
                 isSubAdmin: isSubAdmin,
                 isDemoUser: isDemoUser,
+                hasDemoOrganization: hasDemoOrganization,
+                shouldSkipPaymentCheck: shouldSkipPaymentCheck,
+                demoOrgInfo: userProfile.demoOrgInfo,
+                organization: userProfile.organization,
+                fullUserProfile: userProfile,
               });
+
+              // IMPORTANT: For demo users, even if they have pending status or payment data,
+              // we should NOT redirect them to checkout. They should proceed to dashboard.
+              // This ensures demo accounts work correctly regardless of their status.
             }
 
             // Show success message
