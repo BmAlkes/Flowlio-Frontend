@@ -218,8 +218,15 @@ const NotificationsPage = () => {
                         {notification.data &&
                           Object.keys(notification.data).length > 0 && (
                             <Box className="mt-2 space-y-1">
-                              {Object.entries(notification.data).map(
-                                ([key, value]) => (
+                              {Object.entries(notification.data)
+                                .filter(([key]) => {
+                                  const lowerKey = key.toLowerCase();
+                                  return (
+                                    !lowerKey.includes("ticketid") &&
+                                    !lowerKey.includes("ticket_id")
+                                  );
+                                })
+                                .map(([key, value]) => (
                                   <Flex
                                     key={key}
                                     className="justify-between text-xs"
@@ -231,8 +238,7 @@ const NotificationsPage = () => {
                                       {String(value)}
                                     </span>
                                   </Flex>
-                                )
-                              )}
+                                ))}
                             </Box>
                           )}
                       </Stack>
@@ -244,7 +250,7 @@ const NotificationsPage = () => {
                           size="sm"
                           onClick={() => handleMarkAsRead(notification.id)}
                           disabled={markAsReadMutation.isPending}
-                          className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800"
+                          className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 cursor-pointer"
                           title="Mark as read"
                         >
                           <Check className="w-4 h-4" />
@@ -255,7 +261,7 @@ const NotificationsPage = () => {
                         size="sm"
                         onClick={() => handleDelete(notification.id)}
                         disabled={deleteNotificationMutation.isPending}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                         title="Delete notification"
                       >
                         <X className="w-4 h-4" />

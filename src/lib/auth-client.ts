@@ -1,8 +1,9 @@
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient, twoFactorClient } from "better-auth/client/plugins";
+import { backendURL } from "@/configs/axios.config";
 
 export const authClient = createAuthClient({
-  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:3000",
+  baseURL: backendURL,
   plugins: [emailOTPClient(), twoFactorClient()],
 });
 

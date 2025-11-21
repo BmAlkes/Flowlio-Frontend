@@ -154,7 +154,11 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
       }, 2000); // Wait 2 seconds to show success
     } catch (error) {
       console.error("OTP verification failed:", error);
-      toast.error("Invalid OTP. Please try again.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Invalid OTP. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -172,8 +176,12 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
       setShowEnablePasswordForm(false);
       setShowOTPForm(true);
     } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Invalid password. Please try again.";
       toast.error("Invalid password. Please try again.", {
-        description: error as string,
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -394,7 +402,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                   disabled={isLoading}
                 >
                   {isLoading ? "Verifying..." : "Verify & Continue"}

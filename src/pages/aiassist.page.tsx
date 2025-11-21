@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/sidebar";
 import { AiAssitSidebar } from "@/components/ai assist/aiassistsidebar";
 import { AiAssistChat } from "@/components/ai assist/aiassistchat";
-import { Button } from "@/components/ui/button";
-import { Stack } from "@/components/ui/stack";
 import { Flex } from "@/components/ui/flex";
 import { CSSProperties } from "react";
 import { useAiAssistChatStore } from "@/store/aiassistchat.store";
@@ -20,6 +18,12 @@ import { useUser } from "@/providers/user.provider";
 import { useEffect } from "react";
 import { Box } from "@/components/ui/box";
 import { cn } from "@/lib/utils";
+import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
+import { Lock } from "lucide-react";
+import { Center } from "@/components/ui/center";
+import { Stack } from "@/components/ui/stack";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router";
 
 export const AiAssistPage = () => {
   const modalProps = useGeneralModalDisclosure();
@@ -34,6 +38,11 @@ export const AiAssistPage = () => {
   } = useAiAssistChatStore();
   const { data: session } = useUser();
   const { state } = useSidebar();
+  const { data: featureAccess, isLoading: checkingAccess } =
+    useHasFeatureAccess("aiAssist");
+  const navigate = useNavigate();
+
+  const hasAccess = featureAccess?.data?.hasAccess ?? true;
 
   // Load user chats when component mounts or user changes
   useEffect(() => {
@@ -64,6 +73,36 @@ export const AiAssistPage = () => {
       clearAllChats();
     }
   };
+
+  // Show access denied message if feature is not available
+  if (!checkingAccess && !hasAccess) {
+    return (
+      <Box className="px-2 w-full max-w-full">
+        <ComponentWrapper className="mt-6 shadow-none w-full max-w-full overflow-hidden">
+          <Center className="min-h-[60vh] flex-col gap-4 p-8">
+            <div className="p-4 rounded-full bg-red-100">
+              <Lock className="w-12 h-12 text-red-600" />
+            </div>
+            <Stack className="gap-2 text-center max-w-md">
+              <h2 className="text-2xl font-semibold text-gray-900">
+                AI Assist Not Available
+              </h2>
+              <p className="text-gray-600">
+                {featureAccess?.data?.reason ||
+                  "AI Assist is not available in your current plan. Please upgrade to access this feature."}
+              </p>
+              <Button
+                onClick={() => navigate("/dashboard/subscriptions")}
+                className="mt-4"
+              >
+                View Plans & Upgrade
+              </Button>
+            </Stack>
+          </Center>
+        </ComponentWrapper>
+      </Box>
+    );
+  }
 
   return (
     <>

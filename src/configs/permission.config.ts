@@ -10,6 +10,7 @@ const pages = {
   "User Management": adminAc.statements.user,
   TimeTracking: ["read", "update"],
   Calender: ["create", "read", "update", "delete"],
+  Companies: ["create", "read", "update", "delete", "impersonate"],
   Invoices: ["create", "read", "update", "delete"],
   "AI Assist": ["use", "create", "read", "update", "delete"],
   "Sub Admin Management": ["create", "read", "update", "delete", "impersonate"],
@@ -30,6 +31,7 @@ export const superAdmin = ac.newRole({
   "Client Management": ["create", "read", "update", "delete", "impersonate"],
   "User Management": adminAc.statements.user,
   "Sub Admin Management": ["create", "read", "update", "delete", "impersonate"],
+  Companies: ["create", "read", "update", "delete", "impersonate"],
   "Demo Accounts": ["create", "read", "update", "delete"],
   Projects: ["create", "read", "update", "delete"],
   "Task Management": ["create", "read", "update", "delete"],
@@ -46,6 +48,9 @@ export const subAdmin = ac.newRole({
   Dashboard: ["view"],
   Projects: ["create", "read", "update", "delete"],
   "Task Management": ["create", "read", "update", "delete"],
+  Companies: ["create", "read", "update", "delete", "impersonate"],
+  "Support Tickets": ["create", "read", "update", "delete"],
+  Notifications: ["read", "view", "update", "delete"],
   "User Management": ["list"], // Limited user management - can only list users
   Settings: ["view", "update"],
 });

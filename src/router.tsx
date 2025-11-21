@@ -35,6 +35,7 @@ const DashboardLayout = lazy(() =>
 const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
 const VerifyEmailPage = lazy(() => import("./pages/verifyemail.page"));
 const VerifyCodePage = lazy(() => import("./pages/verifycode.page"));
+const UnsubscribePage = lazy(() => import("./pages/unsubscribe.page"));
 const AiAssistPage = lazy(() =>
   import("./pages/aiassist.page").then((module) => ({
     default: module.AiAssistPage,
@@ -130,6 +131,11 @@ const CreateSubAdmin = lazy(() =>
 const SuperAdminSubscriptionsPage = lazy(() =>
   import("./pages/superadminsubscriptions.page").then((module) => ({
     default: module.SuperAdminSubscriptionsPage,
+  }))
+);
+const SuperAdminNewsletterPage = lazy(() =>
+  import("./pages/superadminnewsletter.page").then((module) => ({
+    default: module.SuperAdminNewsletterPage,
   }))
 );
 const SuperAdminSupportTicketPage = lazy(
@@ -234,6 +240,12 @@ const AppRoutes = () => {
         />
         <Route path="signup" element={<LazyWrapper component={SignupPage} />} />
       </Route>
+
+      {/* Unsubscribe page - public, no auth layout */}
+      <Route
+        path="/unsubscribe"
+        element={<LazyWrapper component={UnsubscribePage} />}
+      />
 
       {/* Checkout page - no auth layout, just the page */}
       <Route
@@ -363,6 +375,10 @@ const AppRoutes = () => {
         <Route
           path="subscriptions"
           element={<LazyWrapper component={SuperAdminSubscriptionsPage} />}
+        />
+        <Route
+          path="newsletter"
+          element={<LazyWrapper component={SuperAdminNewsletterPage} />}
         />
         <Route
           path="support-tickets"

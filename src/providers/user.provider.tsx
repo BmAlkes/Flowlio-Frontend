@@ -13,7 +13,7 @@ import {
   twoFactorClient,
 } from "better-auth/client/plugins";
 import * as permissions from "@/configs/permission.config";
-import { backendDomain } from "@/configs/axios.config";
+import { backendURL } from "@/configs/axios.config";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearLastVisitedPage } from "@/utils/sessionPersistence.util";
@@ -22,7 +22,7 @@ const { ac, roles } = permissions;
 
 export const authClient = createAuthClient({
   plugins: [adminClient({ ac, roles }), emailOTPClient(), twoFactorClient()],
-  baseURL: backendDomain,
+  baseURL: backendURL,
 });
 
 type SessionObject = typeof authClient.$Infer.Session;

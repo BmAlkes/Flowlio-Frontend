@@ -16,6 +16,7 @@ import { useNavigate } from "react-router";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { useState } from "react";
 import { DeleteOrganizationModal } from "./DeleteOrganizationModal";
+import { toast } from "sonner";
 
 // Define the actual data structure from the API (userOrganizations with nested organization)
 export type OrganizationData = {
@@ -164,11 +165,38 @@ export const CompaniesTable = () => {
       accessorKey: "subscriptionStatus",
       header: () => <Box className="text-center text-black">Status</Box>,
       cell: ({ row }) => {
-        const status = row.original.subscriptionStatus as
-          | "active"
-          | "inActive"
-          | "expired"
-          | "cancelled";
+        // Check if user has pending payment (status is pending or undefined)
+        const userOrganizations = row.original.userOrganizations as
+          | Array<{
+              role?: string;
+              user?: {
+                status?: string;
+                selectedPlanId?: string;
+                pendingOrganizationData?: any;
+              };
+            }>
+          | undefined;
+
+        // Find the owner user
+        const ownerUser = userOrganizations?.find(
+          (uo) => uo.role === "owner"
+        )?.user;
+        const userStatus = ownerUser?.status;
+        const hasPendingPayment =
+          userStatus === "pending" ||
+          !userStatus ||
+          userStatus === null ||
+          userStatus === undefined;
+
+        // If user has pending payment, show as "non active"
+        const status = hasPendingPayment
+          ? "non active"
+          : (row.original.subscriptionStatus as
+              | "active"
+              | "inActive"
+              | "expired"
+              | "cancelled"
+              | "non active");
 
         const statusStyles: Record<string, { text: string; dot: string }> = {
           active: {
@@ -176,6 +204,10 @@ export const CompaniesTable = () => {
             dot: "bg-white",
           },
           inActive: {
+            text: "text-white bg-[#F98618] border-none rounded-full",
+            dot: "bg-white",
+          },
+          "non active": {
             text: "text-white bg-[#F98618] border-none rounded-full",
             dot: "bg-white",
           },
@@ -189,17 +221,16 @@ export const CompaniesTable = () => {
           },
         };
 
-        const currentStatus = statusStyles[status] || statusStyles.inActive;
+        const currentStatus =
+          statusStyles[status] || statusStyles["non active"];
 
         return (
           <Center>
             <Flex
-              className={`rounded-md capitalize w-28 h-10 gap-2 border items-center ${currentStatus.text}`}
+              className={`rounded-md capitalize w-28 h-10 gap-2 border items-center justify-center ${currentStatus.text}`}
             >
-              <Flex className="ml-5.5">
-                <Flex className={`w-2 h-2 rounded-full ${currentStatus.dot}`} />
-                <span>{status}</span>
-              </Flex>
+              <Flex className={`w-2 h-2 rounded-full ${currentStatus.dot}`} />
+              <Box>{status}</Box>
             </Flex>
           </Center>
         );
@@ -210,6 +241,9 @@ export const CompaniesTable = () => {
       accessorKey: "actions",
       header: () => <Box className="text-center text-black">Actions</Box>,
       cell: ({ row }) => {
+        // Check if this is a pending user without organization (virtual organization)
+        const isPendingUser = row.original.id?.startsWith("pending_");
+
         return (
           <Center className="space-x-2">
             <TooltipProvider>
@@ -217,6 +251,14 @@ export const CompaniesTable = () => {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={() => {
+                      if (isPendingUser) {
+                        // For pending users, show a message or handle differently
+                        // They don't have a real organization to view details for
+                        toast.info(
+                          "This user hasn't completed payment yet. No organization details available."
+                        );
+                        return;
+                      }
                       // Use the actual slug field from the database
                       const slug = row.original.slug;
                       navigate(`/superadmin/companies/details/${slug}`);
@@ -228,27 +270,33 @@ export const CompaniesTable = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>View Details</p>
+                  <p>
+                    {isPendingUser
+                      ? "Pending User - No Details Available"
+                      : "View Details"}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => handleDeleteClick(row.original)}
-                    variant="outline"
-                    className="bg-[#A50403] border-none w-9 h-9 hover:bg-[#A50403]/80 cursor-pointer rounded-md "
-                  >
-                    <FaRegTrashAlt className="text-white fill-white size-4 " />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="mb-2">
-                  <p>Delete Company</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {!isPendingUser && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => handleDeleteClick(row.original)}
+                      variant="outline"
+                      className="bg-[#A50403] border-none w-9 h-9 hover:bg-[#A50403]/80 cursor-pointer rounded-md "
+                    >
+                      <FaRegTrashAlt className="text-white fill-white size-4 " />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="mb-2">
+                    <p>Delete Company</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </Center>
         );
       },

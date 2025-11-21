@@ -100,8 +100,10 @@ export const Pricing: FC<PricingProps> = ({
   const location = useLocation();
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Check if user came from signup
+  // Check if user came from signup or signin
   const fromSignup = location.state?.fromSignup;
+  const fromSignin = location.state?.fromSignin;
+  const pendingAccount = location.state?.pendingAccount;
 
   // Animation effect when plan changes
   useEffect(() => {
@@ -153,18 +155,23 @@ export const Pricing: FC<PricingProps> = ({
   ];
 
   const handleGetStarted = (planIndex: number) => {
-    if (fromSignup) {
-      // If user came from signup, redirect to checkout with organization creation
-      navigate("/checkout", {
-        state: {
-          selectedPlan: planIndex,
-          createOrganization: true,
-        },
-      });
-    } else {
-      // Regular flow - just select the plan
-      setSelectedPlan(selectedPlan === planIndex ? null : planIndex);
-    }
+    // Set visual selection for immediate feedback
+    setSelectedPlan(planIndex);
+
+    // Always redirect to checkout when a plan is selected
+    // This handles:
+    // 1. New signup → pricing → select plan → checkout
+    // 2. Existing user (pending) → pricing → select plan → checkout
+    // 3. Regular user browsing → pricing → select plan → checkout
+    navigate("/checkout", {
+      state: {
+        selectedPlan: planIndex,
+        createOrganization: fromSignup || fromSignin || pendingAccount, // Create org if coming from signup/signin or has pending account
+        fromSignup: fromSignup,
+        fromSignin: fromSignin,
+        pendingAccount: pendingAccount,
+      },
+    });
   };
 
   // Show loading state while plans are being fetched

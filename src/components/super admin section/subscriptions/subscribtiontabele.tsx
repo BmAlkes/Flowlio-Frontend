@@ -119,7 +119,7 @@ export interface SubscriptionsHeaderProps {
 export type Data = {
   id: string;
   amount: number;
-  status: "active" | "inActive";
+  status: "active" | "inActive" | "non  active";
   lastbilledon: Date;
   subscribtionplan: string;
   companyName: string;
@@ -225,31 +225,35 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "status",
     header: () => <Box className="text-center text-black">Status</Box>,
     cell: ({ row }) => {
-      const status = row.original.status as "active" | "inActive";
+      const status = row.original.status as
+        | "active"
+        | "inActive"
+        | "non active";
 
-      const statusStyles: Record<typeof status, { text: string; dot: string }> =
-        {
-          active: {
-            text: "text-white bg-[#00A400] border-none rounded-full",
-            dot: "bg-white",
-          },
-          inActive: {
-            text: "text-white bg-[#F98618] border-none rounded-full",
-            dot: "bg-white",
-          },
-        };
+      const statusStyles: Record<string, { text: string; dot: string }> = {
+        active: {
+          text: "text-white bg-[#00A400] border-none rounded-full",
+          dot: "bg-white",
+        },
+        inActive: {
+          text: "text-white bg-[#F98618] border-none rounded-full",
+          dot: "bg-white",
+        },
+        "non active": {
+          text: "text-white bg-[#F98618] border-none rounded-full",
+          dot: "bg-white",
+        },
+      };
+
+      const currentStatus = statusStyles[status] || statusStyles["non active"];
 
       return (
         <Center>
           <Flex
-            className={`rounded-md capitalize w-28 h-10 gap-2 border items-center ${statusStyles[status].text}`}
+            className={`rounded-md capitalize w-28 h-10 gap-2 border items-center justify-center ${currentStatus.text}`}
           >
-            <Flex className="ml-5.5">
-              <Flex
-                className={`w-2 h-2 rounded-full ${statusStyles[status].dot}`}
-              />
-              <span>{status}</span>
-            </Flex>
+            <Flex className={`w-2 h-2 rounded-full ${currentStatus.dot}`} />
+            <Box>{status}</Box>
           </Flex>
         </Center>
       );
@@ -277,38 +281,68 @@ export const SubscribtionTabele = ({
       subscribtionplan: plan.name,
     })) || [];
 
-  const activeOrgSubscriptions: Data[] = Array.isArray(
+  // Get all subscriptions (both active and non-active) from organizations
+  const allOrgSubscriptions: Data[] = Array.isArray(
     allOrganizationsResponse?.data
   )
-    ? (allOrganizationsResponse!.data as any[])
-        .filter((org) => org.subscriptionStatus === "active")
-        .map((org) => {
-          const planName = org.subscriptionPlan?.name || "N/A";
-          const planPrice = org.subscriptionPlan?.price;
-          const amount = planPrice ? parseFloat(String(planPrice)) : 0;
-          const start = org.subscriptionStartDate
-            ? new Date(org.subscriptionStartDate)
-            : new Date(org.createdAt);
-          const expire = org.trialEndsAt
-            ? new Date(org.trialEndsAt)
-            : new Date(new Date(start).getTime() + 30 * 24 * 60 * 60 * 1000);
-          return {
-            id: org.id,
-            amount,
-            status: "active",
-            companyName: org.name || "N/A",
-            lastbilledon: start,
-            startDate: start,
-            expiredate: expire,
-            subscribtionplan: planName,
-          } as Data;
-        })
+    ? (allOrganizationsResponse!.data as any[]).map((org) => {
+        // Check if user has pending payment
+        const userOrganizations = org.userOrganizations as
+          | Array<{
+              role?: string;
+              user?: {
+                status?: string;
+                selectedPlanId?: string;
+                pendingOrganizationData?: any;
+              };
+            }>
+          | undefined;
+
+        const ownerUser = userOrganizations?.find(
+          (uo) => uo.role === "owner"
+        )?.user;
+        const userStatus = ownerUser?.status;
+        const hasPendingPayment =
+          userStatus === "pending" ||
+          !userStatus ||
+          userStatus === null ||
+          userStatus === undefined;
+
+        // Determine subscription status
+        // If user has pending payment, mark as "non active"
+        // Otherwise use the organization's subscription status
+        const subscriptionStatus = hasPendingPayment
+          ? "non active"
+          : org.subscriptionStatus === "active"
+          ? "active"
+          : "inActive";
+
+        const planName = org.subscriptionPlan?.name || "N/A";
+        const planPrice = org.subscriptionPlan?.price;
+        const amount = planPrice ? parseFloat(String(planPrice)) : 0;
+        const start = org.subscriptionStartDate
+          ? new Date(org.subscriptionStartDate)
+          : new Date(org.createdAt);
+        const expire = org.trialEndsAt
+          ? new Date(org.trialEndsAt)
+          : new Date(new Date(start).getTime() + 30 * 24 * 60 * 60 * 1000);
+        return {
+          id: org.id,
+          amount,
+          status: subscriptionStatus as "active" | "inActive",
+          companyName: org.name || "N/A",
+          lastbilledon: start,
+          startDate: start,
+          expiredate: expire,
+          subscribtionplan: planName,
+        } as Data;
+      })
     : [];
 
-  // Prefer real active subscriptions from organizations; then plans; then mock
+  // Prefer real subscriptions from organizations; then plans; then mock
   const tableData =
-    activeOrgSubscriptions.length > 0
-      ? activeOrgSubscriptions
+    allOrgSubscriptions.length > 0
+      ? allOrgSubscriptions
       : plansData.length > 0
       ? plansData
       : [];
@@ -350,7 +384,10 @@ export const SubscribtionTabele = ({
       <Center className="justify-between">
         <Stack className="gap-1">
           <h1 className="text-black text-2xl max-sm:text-xl font-medium">
-            Active Subscriptions
+            All Subscriptions
+          </h1>
+          <h1 className="text-gray-500 text-sm max-sm:text-xs">
+            Showing active and non-active subscriptions
           </h1>
         </Stack>
 

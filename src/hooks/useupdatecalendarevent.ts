@@ -66,8 +66,8 @@ export const useUpdateCalendarEvent = () => {
       }
     },
     onSuccess: () => {
-      // Invalidate and refetch calendar events
-      queryClient.invalidateQueries({ queryKey: ["calendar  -events"] });
+      // Invalidate and refetch calendar events - use exact match to invalidate all calendar-events queries
+      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
       // Invalidate activities so the updated calendar event shows up
       queryClient.invalidateQueries({ queryKey: ["organization-activities"] });
 

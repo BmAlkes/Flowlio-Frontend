@@ -28,12 +28,21 @@ export const SupportTicketTable = ({
   isLoading,
   error,
   refetch,
+  pagination,
+  onPageChange,
   deleteSupportTicket,
 }: {
   data: UniversalSupportTicket[];
   isLoading: boolean;
   error: any;
   refetch: () => void;
+  pagination?: {
+    page: number;
+    limit: number;
+    totalPages: number;
+    total: number;
+  };
+  onPageChange?: (page: number) => void;
   deleteSupportTicket: (id: string) => void;
 }) => {
   const [selectedTicket, setSelectedTicket] = useState<Data | null>(null);
@@ -281,6 +290,14 @@ export const SupportTicketTable = ({
     );
   }
 
+  // Calculate pagination based on actual data length if pagination metadata is missing
+  const dataLength = data?.length ?? 0;
+  const pageSize = pagination?.limit ?? 20;
+  const currentPage = pagination?.page ?? 1;
+  const calculatedTotal = pagination?.total ?? dataLength;
+  const calculatedTotalPages =
+    pagination?.totalPages ?? (Math.ceil(dataLength / pageSize) || 1);
+
   return (
     <>
       <ReusableTable
@@ -291,6 +308,17 @@ export const SupportTicketTable = ({
         onRowClick={(row) => {
           handleViewTicket(row.original);
         }}
+        pagination={
+          onPageChange
+            ? {
+                pageIndex: Math.max(0, currentPage - 1),
+                pageSize: pageSize,
+                pageCount: calculatedTotalPages,
+                total: calculatedTotal,
+                onPageChange: (newPage: number) => onPageChange(newPage + 1),
+              }
+            : undefined
+        }
       />
 
       <SupportTicketModal

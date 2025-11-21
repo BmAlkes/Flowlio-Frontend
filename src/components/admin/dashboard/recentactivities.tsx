@@ -6,17 +6,15 @@ import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import { useFetchOrganizationActivities } from "@/hooks/useFetchOrganizationActivities";
-import { useDeleteActivity } from "@/hooks/useDeleteActivity";
+// import { useDeleteActivity } from "@/hooks/useDeleteActivity";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { Center } from "@/components/ui/center";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 export const RecentActivities: FC<BoxProps> = ({ className, ...props }) => {
   const { data: activitiesResponse, isLoading } =
     useFetchOrganizationActivities();
-  const { mutate: deleteActivity } = useDeleteActivity();
+  // const { mutate: deleteActivity } = useDeleteActivity();
 
   const activitiesContent = activitiesResponse?.data?.activities || [];
 
@@ -25,7 +23,8 @@ export const RecentActivities: FC<BoxProps> = ({ className, ...props }) => {
       <Stack className="p-3 relative overflow-hidden">
         <Flex className="justify-between items-center mb-2">
           <h1 className="text-lg font-medium"> Recent Activities</h1>
-          {activitiesContent.length > 0 && (
+          {/* Clear All Activities button - Commented out as requested */}
+          {/* {activitiesContent.length > 0 && (
             <Button
               variant="outline"
               size="sm"
@@ -43,7 +42,7 @@ export const RecentActivities: FC<BoxProps> = ({ className, ...props }) => {
             >
               Clear All Activities
             </Button>
-          )}
+          )} */}
         </Flex>
 
         <Box className="w-full h-0.5 bg-gray-200 rounded-full absolute top-14 left-0"></Box>

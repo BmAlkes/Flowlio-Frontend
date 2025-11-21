@@ -80,7 +80,12 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
 
   const createSupportTicketMutation = useCreateUniversalSupportTicket();
   const modalProps = useGeneralModalDisclosure();
-  const { data, isLoading, error, refetch } = useUniversalSupportTickets();
+  const [page, setPage] = useState(1);
+  const limit = 20;
+  const { data, isLoading, error, refetch } = useUniversalSupportTickets({
+    page,
+    limit,
+  });
   const { mutate: deleteSupportTicket } = useDeleteUniversalSupportTicket();
   const { data: assignmentOptions } = useAssignmentOptions();
 
@@ -140,6 +145,8 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
         isLoading={isLoading}
         error={error}
         refetch={refetch}
+        pagination={data?.data?.pagination}
+        onPageChange={setPage}
         deleteSupportTicket={(id) =>
           deleteSupportTicket(
             { id },

@@ -41,40 +41,41 @@ import { useFetchAllOrganizations } from "../../hooks/usefetchallorganizations";
 import { useUser } from "../../providers/user.provider";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Project Name must be at least 2 characters.",
-  }),
-  projectNumber: z.string().min(1, {
-    message: "Project Number is required.",
-  }),
-  clientId: z.string().min(1, {
-    message: "Please select a client.",
-  }),
-  startDate: z.string().min(1, {
-    message: "Start Date is required.",
-  }),
-  endDate: z.string().min(1, {
-    message: "End Date is required.",
-  }),
-  assignedTo: z.string().min(1, {
-    message: "Please select a team member to assign.",
-  }),
-  description: z.string().optional(),
-  address: z.string().min(2, {
-    message: "Address must be at least 2 characters.",
-  }),
-  contractfile: z.string().optional(),
-  projectFiles: z
-    .array(
-      z.object({
-        file: z.string(),
-        type: z.string(),
-        name: z.string(),
-      })
-    )
-    .optional(),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: "Project Name must be at least 2 characters.",
+    }),
+    projectNumber: z.string().optional(),
+    clientId: z.string().optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    assignedTo: z.string().optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    contractfile: z.string().optional(),
+    projectFiles: z
+      .array(
+        z.object({
+          file: z.string(),
+          type: z.string(),
+          name: z.string(),
+        })
+      )
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.startDate || !data.endDate) return true;
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return end >= start;
+    },
+    {
+      message: "End Date must be after or equal to Start Date.",
+      path: ["endDate"],
+    }
+  );
 
 export const CreateProject = () => {
   const navigate = useNavigate();
@@ -154,7 +155,7 @@ export const CreateProject = () => {
       name: "",
       projectNumber: "",
       clientId: "",
-      startDate: new Date().toISOString(),
+      startDate: "",
       endDate: "",
       assignedTo: "",
       description: "",
@@ -184,7 +185,7 @@ export const CreateProject = () => {
         clientId: project.clientId || "",
         startDate: project.startDate
           ? new Date(project.startDate).toISOString()
-          : new Date().toISOString(),
+          : "",
         endDate: project.endDate ? new Date(project.endDate).toISOString() : "",
         assignedTo: project.assignedTo || "",
         description: project.description || "",
@@ -258,12 +259,20 @@ export const CreateProject = () => {
 
       // Include file data if uploaded
       const projectData = {
-        ...values,
-        contractfile: uploadedFile
-          ? await convertFileToBase64(uploadedFile)
-          : undefined,
-        projectFiles:
-          convertedProjectFiles.length > 0 ? convertedProjectFiles : undefined,
+        name: values.name,
+        ...(values.projectNumber && { projectNumber: values.projectNumber }),
+        ...(values.clientId && { clientId: values.clientId }),
+        ...(values.startDate && { startDate: values.startDate }),
+        ...(values.endDate && { endDate: values.endDate }),
+        ...(values.assignedTo && { assignedTo: values.assignedTo }),
+        ...(values.description && { description: values.description }),
+        ...(values.address && { address: values.address }),
+        ...(uploadedFile && {
+          contractfile: await convertFileToBase64(uploadedFile),
+        }),
+        ...(convertedProjectFiles.length > 0 && {
+          projectFiles: convertedProjectFiles,
+        }),
         organizationId: finalOrganizationId,
       };
 
@@ -487,10 +496,7 @@ export const CreateProject = () => {
                   name="projectNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Project Number:
-                        <span className="text-red-500 text-sm">*</span>
-                      </FormLabel>
+                      <FormLabel>Project Number:</FormLabel>
                       <FormControl>
                         <Input
                           className="bg-white rounded-full placeholder:text-gray-400"
@@ -618,7 +624,6 @@ export const CreateProject = () => {
                   <FormItem>
                     <FormLabel className="mt-4 -mb-4 max-md:mt-0 max-md:-mb-0">
                       Address:
-                      <span className="text-red-500 text-sm">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -641,7 +646,7 @@ export const CreateProject = () => {
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>Start Date:</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">
@@ -688,7 +693,7 @@ export const CreateProject = () => {
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel>End Date:</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl className="h-12">
@@ -738,10 +743,7 @@ export const CreateProject = () => {
                 name="clientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Assign Client:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>Assign Client:</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -781,10 +783,7 @@ export const CreateProject = () => {
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Assign Team Member:
-                      <span className="text-red-500 text-sm">*</span>
-                    </FormLabel>
+                    <FormLabel>Assign Team Member:</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}

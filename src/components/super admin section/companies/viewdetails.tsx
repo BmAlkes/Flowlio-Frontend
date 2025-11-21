@@ -7,6 +7,7 @@ import { Stack } from "@/components/ui/stack";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router";
 import { ViewTable } from "./viewtable";
+import { PlanAccessDisplay } from "./PlanAccessDisplay";
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useGetCompanyDetails } from "@/hooks/useGetCompanyDetails";
@@ -98,8 +99,15 @@ export const ViewDetails = () => {
             <Stack className="justify-center items-center mt-4">
               <img
                 src={
-                  companyDetails.organization.logo ||
-                  "/super admin/viewdetailsimg.png"
+                  companyDetails.organization.settings?.demo === true &&
+                  companyDetails.owner?.image
+                    ? companyDetails.owner.image
+                    : companyDetails.organization.settings?.demo === true &&
+                      companyDetails.users.length > 0 &&
+                      companyDetails.users[0].user.image
+                    ? companyDetails.users[0].user.image
+                    : companyDetails.organization.logo ||
+                      "/super admin/viewdetailsimg.png"
                 }
                 alt="company"
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
@@ -147,22 +155,58 @@ export const ViewDetails = () => {
                   </h1>
                 </Flex>
               )}
+              {/* Show phone - for demo orgs, use first user's phone (they update it in settings) */}
               <Flex className="gap-3 items-center">
                 <Phone className="font-light size-4 text-gray-500" />
                 <h1 className="text-gray-600 text-sm">
-                  {companyDetails.organization.phone || "No phone number"}
+                  {companyDetails.organization.settings?.demo === true
+                    ? companyDetails.users.length > 0 &&
+                      companyDetails.users[0].user.phone
+                      ? companyDetails.users[0].user.phone
+                      : companyDetails.owner?.phone || "No phone number"
+                    : companyDetails.organization.phone || "No phone number"}
                 </h1>
               </Flex>
-              <Flex className="gap-3 items-center">
-                <Mail className="font-light size-4 text-gray-500" />
-                <h1 className="text-gray-600 text-sm break-all">
-                  {companyDetails.organization.email || "No email address"}
-                </h1>
-              </Flex>
+
+              {/* Show email - for demo orgs, show first user's email, for regular orgs show org email */}
+              {companyDetails.organization.settings?.demo === true ? (
+                companyDetails.users.length > 0 &&
+                companyDetails.users[0].user.email ? (
+                  <Flex className="gap-3 items-center">
+                    <Mail className="font-light size-4 text-gray-500" />
+                    <h1 className="text-gray-600 text-sm break-all">
+                      {companyDetails.users[0].user.email}
+                    </h1>
+                  </Flex>
+                ) : (
+                  companyDetails.owner?.email && (
+                    <Flex className="gap-3 items-center">
+                      <Mail className="font-light size-4 text-gray-500" />
+                      <h1 className="text-gray-600 text-sm break-all">
+                        Email: {companyDetails.owner.email}
+                      </h1>
+                    </Flex>
+                  )
+                )
+              ) : (
+                <Flex className="gap-3 items-center">
+                  <Mail className="font-light size-4 text-gray-500" />
+                  <h1 className="text-gray-600 text-sm break-all">
+                    {companyDetails.organization.email || "No email address"}
+                  </h1>
+                </Flex>
+              )}
+
+              {/* Show address - for demo orgs, use first user's address (they update it in settings) */}
               <Flex className="gap-3 items-center">
                 <MapPin className="font-light size-4 text-gray-500" />
                 <h1 className="text-gray-600 text-sm">
-                  {companyDetails.organization.address || "No address"}
+                  {companyDetails.organization.settings?.demo === true
+                    ? companyDetails.users.length > 0 &&
+                      companyDetails.users[0].user.address
+                      ? companyDetails.users[0].user.address
+                      : companyDetails.owner?.address || "No address"
+                    : companyDetails.organization.address || "No address"}
                 </h1>
               </Flex>
             </Stack>
@@ -264,6 +308,19 @@ export const ViewDetails = () => {
               </Center>
             </ComponentWrapper>
           </Flex>
+
+          {/* Plan Access & Features Display */}
+          {companyDetails.subscription?.plan &&
+            (companyDetails.subscription.plan as any).features && (
+              <PlanAccessDisplay
+                planName={
+                  ((companyDetails.subscription.plan as any)
+                    .customPlanName as string) ||
+                  companyDetails.subscription.plan.name
+                }
+                features={(companyDetails.subscription.plan as any).features}
+              />
+            )}
 
           {/* ViewTable Component */}
           <ComponentWrapper className="w-full bg-white border border-gray-200 shadow-none">

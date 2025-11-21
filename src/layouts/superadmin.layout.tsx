@@ -13,6 +13,7 @@ import {
   User,
   FlaskConical,
   Bell,
+  Mail,
 } from "lucide-react";
 import { useUser } from "@/providers/user.provider";
 
@@ -36,6 +37,11 @@ export const navItems: NavItem[] = [
     title: "Subscriptions",
     url: "/superadmin/subscriptions",
     icon: <BadgeCent />,
+  },
+  {
+    title: "Newsletter",
+    url: "/superadmin/newsletter",
+    icon: <Mail />,
   },
   {
     title: "Demo Accounts",
