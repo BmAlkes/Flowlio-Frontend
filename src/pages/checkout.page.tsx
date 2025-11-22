@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router";
 import { Box } from "@/components/ui/box";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Navbar } from "@/components/user section/navbar/navbar";
 import { Flex } from "@/components/ui/flex";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import {
   useCreatePayPalOrder,
   useCapturePayPalOrder,
 } from "@/hooks/usePayPalPayment";
+import { usePlanSelectionStore } from "@/store/planSelection.store";
+import type { IPlan } from "@/types";
 
 // Function to convert database features to display format
 const formatPlanFeatures = (planFeatures: any) => {
@@ -55,7 +57,7 @@ const CheckoutPage = () => {
   }, []);
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: userData, isLoading: userLoading, refetchUser } = useUser();
+  const { data: userData, isLoading: userLoading } = useUser();
   const { data: plansResponse, isLoading: plansLoading } =
     useFetchPublicPlans();
   const createPayPalOrderMutation = useCreatePayPalOrder();
@@ -66,161 +68,188 @@ const CheckoutPage = () => {
   );
   const [checkingBackendMode, setCheckingBackendMode] = useState(true);
 
-  const selectedPlanIndex = location.state?.selectedPlan ?? null;
-  const createOrganization = location.state?.createOrganization;
-  const pendingPayment = location.state?.pendingPayment;
-  const pendingPlanId = location.state?.selectedPlanId;
-  const pendingOrgData = location.state?.pendingOrganizationData;
+  // Get plan from store (primary source)
+  const {
+    selectedPlanIndex: storePlanIndex,
+    selectedPlanId: storePlanId,
+    organizationName: storeOrgName,
+  } = usePlanSelectionStore();
+
+  const selectedPlanIndex = location.state?.selectedPlan ?? storePlanIndex;
+  const createOrganization =
+    location.state?.createOrganization ??
+    location.state?.pendingPayment ??
+    false;
+  const fromSignup = location.state?.fromSignup ?? false;
+  const pendingPayment = location.state?.pendingPayment ?? false;
+  const pendingPlanId = location.state?.selectedPlanId ?? null;
+  const pendingOrgData = location.state?.pendingOrganizationData ?? null;
 
   // Fallback: check URL parameters if navigation state is lost
   const urlParams = new URLSearchParams(location.search);
   const fallbackPlanIndex = urlParams.get("plan");
-  let finalPlanIndex =
+  const finalPlanIndex =
     selectedPlanIndex ??
+    storePlanIndex ??
     (fallbackPlanIndex ? parseInt(fallbackPlanIndex) : null);
 
-  // If user has pending payment, try to find plan index from plan ID
-  // Note: This effect helps find the plan, but we handle it in the plan selection logic below
+  // Get plans array
+  const plansArray = (plansResponse?.data as IPlan[]) || [];
 
-  // Get plan details with dynamic features from database
-  const planDetails = [
-    {
-      title: plansResponse?.data?.[0]?.name || "Basic Plan (Free)",
-      price: plansResponse?.data?.[0]?.price || "Free",
-      description:
-        plansResponse?.data?.[0]?.description ||
-        "Personal use and small projects",
-      duration: "7-Days Trial",
-      features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
-    },
-    {
-      title: plansResponse?.data?.[1]?.name || "Pro Plan",
-      price: plansResponse?.data?.[1]?.price || "$29",
-      description:
-        plansResponse?.data?.[1]?.description ||
-        "Professional teams and growing businesses",
-      duration: "month",
-      features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
-    },
-    {
-      title: plansResponse?.data?.[2]?.name || "Enterprise Plan",
-      price: plansResponse?.data?.[2]?.price || "$99",
-      description:
-        plansResponse?.data?.[2]?.description ||
-        "Large organizations with complex needs",
-      duration: "6 months",
-      features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
-    },
-  ];
+  // Get plan ID to use - prioritize store
+  const planIdToUse =
+    storePlanId || pendingPlanId || pendingOrgData?.planId || null;
 
-  // Get the selected plan with better fallback logic
-  // If user has pending payment, try to find plan by ID first
-  let selectedPlan = null;
-  if (pendingPayment && pendingPlanId && plansResponse?.data) {
-    selectedPlan = plansResponse.data.find((plan) => plan.id === pendingPlanId);
-    if (selectedPlan && finalPlanIndex === null) {
-      // Find the index for the plan details array
-      finalPlanIndex = plansResponse.data.findIndex(
-        (plan) => plan.id === pendingPlanId
-      );
-    }
-  } else if (finalPlanIndex !== null && plansResponse?.data) {
-    selectedPlan = plansResponse.data.find(
-      (_, index) => index === finalPlanIndex
-    );
-  }
+  // Get the selected plan
+  const selectedPlan =
+    finalPlanIndex !== null && plansArray.length > 0
+      ? plansArray[finalPlanIndex]
+      : planIdToUse
+      ? plansArray.find((p: IPlan) => p.id === planIdToUse) || null
+      : null;
 
-  const plan = finalPlanIndex !== null ? planDetails[finalPlanIndex] : null;
+  // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
+  const planDetails = useMemo(
+    () => [
+      {
+        title: plansResponse?.data?.[0]?.name || "Basic Plan (Free)",
+        price: plansResponse?.data?.[0]?.price || "Free",
+        description:
+          plansResponse?.data?.[0]?.description ||
+          "Personal use and small projects",
+        duration: "7-Days Trial",
+        features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
+      },
+      {
+        title: plansResponse?.data?.[1]?.name || "Pro Plan",
+        price: plansResponse?.data?.[1]?.price || "$29",
+        description:
+          plansResponse?.data?.[1]?.description ||
+          "Professional teams and growing businesses",
+        duration: "month",
+        features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
+      },
+      {
+        title: plansResponse?.data?.[2]?.name || "Enterprise Plan",
+        price: plansResponse?.data?.[2]?.price || "$99",
+        description:
+          plansResponse?.data?.[2]?.description ||
+          "Large organizations with complex needs",
+        duration: "6 months",
+        features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
+      },
+    ],
+    [plansResponse?.data]
+  );
+
+  // Get the selected plan with better fallback logic - memoize to prevent unnecessary re-renders
+  const plan = useMemo(
+    () => (finalPlanIndex !== null ? planDetails[finalPlanIndex] : null),
+    [finalPlanIndex, planDetails]
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      organizationName: (pendingOrgData as any)?.organizationName || "",
+      organizationName: pendingOrgData?.organizationName || storeOrgName || "",
     },
   });
 
+  // Use ref to track if we've already handled redirects to prevent infinite loops
+  const hasHandledRedirect = useRef(false);
+  const hasCheckedAuth = useRef(false);
+
   useEffect(() => {
-    // Wait for plans to load before checking
+    // Reset redirect flag when key dependencies change
+    if (finalPlanIndex !== null || planIdToUse) {
+      hasHandledRedirect.current = false;
+    }
+  }, [finalPlanIndex, planIdToUse]);
+
+  useEffect(() => {
+    // Wait for plans to load
     if (plansLoading) {
-      return; // Still loading plans, wait
-    }
-
-    // Wait for user loading to complete before checking authentication
-    if (userLoading) {
-      return; // Still loading user, wait
-    }
-
-    // If plans are loaded but no plan found, check if we have plan data in state
-    if (!plan && !pendingPayment) {
-      // Check if we have plan index in state but plans haven't matched yet
-      if (finalPlanIndex !== null && plansResponse?.data) {
-        // Plan index exists, wait a bit for it to resolve
-        return;
-      }
-
-      // No plan and not pending payment, redirect back to pricing
-      if (plansResponse?.data && plansResponse.data.length > 0) {
-        // Plans are loaded but no plan selected
-        toast.info("Please select a plan to continue");
-        navigate("/pricing");
-        return;
-      }
-
-      // Plans not loaded yet, wait
       return;
     }
 
-    // Check if we just came from signup (session might still be establishing)
-    const fromSignup = location.state?.fromSignup;
-
-    // If user is not authenticated after loading is complete
-    if (!userData?.user) {
-      // If we just came from signup, actively refetch user data
-      if (fromSignup) {
-        // Refetch user data to ensure session is loaded
-        // The useEffect will re-run when userData updates
-        refetchUser().catch(() => {
-          // If refetch fails after a delay, redirect to signup
-          setTimeout(() => {
-            if (!userData?.user) {
-              toast.info("Please sign up or login to complete your purchase");
-              navigate("/auth/signup", {
-                state: {
-                  selectedPlan: finalPlanIndex,
-                  redirectTo: "checkout",
-                },
-              });
-            }
-          }, 2000);
-        });
-        return; // Exit early, useEffect will re-run when userData updates
+    // Check if we have a plan
+    if (!selectedPlan && !planIdToUse) {
+      // Prevent multiple redirects
+      if (hasHandledRedirect.current) {
+        return;
       }
+      hasHandledRedirect.current = true;
 
-      // Not from signup, redirect immediately
-      toast.info("Please sign up or login to complete your purchase");
-      navigate("/auth/signup", {
+      // If no plan, redirect back to pricing
+      toast.info("Please select a plan first");
+      navigate("/pricing", {
         state: {
-          selectedPlan: finalPlanIndex,
-          redirectTo: "checkout",
+          fromSignup: fromSignup,
+          fromSignin: !fromSignup,
+          pendingAccount: pendingPayment || fromSignup,
         },
+        replace: true, // Use replace to prevent back button issues
       });
       return;
     }
 
-    // User is authenticated (even if pending), allow them to proceed to payment
-    // Pending users need to complete payment to activate their account
+    // Wait for user loading to complete before checking authentication
+    if (userLoading) {
+      return; // Still loading, wait
+    }
+
+    // If coming from signup, wait for user data to be available
+    if (fromSignup) {
+      // If user data is still loading or not available yet, wait
+      if (!userData?.user) {
+        // Give it a moment for session to establish after signup
+        return;
+      }
+      // User is loaded, allow to proceed
+      window.scrollTo(0, 0);
+      hasCheckedAuth.current = true;
+      return;
+    }
+
+    // Prevent multiple auth checks and redirects
+    if (hasCheckedAuth.current) {
+      return;
+    }
+
+    // If user is not authenticated after loading is complete, redirect to signup
+    if (!userData?.user) {
+      hasCheckedAuth.current = true;
+      hasHandledRedirect.current = true;
+
+      toast.info("Please sign up or login to complete your purchase");
+      // Redirect to signup with plan information
+      navigate("/auth/signup", {
+        state: {
+          selectedPlan: finalPlanIndex ?? storePlanIndex,
+          redirectTo: "checkout",
+          planDetails: plan,
+        },
+        replace: true, // Use replace to prevent back button issues
+      });
+      return;
+    }
+
+    // User is authenticated and plan is selected
+    hasCheckedAuth.current = true;
     window.scrollTo(0, 0);
   }, [
-    plan,
-    navigate,
-    userData,
+    // Removed 'plan' and 'navigate' from dependencies as they cause unnecessary re-runs
+    userData?.user?.id, // Only track user ID, not entire userData object
     userLoading,
-    finalPlanIndex,
-    location.state,
     plansLoading,
-    plansResponse,
+    finalPlanIndex,
+    selectedPlan?.id, // Only track plan ID, not entire plan object
+    planIdToUse,
+    fromSignup,
     pendingPayment,
-    refetchUser,
+    storePlanIndex,
+    // Keep navigate for closure but it's stable
+    navigate,
   ]);
 
   // Check backend PayPal configuration on mount
@@ -278,33 +307,26 @@ const CheckoutPage = () => {
       throw new Error(errorMsg);
     }
 
-    // Validate organization name if creating organization or pending payment
-    if (createOrganization || pendingPayment) {
-      // Use pending org data if available, otherwise validate form
-      const orgName =
-        (pendingOrgData as any)?.organizationName?.trim() ||
-        form.getValues().organizationName?.trim();
+    // Validate organization name if creating organization
+    if (createOrganization) {
+      // Trigger form validation first
+      const isValid = await form.trigger("organizationName");
+      if (!isValid) {
+        const errorMsg = "Please enter a valid organization name";
+        console.error("[PayPal] Error:", errorMsg);
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
 
-      if (!orgName || orgName === "") {
-        // Trigger form validation
-        const isValid = await form.trigger("organizationName");
-        if (!isValid) {
-          const errorMsg = "Please enter a valid organization name";
-          console.error("[PayPal] Error:", errorMsg);
-          toast.error(errorMsg);
-          throw new Error(errorMsg);
-        }
-
-        const formData = form.getValues();
-        if (
-          !formData.organizationName ||
-          formData.organizationName.trim() === ""
-        ) {
-          const errorMsg = "Please enter an organization name";
-          console.error("[PayPal] Error:", errorMsg);
-          toast.error(errorMsg);
-          throw new Error(errorMsg);
-        }
+      const formData = form.getValues();
+      if (
+        !formData.organizationName ||
+        formData.organizationName.trim() === ""
+      ) {
+        const errorMsg = "Please enter an organization name";
+        console.error("[PayPal] Error:", errorMsg);
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
       }
     }
 
@@ -369,8 +391,6 @@ const CheckoutPage = () => {
 
   // Handle PayPal order approval
   const handlePayPalApprove = async (data: { orderID: string }) => {
-    console.log("[PayPal] onApprove called with orderID:", data.orderID);
-
     if (!userData?.user || !selectedPlan) {
       toast.error("User or plan information is missing");
       return;
@@ -381,15 +401,8 @@ const CheckoutPage = () => {
     try {
       const formData = form.getValues();
 
-      console.log("[PayPal] Attempting to capture order:", {
-        orderId: data.orderID,
-        userId: userData.user.id,
-        planId: selectedPlan.id,
-      });
-
       // Capture the PayPal order with organization details
       // This will create the organization automatically after successful payment
-      // Note: The backend will wait for the order to be approved if it's still CREATED
       const captureResponse = await capturePayPalOrderMutation.mutateAsync({
         orderId: data.orderID,
         userId: userData.user.id,
@@ -398,8 +411,6 @@ const CheckoutPage = () => {
           : undefined,
         planId: selectedPlan.id,
       });
-
-      console.log("[PayPal] Capture response:", captureResponse);
 
       if (captureResponse.data?.status === "COMPLETED") {
         toast.success("Payment processed successfully!");
@@ -417,26 +428,11 @@ const CheckoutPage = () => {
         toast.error("Payment was not completed. Please try again.");
       }
     } catch (error: any) {
-      console.error("[PayPal] Error capturing order:", error);
-
-      // Check if it's the "order not approved" error
-      if (
-        error?.response?.data?.code === "ORDER_NOT_APPROVED" ||
-        error?.response?.data?.message?.includes("not been approved yet") ||
-        error?.response?.data?.message?.includes("must be approved")
-      ) {
-        toast.error(
-          "Please complete the PayPal approval process. Make sure you:\n1. Allow the PayPal popup window\n2. Log in to your PayPal account\n3. Click 'Pay Now' to approve the payment",
-          {
-            duration: 8000,
-          }
-        );
-      } else {
-        toast.error(
-          error?.response?.data?.message ||
-            "Failed to process payment. Please try again."
-        );
-      }
+      console.error("Error capturing PayPal order:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to process payment. Please try again."
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -474,6 +470,108 @@ const CheckoutPage = () => {
     setIsProcessing(false);
   };
 
+  // Handle demo payment
+  const handleDemoPayment = async () => {
+    if (!selectedPlan || !userData?.user) {
+      toast.error("Missing plan or user information");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Validate organization name if needed
+      if (createOrganization) {
+        const isValid = await form.trigger("organizationName");
+        if (!isValid) {
+          toast.error("Please enter a valid organization name");
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // Create demo order - force demo mode
+      const planPrice = parseFloat(
+        selectedPlan.price.toString().replace("$", "")
+      );
+
+      const orderResponse = await createPayPalOrderMutation.mutateAsync({
+        planId: selectedPlan.id,
+        amount: planPrice,
+        currency: "USD",
+        demoMode: true, // Force demo mode for demo payment button
+      });
+
+      if (orderResponse.data?.orderId) {
+        // Mark backend demo mode if we get a demo order
+        if (orderResponse.data.orderId.startsWith("demo_order_")) {
+          setIsBackendDemoMode(true);
+        }
+
+        // Process demo order directly (bypass PayPal SDK)
+        const formData = form.getValues();
+
+        // Ensure organization name is provided if creating organization
+        const orgName = createOrganization
+          ? formData.organizationName?.trim()
+          : undefined;
+
+        if (createOrganization && (!orgName || orgName === "")) {
+          toast.error("Please enter an organization name");
+          setIsProcessing(false);
+          return;
+        }
+
+        console.log("[Demo Payment] Capturing order:", {
+          orderId: orderResponse.data.orderId,
+          userId: userData.user.id,
+          organizationName: orgName,
+          planId: selectedPlan.id,
+          createOrganization,
+        });
+
+        const captureResponse = await capturePayPalOrderMutation.mutateAsync({
+          orderId: orderResponse.data.orderId,
+          userId: userData.user.id,
+          organizationName: orgName,
+          planId: selectedPlan.id,
+        });
+
+        console.log("[Demo Payment] Capture response:", captureResponse);
+
+        if (captureResponse.data?.status === "COMPLETED") {
+          toast.success("Demo payment processed successfully!");
+          if (createOrganization && captureResponse.data?.organization) {
+            toast.success("Organization created successfully!");
+          }
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 1500);
+        } else {
+          console.error(
+            "[Demo Payment] Payment not completed:",
+            captureResponse
+          );
+          toast.error(
+            captureResponse?.message ||
+              "Payment was not completed. Please try again."
+          );
+        }
+      } else {
+        console.error("[Demo Payment] No order ID returned:", orderResponse);
+        toast.error("Failed to create order. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("Demo payment error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to process demo payment"
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Format price for display
   const formatPrice = (price: string | number | undefined): string => {
     if (!price || price === "Free") return "Free";
@@ -482,59 +580,14 @@ const CheckoutPage = () => {
     return `$${priceStr}`;
   };
 
-  // Show loading while waiting for user, plans, or plan resolution
-  // Allow pending payment users to wait for plan data to load
-  const isLoadingData = userLoading || plansLoading;
-  const hasValidPlan = plan !== null || (pendingPayment && selectedPlan);
-
-  if (isLoadingData || (!hasValidPlan && !pendingPayment)) {
+  if (!selectedPlan || (userLoading && !fromSignup)) {
     return (
       <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">
-            {userLoading
-              ? "Checking authentication..."
-              : plansLoading
-              ? "Loading plans..."
-              : pendingPayment
-              ? "Loading your payment details..."
-              : "Loading..."}
+            {userLoading ? "Checking authentication..." : "Loading plan..."}
           </p>
-        </div>
-      </Box>
-    );
-  }
-
-  // If pending payment but no plan found after plans loaded, show message
-  if (pendingPayment && !selectedPlan && plansResponse?.data && !plansLoading) {
-    return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">
-            Unable to find your selected plan. Please select a plan to continue.
-          </p>
-          <Button onClick={() => navigate("/pricing")}>Go to Pricing</Button>
-        </div>
-      </Box>
-    );
-  }
-
-  // If no plan and not pending payment after everything loaded, show message
-  if (
-    !plan &&
-    !pendingPayment &&
-    plansResponse?.data &&
-    !plansLoading &&
-    !userLoading
-  ) {
-    return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">
-            No plan selected. Please select a plan to continue.
-          </p>
-          <Button onClick={() => navigate("/pricing")}>Go to Pricing</Button>
         </div>
       </Box>
     );
@@ -578,13 +631,16 @@ const CheckoutPage = () => {
             {/* Left: Plan Info */}
             <Box className="max-md:w-full flex-1 bg-gradient-to-r from-indigo-100 to-red-50 rounded-lg shadow p-8">
               <h2 className="text-2xl font-bold mb-2">
-                {plan?.title || "Plan Details"}
+                {plan?.title || selectedPlan?.name || "Plan Details"}
               </h2>
               <p className="text-lg mb-1">
-                {formatPrice(plan?.price)} / {plan?.duration || "Trial"}
+                {formatPrice(plan?.price || selectedPlan?.price)} /{" "}
+                {plan?.duration || "Trial"}
               </p>
               <p className="mb-4">
-                {plan?.description || "Plan description not available"}
+                {plan?.description ||
+                  selectedPlan?.description ||
+                  "Plan description not available"}
               </p>
 
               {plan?.features && plan.features.length > 0 ? (
@@ -618,19 +674,11 @@ const CheckoutPage = () => {
 
             {/* Right: Organization & Payment Details */}
             <Box className="h-auto bg-gradient-to-r from-red-50 to-indigo-100 rounded-lg shadow p-8 w-full md:w-1/2">
-              {(createOrganization || pendingPayment) && (
+              {createOrganization && (
                 <>
                   <h2 className="text-xl font-semibold mb-4 font-Outfit">
                     Organization Details
                   </h2>
-                  {pendingPayment && pendingOrgData && (
-                    <Box className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-blue-700 text-sm">
-                        You have pending organization data. Please complete your
-                        payment to create your organization.
-                      </p>
-                    </Box>
-                  )}
                   <FormField
                     control={form.control}
                     name="organizationName"
@@ -642,14 +690,8 @@ const CheckoutPage = () => {
                         <FormControl>
                           <Input
                             className="border rounded-lg p-2 w-full bg-white h-12"
-                            placeholder={
-                              pendingOrgData?.organizationName ||
-                              "Enter your organization name"
-                            }
+                            placeholder="Enter your organization name"
                             {...field}
-                            defaultValue={
-                              pendingOrgData?.organizationName || ""
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -679,154 +721,7 @@ const CheckoutPage = () => {
                         : "PayPal is not fully configured. Use the demo payment button to test the complete payment and organization creation flow."}
                     </p>
                     <Button
-                      onClick={async () => {
-                        if (!selectedPlan || !userData?.user) {
-                          toast.error("Missing plan or user information");
-                          return;
-                        }
-
-                        setIsProcessing(true);
-                        try {
-                          // Validate organization name if needed
-                          // Use pending org data if available, otherwise validate form
-                          const orgName =
-                            (pendingOrgData as any)?.organizationName?.trim() ||
-                            form.getValues().organizationName?.trim();
-
-                          if (createOrganization || pendingPayment) {
-                            if (!orgName || orgName === "") {
-                              const isValid = await form.trigger(
-                                "organizationName"
-                              );
-                              if (!isValid) {
-                                toast.error(
-                                  "Please enter a valid organization name"
-                                );
-                                setIsProcessing(false);
-                                return;
-                              }
-                              // Re-check after validation
-                              const formData = form.getValues();
-                              if (
-                                !formData.organizationName ||
-                                formData.organizationName.trim() === ""
-                              ) {
-                                toast.error(
-                                  "Please enter an organization name"
-                                );
-                                setIsProcessing(false);
-                                return;
-                              }
-                            }
-                          }
-
-                          // Create demo order
-                          const planPrice = parseFloat(
-                            selectedPlan.price.toString().replace("$", "")
-                          );
-
-                          const orderResponse =
-                            await createPayPalOrderMutation.mutateAsync({
-                              planId: selectedPlan.id,
-                              amount: planPrice,
-                              currency: "USD",
-                            });
-
-                          if (orderResponse.data?.orderId) {
-                            // Mark backend demo mode if we get a demo order
-                            if (
-                              orderResponse.data.orderId.startsWith(
-                                "demo_order_"
-                              )
-                            ) {
-                              setIsBackendDemoMode(true);
-                            }
-
-                            // Process demo order directly (bypass PayPal SDK)
-                            // Use pending org data if available, otherwise use form data
-                            const orgName =
-                              (
-                                pendingOrgData as any
-                              )?.organizationName?.trim() ||
-                              (createOrganization || pendingPayment
-                                ? form.getValues().organizationName?.trim()
-                                : undefined);
-
-                            if (
-                              (createOrganization || pendingPayment) &&
-                              (!orgName || orgName === "")
-                            ) {
-                              toast.error("Please enter an organization name");
-                              setIsProcessing(false);
-                              return;
-                            }
-
-                            console.log("[Demo Payment] Capturing order:", {
-                              orderId: orderResponse.data.orderId,
-                              userId: userData.user.id,
-                              organizationName: orgName,
-                              planId: selectedPlan.id,
-                              createOrganization,
-                            });
-
-                            const captureResponse =
-                              await capturePayPalOrderMutation.mutateAsync({
-                                orderId: orderResponse.data.orderId,
-                                userId: userData.user.id,
-                                organizationName: orgName,
-                                planId: selectedPlan.id,
-                              });
-
-                            console.log(
-                              "[Demo Payment] Capture response:",
-                              captureResponse
-                            );
-
-                            if (captureResponse.data?.status === "COMPLETED") {
-                              toast.success(
-                                "Demo payment processed successfully!"
-                              );
-                              if (
-                                createOrganization &&
-                                captureResponse.data?.organization
-                              ) {
-                                toast.success(
-                                  "Organization created successfully!"
-                                );
-                              }
-                              setTimeout(() => {
-                                navigate("/dashboard");
-                              }, 1500);
-                            } else {
-                              console.error(
-                                "[Demo Payment] Payment not completed:",
-                                captureResponse
-                              );
-                              toast.error(
-                                captureResponse?.message ||
-                                  "Payment was not completed. Please try again."
-                              );
-                            }
-                          } else {
-                            console.error(
-                              "[Demo Payment] No order ID returned:",
-                              orderResponse
-                            );
-                            toast.error(
-                              "Failed to create order. Please try again."
-                            );
-                          }
-                        } catch (error: any) {
-                          console.error("Demo payment error:", error);
-                          toast.error(
-                            error?.response?.data?.message ||
-                              error?.message ||
-                              "Failed to process demo payment"
-                          );
-                        } finally {
-                          setIsProcessing(false);
-                        }
-                      }}
+                      onClick={handleDemoPayment}
                       disabled={
                         isProcessing || !selectedPlan || checkingBackendMode
                       }
@@ -908,14 +803,8 @@ const CheckoutPage = () => {
                         onApprove={handlePayPalApprove}
                         onError={handlePayPalError}
                         onCancel={() => {
-                          console.log("[PayPal] User cancelled payment");
                           toast.info("Payment cancelled");
                           setIsProcessing(false);
-                        }}
-                        onClick={(data, actions) => {
-                          console.log("[PayPal] Button clicked:", data);
-                          // Allow the default behavior
-                          return actions.resolve();
                         }}
                         disabled={isProcessing}
                         style={{
@@ -933,23 +822,10 @@ const CheckoutPage = () => {
                     <p className="font-semibold text-blue-800 mb-1">
                       PayPal Sandbox Mode
                     </p>
-                    <p className="text-blue-700 mb-2">
+                    <p className="text-blue-700">
                       Use PayPal sandbox test accounts to complete the purchase.
                       No real money will be charged.
                     </p>
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                      <p className="font-semibold text-yellow-800 mb-1 text-xs">
-                        ⚠️ Important:
-                      </p>
-                      <ul className="text-yellow-700 text-xs list-disc list-inside space-y-1">
-                        <li>Allow popups for this site in your browser</li>
-                        <li>Complete the PayPal login in the popup window</li>
-                        <li>Click "Pay Now" to approve the payment</li>
-                        <li>
-                          Do not close the popup before completing payment
-                        </li>
-                      </ul>
-                    </div>
                   </Box>
                 </>
               )}

@@ -3,7 +3,7 @@ import {
   type ApiResponse,
   type ErrorWithMessage,
 } from "@/configs/axios.config";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
@@ -75,4 +75,19 @@ export const useSubscriptionGuard = (
     hasActiveSubscription:
       data?.data?.hasSubscription && !data.data.requiresSubscription,
   };
+};
+
+export const useCancelSubscription = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ApiResponse<any>, ErrorWithMessage, void>({
+    mutationFn: async () => {
+      const response = await axios.post(`/subscriptions/cancel`);
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate subscription status query to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
+    },
+  });
 };

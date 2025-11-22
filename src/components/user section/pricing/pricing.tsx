@@ -6,9 +6,11 @@ import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { useFetchPublicPlans } from "@/hooks/usefetchplans";
 import { cn } from "@/lib/utils";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, ArrowRight } from "lucide-react";
 import { FC, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
+import { usePlanSelectionStore } from "@/store/planSelection.store";
+import { useUser } from "@/providers/user.provider";
 
 interface PricingProps {
   selectedPlan: number | null;
@@ -99,6 +101,8 @@ export const Pricing: FC<PricingProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [isAnimating, setIsAnimating] = useState(false);
+  const { setSelectedPlan: setStorePlan } = usePlanSelectionStore();
+  const { data: userData } = useUser(); // Check if user is authenticated
 
   // Check if user came from signup or signin
   const fromSignup = location.state?.fromSignup;
@@ -154,19 +158,47 @@ export const Pricing: FC<PricingProps> = ({
     },
   ];
 
+  // Handle plan selection (show feature preview)
+  const handlePlanSelect = (planIndex: number) => {
+    // Set visual selection for immediate feedback and show feature preview
+    setSelectedPlan(planIndex);
+  };
+
+  // Handle navigation to checkout
   const handleGetStarted = (planIndex: number) => {
     // Set visual selection for immediate feedback
     setSelectedPlan(planIndex);
 
-    // Always redirect to checkout when a plan is selected
-    // This handles:
-    // 1. New signup → pricing → select plan → checkout
-    // 2. Existing user (pending) → pricing → select plan → checkout
-    // 3. Regular user browsing → pricing → select plan → checkout
+    // Get plan details from API response
+    const selectedPlanData = plansResponse?.data?.[planIndex];
+    if (selectedPlanData) {
+      // Save plan selection to store
+      setStorePlan(planIndex, selectedPlanData.id, {
+        name: selectedPlanData.name,
+        price: selectedPlanData.price,
+        description: selectedPlanData.description,
+      });
+    }
+
+    // SIMPLIFIED FLOW: Check authentication first
+    // If user is NOT authenticated, go directly to signup (not checkout)
+    if (!userData?.user) {
+      // User not authenticated, go to signup first
+      navigate("/auth/signup", {
+        state: {
+          fromPricing: true,
+          selectedPlan: planIndex,
+        },
+        replace: false,
+      });
+      return;
+    }
+
+    // User is authenticated, go directly to checkout
     navigate("/checkout", {
       state: {
         selectedPlan: planIndex,
-        createOrganization: fromSignup || fromSignin || pendingAccount, // Create org if coming from signup/signin or has pending account
+        createOrganization: fromSignup || fromSignin || pendingAccount,
         fromSignup: fromSignup,
         fromSignin: fromSignin,
         pendingAccount: pendingAccount,
@@ -233,10 +265,10 @@ export const Pricing: FC<PricingProps> = ({
         <Stack className="justify-start items-start border-2 py-12 px-10 border-gray-100 rounded-xl max-w-[28rem] min-h-[23rem] max-sm:w-full bg-gradient-to-r from-indigo-50 to-white gap-3 relative z-0 overflow-hidden">
           {/* Dynamic Features Section */}
           <Box className="w-full flex items-start">
-            {selectedPlan !== null ? (
+            {selectedPlan !== null && plansResponse?.data?.[selectedPlan] ? (
               <Box
                 className={cn(
-                  "transition-all duration-300 ease-in-out",
+                  "transition-all duration-300 ease-in-out w-full",
                   isAnimating
                     ? "opacity-0 transform translate-y-2"
                     : "opacity-100 transform translate-y-0"
@@ -248,23 +280,33 @@ export const Pricing: FC<PricingProps> = ({
                   Features
                 </Box>
                 <Stack className="gap-3">
-                  {formatPlanFeatures(
-                    plansResponse?.data?.[selectedPlan]?.features
-                  ).map((feature, index) => (
-                    <Flex
-                      key={index}
-                      className={cn(
-                        "gap-4 transition-all duration-200",
-                        `animate-in slide-in-from-left-${(index + 1) * 100}`
-                      )}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <Box>
-                        <Check className="size-4" />
-                      </Box>
-                      <h1 className="text-black text-[15px]">{feature}</h1>
-                    </Flex>
-                  ))}
+                  {(() => {
+                    const features = formatPlanFeatures(
+                      plansResponse?.data?.[selectedPlan]?.features
+                    );
+                    if (features.length === 0) {
+                      return (
+                        <Box className="text-gray-500 text-sm text-center py-4">
+                          No features available for this plan
+                        </Box>
+                      );
+                    }
+                    return features.map((feature, index) => (
+                      <Flex
+                        key={index}
+                        className={cn(
+                          "gap-4 transition-all duration-200",
+                          `animate-in slide-in-from-left-${(index + 1) * 100}`
+                        )}
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <Box>
+                          <Check className="size-4 text-indigo-600" />
+                        </Box>
+                        <h1 className="text-black text-[15px]">{feature}</h1>
+                      </Flex>
+                    ));
+                  })()}
                 </Stack>
               </Box>
             ) : (
@@ -299,7 +341,7 @@ export const Pricing: FC<PricingProps> = ({
         <Stack className="gap-4 relative z-10">
           {planDetails.map((plan, index) => (
             <Flex
-              onClick={() => handleGetStarted(index)}
+              onClick={() => handlePlanSelect(index)}
               key={index}
               className={`flex-col justify-between items-center px-6 py-8 rounded-xl gap-5 max-sm:p-5 transition-all duration-300 cursor-pointer ${
                 selectedPlan === index
@@ -313,7 +355,7 @@ export const Pricing: FC<PricingProps> = ({
                     <Checkbox
                       className="rounded-full size-4.5 cursor-pointer mb-6"
                       checked={selectedPlan === index}
-                      onChange={() => handleGetStarted(index)}
+                      onChange={() => handlePlanSelect(index)}
                     />
                     <Flex className="flex-col items-start gap-0">
                       <Box
@@ -349,19 +391,22 @@ export const Pricing: FC<PricingProps> = ({
                 </Flex>
               </Flex>
 
-              <Button
-                variant="ghost"
-                className={cn(
-                  "bg-gradient-to-r from-white to-indigo-300 cursor-pointer border border-gray-200 px-4 py-2 rounded-lg hidden hover:border-white font-Outfit text-sm text-gray-800",
-                  selectedPlan === index && "max-sm:flex"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering the parent onClick
-                  handleGetStarted(index);
-                }}
-              >
-                {fromSignup ? "Continue to Setup" : "Get Started"}
-              </Button>
+              {/* Get Started Button - Visible on both desktop and mobile when plan is selected */}
+              {selectedPlan === index && (
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "bg-gradient-to-r from-white to-indigo-300 cursor-pointer border border-gray-200 px-4 py-2 rounded-lg hover:border-white font-Outfit text-sm text-gray-800 w-full mt-2"
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the parent onClick
+                    handleGetStarted(index);
+                  }}
+                >
+                  {fromSignup ? "Continue to Setup" : "Get Started"}
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              )}
             </Flex>
           ))}
         </Stack>

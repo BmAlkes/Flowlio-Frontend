@@ -7,7 +7,10 @@ import { toast } from "sonner";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { ComponentWrapper } from "@/components/common/componentwrapper";
-import { useSubscriptionStatus } from "@/hooks/usesubscription";
+import {
+  useSubscriptionStatus,
+  useCancelSubscription,
+} from "@/hooks/usesubscription";
 import { useAvailablePlans } from "@/hooks/useavailableplans";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,6 +33,8 @@ const SubscriptionsPage = () => {
     error: subscriptionError,
     refetch: refetchSubscription,
   } = useSubscriptionStatus();
+
+  const cancelSubscriptionMutation = useCancelSubscription();
 
   const {
     data: plansData,
@@ -92,6 +97,30 @@ const SubscriptionsPage = () => {
   // Handle refresh
   const handleRefresh = () => {
     refetchSubscription();
+  };
+
+  // Handle cancellation
+  const handleCancelSubscription = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to cancel your subscription? This action is non-refundable. Your subscription will remain active until the end of the current billing period."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await cancelSubscriptionMutation.mutateAsync();
+      toast.success(
+        "Subscription cancelled successfully. It will remain active until the end of the current billing period."
+      );
+      refetchSubscription();
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to cancel subscription. Please try again."
+      );
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -201,7 +230,9 @@ const SubscriptionsPage = () => {
                     <Flex className="justify-between">
                       <Box className="text-sm text-gray-600 flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        Trial Ends:
+                        {subscriptionStatus.subscription.isTrial
+                          ? "Trial Ends:"
+                          : "Period Ends:"}
                       </Box>
                       <Box className="font-semibold">
                         {formatDate(
@@ -223,6 +254,41 @@ const SubscriptionsPage = () => {
                         </Box>
                       </Box>
                     )}
+                    {subscriptionStatus.subscription.cancelAtPeriodEnd && (
+                      <Box className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                        <Box className="text-orange-800 font-medium mb-1">
+                          ⚠️ Subscription Cancelled
+                        </Box>
+                        <Box className="text-orange-700 text-sm">
+                          Your subscription is scheduled to cancel on{" "}
+                          {formatDate(
+                            subscriptionStatus.subscription.currentPeriodEnd
+                          )}
+                          . You will continue to have access until then.
+                        </Box>
+                      </Box>
+                    )}
+                    {subscriptionStatus.status === "active" &&
+                      !subscriptionStatus.subscription.cancelAtPeriodEnd &&
+                      !subscriptionStatus.subscription.isTrial && (
+                        <Box className="mt-4">
+                          <Button
+                            onClick={handleCancelSubscription}
+                            variant="destructive"
+                            disabled={cancelSubscriptionMutation.isPending}
+                            className="w-full"
+                          >
+                            {cancelSubscriptionMutation.isPending
+                              ? "Cancelling..."
+                              : "Cancel Subscription"}
+                          </Button>
+                          <Box className="text-xs text-gray-500 mt-2 text-center">
+                            Note: Cancellation is non-refundable. Your
+                            subscription will remain active until the end of the
+                            current billing period.
+                          </Box>
+                        </Box>
+                      )}
                   </>
                 )}
               </Box>

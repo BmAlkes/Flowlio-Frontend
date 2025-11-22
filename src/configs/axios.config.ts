@@ -26,16 +26,10 @@ const sanitizeDomain = (domain: string) => {
 };
 // deployment issue solving
 export const backendDomain =
-  import.meta.env.VITE_BACKEND_DOMAIN ||
-  import.meta.env.VITE_BACKEND_URL ||
-  "http://localhost:3000";
+  import.meta.env.VITE_BACKEND_DOMAIN || "http://localhost:3000";
+// Export as backendURL for Better Auth (needs base URL without /api)
+export const backendURL = backendDomain;
 export const url = sanitizeDomain(backendDomain);
-
-// Export backend URL for direct use (without /api suffix)
-export const backendURL =
-  import.meta.env.VITE_BACKEND_URL ||
-  import.meta.env.VITE_BACKEND_DOMAIN ||
-  "http://localhost:3000";
 
 export const axios = ax.create({
   baseURL: url,
@@ -54,75 +48,17 @@ axios.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle organization deactivation errors (403)
-    if (error.response?.status === 403) {
-      const errorCode = error.response?.data?.code;
-      const errorMessage = error.response?.data?.message;
+    // Handle specific sub admin deactivation error
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.code === "SUBADMIN_DEACTIVATED"
+    ) {
+      // Force logout if sub admin is deactivated
+      localStorage.removeItem("auth-token");
+      localStorage.removeItem("user-session");
 
-      // Handle sub admin deactivation
-      if (errorCode === "SUBADMIN_DEACTIVATED") {
-        // Force logout if sub admin is deactivated
-        localStorage.removeItem("auth-token");
-        localStorage.removeItem("user-session");
-        // Redirect to login with specific message
-        window.location.href = "/auth/signin?message=deactivated";
-        return Promise.reject(error);
-      }
-
-      // Handle organization/demo account deactivation
-      if (errorCode === "ORGANIZATION_DEACTIVATED") {
-        // Store error message in sessionStorage to display on sign-in page
-        if (errorMessage) {
-          sessionStorage.setItem("deactivationError", errorMessage);
-        }
-        // Force logout
-        localStorage.removeItem("auth-token");
-        localStorage.removeItem("user-session");
-        // Redirect to login
-        window.location.href = "/auth/signin?message=organization_deactivated";
-        return Promise.reject(error);
-      }
-
-      // Handle trial expired
-      if (errorCode === "TRIAL_EXPIRED") {
-        if (errorMessage) {
-          sessionStorage.setItem("trialExpiredError", errorMessage);
-        }
-        localStorage.removeItem("auth-token");
-        localStorage.removeItem("user-session");
-        window.location.href = "/auth/signin?message=trial_expired";
-        return Promise.reject(error);
-      }
-
-      // Handle payment pending
-      if (errorCode === "PAYMENT_PENDING") {
-        if (errorMessage) {
-          sessionStorage.setItem("paymentPendingError", errorMessage);
-        }
-        localStorage.removeItem("auth-token");
-        localStorage.removeItem("user-session");
-        window.location.href = "/auth/signin?message=payment_pending";
-        return Promise.reject(error);
-      }
-
-      // Handle user pending (account not activated)
-      // Don't log out - redirect to checkout to complete payment
-      if (errorCode === "USER_PENDING") {
-        const pendingData = error.response?.data?.data;
-        if (errorMessage) {
-          sessionStorage.setItem("paymentPendingError", errorMessage);
-        }
-        // Store pending payment data
-        if (pendingData) {
-          sessionStorage.setItem(
-            "pendingPaymentData",
-            JSON.stringify(pendingData)
-          );
-        }
-        // Redirect to checkout instead of sign-in
-        window.location.href = "/checkout?pending=true";
-        return Promise.reject(error);
-      }
+      // Redirect to login with specific message
+      window.location.href = "/auth/signin?message=deactivated";
     }
 
     // Handle unauthorized access (401) - session expired or invalid
