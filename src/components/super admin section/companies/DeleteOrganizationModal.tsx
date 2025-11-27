@@ -19,6 +19,7 @@ interface DeleteOrganizationModalProps {
   onClose: () => void;
   organizationId: string;
   organizationName: string;
+  onSuccess?: () => void;
 }
 
 export const DeleteOrganizationModal = ({
@@ -26,6 +27,7 @@ export const DeleteOrganizationModal = ({
   onClose,
   organizationId,
   organizationName,
+  onSuccess,
 }: DeleteOrganizationModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteOrganizationMutation = useDeleteOrganization();
@@ -35,6 +37,10 @@ export const DeleteOrganizationModal = ({
       setIsDeleting(true);
       await deleteOrganizationMutation.mutateAsync(organizationId);
       onClose();
+      // Call onSuccess callback if provided (e.g., to redirect)
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
       console.error("Failed to delete organization:", error);
     } finally {
@@ -61,22 +67,52 @@ export const DeleteOrganizationModal = ({
         </DialogHeader>
 
         <Box className="py-4">
-          <Box className="space-y-2 text-sm text-gray-600">
+          <Box className="space-y-2 text-sm text-gray-600 max-h-96 overflow-y-auto">
             <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500" />
-              <span>All user memberships</span>
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All user memberships and relationships</span>
             </Flex>
             <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500" />
-              <span>All subscription data</span>
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All subscription data and payment history</span>
             </Flex>
             <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500" />
-              <span>All projects and tasks</span>
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All projects and project comments</span>
             </Flex>
             <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500" />
-              <span>All invoices and payments</span>
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All tasks and time entries</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All invoices and payment links</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All clients and client data</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All calendar events</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All notifications and activities</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All audit logs and user management records</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span>All invitations and support tickets</span>
+            </Flex>
+            <Flex className="items-center gap-2">
+              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span className="font-semibold text-red-600">
+                The organization itself (permanent deletion)
+              </span>
             </Flex>
           </Box>
         </Box>

@@ -188,6 +188,29 @@ export const CompaniesTable = () => {
           userStatus === null ||
           userStatus === undefined;
 
+        // Check if subscription is cancelled (cancelAtPeriodEnd = true)
+        const subscriptions = row.original.subscriptions as
+          | Array<{
+              cancelAtPeriodEnd?: boolean;
+              cancelledAt?: string | Date | null;
+              status?: string;
+            }>
+          | undefined;
+        const activeSubscription = subscriptions?.[0]; // Most recent subscription
+        const isCancelled = activeSubscription?.cancelAtPeriodEnd === true;
+
+        // If subscription is cancelled, show "Unsub" in red
+        if (isCancelled) {
+          return (
+            <Center>
+              <Flex className="rounded-md capitalize w-28 h-10 gap-2 border items-center justify-center text-white bg-red-600 border-none">
+                <Flex className="w-2 h-2 rounded-full bg-white" />
+                <Box>Unsub</Box>
+              </Flex>
+            </Center>
+          );
+        }
+
         // If user has pending payment, show as "non active"
         const status = hasPendingPayment
           ? "non active"

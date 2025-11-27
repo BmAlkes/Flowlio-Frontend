@@ -16,8 +16,22 @@ export const useSessionPersistence = () => {
 
   useEffect(() => {
     // Only store page visits for authenticated users
+    // Don't store public routes (home, pricing, workflow, insights, auth pages)
     if (!isLoading && userData?.user) {
-      storeLastVisitedPage(location.pathname);
+      const publicRoutes = [
+        "/",
+        "/pricing",
+        "/workflow",
+        "/insights",
+        "/privacy-policy",
+        "/terms-of-service",
+      ];
+      const isAuthRoute = location.pathname.startsWith("/auth");
+
+      // Only store protected routes, not public routes
+      if (!publicRoutes.includes(location.pathname) && !isAuthRoute) {
+        storeLastVisitedPage(location.pathname);
+      }
     }
   }, [location.pathname, userData?.user, isLoading]);
 };
@@ -37,8 +51,23 @@ export const useSessionRestoration = () => {
       const lastVisited = getLastVisitedPage();
       const currentPath = location.pathname;
 
-      // If user is on home page or root, redirect to last visited page
-      if (currentPath === "/" && lastVisited) {
+      // Define public routes where users should be allowed to stay
+      const publicRoutes = [
+        "/",
+        "/pricing",
+        "/workflow",
+        "/insights",
+        "/privacy-policy",
+        "/terms-of-service",
+      ];
+
+      // Don't redirect if user is on a public route - let them stay there
+      // Only redirect from home page if they have a last visited protected route
+      if (
+        currentPath === "/" &&
+        lastVisited &&
+        !publicRoutes.includes(lastVisited)
+      ) {
         console.log(
           "🔄 Restoring session - redirecting from",
           currentPath,
@@ -47,10 +76,12 @@ export const useSessionRestoration = () => {
         );
         navigate(lastVisited, { replace: true });
       } else if (currentPath === "/" && !lastVisited) {
-        // If no last visited page, redirect to dashboard
-        console.log("🔄 No last visited page - redirecting to dashboard");
-        navigate("/dashboard", { replace: true });
+        // If no last visited page, don't force redirect - let user stay on home page
+        // Only redirect to dashboard if user explicitly navigates to protected routes
+        console.log("🔄 No last visited page - user can stay on home page");
+        // Don't redirect - let user stay on home page
       }
+      // If user is on any other public route, let them stay there
     }
   }, [userData?.user, isLoading, navigate, location.pathname]);
 };
