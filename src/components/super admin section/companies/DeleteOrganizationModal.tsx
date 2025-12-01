@@ -32,6 +32,9 @@ export const DeleteOrganizationModal = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteOrganizationMutation = useDeleteOrganization();
 
+  // Check if this is a pending user (virtual organization ID)
+  const isPendingUser = organizationId?.startsWith("pending_");
+
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
@@ -54,66 +57,105 @@ export const DeleteOrganizationModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600">
             <AlertTriangle className="h-5 w-5" />
-            Delete Organization
+            {isPendingUser ? "Delete Pending User" : "Delete Organization"}
           </DialogTitle>
           <DialogDescription className="text-gray-600">
-            This action cannot be undone. This will permanently delete the
-            organization{" "}
+            This action cannot be undone. This will permanently delete{" "}
+            {isPendingUser ? "the pending user" : "the organization"}{" "}
             <span className="font-semibold text-gray-900">
               "{organizationName}"
             </span>{" "}
-            and remove all associated data including:
+            {isPendingUser
+              ? "and remove all associated data including:"
+              : "and remove all associated data including:"}
           </DialogDescription>
         </DialogHeader>
 
         <Box className="py-4">
           <Box className="space-y-2 text-sm text-gray-600 max-h-96 overflow-y-auto">
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All user memberships and relationships</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All subscription data and payment history</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All projects and project comments</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All tasks and time entries</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All invoices and payment links</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All clients and client data</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All calendar events</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All notifications and activities</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All audit logs and user management records</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span>All invitations and support tickets</span>
-            </Flex>
-            <Flex className="items-center gap-2">
-              <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span className="font-semibold text-red-600">
-                The organization itself (permanent deletion)
-              </span>
-            </Flex>
+            {isPendingUser ? (
+              <>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>User account and authentication data</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All sessions and login records</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All time entries</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All notifications</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All support tickets</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>Pending organization data</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span className="font-semibold text-red-600">
+                    The user account itself (permanent deletion)
+                  </span>
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All user memberships and relationships</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All subscription data and payment history</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All projects and project comments</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All tasks and time entries</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All invoices and payment links</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All clients and client data</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All calendar events</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All notifications and activities</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All audit logs and user management records</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span>All invitations and support tickets</span>
+                </Flex>
+                <Flex className="items-center gap-2">
+                  <Trash2 className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  <span className="font-semibold text-red-600">
+                    The organization itself (permanent deletion)
+                  </span>
+                </Flex>
+              </>
+            )}
           </Box>
         </Box>
 
@@ -140,7 +182,7 @@ export const DeleteOrganizationModal = ({
             ) : (
               <Center className="gap-2">
                 <Trash2 className="h-4 w-4" />
-                Delete Organization
+                {isPendingUser ? "Delete User" : "Delete Organization"}
               </Center>
             )}
           </Button>

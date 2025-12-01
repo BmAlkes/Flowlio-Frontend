@@ -4,7 +4,7 @@ import { Center } from "@/components/ui/center";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { ComponentWrapper } from "@/components/common/componentwrapper";
 import {
@@ -12,6 +12,12 @@ import {
   useCancelSubscription,
 } from "@/hooks/usesubscription";
 import { useAvailablePlans } from "@/hooks/useavailableplans";
+import {
+  useCreateUpgradeOrder,
+  useCaptureUpgradeOrder,
+} from "@/hooks/usePlanUpgrade";
+import { PlanFeaturesModal } from "@/components/subscriptions/PlanFeaturesModal";
+import { Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle,
@@ -26,6 +32,13 @@ import {
 
 const SubscriptionsPage = () => {
   const navigate = useNavigate();
+  const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
+  const [selectedPlanForFeatures, setSelectedPlanForFeatures] = useState<{
+    name: string;
+    price: string | number;
+    description?: string;
+    features?: any[];
+  } | null>(null);
 
   const {
     data: subscriptionData,
@@ -35,6 +48,8 @@ const SubscriptionsPage = () => {
   } = useSubscriptionStatus();
 
   const cancelSubscriptionMutation = useCancelSubscription();
+  const createUpgradeOrderMutation = useCreateUpgradeOrder();
+  const captureUpgradeOrderMutation = useCaptureUpgradeOrder();
 
   const {
     data: plansData,
@@ -120,6 +135,97 @@ const SubscriptionsPage = () => {
         error?.response?.data?.message ||
           "Failed to cancel subscription. Please try again."
       );
+    }
+  };
+
+  // Handle plan upgrade
+  const handlePlanUpgrade = async (newPlanId: string) => {
+    setProcessingPlanId(newPlanId);
+    try {
+      // Enable demo mode for testing (set to false in production)
+      const isDemoMode =
+        import.meta.env.VITE_ENABLE_DEMO_MODE === "true" || true;
+
+      // Create upgrade order
+      const orderResponse = await createUpgradeOrderMutation.mutateAsync({
+        newPlanId,
+        demoMode: isDemoMode,
+      });
+
+      const orderData = orderResponse.data;
+
+      // If amount is 0 (free upgrade/downgrade), capture immediately
+      if (orderData?.amount === 0 || !orderData?.orderId) {
+        toast.success("Plan updated successfully (no payment required)");
+        setProcessingPlanId(null);
+        refetchSubscription();
+        return;
+      }
+
+      // Check if it's a demo order
+      if (
+        orderData.orderId &&
+        (orderData.orderId.startsWith("demo_") ||
+          orderData.orderId.startsWith("demo_upgrade_"))
+      ) {
+        // Demo order - capture immediately
+        await handleCaptureUpgrade(orderData.orderId, newPlanId);
+      } else {
+        // Real PayPal order - show message and redirect
+        toast.info("Redirecting to PayPal for payment...");
+        // Open PayPal checkout in new window
+        const paypalUrl =
+          import.meta.env.VITE_PAYPAL_MODE === "live"
+            ? `https://www.paypal.com/checkoutnow?token=${orderData.orderId}`
+            : `https://www.sandbox.paypal.com/checkoutnow?token=${orderData.orderId}`;
+        const paypalWindow = window.open(
+          paypalUrl,
+          "PayPal",
+          "width=600,height=700"
+        );
+
+        // Poll for window close or listen for message
+        const checkInterval = setInterval(() => {
+          if (paypalWindow?.closed) {
+            clearInterval(checkInterval);
+            // Ask user if payment was completed
+            if (
+              window.confirm(
+                "Have you completed the PayPal payment? Click OK to verify your upgrade."
+              )
+            ) {
+              handleCaptureUpgrade(orderData?.orderId || "", newPlanId);
+            } else {
+              setProcessingPlanId(null);
+            }
+          }
+        }, 1000);
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to create upgrade order"
+      );
+      setProcessingPlanId(null);
+    }
+  };
+
+  // Handle upgrade order capture
+  const handleCaptureUpgrade = async (orderId: string, newPlanId: string) => {
+    try {
+      await captureUpgradeOrderMutation.mutateAsync({
+        orderId,
+        newPlanId:
+          orderId.startsWith("demo_") || orderId.startsWith("demo_upgrade_")
+            ? newPlanId
+            : undefined,
+      });
+      setProcessingPlanId(null);
+      refetchSubscription();
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Failed to complete upgrade"
+      );
+      setProcessingPlanId(null);
     }
   };
 
@@ -314,6 +420,94 @@ const SubscriptionsPage = () => {
         )}
 
         {/* Available Plans */}
+        {availablePlans.length > 0 && subscriptionStatus?.hasSubscription && (
+          <Box className="mt-8 max-w-5xl w-full">
+            <Box className="text-2xl font-semibold mb-2 text-center text-gray-900">
+              Upgrade Your Subscription
+            </Box>
+            <Box className="text-sm text-gray-600 text-center mb-6">
+              Choose a plan that best fits your business needs. Upgrades are
+              prorated based on your remaining billing period.
+            </Box>
+            <Stack className="gap-4">
+              {availablePlans.map((plan) => {
+                const isCurrentPlan = subscriptionStatus.plan?.id === plan.id;
+                const isUpgrade =
+                  subscriptionStatus.plan?.id &&
+                  parseFloat(plan.price.toString()) >
+                    parseFloat(
+                      subscriptionStatus.plan?.price?.toString() || "0"
+                    );
+
+                return (
+                  <Box
+                    key={plan.id}
+                    className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 cursor-default ${
+                      isCurrentPlan
+                        ? "border-2 border-[#1797B9] ring-2 ring-[#1797B9]/20"
+                        : "border border-gray-200"
+                    }`}
+                  >
+                    <Flex className="justify-between items-start mb-4">
+                      <Box>
+                        <Box className="text-xl font-semibold mb-1">
+                          {plan.name}
+                          {isCurrentPlan && (
+                            <Badge className="ml-2 bg-[#1797B9]">
+                              Current Plan
+                            </Badge>
+                          )}
+                        </Box>
+                        <Box className="text-sm text-gray-600">
+                          {plan.description}
+                        </Box>
+                      </Box>
+                      <Box className="text-right">
+                        <Box className="text-2xl font-bold">${plan.price}</Box>
+                        <Box className="text-sm text-gray-600">
+                          per {plan.billingCycle || "month"}
+                        </Box>
+                      </Box>
+                    </Flex>
+
+                    <Flex className="gap-2 mb-4">
+                      <Button
+                        onClick={() =>
+                          setSelectedPlanForFeatures({
+                            name: plan.name,
+                            price: plan.price,
+                            description: plan.description,
+                            features: plan.features,
+                          })
+                        }
+                        variant="outline"
+                        className="flex-1 border-[#1797B9] text-[#1797B9] hover:bg-[#1797B9] hover:text-white transition-all duration-200 cursor-pointer rounded-full"
+                      >
+                        <Info className="h-4 w-4 mr-2" />
+                        View Features
+                      </Button>
+                      <Button
+                        onClick={() => handlePlanUpgrade(plan.id)}
+                        className="flex-1 bg-[#1797B9] text-white rounded-full hover:bg-[#1797B9]/80 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={isCurrentPlan || processingPlanId !== null}
+                      >
+                        {isCurrentPlan
+                          ? "Current Plan"
+                          : processingPlanId === plan.id
+                          ? "Processing..."
+                          : isUpgrade
+                          ? "Upgrade Plan"
+                          : "Change Plan"}
+                      </Button>
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </Stack>
+          </Box>
+        )}
+
+        {/* Available Plans - Commented out old code */}
         {/* {availablePlans.length > 0 && (
           <Box className="mt-8 max-w-4xl w-full">
             <Box className="text-xl font-semibold mb-4 text-center">
@@ -398,6 +592,18 @@ const SubscriptionsPage = () => {
             </Box>
           )}
       </Center>
+
+      {/* Plan Features Modal */}
+      {selectedPlanForFeatures && (
+        <PlanFeaturesModal
+          isOpen={!!selectedPlanForFeatures}
+          onClose={() => setSelectedPlanForFeatures(null)}
+          planName={selectedPlanForFeatures.name}
+          planPrice={selectedPlanForFeatures.price}
+          planDescription={selectedPlanForFeatures.description}
+          features={selectedPlanForFeatures.features}
+        />
+      )}
     </ComponentWrapper>
   );
 };
