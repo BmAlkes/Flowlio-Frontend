@@ -1,7 +1,7 @@
 import { Box } from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
-import { Flex } from "@/components/ui/flex";
+// import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
