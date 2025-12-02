@@ -13,7 +13,7 @@ import { useEffect } from "react";
 const HomePage = () => {
   useEffect(() => {
     scrollTo(0, 0);
-    document.title = "Home - Flowlio";
+    document.title = "Flowlio";
   }, []);
 
   return (
