@@ -17,11 +17,11 @@ export const Hero = () => {
 
       <Center className="items-center justify-center text-center gap-2">
         <a href="https://www.dotvizion.com" target="_blank" rel="noreferrer">
-        <img src="/home/dotvizion.svg" alt="logo" className="size-52" />
+        <img src="/home/dotvizion.svg" alt="logo" className="size-36" />
+        </a>
         <Box className="text-[14px] text-gray-600 font-normal pb-2">
           work platform
         </Box>
-        </a>
       </Center>
 
       <Center className="-mt-2 px-2 relative z-[40]">
