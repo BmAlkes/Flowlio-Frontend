@@ -27,7 +27,7 @@ export const Footer = () => {
         <Flex className="container mx-auto max-w-5xl justify-between items-start flex-wrap gap-8">
           {/* Column 1: Logo, text, and language */}
           <Center className="w-full md:w-1/4  items-start flex-col">
-          <a href="www.dotvizion.com">
+          <a href="https://www.dotvizion.com">
             <img src={Logo} alt="Dotvizion" className="h-18 w-auto mb-4" />
           </a>
             <p className="text-gray-400 mb-6 text-sm">

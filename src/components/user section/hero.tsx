@@ -16,7 +16,7 @@ export const Hero = () => {
       <Box className="absolute -z-10 top-110 right-0 w-40 h-100 bg-[#2B2BA0]/50 blur-3xl opacity-20 " />
 
       <Center className="items-center justify-center text-center gap-2">
-        <a href="www.dotvizion.com" target="_blank" rel="noreferrer">
+        <a href="https://www.dotvizion.com" target="_blank" rel="noreferrer">
         <img src="/home/dotvizion.svg" alt="logo" className="size-30" />
         </a>
         <Box className="text-[14px] text-gray-600 font-normal pb-2">
