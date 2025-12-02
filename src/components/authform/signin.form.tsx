@@ -140,10 +140,57 @@ export const SignInForm: FC = () => {
             // Check if user has 2FA enabled by fetching profile
             const profileResponse = await axios.get("/user/profile");
 
-            // Check if organization is deactivated or trial expired
-            // NOTE: We don't block USER_PENDING here - we redirect to checkout instead
+            // Check if organization is deactivated, trial expired, or user is pending
+            // NOTE: USER_PENDING should redirect to checkout, not log out
             if (profileResponse.status === 403) {
               const errorCode = profileResponse.data?.code;
+              const errorData = profileResponse.data?.data;
+
+              // Handle pending users - redirect to checkout
+              if (
+                errorCode === "USER_PENDING" ||
+                errorCode === "USER_PENDING_NO_PLAN"
+              ) {
+                const errorMessage =
+                  typeof profileResponse.data?.message === "string"
+                    ? profileResponse.data.message
+                    : "Your account is pending payment. Please complete your payment to access your account.";
+
+                toast.info(errorMessage);
+
+                // Refresh user context first
+                await refetchUser();
+
+                // Redirect to checkout if user has payment data, otherwise to pricing
+                if (
+                  errorCode === "USER_PENDING" &&
+                  (errorData?.selectedPlanId ||
+                    errorData?.pendingOrganizationData)
+                ) {
+                  navigate("/checkout", {
+                    state: {
+                      pendingPayment: true,
+                      selectedPlanId: errorData?.selectedPlanId,
+                      pendingOrganizationData:
+                        errorData?.pendingOrganizationData,
+                    },
+                    replace: true,
+                  });
+                } else {
+                  navigate("/pricing", {
+                    state: {
+                      fromSignin: true,
+                      pendingAccount: true,
+                    },
+                    replace: true,
+                  });
+                }
+
+                setIsLoading(false);
+                return;
+              }
+
+              // Handle organization deactivated or trial expired
               if (
                 errorCode === "ORGANIZATION_DEACTIVATED" ||
                 errorCode === "TRIAL_EXPIRED"
@@ -371,15 +418,55 @@ export const SignInForm: FC = () => {
             // Check if organization is deactivated, trial expired, or payment pending
             if ((error as any).response?.status === 403) {
               const errorCode = (error as any).response?.data?.code;
+              const errorData = (error as any).response?.data?.data;
               const errorMessage =
                 (error as any).response?.data?.message ||
                 "Access denied. Please contact the administrator for assistance.";
 
+              // Handle pending users - redirect to checkout instead of logging out
+              if (
+                errorCode === "USER_PENDING" ||
+                errorCode === "USER_PENDING_NO_PLAN"
+              ) {
+                toast.info(errorMessage);
+
+                // Refresh user context first
+                await refetchUser();
+
+                // Redirect to checkout if user has payment data, otherwise to pricing
+                if (
+                  errorCode === "USER_PENDING" &&
+                  (errorData?.selectedPlanId ||
+                    errorData?.pendingOrganizationData)
+                ) {
+                  navigate("/checkout", {
+                    state: {
+                      pendingPayment: true,
+                      selectedPlanId: errorData?.selectedPlanId,
+                      pendingOrganizationData:
+                        errorData?.pendingOrganizationData,
+                    },
+                    replace: true,
+                  });
+                } else {
+                  navigate("/pricing", {
+                    state: {
+                      fromSignin: true,
+                      pendingAccount: true,
+                    },
+                    replace: true,
+                  });
+                }
+
+                setIsLoading(false);
+                return;
+              }
+
+              // Handle other 403 errors (organization deactivated, trial expired, etc.)
               if (
                 errorCode === "ORGANIZATION_DEACTIVATED" ||
                 errorCode === "TRIAL_EXPIRED" ||
-                errorCode === "PAYMENT_PENDING" ||
-                errorCode === "USER_PENDING"
+                errorCode === "PAYMENT_PENDING"
               ) {
                 toast.error(errorMessage);
 

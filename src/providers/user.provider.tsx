@@ -50,6 +50,15 @@ type Data = {
     };
     phone?: string;
     address?: string;
+    status?: string | null;
+    selectedPlanId?: string | null;
+    pendingOrganizationData?: {
+      organizationName?: string;
+      organizationWebsite?: string;
+      organizationIndustry?: string;
+      organizationSize?: string;
+      planId?: string;
+    } | null;
   };
   session: SessionObject["session"];
 };

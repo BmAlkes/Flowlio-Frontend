@@ -11,12 +11,15 @@ import { PlanAccessDisplay } from "./PlanAccessDisplay";
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useGetCompanyDetails } from "@/hooks/useGetCompanyDetails";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
+import { DeleteOrganizationModal } from "./DeleteOrganizationModal";
 
 export const ViewDetails = () => {
   const navigate = useNavigate();
   const { slug } = useParams();
+  const [showPlanAccess, setShowPlanAccess] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // Fetch all organizations to find the one matching the slug
   const { data: organizationsResponse } = useFetchAllOrganizations();
@@ -119,7 +122,7 @@ export const ViewDetails = () => {
                 ID : {companyDetails.organization.id.slice(0, 6)}
               </p>
               <Flex
-                className={`capitalize w-28 h-10 gap-2 border justify-center items-center text-green-600 bg-white border-${
+                className={`capitalize w-28 h-12 gap-2 border justify-center items-center text-green-600 bg-white border-${
                   companyDetails.organization.status === "active"
                     ? "[#00A400]"
                     : "[#FF0000]"
@@ -210,9 +213,65 @@ export const ViewDetails = () => {
                 </h1>
               </Flex>
             </Stack>
+
+            {/* See Access Button */}
+            {companyDetails.subscription?.plan &&
+              (companyDetails.subscription.plan as any).features && (
+                <Box className="mt-6 px-4">
+                  <Button
+                    onClick={() => setShowPlanAccess(!showPlanAccess)}
+                    variant="outline"
+                    className="w-full border-[#1797B9] text-[#1797B9] hover:bg-[#1797B9] hover:text-white transition-colors cursor-pointer"
+                  >
+                    {showPlanAccess ? "Hide Access" : "See Access"}
+                  </Button>
+                </Box>
+              )}
+
+            {/* Cancellation Details (Unsub Details) */}
+            {companyDetails.subscription?.cancelAtPeriodEnd && (
+              <Box className="mt-6 px-4">
+                <hr className="border border-gray-200 mb-4" />
+                <Stack className="gap-2">
+                  <Flex className="items-center gap-2">
+                    <Box className="w-2 h-2 rounded-full bg-red-600" />
+                    <h1 className="text-sm font-medium text-red-600">
+                      Subscription Cancelled
+                    </h1>
+                  </Flex>
+                  {companyDetails.subscription?.cancelledAt && (
+                    <Box className="text-xs text-gray-600">
+                      Cancelled on:{" "}
+                      {new Date(
+                        companyDetails.subscription.cancelledAt
+                      ).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Box>
+                  )}
+                  {companyDetails.subscription?.currentPeriodEnd && (
+                    <Box className="text-xs text-gray-600">
+                      Access until:{" "}
+                      {new Date(
+                        companyDetails.subscription.currentPeriodEnd
+                      ).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Box>
+                  )}
+                </Stack>
+              </Box>
+            )}
           </Box>
-          <Center className="w-full p-4 pt-0">
-            <Button className="bg-[#B92323] text-white rounded-full w-full h-12 hover:bg-[#B92323]/80 cursor-pointer">
+          <Center className="w-full p-4 pt-4">
+            <Button
+              onClick={() => setDeleteModalOpen(true)}
+              className="bg-[#B92323] text-white rounded-full w-full h-12 hover:bg-[#B92323]/80 cursor-pointer"
+            >
               Delete Company
             </Button>
           </Center>
@@ -258,12 +317,14 @@ export const ViewDetails = () => {
             </ComponentWrapper>
 
             {/* Subscription Plan Card */}
-            <ComponentWrapper className="w-full lg:w-74 bg-white px-4 py-4 border border-gray-200 shadow-none h-44">
+            <ComponentWrapper className="w-full lg:w-74 bg-white px-4 py-4 border border-gray-200 shadow-none min-h-44">
               <Flex className="justify-between items-center mb-6">
                 <h1 className="font-medium text-lg">Subscription Plan</h1>
                 <Flex
                   className={`capitalize w-18 h-7 gap-2 border justify-center items-center text-green-600 bg-white border-${
-                    companyDetails.subscription?.status === "active"
+                    companyDetails.subscription?.cancelAtPeriodEnd
+                      ? "red-600"
+                      : companyDetails.subscription?.status === "active"
                       ? "[#00A400]"
                       : "[#FF0000]"
                   } rounded-full`}
@@ -271,19 +332,25 @@ export const ViewDetails = () => {
                   <Center className="gap-2">
                     <Flex
                       className={`w-1.5 h-1.5 items-start rounded-full bg-${
-                        companyDetails.subscription?.status === "active"
+                        companyDetails.subscription?.cancelAtPeriodEnd
+                          ? "red-600"
+                          : companyDetails.subscription?.status === "active"
                           ? "[#00A400]"
                           : "[#FF0000]"
                       }`}
                     />
                     <h1
                       className={`text-${
-                        companyDetails.subscription?.status === "active"
+                        companyDetails.subscription?.cancelAtPeriodEnd
+                          ? "red-600"
+                          : companyDetails.subscription?.status === "active"
                           ? "[#00A400]"
                           : "[#FF0000]"
                       } text-xs`}
                     >
-                      {companyDetails.subscription?.status || "No Plan"}
+                      {companyDetails.subscription?.cancelAtPeriodEnd
+                        ? "Unsub"
+                        : companyDetails.subscription?.status || "No Plan"}
                     </h1>
                   </Center>
                 </Flex>
@@ -309,8 +376,9 @@ export const ViewDetails = () => {
             </ComponentWrapper>
           </Flex>
 
-          {/* Plan Access & Features Display */}
-          {companyDetails.subscription?.plan &&
+          {/* Plan Access & Features Display - Show only when button is clicked */}
+          {showPlanAccess &&
+            companyDetails.subscription?.plan &&
             (companyDetails.subscription.plan as any).features && (
               <PlanAccessDisplay
                 planName={
@@ -328,6 +396,18 @@ export const ViewDetails = () => {
           </ComponentWrapper>
         </Flex>
       </Flex>
+
+      {/* Delete Organization Modal */}
+      <DeleteOrganizationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        organizationId={companyDetails.organization.id}
+        organizationName={companyDetails.organization.name}
+        onSuccess={() => {
+          // Redirect to companies list after successful deletion
+          navigate("/superadmin/companies", { replace: true });
+        }}
+      />
     </PageWrapper>
   );
 };

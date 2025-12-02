@@ -42,6 +42,8 @@ export interface CompanySubscription {
   status: string;
   currentPeriodStart: string;
   currentPeriodEnd: string;
+  cancelAtPeriodEnd?: boolean;
+  cancelledAt?: string | Date | null;
   plan: {
     id: string;
     name: string;

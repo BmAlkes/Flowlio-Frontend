@@ -18,98 +18,6 @@ import { DateRange } from "react-day-picker";
 import { IPlan } from "@/types";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 
-// const data: Data[] = [
-//   {
-//     id: "1",
-//     amount: 3,
-//     status: "active",
-//     companyName: "Innovate Labs",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-02-21T00:00:00"),
-//     expiredate: new Date("2025-03-01T00:00:00"),
-//     subscribtionplan: "Basic",
-//   },
-//   {
-//     id: "2",
-//     amount: 30,
-//     companyName: "Innovate Labs",
-//     status: "inActive",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-04-09T00:00:00"),
-//     expiredate: new Date("2025-06-01T00:00:00"),
-//     subscribtionplan: "Standard",
-//   },
-//   {
-//     id: "3",
-//     amount: 10,
-//     companyName: "Innovate Labs",
-//     status: "active",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-01-14T00:00:00"),
-//     expiredate: new Date("2025-02-01T00:00:00"),
-//     subscribtionplan: "Premium",
-//   },
-//   {
-//     id: "4",
-//     amount: 3,
-//     companyName: "Innovate Labs",
-//     status: "inActive",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-02-12T00:00:00"),
-//     expiredate: new Date("2025-06-01T00:00:00"),
-//     subscribtionplan: "Basic",
-//   },
-//   {
-//     id: "5",
-//     amount: 3,
-//     companyName: "Innovate Labs",
-//     status: "active",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-03-10T00:00:00"),
-//     expiredate: new Date("2025-04-01T00:00:00"),
-//     subscribtionplan: "Standard",
-//   },
-//   {
-//     id: "6",
-//     amount: 12,
-//     companyName: "Innovate Labs",
-//     status: "inActive",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-04-04T00:00:00"),
-//     expiredate: new Date("2025-05-11T00:00:00"),
-//     subscribtionplan: "Premium",
-//   },
-//   {
-//     id: "7",
-//     amount: 3,
-//     companyName: "Innovate Labs",
-//     status: "active",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-01-01T00:00:00"),
-//     expiredate: new Date("2025-06-01T00:00:00"),
-//     subscribtionplan: "Basic",
-//   },
-//   {
-//     id: "8",
-//     amount: 24,
-//     companyName: "Innovate Labs",
-//     status: "inActive",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-01-01T00:00:00"),
-//     expiredate: new Date("2025-06-01T00:00:00"),
-//     subscribtionplan: "Standard",
-//   },
-//   {
-//     id: "9",
-//     amount: 13,
-//     companyName: "Innovate Labs",
-//     status: "inActive",
-//     lastbilledon: new Date("2025-03-01T00:00:00"),
-//     startDate: new Date("2025-01-01T00:00:00"),
-//     expiredate: new Date("2025-06-01T00:00:00"),
-//     subscribtionplan: "Premium",
-//   },
-// ];
 export interface SubscriptionsHeaderProps {
   fetchedPlans?: IPlan[];
   isLoading?: boolean;
@@ -302,20 +210,45 @@ export const SubscribtionTabele = ({
           (uo) => uo.role === "owner"
         )?.user;
         const userStatus = ownerUser?.status;
-        const hasPendingPayment =
-          userStatus === "pending" ||
-          !userStatus ||
-          userStatus === null ||
-          userStatus === undefined;
 
-        // Determine subscription status
-        // If user has pending payment, mark as "non active"
-        // Otherwise use the organization's subscription status
-        const subscriptionStatus = hasPendingPayment
-          ? "non active"
-          : org.subscriptionStatus === "active"
+        // Get organization subscriptionStatus (case-insensitive)
+        const orgSubscriptionStatus = org.subscriptionStatus?.toLowerCase();
+
+        // Get active subscription from subscriptions array (if available)
+        const activeSubscription = org.subscriptions?.find(
+          (sub: any) => sub.status === "active"
+        );
+
+        // Determine status based on multiple factors (priority order):
+        // 1. Check if subscription record exists and is active (most reliable)
+        // 2. Check if organization subscriptionStatus is "active"
+        // 3. Check if user has pending payment
+        // 4. Use organization subscriptionStatus as fallback
+
+        // Check subscription record status (most reliable indicator)
+        const subscriptionRecordActive =
+          activeSubscription?.status === "active";
+
+        // Check organization subscriptionStatus
+        const orgStatusActive = orgSubscriptionStatus === "active";
+
+        // If either subscription record or org status is active, show active
+        const isActive = subscriptionRecordActive || orgStatusActive;
+
+        // Check if user has pending payment (only if not active)
+        const hasPendingPayment =
+          !isActive &&
+          (userStatus === "pending" ||
+            !userStatus ||
+            userStatus === null ||
+            userStatus === undefined);
+
+        // Determine final subscription status
+        const subscriptionStatus = isActive
           ? "active"
-          : "inActive";
+          : hasPendingPayment
+          ? "non active"
+          : orgSubscriptionStatus || "inActive";
 
         const planName = org.subscriptionPlan?.name || "N/A";
         const planPrice = org.subscriptionPlan?.price;
@@ -329,7 +262,7 @@ export const SubscribtionTabele = ({
         return {
           id: org.id,
           amount,
-          status: subscriptionStatus as "active" | "inActive",
+          status: subscriptionStatus as "active" | "inActive" | "non active",
           companyName: org.name || "N/A",
           lastbilledon: start,
           startDate: start,

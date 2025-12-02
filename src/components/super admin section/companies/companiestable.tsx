@@ -182,21 +182,71 @@ export const CompaniesTable = () => {
           (uo) => uo.role === "owner"
         )?.user;
         const userStatus = ownerUser?.status;
-        const hasPendingPayment =
-          userStatus === "pending" ||
-          !userStatus ||
-          userStatus === null ||
-          userStatus === undefined;
 
-        // If user has pending payment, show as "non active"
-        const status = hasPendingPayment
+        // Get organization subscription status
+        const orgSubscriptionStatus = row.original.subscriptionStatus as
+          | "active"
+          | "inActive"
+          | "expired"
+          | "cancelled"
+          | "non active"
+          | "pending"
+          | undefined;
+
+        // Check if subscription is cancelled (cancelAtPeriodEnd = true)
+        const subscriptions = row.original.subscriptions as
+          | Array<{
+              cancelAtPeriodEnd?: boolean;
+              cancelledAt?: string | Date | null;
+              status?: string;
+            }>
+          | undefined;
+        const activeSubscription = subscriptions?.[0]; // Most recent subscription
+        const isCancelled = activeSubscription?.cancelAtPeriodEnd === true;
+
+        // If subscription is cancelled, show "Unsub" in red
+        if (isCancelled) {
+          return (
+            <Center>
+              <Flex className="rounded-md capitalize w-28 h-10 gap-2 border items-center justify-center text-white bg-red-600 border-none">
+                <Flex className="w-2 h-2 rounded-full bg-white" />
+                <Box>Unsub</Box>
+              </Flex>
+            </Center>
+          );
+        }
+
+        // Determine status based on multiple factors (priority order):
+        // 1. Check if subscription record exists and is active (most reliable)
+        // 2. Check if organization subscriptionStatus is "active"
+        // 3. Check if user has pending payment
+        // 4. Use organization subscriptionStatus as fallback
+
+        // Check subscription record status (most reliable indicator)
+        const subscriptionRecordActive =
+          activeSubscription?.status === "active";
+
+        // Check organization subscriptionStatus
+        const orgStatusActive =
+          orgSubscriptionStatus?.toLowerCase() === "active";
+
+        // If either subscription record or org status is active, show active
+        const isActive = subscriptionRecordActive || orgStatusActive;
+
+        // Check if user has pending payment (only if not active)
+        const hasPendingPayment =
+          !isActive &&
+          (userStatus === "pending" ||
+            !userStatus ||
+            userStatus === null ||
+            userStatus === undefined);
+
+        // Determine final status
+        const status = isActive
+          ? "active"
+          : hasPendingPayment
           ? "non active"
-          : (row.original.subscriptionStatus as
-              | "active"
-              | "inActive"
-              | "expired"
-              | "cancelled"
-              | "non active");
+          : orgSubscriptionStatus?.toLowerCase() || "non active";
 
         const statusStyles: Record<string, { text: string; dot: string }> = {
           active: {
@@ -279,24 +329,24 @@ export const CompaniesTable = () => {
               </Tooltip>
             </TooltipProvider>
 
-            {!isPendingUser && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => handleDeleteClick(row.original)}
-                      variant="outline"
-                      className="bg-[#A50403] border-none w-9 h-9 hover:bg-[#A50403]/80 cursor-pointer rounded-md "
-                    >
-                      <FaRegTrashAlt className="text-white fill-white size-4 " />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent className="mb-2">
-                    <p>Delete Company</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => handleDeleteClick(row.original)}
+                    variant="outline"
+                    className="bg-[#A50403] border-none w-9 h-9 hover:bg-[#A50403]/80 cursor-pointer rounded-md "
+                  >
+                    <FaRegTrashAlt className="text-white fill-white size-4 " />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="mb-2">
+                  <p>
+                    {isPendingUser ? "Delete Pending User" : "Delete Company"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </Center>
         );
       },

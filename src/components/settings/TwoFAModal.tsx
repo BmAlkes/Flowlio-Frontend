@@ -98,8 +98,23 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
       form.reset();
       enablePasswordForm.reset();
       passwordForm.reset();
+    } else {
+      // When modal opens, automatically show the appropriate form based on 2FA status
+      if (isEnabled) {
+        // 2FA is enabled - show password form for disabling
+        setShowPasswordForm(true);
+        setShowOTPForm(false);
+        setShowEnablePasswordForm(false);
+        setShowSuccessState(false);
+      } else {
+        // 2FA is disabled - show enable password form
+        setShowEnablePasswordForm(true);
+        setShowOTPForm(false);
+        setShowPasswordForm(false);
+        setShowSuccessState(false);
+      }
     }
-  }, [open]);
+  }, [open, isEnabled]);
 
   const form = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),

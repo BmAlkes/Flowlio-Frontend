@@ -132,23 +132,41 @@
 }
 
 .classic-scroll::-webkit-scrollbar {
-  height: 7px;
-  width: 7px;
+  height: 8px;
+  width: 8px;
+}
+
+/* Hide scrollbar arrows */
+.classic-scroll::-webkit-scrollbar-button {
+  display: none;
 }
 
 /* Track */
 .classic-scroll::-webkit-scrollbar-track {
   background: transparent;
+  border-radius: 10px;
 }
 
 /* Handle */
 .classic-scroll::-webkit-scrollbar-thumb {
-  background: #9192a188;
+  background: #73b1c2;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 /* Handle on hover */
 .classic-scroll::-webkit-scrollbar-thumb:hover {
-  background: #9192a1;
+  background: #73b1c2;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+.classic-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #73b1c2 transparent;
 }
 
 .hidden-scroll::-webkit-scrollbar {

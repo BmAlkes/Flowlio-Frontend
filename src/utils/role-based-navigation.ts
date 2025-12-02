@@ -143,11 +143,11 @@ const userNavItems: NavItem[] = [
     title: "Invoices",
     icon: React.createElement(TbInvoice),
   },
-  // {
-  //   url: "/dashboard/subscription",
-  //   title: "My Subscriptions",
-  //   icon: React.createElement(TbInvoice),
-  // },
+  {
+    url: "/dashboard/subscription",
+    title: "My Subscriptions",
+    icon: React.createElement(TbInvoice),
+  },
   {
     url: "/dashboard/support",
     title: "Support Tickets",
@@ -294,11 +294,11 @@ const superAdminNavItems: NavItem[] = [
     title: "Invoices",
     icon: React.createElement(TbInvoice),
   },
-  // {
-  //   url: "/dashboard/subscription",
-  //   title: "My Subscriptions",
-  //   icon: React.createElement(TbInvoice),
-  // },
+  {
+    url: "/dashboard/subscription",
+    title: "My Subscriptions",
+    icon: React.createElement(TbInvoice),
+  },
   {
     url: "/dashboard/support",
     title: "Support Tickets",

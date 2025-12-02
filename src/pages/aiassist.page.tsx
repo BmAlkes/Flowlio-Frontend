@@ -92,7 +92,7 @@ export const AiAssistPage = () => {
                   "AI Assist is not available in your current plan. Please upgrade to access this feature."}
               </p>
               <Button
-                onClick={() => navigate("/dashboard/subscriptions")}
+                onClick={() => navigate("/dashboard/subscription")}
                 className="mt-4"
               >
                 View Plans & Upgrade

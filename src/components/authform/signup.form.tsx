@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { Anchor } from "../ui/anchor";
 import { Flex } from "../ui/flex";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import { axios } from "@/configs/axios.config";
+import { usePlanSelectionStore } from "@/store/planSelection.store";
 
 const formSchema = z.object({
   username: z.string().min(1, { message: "Required field" }),
@@ -48,6 +48,21 @@ export const SignUpForm: FC = () => {
   }, []);
   const navigate = useNavigate();
   const { refetchUser } = useUser();
+  const { selectedPlanIndex, selectedPlanId } = usePlanSelectionStore();
+
+  // Check if plan is selected, if not redirect to pricing
+  useEffect(() => {
+    if (selectedPlanIndex === null || !selectedPlanId) {
+      // No plan selected, redirect to pricing first
+      toast.info("Please select a plan first");
+      navigate("/pricing", {
+        state: {
+          fromSignup: true,
+        },
+        replace: true,
+      });
+    }
+  }, [selectedPlanIndex, selectedPlanId, navigate]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -77,172 +92,58 @@ export const SignUpForm: FC = () => {
         {
           onRequest: () => {
             setIsLoading(true);
+            console.log("🔄 Signup request initiated for:", data.email);
           },
-          onSuccess: async () => {
+          onSuccess: async (response) => {
+            console.log("✅ Signup successful, response:", response);
             toast.success("Account created successfully!");
 
+            // SIMPLIFIED FLOW: Just wait for session, then redirect based on store
             // Wait for Better Auth session to be established
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 1500));
 
-            // Refetch user data to ensure session is loaded
+            // Refetch user data to ensure session is loaded (silently, don't block on errors)
             try {
               await refetchUser();
-              // Wait a bit more for user data to be available
-              await new Promise((resolve) => setTimeout(resolve, 300));
             } catch (error) {
               console.error("Error refetching user:", error);
               // Continue anyway - session might still be established
             }
 
-            // Check user profile to see if payment is pending
-            try {
-              const profileResponse = await axios.get("/user/profile");
-              const userProfile = profileResponse.data?.data;
-
-              // Debug: Log user profile to see what we're getting
-              console.log("🔍 Signup - User Profile Data:", {
-                status: userProfile?.status,
-                selectedPlanId: userProfile?.selectedPlanId,
-                pendingOrganizationData: userProfile?.pendingOrganizationData,
-                fullProfile: userProfile,
-              });
-
-              // Check if user is pending (needs to complete payment or select a plan)
-              // Skip payment check for super admins, sub admins, and demo users
-              const isSuperAdmin = userProfile?.isSuperAdmin === true;
-              const isSubAdmin =
-                userProfile?.role === "subadmin" || !!userProfile?.subadminId;
-              const isDemoUser =
-                userProfile?.demoOrgInfo !== null &&
-                userProfile?.demoOrgInfo !== undefined;
-              const shouldSkipPaymentCheck =
-                isSuperAdmin || isSubAdmin || isDemoUser;
-
-              if (!shouldSkipPaymentCheck) {
-                const isPending =
-                  userProfile?.status === "pending" ||
-                  !userProfile?.status ||
-                  userProfile?.status === null ||
-                  userProfile?.status === undefined;
-                const hasPlanData =
-                  userProfile?.selectedPlanId ||
-                  userProfile?.pendingOrganizationData;
-
-                console.log("🔍 Signup - Payment Status Check:", {
-                  isPending,
-                  hasPlanData,
-                  status: userProfile?.status,
-                  selectedPlanId: userProfile?.selectedPlanId,
-                  pendingOrganizationData: userProfile?.pendingOrganizationData,
-                });
-
-                if (isPending && hasPlanData) {
-                  // User has pending payment, redirect to checkout
-                  toast.info(
-                    "Please complete your payment to activate your account"
-                  );
-
-                  // Plan index will be determined in checkout from planId
-
-                  // Redirect to checkout with pending payment info
-                  navigate("/checkout", {
-                    state: {
-                      selectedPlan: null, // Will be determined in checkout from planId
-                      createOrganization: true,
-                      pendingPayment: true,
-                      fromSignup: true, // Flag to indicate we just came from signup
-                      selectedPlanId: userProfile.selectedPlanId,
-                      pendingOrganizationData:
-                        userProfile.pendingOrganizationData,
-                    },
-                    replace: true,
-                  });
-                  setIsLoading(false);
-                  return;
-                } else if (isPending && !hasPlanData) {
-                  // User is pending but has no plan selected - redirect to pricing
-                  toast.info("Please select a plan to continue");
-                  navigate("/pricing", {
-                    state: {
-                      fromSignup: true,
-                      pendingAccount: true,
-                    },
-                    replace: true,
-                  });
-                  setIsLoading(false);
-                  return;
-                }
-              }
-            } catch (error) {
-              console.error("Error checking user profile:", error);
-              // Continue with normal flow if profile check fails
-            }
-
-            // Check if user came from checkout with a plan selection
-            const location = window.location;
-            const urlParams = new URLSearchParams(location.search);
-            const selectedPlan = urlParams.get("plan");
-            const fromCheckout = urlParams.get("fromCheckout");
-
-            // Check if we have plan details in the navigation state
-            const navigationState = window.history.state?.usr;
-            const hasPlanDetails = navigationState?.selectedPlan !== undefined;
-            const redirectTo = navigationState?.redirectTo;
-
-            if (redirectTo === "checkout" && hasPlanDetails) {
-              // User came from checkout, redirect back to checkout
-              toast.info("Redirecting to checkout...");
+            // SIMPLIFIED: Check store for plan ID - that's our source of truth
+            if (selectedPlanId) {
+              console.log("✅ Plan ID in store, redirecting to checkout");
               navigate("/checkout", {
-                state: {
-                  selectedPlan: navigationState.selectedPlan,
-                  createOrganization: true,
-                  fromSignup: true, // Mark that we're coming from signup
-                },
-                replace: true,
-              });
-            } else if (fromCheckout && selectedPlan) {
-              // User came from checkout via URL params, redirect back to checkout
-              toast.info("Redirecting to checkout...");
-              navigate("/checkout", {
-                state: {
-                  selectedPlan: parseInt(selectedPlan),
-                  createOrganization: true,
-                  fromSignup: true, // Mark that we're coming from signup
-                },
-                replace: true,
-              });
-            } else if (navigationState?.selectedPlan !== undefined) {
-              // Fallback: check navigation state directly
-              toast.info("Redirecting to checkout...");
-              navigate("/checkout", {
-                state: {
-                  selectedPlan: navigationState.selectedPlan,
-                  createOrganization: true,
-                  fromSignup: true, // Mark that we're coming from signup
-                },
-                replace: true,
-              });
-            } else {
-              // Regular signup flow, redirect to pricing to select a plan
-              toast.info("Please select a plan to continue");
-              navigate("/pricing", {
                 state: {
                   fromSignup: true,
+                  pendingPayment: false,
                 },
                 replace: true,
               });
+              setIsLoading(false);
+              return;
             }
 
+            // If no plan in store, redirect to pricing
+            console.log("⚠️ No plan ID in store, redirecting to pricing");
+            navigate("/pricing", {
+              state: {
+                fromSignup: true,
+                pendingAccount: true,
+              },
+              replace: true,
+            });
             setIsLoading(false);
+            return;
           },
-          onError: (ctx) => {
+          onError: (ctx: any) => {
             let errorMessage = "Signup failed. Please try again.";
 
-            if (ctx.error.message) {
+            if (ctx?.error?.message) {
               errorMessage = ctx.error.message;
-            } else if (ctx.error.status === 500) {
+            } else if (ctx?.error?.status === 500) {
               errorMessage = "Server error. Please try again later.";
-            } else if (ctx.error.status === 400) {
+            } else if (ctx?.error?.status === 400) {
               errorMessage =
                 "Invalid signup data. Please check your information.";
             }

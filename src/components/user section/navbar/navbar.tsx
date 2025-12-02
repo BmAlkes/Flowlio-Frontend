@@ -255,31 +255,25 @@ export const Navbar: FC<NavbarProps> = ({
             onClick={() => {
               if (isPricingPage) {
                 if (selectedPlan == null) {
+                  // On pricing page but no plan selected - show warning
                   toast.warning(
-                    "Please select a plan first, then sign up to continue."
+                    "Please select a plan first, then click 'Get Started' on the plan card."
                   );
-                  // Redirect to signup when no plan is selected
-                  navigate("/auth/signup");
+                  // Stay on pricing page - user needs to select a plan
+                  return;
                 } else {
-                  // Always redirect to signup when a plan is selected
-                  // This ensures the user is authenticated before checkout
+                  // Plan is selected on pricing page
+                  // The pricing page's handleGetStarted will handle navigation
+                  // This button should not be used when plan is selected
                   toast.info(
-                    "Please sign up to continue with your selected plan"
+                    "Please click 'Get Started' on the selected plan card."
                   );
-                  navigate(
-                    `/auth/signup?fromCheckout=true&plan=${selectedPlan}`,
-                    {
-                      state: {
-                        selectedPlan: selectedPlan,
-                        redirectTo: "checkout",
-                        planDetails: selectedPlan,
-                      },
-                    }
-                  );
+                  return;
                 }
               } else {
-                // For home page and other pages, always go to signup
-                navigate("/auth/signup");
+                // For home page and other pages, always go to pricing first
+                // User must select a plan before signing up
+                navigate("/pricing");
               }
             }}
             className={cn(
