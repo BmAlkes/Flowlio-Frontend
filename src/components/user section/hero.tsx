@@ -16,7 +16,9 @@ export const Hero = () => {
       <Box className="absolute -z-10 top-110 right-0 w-40 h-100 bg-[#2B2BA0]/50 blur-3xl opacity-20 " />
 
       <Center className="items-center justify-center text-center gap-2">
+        <a href="www.dotvizion.com" target="_blank" rel="noreferrer">
         <img src="/home/dotvizion.svg" alt="logo" className="size-30" />
+        </a>
         <Box className="text-[14px] text-gray-600 font-normal pb-2">
           work platform
         </Box>
@@ -42,7 +44,7 @@ export const Hero = () => {
             <ArrowRight />
           </Button>
 
-          <Flex className="mt-4 max-sm:flex-col">
+          {/* <Flex className="mt-4 max-sm:flex-col">
             <Box className="text-[16px] text-gray-600 font-light">
               No credit card needed
             </Box>
@@ -50,7 +52,7 @@ export const Hero = () => {
             <Box className="text-[16px] text-gray-600 font-light">
               Unlimited time on free plan
             </Box>
-          </Flex>
+          </Flex> */}
 
           <Box className="relative mt-2 max-sm:mt-10 w-full gap-0 px-2">
             <img
