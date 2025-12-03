@@ -186,7 +186,7 @@ export const ClientManagementTable = () => {
 
     {
       accessorKey: "cpfcnpj",
-      header: () => <Box className="text-black text-center">CPF/CNPJ</Box>,
+      header: () => <Box className="text-black text-center">VAT</Box>,
       cell: ({ row }) => (
         <Box className="captialize text-center">
           {row.original.cpfcnpj || "N/A"}
