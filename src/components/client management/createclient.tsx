@@ -42,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { FaWebAwesome } from "react-icons/fa6";
 
 const socialMediaTypes = [
   {
@@ -56,6 +57,7 @@ const socialMediaTypes = [
   { value: "youtube", label: "YouTube", icon: FaYoutube, color: "#FF0000" },
   { value: "tiktok", label: "TikTok", icon: FaTiktok, color: "#000000" },
   { value: "snapchat", label: "Snapchat", icon: FaSnapchat, color: "#FFFC00" },
+  { value: "website", label: "WebSite", icon: FaWebAwesome, color: "#70d92a" },
   {
     value: "pinterest",
     label: "Pinterest",
