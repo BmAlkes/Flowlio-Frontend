@@ -4,7 +4,7 @@
 
 /* checking github */
 * {
-  font-family: "Outfit";
+  font-family:  "Noto Sans Hebrew", sans-serif;
 }
 :root {
   --background: oklch(1 0 0);
