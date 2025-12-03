@@ -115,8 +115,8 @@ export const SignInForm: FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       rememberMe: true,
-      password: "Test@123",
-      email: "tahirkhanji007@gmail.com",
+      password: "",
+      email: "",
     },
   });
 
