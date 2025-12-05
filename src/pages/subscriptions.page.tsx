@@ -220,7 +220,16 @@ const SubscriptionsPage = () => {
             : undefined,
       });
       setProcessingPlanId(null);
+      toast.success("Plan upgraded successfully!");
+
+      // Refresh subscription data
       refetchSubscription();
+
+      // Reload page after a short delay to refresh session with updated organizationId
+      // This ensures the session is updated with the new organization data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Failed to complete upgrade"

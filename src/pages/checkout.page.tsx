@@ -420,9 +420,10 @@ const CheckoutPage = () => {
           toast.success("Organization created successfully!");
         }
 
-        // Redirect to dashboard after successful setup
+        // Reload page to refresh session with updated organizationId
+        // This ensures the session is updated with the new organization data
         setTimeout(() => {
-          navigate("/dashboard");
+          window.location.href = "/dashboard";
         }, 1500);
       } else {
         toast.error("Payment was not completed. Please try again.");
@@ -543,8 +544,9 @@ const CheckoutPage = () => {
           if (createOrganization && captureResponse.data?.organization) {
             toast.success("Organization created successfully!");
           }
+          // Reload page to refresh session with updated organizationId
           setTimeout(() => {
-            navigate("/dashboard");
+            window.location.href = "/dashboard";
           }, 1500);
         } else {
           console.error(
