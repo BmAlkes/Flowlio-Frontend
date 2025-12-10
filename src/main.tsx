@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import App from "./App.tsx";
 import "./index.css";
+import "./configs/i18n.config";
 
 // Register service worker for caching and offline support
 // if ("serviceWorker" in navigator) {

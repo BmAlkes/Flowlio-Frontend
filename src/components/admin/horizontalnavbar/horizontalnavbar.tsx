@@ -8,6 +8,7 @@ import { SearchBox } from "./searchbox";
 import { useLocation } from "react-router";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/providers/user.provider";
+import { CompactLanguageSwitcher } from "../../common/CompactLanguageSwitcher";
 
 export const HorizontalNavbar = () => {
   const { pathname } = useLocation();
@@ -42,6 +43,7 @@ export const HorizontalNavbar = () => {
       {/* {pathname.startsWith("/dashboard") && <SubscriptionStatus />} */}
 
       <NotificationsDropdown className="max-lg:ml-auto" />
+      <CompactLanguageSwitcher />
       {/* <FaqDropdown className="max-md:hidden" /> */}
     </Box>
   );
