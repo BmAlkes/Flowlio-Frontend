@@ -604,13 +604,13 @@ export const ClientForm = ({
                 name="cpfcnpj"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>CPF/CNPJ:</FormLabel>
+                    <FormLabel>VAT:</FormLabel>
                     <FormControl>
                       <Input
                         className="bg-white rounded-full placeholder:text-gray-400"
                         size="xl"
                         type="text"
-                        placeholder="Enter CPF/CNPJ"
+                        placeholder="Enter VAT number"
                         {...field}
                       />
                     </FormControl>
