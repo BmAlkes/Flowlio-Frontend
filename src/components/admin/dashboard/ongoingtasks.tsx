@@ -14,8 +14,10 @@ import {
   useFetchOngoingTasks,
   transformOngoingTaskData,
 } from "@/hooks/useFetchOngoingTasks";
+import { useTranslation } from "react-i18next";
 
 export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
+  const { t } = useTranslation();
   const is1154 = useMediaQuery("(max-width: 1154px)");
   const is950 = useMediaQuery("(max-width: 950px)");
   const { state, isMobile } = useSidebar();
@@ -51,10 +53,14 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         <Stack className="gap-5 items-center">
           <Flex className="justify-start mr-auto">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-            <h1 className="text-lg font-medium">Ongoing Tasks</h1>
+            <h1 className="text-lg font-medium">
+              {t("dashboard.ongoingTasksTitle")}
+            </h1>
           </Flex>
           <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">Loading ongoing tasks...</div>
+            <div className="text-gray-500">
+              {t("dashboard.loadingOngoingTasks")}
+            </div>
           </div>
         </Stack>
       </ComponentWrapper>
@@ -71,10 +77,14 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         <Stack className="gap-5 items-center">
           <Flex className="justify-start mr-auto">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-            <h1 className="text-lg font-medium">Ongoing Tasks</h1>
+            <h1 className="text-lg font-medium">
+              {t("dashboard.ongoingTasksTitle")}
+            </h1>
           </Flex>
           <div className="flex items-center justify-center h-32">
-            <div className="text-red-500">Failed to load ongoing tasks</div>
+            <div className="text-red-500">
+              {t("dashboard.failedToLoadOngoingTasks")}
+            </div>
           </div>
         </Stack>
       </ComponentWrapper>
@@ -91,10 +101,14 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         <Stack className="gap-5 items-center">
           <Flex className="justify-start mr-auto">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-            <h1 className="text-lg font-medium">Ongoing Tasks</h1>
+            <h1 className="text-lg font-medium">
+              {t("dashboard.ongoingTasksTitle")}
+            </h1>
           </Flex>
           <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">No ongoing tasks found</div>
+            <div className="text-gray-500">
+              {t("dashboard.noOngoingTasksFound")}
+            </div>
           </div>
         </Stack>
       </ComponentWrapper>
@@ -109,7 +123,9 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
       <Stack className="gap-5 items-center">
         <Flex className="justify-start mr-auto">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-          <h1 className="text-lg font-medium">Ongoing Tasks</h1>
+          <h1 className="text-lg font-medium">
+            {t("dashboard.ongoingTasksTitle")}
+          </h1>
         </Flex>
 
         <EmblaCarousel

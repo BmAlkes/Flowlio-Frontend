@@ -34,6 +34,7 @@ import { Flex } from "../ui/flex";
 import { ListFilter, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "../ui/input";
 import { CalendarComponent } from "../ui/calendercomp";
+import { useTranslation } from "react-i18next";
 
 // Define pagination interface
 export interface PaginationConfig {
@@ -90,6 +91,7 @@ export const ReusableTable = <TData,>({
   externalColumnFilters,
   pagination,
 }: ReusableTableProps<TData>) => {
+  const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting);
   const [rowSelection, setRowSelection] = React.useState({});
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -137,7 +139,7 @@ export const ReusableTable = <TData,>({
           }
         : {
             pageIndex: 0,
-            pageSize: 10,
+            pageSize: 10, // default page size
           },
     },
     enableRowSelection: true,
@@ -162,7 +164,7 @@ export const ReusableTable = <TData,>({
     if (range.from && range.to) {
       setColumnFilters([
         {
-          id: "startDate",
+          id: " e",
           value: range,
         },
       ]);
@@ -187,7 +189,7 @@ export const ReusableTable = <TData,>({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
               <Input
                 type="search"
-                placeholder="Search"
+                placeholder={t("horizontalnavbar.search")}
                 value={globalFilter}
                 onChange={(event) => setGlobalFilter(event.target.value)}
                 className={cn(
@@ -213,7 +215,7 @@ export const ReusableTable = <TData,>({
                     )}
                   >
                     <ListFilter />
-                    Filter
+                    {t("common.filter")}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -292,7 +294,7 @@ export const ReusableTable = <TData,>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {t("projects.noResults")}
                 </TableCell>
               </TableRow>
             )}
@@ -310,7 +312,7 @@ export const ReusableTable = <TData,>({
               const total = pagination.total ?? 0;
 
               if (total === 0) {
-                return "Showing 0 results";
+                return `${t("projects.showing")} 0 ${t("projects.results")}`;
               }
 
               const from = pageIndex * pageSize + 1;

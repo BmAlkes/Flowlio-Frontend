@@ -14,6 +14,7 @@ import {
 } from "@/hooks/useFetchViewerProjects";
 import { useLocation, useNavigate } from "react-router";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
+import { useTranslation } from "react-i18next";
 
 export const ProjectSelector: React.FC<{
   selectTriggerClassname?: string;
@@ -23,6 +24,7 @@ export const ProjectSelector: React.FC<{
 }> = ({ selectTriggerClassname, projects: projectsProp, getProjectPath }) => {
   const { data: viewerProjects } = useFetchViewerProjects();
   const { data: orgProjects } = useFetchProjects();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isViewer = pathname.startsWith("/viewer");
@@ -55,11 +57,11 @@ export const ProjectSelector: React.FC<{
           selectTriggerClassname
         )}
       >
-        <SelectValue placeholder="Select Project" />
+        <SelectValue placeholder={t("horizontalnavbar.selectProject")} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>Select Project</SelectLabel>
+          <SelectLabel>{t("horizontalnavbar.selectProject")}</SelectLabel>
           {projects.map((p) => (
             <SelectItem key={p.id} value={p.id}>
               {p.projectNumber ? `${p.projectNumber} — ${p.name}` : p.name}

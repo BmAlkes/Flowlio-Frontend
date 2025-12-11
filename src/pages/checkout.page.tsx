@@ -111,33 +111,33 @@ const CheckoutPage = () => {
   // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
   const planDetails = useMemo(
     () => [
-      {
-        title: plansResponse?.data?.[0]?.name || "Basic Plan (Free)",
-        price: plansResponse?.data?.[0]?.price || "Free",
-        description:
-          plansResponse?.data?.[0]?.description ||
-          "Personal use and small projects",
-        duration: "7-Days Trial",
-        features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
-      },
-      {
-        title: plansResponse?.data?.[1]?.name || "Pro Plan",
-        price: plansResponse?.data?.[1]?.price || "$29",
-        description:
-          plansResponse?.data?.[1]?.description ||
-          "Professional teams and growing businesses",
-        duration: "month",
-        features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
-      },
-      {
-        title: plansResponse?.data?.[2]?.name || "Enterprise Plan",
-        price: plansResponse?.data?.[2]?.price || "$99",
-        description:
-          plansResponse?.data?.[2]?.description ||
-          "Large organizations with complex needs",
-        duration: "6 months",
-        features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
-      },
+    {
+      title: plansResponse?.data?.[0]?.name || "Basic Plan (Free)",
+      price: plansResponse?.data?.[0]?.price || "Free",
+      description:
+        plansResponse?.data?.[0]?.description ||
+        "Personal use and small projects",
+      duration: "7-Days Trial",
+      features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
+    },
+    {
+      title: plansResponse?.data?.[1]?.name || "Pro Plan",
+      price: plansResponse?.data?.[1]?.price || "$29",
+      description:
+        plansResponse?.data?.[1]?.description ||
+        "Professional teams and growing businesses",
+      duration: "month",
+      features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
+    },
+    {
+      title: plansResponse?.data?.[2]?.name || "Enterprise Plan",
+      price: plansResponse?.data?.[2]?.price || "$99",
+      description:
+        plansResponse?.data?.[2]?.description ||
+        "Large organizations with complex needs",
+      duration: "6 months",
+      features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
+    },
     ],
     [plansResponse?.data]
   );

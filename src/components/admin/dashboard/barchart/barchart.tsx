@@ -14,6 +14,7 @@ import {
 } from "@/hooks/useFetchProjectScheduleData";
 import { useState } from "react";
 import { addDays } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 const CustomTooltip = ({
   active,
@@ -40,6 +41,7 @@ const CustomTooltip = ({
 };
 
 export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
+  const { t } = useTranslation();
   // Initialize with default date range (last 30 days)
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>({
     from: addDays(new Date(), -30),
@@ -71,7 +73,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           <Flex className="max-lg:flex-col items-center justify-between">
             <Flex className="justify-between max-md:justify-start max-lg:w-full">
               <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-              <h1 className="text-lg font-medium">Project Schedule Overview</h1>
+              <h1 className="text-lg font-medium">
+                {t("charts.projectScheduleOverview")}
+              </h1>
             </Flex>
             <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
             <CalendarPopOver
@@ -81,7 +85,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           </Flex>
         </Stack>
         <Box className="flex items-center justify-center h-[21.8rem]">
-          <p className="text-gray-500">Loading project data...</p>
+          <p className="text-gray-500">{t("dashboard.loadingProjectData")}</p>
         </Box>
       </ComponentWrapper>
     );
@@ -95,7 +99,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           <Flex className="max-lg:flex-col items-center justify-between">
             <Flex className="justify-between max-md:justify-start max-lg:w-full">
               <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-              <h1 className="text-lg font-medium">Project Schedule Overview</h1>
+              <h1 className="text-lg font-medium">
+                {t("charts.projectScheduleOverview")}
+              </h1>
             </Flex>
             <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
             <CalendarPopOver
@@ -105,7 +111,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           </Flex>
         </Stack>
         <Box className="flex items-center justify-center h-[21.8rem]">
-          <p className="text-red-500">Failed to load project data</p>
+          <p className="text-red-500">
+            {t("dashboard.failedToLoadProjectData")}
+          </p>
         </Box>
       </ComponentWrapper>
     );
@@ -119,7 +127,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           <Flex className="max-lg:flex-col items-center justify-between">
             <Flex className="justify-between max-md:justify-start max-lg:w-full">
               <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-              <h1 className="text-lg font-medium">Project Schedule Overview</h1>
+              <h1 className="text-lg font-medium">
+                {t("charts.projectScheduleOverview")}
+              </h1>
             </Flex>
             <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
             <CalendarPopOver
@@ -129,7 +139,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           </Flex>
         </Stack>
         <Box className="flex items-center justify-center h-[21.8rem]">
-          <p className="text-gray-500">No project data available</p>
+          <p className="text-gray-500">{t("dashboard.noProjectData")}</p>
         </Box>
       </ComponentWrapper>
     );
@@ -141,7 +151,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
         <Flex className="max-lg:flex-col items-center justify-between">
           <Flex className="justify-between max-md:justify-start max-lg:w-full">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-            <h1 className="text-lg font-medium">Project Schedule Overview</h1>
+            <h1 className="text-lg font-medium">
+              {t("charts.projectScheduleOverview")}
+            </h1>
           </Flex>
 
           <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
@@ -153,7 +165,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
       </Stack>
 
       <Box className="absolute top-65 left-6 transform -translate-y-1/2 -rotate-90 origin-left text-sm max-sm:hidden font-light text-gray-600 max-md:top-80">
-        Task
+        {t("dashboard.taskLabel")}
       </Box>
 
       <ChartContainer

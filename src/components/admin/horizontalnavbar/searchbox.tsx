@@ -14,6 +14,7 @@ import {
 } from "@/hooks/useFetchViewerTasks";
 import { useNavigate, useLocation } from "react-router";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
+import { useTranslation } from "react-i18next";
 
 export const SearchBox: React.FC<{
   className?: string;
@@ -28,6 +29,7 @@ export const SearchBox: React.FC<{
   getProjectPath,
   getTasksPath,
 }) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const { data: viewerProjects } = useFetchViewerProjects();
   const { data: orgProjects } = useFetchProjects();
@@ -93,7 +95,7 @@ export const SearchBox: React.FC<{
           className="rounded-full h-[2.5rem] w-md max-lg:w-full text-gray-500 hover:bg-white! hover:text-gray-500 border-none items-center justify-start"
         >
           <RiSearch2Line />
-          <h1 className="max-md:hidden">Search...</h1>
+          <h1 className="max-md:hidden">{t("horizontalnavbar.search")}</h1>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] top-40" withoutCloseButton>

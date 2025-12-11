@@ -14,6 +14,7 @@ import { Flex } from "@/components/ui/flex";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 
 interface OngoingTaskCardProps extends BoxProps {
   assignees: Array<{ src: string; userName: string }>;
@@ -32,6 +33,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
   progress = 0,
   ...props
 }) => {
+  const { t } = useTranslation();
   return (
     <Link to={"/dashboard/task-management"}>
       <Box
@@ -55,7 +57,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
             {taskName.substring(0, 26).concat("...")}
           </h1>
           <Flex>
-            <p className="text-sm text-gray-500">Create by:</p>
+            <p className="text-sm text-gray-500">{t("dashboard.createdBy")}</p>
             <p className="capitalize text-sm">{createdBy}</p>
           </Flex>
         </Stack>
@@ -66,7 +68,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
             variant="outline"
           >
             <Box className="bg-blue-600 p-1 rounded-full"></Box>
-            Ongoing
+            {t("dashboard.ongoing")}
           </Badge>
 
           <Flex className="-space-x-5">
@@ -90,7 +92,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
 
         <Progress value={progress} className="w-full min-h-0.5 mt-6" />
         <Flex className="justify-between mb-2">
-          <h5 className="text-gray-500 text-sm">Progress</h5>
+          <h5 className="text-gray-500 text-sm">{t("dashboard.progress")}</h5>
           <p className="text-sm">{progress}%</p>
         </Flex>
       </Box>
