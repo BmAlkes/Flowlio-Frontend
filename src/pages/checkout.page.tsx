@@ -26,6 +26,8 @@ import {
 } from "@/hooks/usePayPalPayment";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
 import type { IPlan } from "@/types";
+import { useSubscriptionStatus } from "@/hooks/usesubscription";
+import { AlertCircle } from "lucide-react";
 
 // Function to convert database features to display format
 const formatPlanFeatures = (planFeatures: any) => {
@@ -60,6 +62,9 @@ const CheckoutPage = () => {
   const { data: userData, isLoading: userLoading } = useUser();
   const { data: plansResponse, isLoading: plansLoading } =
     useFetchPublicPlans();
+  const { data: subscriptionStatus } = useSubscriptionStatus({
+    enabled: !!userData?.user, // Only check if user is logged in
+  });
   const createPayPalOrderMutation = useCreatePayPalOrder();
   const capturePayPalOrderMutation = useCapturePayPalOrder();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -109,38 +114,25 @@ const CheckoutPage = () => {
       : null;
 
   // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
-  const planDetails = useMemo(
-    () => [
-    {
-      title: plansResponse?.data?.[0]?.name || "Basic Plan (Free)",
-      price: plansResponse?.data?.[0]?.price || "Free",
-      description:
-        plansResponse?.data?.[0]?.description ||
-        "Personal use and small projects",
-      duration: "7-Days Trial",
-      features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
-    },
-    {
-      title: plansResponse?.data?.[1]?.name || "Pro Plan",
-      price: plansResponse?.data?.[1]?.price || "$29",
-      description:
-        plansResponse?.data?.[1]?.description ||
-        "Professional teams and growing businesses",
-      duration: "month",
-      features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
-    },
-    {
-      title: plansResponse?.data?.[2]?.name || "Enterprise Plan",
-      price: plansResponse?.data?.[2]?.price || "$99",
-      description:
-        plansResponse?.data?.[2]?.description ||
-        "Large organizations with complex needs",
-      duration: "6 months",
-      features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
-    },
-    ],
-    [plansResponse?.data]
-  );
+  const planDetails = useMemo(() => {
+    const plans = plansResponse?.data || [];
+    return plans.map((plan: IPlan) => {
+      const trialDays = plan.trialDays ?? 7;
+      const durationText =
+        trialDays > 0
+          ? `${trialDays}-Day${trialDays !== 1 ? "s" : ""} Trial`
+          : "No Trial";
+
+      return {
+        title: plan.name || "Plan",
+        price: plan.price || "Free",
+        description: plan.description || "Plan description",
+        duration: durationText,
+        trialDays: trialDays,
+        features: formatPlanFeatures(plan.features),
+      };
+    });
+  }, [plansResponse?.data]);
 
   // Get the selected plan with better fallback logic - memoize to prevent unnecessary re-renders
   const plan = useMemo(
@@ -627,6 +619,23 @@ const CheckoutPage = () => {
     >
       <Box className="min-h-screen bg-gray-50 max-md:p-4">
         <Navbar />
+
+        {/* Trial Expired Message Banner */}
+        {subscriptionStatus?.data?.trialExpired && (
+          <Box className="max-w-5xl mx-auto mt-4 mb-4">
+            <Flex className="items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <AlertCircle className="text-orange-600 flex-shrink-0" size={24} />
+              <Box className="flex-1">
+                <h3 className="font-semibold text-orange-900 mb-1">
+                  Trial Period Ended
+                </h3>
+                <p className="text-orange-700 text-sm mt-1">
+                  Your trial period has ended. Please purchase a subscription to continue using our services.
+                </p>
+              </Box>
+            </Flex>
+          </Box>
+        )}
 
         <Form {...form}>
           <Flex className="max-w-5xl mx-auto mt-3 items-start max-md:items-center flex-col md:flex-row gap-6">

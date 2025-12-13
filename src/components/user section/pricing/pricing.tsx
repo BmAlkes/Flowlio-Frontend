@@ -130,6 +130,7 @@ export const Pricing: FC<PricingProps> = ({
       duration: formatDuration(plansResponse?.data?.[0]),
       durationValue: plansResponse?.data?.[0]?.durationValue,
       durationType: plansResponse?.data?.[0]?.durationType,
+      trialDays: plansResponse?.data?.[0]?.trialDays ?? 0,
       features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
     },
     {
@@ -142,6 +143,7 @@ export const Pricing: FC<PricingProps> = ({
       duration: formatDuration(plansResponse?.data?.[1]),
       durationValue: plansResponse?.data?.[1]?.durationValue,
       durationType: plansResponse?.data?.[1]?.durationType,
+      trialDays: plansResponse?.data?.[1]?.trialDays ?? 0,
       features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
     },
     {
@@ -154,6 +156,7 @@ export const Pricing: FC<PricingProps> = ({
       duration: formatDuration(plansResponse?.data?.[2]),
       durationValue: plansResponse?.data?.[2]?.durationValue,
       durationType: plansResponse?.data?.[2]?.durationType,
+      trialDays: plansResponse?.data?.[2]?.trialDays ?? 0,
       features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
     },
   ];
@@ -380,14 +383,24 @@ export const Pricing: FC<PricingProps> = ({
                   </Flex>
                 </Flex>
                 <Flex
-                  className={
+                  className={`flex-col items-end ${
                     selectedPlan === index ? "text-white" : "text-black"
-                  }
+                  }`}
                 >
-                  <h1 className="font-semibold">$ {plan.price}</h1>
-                  <Flex>
-                    <h1 className="font-light">/{plan.duration}</h1>
+                  <Flex className="items-baseline">
+                    <h1 className="font-semibold">$ {plan.price}</h1>
+                    <Flex>
+                      <h1 className="font-light">/{plan.duration}</h1>
+                    </Flex>
                   </Flex>
+                  {/* Show Trial badge if trialDays > 0 */}
+                  {plan.trialDays > 0 && (
+                    <Box className="mt-1">
+                      <Box className="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        {plan.trialDays}-Day Trial
+                      </Box>
+                    </Box>
+                  )}
                 </Flex>
               </Flex>
 

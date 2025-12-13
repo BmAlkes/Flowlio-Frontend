@@ -59,6 +59,9 @@ const SubscriptionsPage = () => {
 
   // const updatePlanMutation = useUpdateSubscriptionPlan();
 
+  const subscriptionStatus = subscriptionData?.data;
+  const availablePlans = plansData?.data || [];
+
   useEffect(() => {
     if (subscriptionError) {
       toast.error("Failed to load subscription status");
@@ -67,6 +70,20 @@ const SubscriptionsPage = () => {
       toast.error("Failed to load available plans");
     }
   }, [subscriptionError, plansError]);
+
+  // Debug: Log subscription status
+  useEffect(() => {
+    if (subscriptionStatus) {
+      console.log("📊 Subscription Status:", {
+        hasSubscription: subscriptionStatus.hasSubscription,
+        status: subscriptionStatus.status,
+        isTrial: subscriptionStatus.isTrial,
+        trialDaysRemaining: subscriptionStatus.trialDaysRemaining,
+        subscription: subscriptionStatus.subscription,
+        plan: subscriptionStatus.plan,
+      });
+    }
+  }, [subscriptionStatus]);
 
   if (subscriptionLoading || plansLoading) {
     return (
@@ -79,25 +96,38 @@ const SubscriptionsPage = () => {
     );
   }
 
-  const subscriptionStatus = subscriptionData?.data;
-  const availablePlans = plansData?.data || [];
-
   // Helper function to calculate trial days remaining
-  const getTrialDaysRemaining = (endDate: string) => {
-    const now = new Date();
-    const end = new Date(endDate);
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
+  const getTrialDaysRemaining = (endDate: string | Date | null | undefined) => {
+    if (!endDate) return 0;
+    try {
+      const now = new Date();
+      const end = typeof endDate === "string" ? new Date(endDate) : endDate;
+      if (isNaN(end.getTime())) return 0;
+      const diffTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(0, diffDays);
+    } catch (error) {
+      console.error("Error calculating trial days:", error, endDate);
+      return 0;
+    }
   };
 
   // Helper function to format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const formatDate = (dateString: string | Date | null | undefined) => {
+    if (!dateString) return "N/A";
+    try {
+      const date =
+        typeof dateString === "string" ? new Date(dateString) : dateString;
+      if (isNaN(date.getTime())) return "Invalid Date";
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error, dateString);
+      return "Invalid Date";
+    }
   };
 
   // Handle plan selection
@@ -323,7 +353,7 @@ const SubscriptionsPage = () => {
               {getStatusBadge(subscriptionStatus.status)}
             </Flex>
 
-            {subscriptionStatus.subscription && (
+            {(subscriptionStatus.subscription || subscriptionStatus.plan) && (
               <Box className="space-y-3">
                 <Flex className="justify-between">
                   <Box className="text-sm text-gray-600 flex items-center gap-2">
@@ -331,100 +361,178 @@ const SubscriptionsPage = () => {
                     Plan:
                   </Box>
                   <Box className="font-semibold">
-                    {subscriptionStatus.plan?.name || "Unknown Plan"}
+                    {subscriptionStatus.plan?.name ||
+                      subscriptionStatus.plan?.customPlanName ||
+                      "Unknown Plan"}
                   </Box>
                 </Flex>
-                <Flex className="justify-between">
-                  <Box className="text-sm text-gray-600">Status:</Box>
-                  <Box className="font-semibold capitalize">
-                    {subscriptionStatus.subscription.status}
-                  </Box>
-                </Flex>
-                {subscriptionStatus.subscription.currentPeriodEnd && (
+                {subscriptionStatus.subscription && (
                   <>
                     <Flex className="justify-between">
-                      <Box className="text-sm text-gray-600 flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        {subscriptionStatus.subscription.isTrial
-                          ? "Trial Ends:"
-                          : "Period Ends:"}
-                      </Box>
-                      <Box className="font-semibold">
-                        {formatDate(
-                          subscriptionStatus.subscription.currentPeriodEnd
-                        )}
+                      <Box className="text-sm text-gray-600">Status:</Box>
+                      <Box className="font-semibold capitalize">
+                        {subscriptionStatus.subscription.status ||
+                          subscriptionStatus.status}
                       </Box>
                     </Flex>
-                    {subscriptionStatus.subscription.isTrial && (
-                      <Box className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <Box className="text-blue-800 font-medium mb-1">
-                          🎉 Free Trial Active
-                        </Box>
-                        <Box className="text-blue-700 text-sm">
-                          {subscriptionStatus.subscription.trialDaysRemaining ||
-                            getTrialDaysRemaining(
-                              subscriptionStatus.subscription.currentPeriodEnd
-                            )}{" "}
-                          days remaining
-                        </Box>
-                      </Box>
-                    )}
-                    {subscriptionStatus.subscription.cancelAtPeriodEnd && (
-                      <Box className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                        <Box className="text-orange-800 font-medium mb-1">
-                          ⚠️ Subscription Cancelled
-                        </Box>
-                        <Box className="text-orange-700 text-sm">
-                          Your subscription is scheduled to cancel on{" "}
-                          {formatDate(
-                            subscriptionStatus.subscription.currentPeriodEnd
-                          )}
-                          . You will continue to have access until then.
-                        </Box>
-                      </Box>
-                    )}
-                    {subscriptionStatus.status === "active" &&
-                      !subscriptionStatus.subscription.cancelAtPeriodEnd &&
-                      !subscriptionStatus.subscription.isTrial && (
-                        <Box className="mt-4">
-                          <Button
-                            onClick={handleCancelSubscription}
-                            variant="destructive"
-                            disabled={cancelSubscriptionMutation.isPending}
-                            className="w-full"
-                          >
-                            {cancelSubscriptionMutation.isPending
-                              ? "Cancelling..."
-                              : "Cancel Subscription"}
-                          </Button>
-                          <Box className="text-xs text-gray-500 mt-2 text-center">
-                            Note: Cancellation is non-refundable. Your
-                            subscription will remain active until the end of the
-                            current billing period.
+                    {subscriptionStatus.subscription.currentPeriodEnd && (
+                      <>
+                        <Flex className="justify-between">
+                          <Box className="text-sm text-gray-600 flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {subscriptionStatus.isTrial ||
+                            subscriptionStatus.subscription?.isTrial
+                              ? "Trial Ends:"
+                              : "Period Ends:"}
                           </Box>
-                        </Box>
-                      )}
+                          <Box className="font-semibold">
+                            {(subscriptionStatus.isTrial ||
+                              subscriptionStatus.subscription?.isTrial) &&
+                            subscriptionStatus.subscription?.trialEnd
+                              ? formatDate(
+                                  subscriptionStatus.subscription.trialEnd
+                                )
+                              : formatDate(
+                                  subscriptionStatus.subscription
+                                    .currentPeriodEnd
+                                )}
+                          </Box>
+                        </Flex>
+                        {(subscriptionStatus.isTrial ||
+                          subscriptionStatus.subscription?.isTrial) && (
+                          <Box className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <Flex className="items-center justify-between">
+                              <Box>
+                                <Box className="text-blue-800 font-medium mb-1">
+                                  🎉 Free Trial Active
+                                </Box>
+                                <Box className="text-blue-700 text-sm">
+                                  {(() => {
+                                    // Use trialDaysRemaining from backend if available
+                                    const daysRemaining =
+                                      subscriptionStatus.trialDaysRemaining ??
+                                      subscriptionStatus.subscription
+                                        ?.trialDaysRemaining ??
+                                      (subscriptionStatus.subscription?.trialEnd
+                                        ? getTrialDaysRemaining(
+                                            subscriptionStatus.subscription
+                                              .trialEnd
+                                          )
+                                        : subscriptionStatus.subscription
+                                            ?.currentPeriodEnd
+                                        ? getTrialDaysRemaining(
+                                            subscriptionStatus.subscription
+                                              .currentPeriodEnd
+                                          )
+                                        : 0);
+                                    return daysRemaining;
+                                  })()}{" "}
+                                  {(() => {
+                                    const daysRemaining =
+                                      subscriptionStatus.trialDaysRemaining ??
+                                      subscriptionStatus.subscription
+                                        ?.trialDaysRemaining ??
+                                      (subscriptionStatus.subscription?.trialEnd
+                                        ? getTrialDaysRemaining(
+                                            subscriptionStatus.subscription
+                                              .trialEnd
+                                          )
+                                        : subscriptionStatus.subscription
+                                            ?.currentPeriodEnd
+                                        ? getTrialDaysRemaining(
+                                            subscriptionStatus.subscription
+                                              .currentPeriodEnd
+                                          )
+                                        : 0);
+                                    return daysRemaining === 1 ? "day" : "days";
+                                  })()}{" "}
+                                  remaining
+                                </Box>
+                              </Box>
+                              <Box className="text-blue-600 font-bold text-2xl">
+                                {(() => {
+                                  const daysRemaining =
+                                    subscriptionStatus.trialDaysRemaining ??
+                                    subscriptionStatus.subscription
+                                      ?.trialDaysRemaining ??
+                                    (subscriptionStatus.subscription?.trialEnd
+                                      ? getTrialDaysRemaining(
+                                          subscriptionStatus.subscription
+                                            .trialEnd
+                                        )
+                                      : subscriptionStatus.subscription
+                                          ?.currentPeriodEnd
+                                      ? getTrialDaysRemaining(
+                                          subscriptionStatus.subscription
+                                            .currentPeriodEnd
+                                        )
+                                      : 0);
+                                  return daysRemaining;
+                                })()}
+                              </Box>
+                            </Flex>
+                          </Box>
+                        )}
+                        {subscriptionStatus.subscription?.cancelAtPeriodEnd && (
+                          <Box className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <Box className="text-orange-800 font-medium mb-1">
+                              ⚠️ Subscription Cancelled
+                            </Box>
+                            <Box className="text-orange-700 text-sm">
+                              Your subscription is scheduled to cancel on{" "}
+                              {formatDate(
+                                subscriptionStatus.subscription
+                                  ?.currentPeriodEnd
+                              )}
+                              . You will continue to have access until then.
+                            </Box>
+                          </Box>
+                        )}
+                        {subscriptionStatus.status === "active" &&
+                          !subscriptionStatus.subscription?.cancelAtPeriodEnd &&
+                          !subscriptionStatus.isTrial &&
+                          !subscriptionStatus.subscription?.isTrial && (
+                            <Box className="mt-4">
+                              <Button
+                                onClick={handleCancelSubscription}
+                                variant="destructive"
+                                disabled={cancelSubscriptionMutation.isPending}
+                                className="w-full"
+                              >
+                                {cancelSubscriptionMutation.isPending
+                                  ? "Cancelling..."
+                                  : "Cancel Subscription"}
+                              </Button>
+                              <Box className="text-xs text-gray-500 mt-2 text-center">
+                                Note: Cancellation is non-refundable. Your
+                                subscription will remain active until the end of
+                                the current billing period.
+                              </Box>
+                            </Box>
+                          )}
+                      </>
+                    )}
                   </>
                 )}
               </Box>
             )}
+          </Box>
+        )}
 
-            {subscriptionStatus.requiresSubscription && (
-              <Box className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <Box className="text-yellow-800 font-medium mb-2">
-                  Subscription Required
-                </Box>
-                <Box className="text-yellow-700 text-sm mb-3">
-                  You need an active subscription to access all features.
-                </Box>
-                <Button
-                  onClick={() => navigate("/pricing")}
-                  className="bg-[#1797B9] text-white rounded-full hover:bg-[#1797B9]/80"
-                >
-                  Browse Plans
-                </Button>
-              </Box>
-            )}
+        {subscriptionStatus?.requiresSubscription && (
+          <Box className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <Box className="text-yellow-800 font-medium mb-2">
+              Subscription Required
+            </Box>
+            <Box className="text-yellow-700 text-sm mb-3">
+              You need an active subscription to access all features.
+            </Box>
+            <Button
+              onClick={() => navigate("/pricing")}
+              className="bg-[#1797B9] text-white rounded-full hover:bg-[#1797B9]/80"
+            >
+              Browse Plans
+            </Button>
           </Box>
         )}
 

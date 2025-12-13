@@ -17,6 +17,7 @@ export interface SubscriptionPlan {
   billingCycle?: "days" | "monthly" | "yearly";
   durationValue?: number | null;
   durationType?: "days" | "monthly" | "yearly" | null;
+  trialDays?: number | null; // Number of trial days (0 = no trial)
   features: string[] | any; // Can be array or object
   isActive: boolean;
   sortOrder: number;
