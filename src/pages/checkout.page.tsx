@@ -538,9 +538,15 @@ const CheckoutPage = () => {
   // Note: Vite requires VITE_ prefix for environment variables to be exposed to client
   // For live payments: Use your live PayPal Client ID from PayPal Developer Dashboard
   // The PayPal SDK automatically detects live vs sandbox based on the client ID format
-  const paypalClientId = import.meta.env.PAYPAL_CLIENT_ID;
+  const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
   const isFrontendPayPalConfigured =
-    paypalClientId && paypalClientId !== "" && paypalClientId !== "sandbox";
+    typeof paypalClientId === "string" && paypalClientId.trim().length > 0;
+
+  // Debug log to verify PayPal env loading (shows only length for safety)
+  console.log("[PayPal Config Check]", {
+    hasClientId: isFrontendPayPalConfigured,
+    clientIdLength: paypalClientId?.length || 0,
+  });
 
   // Check if backend is in demo mode (extract to avoid type narrowing issues)
   const isBackendInDemoMode = isBackendDemoMode === true;
@@ -732,7 +738,7 @@ const CheckoutPage = () => {
                       <li>
                         Frontend: Add{" "}
                         <code className="bg-yellow-200 px-1 rounded">
-                          PAYPAL_CLIENT_ID=your_client_id
+                          VITE_PAYPAL_CLIENT_ID=your_client_id
                         </code>{" "}
                         to your .env file
                       </li>
@@ -778,7 +784,7 @@ const CheckoutPage = () => {
                   </Box>
 
                   {/* PayPal Info Box for Sandbox */}
-                  <Box className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                  {/* <Box className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
                     <p className="font-semibold text-blue-800 mb-1">
                       PayPal Sandbox Mode
                     </p>
@@ -786,7 +792,7 @@ const CheckoutPage = () => {
                       Use PayPal sandbox test accounts to complete the purchase.
                       No real money will be charged.
                     </p>
-                  </Box>
+                  </Box> */}
                 </>
               )}
 
