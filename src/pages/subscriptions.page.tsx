@@ -172,14 +172,14 @@ const SubscriptionsPage = () => {
   const handlePlanUpgrade = async (newPlanId: string) => {
     setProcessingPlanId(newPlanId);
     try {
-      // Enable demo mode for testing (set to false in production)
-      const isDemoMode =
-        import.meta.env.VITE_ENABLE_DEMO_MODE === "true" || true;
+      // DEMO MODE COMMENTED OUT FOR PRODUCTION - Only real payments allowed
+      // const isDemoMode =
+      //   import.meta.env.VITE_ENABLE_DEMO_MODE === "true" || true;
 
       // Create upgrade order
       const orderResponse = await createUpgradeOrderMutation.mutateAsync({
         newPlanId,
-        demoMode: isDemoMode,
+        // demoMode: isDemoMode, // COMMENTED OUT FOR PRODUCTION
       });
 
       const orderData = orderResponse.data;

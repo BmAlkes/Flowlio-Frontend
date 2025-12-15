@@ -19,7 +19,7 @@ import {
   FormControl,
 } from "@/components/ui/form";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import {
   useCreatePayPalOrder,
   useCapturePayPalOrder,
@@ -244,49 +244,13 @@ const CheckoutPage = () => {
     navigate,
   ]);
 
-  // Check backend PayPal configuration on mount
+  // DEMO MODE REMOVED - No need to check for demo mode in production
+  // Check backend PayPal configuration on mount (simplified - no demo mode check)
   useEffect(() => {
-    const checkBackendPayPalConfig = async () => {
-      if (!selectedPlan || !userData?.user) {
-        setCheckingBackendMode(false);
-        return;
-      }
-
-      try {
-        const planPrice = parseFloat(
-          selectedPlan.price.toString().replace("$", "")
-        );
-
-        // Try to create an order to check if backend is in demo mode
-        const response = await createPayPalOrderMutation.mutateAsync({
-          planId: selectedPlan.id,
-          amount: planPrice,
-          currency: "USD",
-        });
-
-        // Check if backend returned a demo order
-        if (
-          response.data?.orderId &&
-          response.data.orderId.startsWith("demo_order_")
-        ) {
-          setIsBackendDemoMode(true);
-        } else {
-          setIsBackendDemoMode(false);
-        }
-      } catch (error) {
-        // If error, assume demo mode
-        console.log(
-          "[Checkout] Backend PayPal check failed, assuming demo mode",
-          error
-        );
-        setIsBackendDemoMode(true);
-      } finally {
-        setCheckingBackendMode(false);
-      }
-    };
-
-    if (selectedPlan && userData?.user && checkingBackendMode) {
-      checkBackendPayPalConfig();
+    // Simply mark as not checking since demo mode is removed
+    if (selectedPlan && userData?.user) {
+      setCheckingBackendMode(false);
+      setIsBackendDemoMode(false); // Always false in production
     }
   }, [selectedPlan, userData?.user]);
 
@@ -341,28 +305,9 @@ const CheckoutPage = () => {
 
       console.log("[PayPal] Order created:", response.data);
 
-      // Check if backend is in demo mode (returns demo order IDs)
-      if (
-        response.data?.orderId &&
-        response.data.orderId.startsWith("demo_order_")
-      ) {
-        console.log(
-          "[PayPal] Demo order detected - Backend is in demo mode. PayPal SDK cannot process demo orders."
-        );
-        // Mark backend as demo mode
-        setIsBackendDemoMode(true);
-        // Don't return the demo order ID to PayPal SDK - it will cause an error
-        // Instead, throw an error that will be caught and the user can use the demo button
-        const errorMsg =
-          "PayPal is not configured on the server. Please use the 'Complete Demo Payment' button below.";
-        console.error("[PayPal] Error:", errorMsg);
-        toast.error(errorMsg);
-        throw new Error(errorMsg);
-      }
-
-      // If we get a real PayPal order ID, backend has PayPal configured
+      // DEMO MODE REMOVED - Only real PayPal orders in production
+      // If we get a PayPal order ID, return it
       if (response.data?.orderId) {
-        setIsBackendDemoMode(false);
         return response.data.orderId;
       }
 
@@ -436,13 +381,14 @@ const CheckoutPage = () => {
     console.error("[PayPal] SDK Error:", error);
     console.error("[PayPal] Error details:", JSON.stringify(error, null, 2));
 
-    // Check if error is related to demo orders
+    // DEMO MODE REMOVED - Handle PayPal errors normally
+    // Check if error is related to invalid resource (order not found, etc.)
     if (
       error?.err === "INVALID_RESOURCE_ID" ||
       error?.message?.includes("INVALID_RESOURCE_ID")
     ) {
       const errorMessage =
-        "Demo orders cannot be processed through PayPal. Please use the 'Complete Demo Payment' button instead.";
+        "PayPal order not found or invalid. Please try again or contact support.";
       toast.error(errorMessage);
       setIsProcessing(false);
       return;
@@ -463,108 +409,109 @@ const CheckoutPage = () => {
     setIsProcessing(false);
   };
 
+  // DEMO PAYMENT COMMENTED OUT FOR PRODUCTION - Only real payments allowed
   // Handle demo payment
-  const handleDemoPayment = async () => {
-    if (!selectedPlan || !userData?.user) {
-      toast.error("Missing plan or user information");
-      return;
-    }
+  // const handleDemoPayment = async () => {
+  //   if (!selectedPlan || !userData?.user) {
+  //     toast.error("Missing plan or user information");
+  //     return;
+  //   }
 
-    setIsProcessing(true);
-    try {
-      // Validate organization name if needed
-      if (createOrganization) {
-        const isValid = await form.trigger("organizationName");
-        if (!isValid) {
-          toast.error("Please enter a valid organization name");
-          setIsProcessing(false);
-          return;
-        }
-      }
+  //   setIsProcessing(true);
+  //   try {
+  //     // Validate organization name if needed
+  //     if (createOrganization) {
+  //       const isValid = await form.trigger("organizationName");
+  //       if (!isValid) {
+  //         toast.error("Please enter a valid organization name");
+  //         setIsProcessing(false);
+  //         return;
+  //       }
+  //     }
 
-      // Create demo order - force demo mode
-      const planPrice = parseFloat(
-        selectedPlan.price.toString().replace("$", "")
-      );
+  //     // Create demo order - force demo mode
+  //     const planPrice = parseFloat(
+  //       selectedPlan.price.toString().replace("$", "")
+  //     );
 
-      const orderResponse = await createPayPalOrderMutation.mutateAsync({
-        planId: selectedPlan.id,
-        amount: planPrice,
-        currency: "USD",
-        demoMode: true, // Force demo mode for demo payment button
-      });
+  //     const orderResponse = await createPayPalOrderMutation.mutateAsync({
+  //       planId: selectedPlan.id,
+  //       amount: planPrice,
+  //       currency: "USD",
+  //       // demoMode: true, // Force demo mode for demo payment button
+  //     });
 
-      if (orderResponse.data?.orderId) {
-        // Mark backend demo mode if we get a demo order
-        if (orderResponse.data.orderId.startsWith("demo_order_")) {
-          setIsBackendDemoMode(true);
-        }
+  //     if (orderResponse.data?.orderId) {
+  //       // Mark backend demo mode if we get a demo order
+  //       if (orderResponse.data.orderId.startsWith("demo_order_")) {
+  //         setIsBackendDemoMode(true);
+  //       }
 
-        // Process demo order directly (bypass PayPal SDK)
-        const formData = form.getValues();
+  //       // Process demo order directly (bypass PayPal SDK)
+  //       const formData = form.getValues();
 
-        // Ensure organization name is provided if creating organization
-        const orgName = createOrganization
-          ? formData.organizationName?.trim()
-          : undefined;
+  //       // Ensure organization name is provided if creating organization
+  //       const orgName = createOrganization
+  //         ? formData.organizationName?.trim()
+  //         : undefined;
 
-        if (createOrganization && (!orgName || orgName === "")) {
-          toast.error("Please enter an organization name");
-          setIsProcessing(false);
-          return;
-        }
+  //       if (createOrganization && (!orgName || orgName === "")) {
+  //         toast.error("Please enter an organization name");
+  //         setIsProcessing(false);
+  //         return;
+  //       }
 
-        console.log("[Demo Payment] Capturing order:", {
-          orderId: orderResponse.data.orderId,
-          userId: userData.user.id,
-          organizationName: orgName,
-          planId: selectedPlan.id,
-          createOrganization,
-        });
+  //       console.log("[Demo Payment] Capturing order:", {
+  //         orderId: orderResponse.data.orderId,
+  //         userId: userData.user.id,
+  //         organizationName: orgName,
+  //         planId: selectedPlan.id,
+  //         createOrganization,
+  //       });
 
-        const captureResponse = await capturePayPalOrderMutation.mutateAsync({
-          orderId: orderResponse.data.orderId,
-          userId: userData.user.id,
-          organizationName: orgName,
-          planId: selectedPlan.id,
-        });
+  //       const captureResponse = await capturePayPalOrderMutation.mutateAsync({
+  //         orderId: orderResponse.data.orderId,
+  //         userId: userData.user.id,
+  //         organizationName: orgName,
+  //         planId: selectedPlan.id,
+  //       });
 
-        console.log("[Demo Payment] Capture response:", captureResponse);
+  //       console.log("[Demo Payment] Capture response:", captureResponse);
 
-        if (captureResponse.data?.status === "COMPLETED") {
-          toast.success("Demo payment processed successfully!");
-          if (createOrganization && captureResponse.data?.organization) {
-            toast.success("Organization created successfully!");
-          }
-          // Reload page to refresh session with updated organizationId
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 1500);
-        } else {
-          console.error(
-            "[Demo Payment] Payment not completed:",
-            captureResponse
-          );
-          toast.error(
-            captureResponse?.message ||
-              "Payment was not completed. Please try again."
-          );
-        }
-      } else {
-        console.error("[Demo Payment] No order ID returned:", orderResponse);
-        toast.error("Failed to create order. Please try again.");
-      }
-    } catch (error: any) {
-      console.error("Demo payment error:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Failed to process demo payment"
-      );
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  //       if (captureResponse.data?.status === "COMPLETED") {
+  //         toast.success("Demo payment processed successfully!");
+  //         if (createOrganization && captureResponse.data?.organization) {
+  //           toast.success("Organization created successfully!");
+  //         }
+  //         // Reload page to refresh session with updated organizationId
+  //         setTimeout(() => {
+  //           window.location.href = "/dashboard";
+  //         }, 1500);
+  //       } else {
+  //         console.error(
+  //           "[Demo Payment] Payment not completed:",
+  //           captureResponse
+  //         );
+  //         toast.error(
+  //           captureResponse?.message ||
+  //             "Payment was not completed. Please try again."
+  //         );
+  //       }
+  //     } else {
+  //       console.error("[Demo Payment] No order ID returned:", orderResponse);
+  //       toast.error("Failed to create order. Please try again.");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Demo payment error:", error);
+  //     toast.error(
+  //       error?.response?.data?.message ||
+  //         error?.message ||
+  //         "Failed to process demo payment"
+  //     );
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   // Format price for display
   const formatPrice = (price: string | number | undefined): string => {
@@ -591,7 +538,7 @@ const CheckoutPage = () => {
   // Note: Vite requires VITE_ prefix for environment variables to be exposed to client
   // For live payments: Use your live PayPal Client ID from PayPal Developer Dashboard
   // The PayPal SDK automatically detects live vs sandbox based on the client ID format
-  const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
+  const paypalClientId = import.meta.env.PAYPAL_CLIENT_ID;
   const isFrontendPayPalConfigured =
     paypalClientId && paypalClientId !== "" && paypalClientId !== "sandbox";
 
@@ -624,13 +571,17 @@ const CheckoutPage = () => {
         {subscriptionStatus?.data?.trialExpired && (
           <Box className="max-w-5xl mx-auto mt-4 mb-4">
             <Flex className="items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <AlertCircle className="text-orange-600 flex-shrink-0" size={24} />
+              <AlertCircle
+                className="text-orange-600 flex-shrink-0"
+                size={24}
+              />
               <Box className="flex-1">
                 <h3 className="font-semibold text-orange-900 mb-1">
                   Trial Period Ended
                 </h3>
                 <p className="text-orange-700 text-sm mt-1">
-                  Your trial period has ended. Please purchase a subscription to continue using our services.
+                  Your trial period has ended. Please purchase a subscription to
+                  continue using our services.
                 </p>
               </Box>
             </Flex>
@@ -714,13 +665,14 @@ const CheckoutPage = () => {
 
               <h3 className="font-semibold mb-4">Payment Method</h3>
 
+              {/* DEMO PAYMENT COMMENTED OUT FOR PRODUCTION - Only real PayPal payments allowed */}
               {/* Show demo button if PayPal is not fully configured OR backend is in demo mode OR still checking */}
-              {checkingBackendMode ||
+              {/* {checkingBackendMode ||
               !isPayPalFullyConfigured ||
               isBackendInDemoMode ? (
                 <>
                   {/* Demo Payment Button - for testing without PayPal SDK */}
-                  <Box className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              {/* <Box className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <p className="font-semibold text-green-800 mb-2">
                       Demo Payment Mode
                     </p>
@@ -748,85 +700,82 @@ const CheckoutPage = () => {
                       This simulates a successful payment and creates your
                       organization
                     </p>
-                  </Box>
+                  </Box> */}
 
-                  {/* Configuration Instructions */}
-                  {!isFrontendPayPalConfigured && (
-                    <Box className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="font-semibold text-yellow-800 mb-2">
-                        PayPal Not Configured
-                      </p>
-                      <p className="text-yellow-700 text-sm mb-3">
-                        To enable real PayPal payments, please configure PayPal
-                        credentials.
-                      </p>
-                      <div className="text-xs text-yellow-600 bg-yellow-100 p-2 rounded">
-                        <p className="font-semibold mb-1">
-                          Steps to configure:
-                        </p>
-                        <ol className="list-decimal list-inside space-y-1">
-                          <li>
-                            Go to{" "}
-                            <a
-                              href="https://developer.paypal.com"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="underline"
-                            >
-                              PayPal Developer Dashboard
-                            </a>
-                          </li>
-                          <li>
-                            Create a sandbox app to get your Client ID and
-                            Secret
-                          </li>
-                          <li>
-                            Frontend: Add{" "}
-                            <code className="bg-yellow-200 px-1 rounded">
-                              VITE_PAYPAL_CLIENT_ID=your_client_id
-                            </code>{" "}
-                            to your .env file
-                          </li>
-                          <li>
-                            Backend: Add{" "}
-                            <code className="bg-yellow-200 px-1 rounded">
-                              PAYPAL_CLIENT_ID=your_client_id
-                            </code>{" "}
-                            and{" "}
-                            <code className="bg-yellow-200 px-1 rounded">
-                              PAYPAL_CLIENT_SECRET=your_secret
-                            </code>{" "}
-                            to your backend .env file
-                          </li>
-                          <li>Restart both frontend and backend servers</li>
-                        </ol>
-                      </div>
-                    </Box>
-                  )}
-                </>
-              ) : (
+              {/* Configuration Instructions - Show error if PayPal not configured */}
+              {!isPayPalFullyConfigured && (
+                <Box className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="font-semibold text-yellow-800 mb-2">
+                    PayPal Not Configured
+                  </p>
+                  <p className="text-yellow-700 text-sm mb-3">
+                    To enable real PayPal payments, please configure PayPal
+                    credentials.
+                  </p>
+                  <div className="text-xs text-yellow-600 bg-yellow-100 p-2 rounded">
+                    <p className="font-semibold mb-1">Steps to configure:</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>
+                        Go to{" "}
+                        <a
+                          href="https://developer.paypal.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          PayPal Developer Dashboard
+                        </a>
+                      </li>
+                      <li>
+                        Create a sandbox app to get your Client ID and Secret
+                      </li>
+                      <li>
+                        Frontend: Add{" "}
+                        <code className="bg-yellow-200 px-1 rounded">
+                          PAYPAL_CLIENT_ID=your_client_id
+                        </code>{" "}
+                        to your .env file
+                      </li>
+                      <li>
+                        Backend: Add{" "}
+                        <code className="bg-yellow-200 px-1 rounded">
+                          PAYPAL_CLIENT_ID=your_client_id
+                        </code>{" "}
+                        and{" "}
+                        <code className="bg-yellow-200 px-1 rounded">
+                          PAYPAL_CLIENT_SECRET=your_secret
+                        </code>{" "}
+                        to your backend .env file
+                      </li>
+                      <li>Restart both frontend and backend servers</li>
+                    </ol>
+                  </div>
+                </Box>
+              )}
+              {/* </> */}
+              {/* ) : null} */}
+              {/* DEMO MODE REMOVED - Only show PayPal buttons when configured */}
+              {isPayPalFullyConfigured && shouldLoadPayPalSDK && (
                 <>
                   {/* PayPal Buttons - Only show when fully configured */}
-                  {shouldLoadPayPalSDK && (
-                    <Box className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
-                      <PayPalButtons
-                        createOrder={handlePayPalCreateOrder}
-                        onApprove={handlePayPalApprove}
-                        onError={handlePayPalError}
-                        onCancel={() => {
-                          toast.info("Payment cancelled");
-                          setIsProcessing(false);
-                        }}
-                        disabled={isProcessing}
-                        style={{
-                          layout: "vertical",
-                          color: "blue",
-                          shape: "rect",
-                          label: "paypal",
-                        }}
-                      />
-                    </Box>
-                  )}
+                  <Box className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
+                    <PayPalButtons
+                      createOrder={handlePayPalCreateOrder}
+                      onApprove={handlePayPalApprove}
+                      onError={handlePayPalError}
+                      onCancel={() => {
+                        toast.info("Payment cancelled");
+                        setIsProcessing(false);
+                      }}
+                      disabled={isProcessing}
+                      style={{
+                        layout: "vertical",
+                        color: "blue",
+                        shape: "rect",
+                        label: "paypal",
+                      }}
+                    />
+                  </Box>
 
                   {/* PayPal Info Box for Sandbox */}
                   <Box className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
