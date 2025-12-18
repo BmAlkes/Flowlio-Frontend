@@ -76,6 +76,7 @@ export const Footer = () => {
       <Box className="bg-[#3F3F3F] text-white py-4 px-4 sm:px-6 lg:px-8">
         <Flex className="container mx-auto max-w-5xl justify-between items-start flex-wrap gap-8">
           <span>© 2025 Flowlio. All rights reserved.</span>
+          <span>Flowlio is a product by <a href="www.dotvizion.com">Dotvizion</a></span>
           <Flex className="text-white space-x-4 items-center">
             <Link
               to="/privacy-policy"
