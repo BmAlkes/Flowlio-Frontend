@@ -4,9 +4,15 @@ import { Button } from "../ui/button";
 import { Center } from "../ui/center";
 import { Flex } from "../ui/flex";
 import { CiCircleCheck } from "react-icons/ci";
+import { useFetchPublicPlans } from "@/hooks/usefetchplans";
+import { Loader2 } from "lucide-react";
 
 export const ManageSmarter = () => {
   const navigate = useNavigate();
+
+  const { data: plansResponse, isLoading, isError } = useFetchPublicPlans();
+  const trialDays = plansResponse?.data?.map((plan) => plan.trialDays);
+
   return (
     <Box className="w-full h-full bg-[#392AE2] p-8 max-sm:px-0">
       <Box className="relative z-30 mt-10 px-4">
@@ -25,10 +31,17 @@ export const ManageSmarter = () => {
             </p>
 
             <Flex className="text-white font-extralight text-[17px] gap-8">
-              <h1 className="flex items-center gap-2">
-                <CiCircleCheck className="text-[#F98618] size-6" />
-                14-Day Free Trial
-              </h1>
+              {isLoading ? (
+                <Loader2 className="text-[#F98618] size-6 animate-spin" />
+              ) : isError ? (
+                <span>Error: {isError}</span>
+              ) : (
+                <h1 className="flex items-center gap-2">
+                  <CiCircleCheck className="text-[#F98618] size-6" />
+
+                  <span>{trialDays?.[0]}-Day Free Trial</span>
+                </h1>
+              )}
 
               <h1 className="flex items-center gap-2">
                 <CiCircleCheck className="text-[#F98618] size-6" />
