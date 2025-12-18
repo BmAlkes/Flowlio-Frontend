@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useEffect } from "react";
 import { Navbar } from "@/components/user section/navbar/navbar";
+import { Footer } from "@/components/footer/footer";
 
 const TermsOfServicePage = () => {
   useEffect(() => {
@@ -367,6 +368,7 @@ const TermsOfServicePage = () => {
           </Stack>
         </Card>
       </Box>
+      <Footer />
     </Box>
   );
 };

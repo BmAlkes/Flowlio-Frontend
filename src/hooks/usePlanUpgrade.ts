@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 interface CreateUpgradeOrderRequest {
   newPlanId: string;
-  demoMode?: boolean;
+  // demoMode?: boolean; // COMMENTED OUT FOR PRODUCTION - Only real payments allowed
 }
 
 interface CreateUpgradeOrderResponse {

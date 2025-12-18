@@ -10,6 +10,7 @@ import { Box } from "@/components/ui/box";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/lib/utils";
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Stack } from "@/components/ui/stack";
 import { CircularProgress } from "@/components/ui/circularprogress";
@@ -44,6 +45,7 @@ export const Stats: FC<{
   activeTimeData,
   totalProductionHours = 0,
 }) => {
+  const { t } = useTranslation();
   const pathname = useLocation();
   return (
     <Box
@@ -81,15 +83,16 @@ export const Stats: FC<{
                           </p>
                         </Stack>
                         <Box className="bg-black w-38 text-white p-2 rounded-sm text-xs font-light mt-2">
-                          Total Production : {totalProductionHours.toFixed(1)}{" "}
-                          hrs
+                          {t("dashboard.totalProduction")} :{" "}
+                          {totalProductionHours.toFixed(1)}{" "}
+                          {t("dashboard.hoursAbbreviation")}
                         </Box>
                       </Center>
                       <div className="flex flex-col">
                         <CircularProgress
                           value={activeTimeData?.progressPercentage ?? 0}
                           time={activeTimeData?.elapsedTime ?? "0:00:00"}
-                          label="Total Hours"
+                          label={t("dashboard.totalHours")}
                         />
                       </div>
                     </Flex>
@@ -122,7 +125,7 @@ export const Stats: FC<{
                               (isSuperAdmin || isViewer) && "hidden"
                             )}
                           >
-                            hrs
+                            {t("dashboard.hoursAbbreviation")}
                           </span>
                         )}
                       </p>
@@ -134,7 +137,7 @@ export const Stats: FC<{
               </ComponentWrapper>
             </TooltipTrigger>
             <TooltipContent className="mb-2">
-              <p>Click to view {item.title}</p>
+              <p>{t("dashboard.clickToView", { title: item.title })}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

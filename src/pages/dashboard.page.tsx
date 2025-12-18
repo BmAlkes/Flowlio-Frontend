@@ -26,9 +26,11 @@ import { DemoPasswordChangeModal } from "@/components/dempasswordchangemodal";
 import { useState, useEffect } from "react";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 const DashboardPage = () => {
-  document.title = "User Dashboard - Flowlio";
+  const { t } = useTranslation();
+  document.title = `${t("dashboard.title")} - Flowlio`;
 
   const { data: userProfile, refetch } = useUserProfile();
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
@@ -64,29 +66,29 @@ const DashboardPage = () => {
   const stats: Stat[] = [
     {
       link: "/dashboard/client-management",
-      title: "Total Clients",
-      description: "Active users on the platform",
+      title: t("dashboard.totalClients"),
+      description: t("dashboard.activeUsersDesc"),
       icon: img1,
       count: String(totalClients),
     },
     {
       link: "/dashboard/project",
-      title: "Active Projects",
-      description: "Ongoing client projects",
+      title: t("dashboard.activeProjects"),
+      description: t("dashboard.ongoingProjectsDesc"),
       icon: img2,
       count: String(activeProjects),
     },
     {
       link: "/dashboard/time-tracking", // Add route for time tracking
-      title: "Hours Tracked",
-      description: "Time logged this week",
+      title: t("dashboard.hoursTracked"),
+      description: t("dashboard.timeLoggedDesc"),
       icon: img3,
       count: formatHours(weeklyHours),
     },
     {
       link: "/dashboard/task-management",
-      title: "Pending Tasks",
-      description: "Tasks not yet completed",
+      title: t("dashboard.pendingTasks"),
+      description: t("dashboard.tasksNotCompletedDesc"),
       icon: img4,
       count: String(pendingTasks),
     },
@@ -96,9 +98,24 @@ const DashboardPage = () => {
   const pieChartData = projectStatusResponse?.data
     ? transformToPieChartData(projectStatusResponse.data)
     : [
-        { name: "Ongoing", value: 0, icon: Img2, color: "#FFE000" },
-        { name: "Delayed", value: 0, icon: Img3, color: "#F50057" },
-        { name: "Finished", value: 0, icon: Img1, color: "#3f53b5" },
+        {
+          name: t("dashboard.ongoing"),
+          value: 0,
+          icon: Img2,
+          color: "#FFE000",
+        },
+        {
+          name: t("dashboard.delayed"),
+          value: 0,
+          icon: Img3,
+          color: "#F50057",
+        },
+        {
+          name: t("dashboard.finished"),
+          value: 0,
+          icon: Img1,
+          color: "#3f53b5",
+        },
       ];
 
   // issue fixed
@@ -112,7 +129,10 @@ const DashboardPage = () => {
         </Stack>
 
         <Stack className="max-[950px]:w-full items-start gap-3">
-          <ProjectStatusPieChart data={pieChartData} title="Project Status" />
+          <ProjectStatusPieChart
+            data={pieChartData}
+            title={t("dashboard.projectStatus")}
+          />
           <RecentActivities className="w-full" />
         </Stack>
       </Flex>

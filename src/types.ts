@@ -198,6 +198,7 @@ export type IPlan<T = {}> = {
   billingCycle?: "days" | "monthly" | "yearly";
   durationValue?: number | null;
   durationType?: "days" | "monthly" | "yearly" | null;
+  trialDays?: number | null; // Number of trial days (0 = no trial, null = default 7)
   features: PlanFeature;
   isActive?: boolean;
   sortOrder?: number;
@@ -299,6 +300,7 @@ export type CreatePlanRequest = {
   billingCycle: string;
   durationValue?: number | null;
   durationType?: "days" | "monthly" | "yearly" | null;
+  trialDays?: number | null; // Number of trial days (0 = no trial, null = default 7)
   features: PlanFeature;
   isActive: boolean;
   sortOrder: number;

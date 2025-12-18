@@ -9,7 +9,7 @@ interface CreatePayPalOrderRequest {
   planId: string;
   amount: number;
   currency?: string;
-  demoMode?: boolean; // Force demo mode even if PayPal is configured
+  // demoMode?: boolean; // COMMENTED OUT FOR PRODUCTION - Only real payments allowed
 }
 
 interface CreatePayPalOrderResponse {

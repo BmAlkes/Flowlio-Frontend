@@ -43,11 +43,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { useTranslation } from "react-i18next";
 
 // Use the Project interface from the hook
 export type Data = Project;
 
 export const ProjectTable = () => {
+  const { t } = useTranslation();
   // Fetch projects from API
   const { data: projectsData, isLoading, error } = useFetchProjects();
   const queryClient = useQueryClient();
@@ -188,7 +190,9 @@ export const ProjectTable = () => {
 
     {
       accessorKey: "projectName",
-      header: () => <Box className="text-black p-1">Project Name</Box>,
+      header: () => (
+        <Box className="text-black p-1">{t("projects.projectName")}</Box>
+      ),
       cell: ({ row }) => (
         <Box className="capitalize p-1 w-30 max-sm:w-full">
           {row.original.projectName.length > 28
@@ -199,14 +203,18 @@ export const ProjectTable = () => {
     },
     {
       accessorKey: "clientName",
-      header: () => <Box className="text-black text-center">Client</Box>,
+      header: () => (
+        <Box className="text-black text-center">{t("projects.client")}</Box>
+      ),
       cell: ({ row }) => (
         <Box className="capitalize text-center">{row.original.clientName}</Box>
       ),
     },
     {
       accessorKey: "assignedProject",
-      header: () => <Box className="text-black text-center">Assigned To</Box>,
+      header: () => (
+        <Box className="text-black text-center">{t("projects.assignedTo")}</Box>
+      ),
       cell: ({ row }) => (
         <Box className="capitalize text-center">
           {row.original.assignedProject}
@@ -216,7 +224,9 @@ export const ProjectTable = () => {
 
     {
       accessorKey: "startDate",
-      header: () => <Box className="text-center text-black">Start Date</Box>,
+      header: () => (
+        <Box className="text-center text-black">{t("common.startDate")}</Box>
+      ),
       cell: ({ row }) => {
         const startDate = row.original.startDate;
         try {
@@ -251,7 +261,9 @@ export const ProjectTable = () => {
 
     {
       accessorKey: "endDate",
-      header: () => <Box className="text-center text-black">End Date</Box>,
+      header: () => (
+        <Box className="text-center text-black">{t("common.endDate")}</Box>
+      ),
       cell: ({ row }) => {
         const endDate = row.original.endDate;
         try {
@@ -270,7 +282,9 @@ export const ProjectTable = () => {
 
     {
       accessorKey: "progress",
-      header: () => <Box className="text-center text-black">Progress</Box>,
+      header: () => (
+        <Box className="text-center text-black">{t("projects.progress")}</Box>
+      ),
       cell: ({ row }) => {
         return (
           <Center className="text-center">
@@ -282,7 +296,9 @@ export const ProjectTable = () => {
     },
     {
       accessorKey: "status",
-      header: () => <Box className="text-center text-black">Status</Box>,
+      header: () => (
+        <Box className="text-center text-black">{t("projects.status")}</Box>
+      ),
       cell: ({ row }) => {
         const status = row.original.status as
           | "pending"
@@ -326,7 +342,9 @@ export const ProjectTable = () => {
 
     {
       accessorKey: "actions",
-      header: () => <Box className="text-center text-black">Actions</Box>,
+      header: () => (
+        <Box className="text-center text-black">{t("common.actions")}</Box>
+      ),
       cell: ({ row }) => {
         return (
           <Center className="space-x-2">

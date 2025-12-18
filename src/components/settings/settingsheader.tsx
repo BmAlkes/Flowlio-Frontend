@@ -25,6 +25,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { authClient } from "@/lib/auth-client";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 const settingsSchema = z
   .object({
@@ -111,6 +113,7 @@ const settingsSchema = z
   );
 
 export const SettingsHeader = () => {
+  const { t } = useTranslation();
   const { data: userData, isLoading } = useUser();
   const queryClient = useQueryClient();
   const updateProfileMutation = useUpdateUserProfile();
@@ -552,9 +555,9 @@ export const SettingsHeader = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
           <Stack className="gap-0">
-            <h1 className="text-2xl font-medium">Setting</h1>
+            <h1 className="text-2xl font-medium">{t("settings.title")}</h1>
             <h1 className="text-gray-500 font-normal">
-              Need Help? We've Got You Covered.
+              {t("settings.subtitle")}
             </h1>
           </Stack>
           <Button
@@ -568,14 +571,14 @@ export const SettingsHeader = () => {
           >
             {updateProfileMutation.isPending ||
             updateProfileImageMutation.isPending
-              ? "Saving..."
-              : "Save Changes"}
+              ? t("common.saving")
+              : t("settings.saveChanges")}
           </Button>
         </Center>
 
         <Stack className="gap-8 mt-4">
           <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3 ">
-            <h1 className="text-xl font-medium">User Profile</h1>
+            <h1 className="text-xl font-medium">{t("settings.userProfile")}</h1>
 
             <Flex className="justify-between w-xs max-sm:w-full">
               <img
@@ -594,8 +597,8 @@ export const SettingsHeader = () => {
                   disabled={updateProfileImageMutation.isPending}
                 >
                   {updateProfileImageMutation.isPending
-                    ? "Uploading..."
-                    : "Choose File"}
+                    ? t("settings.uploading")
+                    : t("settings.chooseFile")}
                 </Button>
                 <input
                   type="file"
@@ -612,96 +615,101 @@ export const SettingsHeader = () => {
                     !avatarPreview || updateProfileImageMutation.isPending
                   }
                 >
-                  Remove
+                  {t("settings.remove")}
                 </Button>
               </Flex>
             </Flex>
 
-            <Flex className="mt-4 w-3xl max-sm:w-full flex-col gap-4">
-              <Input
-                className="bg-white rounded-full"
-                size="lg"
-                type="text"
-                placeholder="Full Name"
-                {...register("fullName")}
-              />
-              {errors.fullName && (
-                <span className="text-red-500 text-xs">
-                  {errors.fullName.message as string}
-                </span>
-              )}
-
-              <Input
-                className="bg-white rounded-full"
-                size="lg"
-                type="text"
-                placeholder="Phone Number"
-                {...register("phone")}
-              />
-
-              <Input
-                className="bg-white rounded-full"
-                size="lg"
-                type="text"
-                placeholder="Address"
-                {...register("address")}
-              />
-
-              <Flex className="w-full relative border border-gray-200 rounded-full">
+            <Flex className="justify-between gap-6 w-full max-sm:flex-col">
+              <Flex className="mt-4 w-3xl max-sm:w-full flex-1 flex-col gap-4">
                 <Input
-                  className="bg-white rounded-full relative"
+                  className="bg-white rounded-full"
                   size="lg"
-                  disabled
-                  type="email"
-                  placeholder="Email"
-                  {...register("email")}
+                  type="text"
+                  placeholder={t("settings.fullName")}
+                  {...register("fullName")}
                 />
-                <IoMdLock className="size-6 text-gray-500 absolute right-4 top-3 " />
+                {errors.fullName && (
+                  <span className="text-red-500 text-xs">
+                    {errors.fullName.message as string}
+                  </span>
+                )}
+
+                <Input
+                  className="bg-white rounded-full"
+                  size="lg"
+                  type="text"
+                  placeholder={t("settings.phone")}
+                  {...register("phone")}
+                />
+
+                <Input
+                  className="bg-white rounded-full"
+                  size="lg"
+                  type="text"
+                  placeholder={t("settings.address")}
+                  {...register("address")}
+                />
+
+                <Flex className="w-full relative border border-gray-200 rounded-full">
+                  <Input
+                    className="bg-white rounded-full relative"
+                    size="lg"
+                    disabled
+                    type="email"
+                    placeholder={t("settings.email")}
+                    {...register("email")}
+                  />
+                  <IoMdLock className="size-6 text-gray-500 absolute right-4 top-3 " />
+                </Flex>
+                {errors.email && (
+                  <span className="text-red-500 text-xs">
+                    {errors.email.message as string}
+                  </span>
+                )}
               </Flex>
-              {errors.email && (
-                <span className="text-red-500 text-xs">
-                  {errors.email.message as string}
-                </span>
-              )}
+              <LanguageSwitcher />
             </Flex>
           </Stack>
 
           {/* Security Settings Section */}
           <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
-            <h1 className="text-2xl font-semibold">Security Settings</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("settings.securitySettings")}
+            </h1>
 
             <Box className=" bg-[#f6fcfe] border border-white mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
               <p className="text-sm text-gray-600">
-                <strong>Profile Updates:</strong> You can update your name,
-                phone, and address without entering a password.
+                <strong>{t("settings.profileUpdates")}:</strong>{" "}
+                {t("settings.profileUpdatesDesc")}
                 <br />
-                <strong>Password Changes:</strong> Password changes require
-                additional verification for security.
+                <strong>{t("settings.passwordChanges")}:</strong>{" "}
+                {t("settings.passwordChangesDesc")}
               </p>
             </Box>
           </Stack>
 
           {/* Dedicated Password Change Section */}
           <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
-            <h1 className="text-2xl font-semibold">Password Security</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("settings.passwordSecurity")}
+            </h1>
 
             <Box className="bg-yellow-50 border border-yellow-200 mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
               <p className="text-sm text-yellow-800">
-                <strong>🔒 Security Notice:</strong> Password changes will log
-                you out of all other devices for security.
+                <strong>🔒 {t("settings.securityNotice")}:</strong>{" "}
+                {t("settings.securityNoticeDesc")}
                 <br />
-                <strong>💡 Tip:</strong> Use a strong password with at least 8
-                characters, including numbers and symbols.
+                <strong>💡 {t("settings.tip")}:</strong> {t("settings.tipDesc")}
               </p>
             </Box>
 
             <Box className="mt-8">
               <h2 className="text-lg font-medium text-gray-700 mb-4">
-                Change Password
+                {t("settings.changePassword")}
               </h2>
               <p className="text-sm text-gray-500 mb-6">
-                Update your password to keep your account secure. All fields are
-                required for password changes.
+                {t("settings.changePasswordDesc")}
               </p>
 
               <Stack className="gap-6 w-3xl max-md:w-full">
@@ -711,7 +719,7 @@ export const SettingsHeader = () => {
                     className="bg-white rounded-full pr-12"
                     size="lg"
                     type={showCurrentPassword ? "text" : "password"}
-                    placeholder="Enter Current Password"
+                    placeholder={t("settings.currentPassword")}
                     {...register("currentpassword")}
                   />
                   <Button
@@ -736,7 +744,7 @@ export const SettingsHeader = () => {
                 <Box className="relative">
                   <Input
                     className="bg-white rounded-full pr-12"
-                    placeholder="Enter New Password"
+                    placeholder={t("settings.newPassword")}
                     type={showNewPassword ? "text" : "password"}
                     size="lg"
                     {...register("newpassword")}
@@ -763,7 +771,7 @@ export const SettingsHeader = () => {
                 <Box className="relative">
                   <Input
                     className="bg-white rounded-full pr-12"
-                    placeholder="Confirm New Password"
+                    placeholder={t("settings.confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
                     size="lg"
                     {...register("confirmpassword")}
@@ -791,7 +799,7 @@ export const SettingsHeader = () => {
                 {watch("newpassword") && (
                   <Box className="mt-2">
                     <div className="text-xs text-gray-600 mb-2">
-                      Password Strength:
+                      {t("settings.passwordStrength")}:
                     </div>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4].map((level) => (
@@ -825,7 +833,7 @@ export const SettingsHeader = () => {
                       watch("newpassword") !== watch("confirmpassword")
                     }
                   >
-                    🔒 Change Password
+                    🔒 {t("settings.changePassword")}
                   </Button>
                 </Flex>
               </Stack>
@@ -833,16 +841,17 @@ export const SettingsHeader = () => {
 
             <Box className="mt-12">
               <h1 className="text-xl font-semibold">
-                Notification Preferences
+                {t("settings.notificationPreferences")}
               </h1>
 
               <Stack className="gap-6 mt-8 w-3xl max-sm:w-full">
                 <Flex className="justify-between w-full rounded-md max-md:px-3">
                   <Stack className="gap-0">
-                    <span className="text-[#7184B4]">Payment Alerts</span>
+                    <span className="text-[#7184B4]">
+                      {t("settings.paymentAlerts")}
+                    </span>
                     <h1 className="text-md max-md:text-sm">
-                      Get notified when a client completes a transaction or a
-                      payment is overdue.
+                      {t("settings.paymentAlertsDesc")}
                     </h1>
                   </Stack>
                   <Switch
@@ -854,10 +863,11 @@ export const SettingsHeader = () => {
                 </Flex>
                 <Flex className="justify-between w-full rounded-md max-md:px-3">
                   <Stack className="gap-0">
-                    <span className="text-[#7184B4]">Invoice Reminders</span>
+                    <span className="text-[#7184B4]">
+                      {t("settings.invoiceReminders")}
+                    </span>
                     <h1 className="text-md max-md:text-sm">
-                      Stay updated about upcoming invoice due dates, pending
-                      payments, or cancellations.
+                      {t("settings.invoiceRemindersDesc")}
                     </h1>
                   </Stack>
                   <Switch
@@ -869,11 +879,10 @@ export const SettingsHeader = () => {
                 <Flex className="justify-between w-full rounded-md max-md:px-3">
                   <Stack className="gap-0">
                     <span className="text-[#7184B4]">
-                      Project Activity Updates
+                      {t("settings.projectActivityUpdates")}
                     </span>
                     <h1 className="text-md max-md:text-sm">
-                      Receive alerts on project status changes, task
-                      assignments, and client interactions.
+                      {t("settings.projectActivityUpdatesDesc")}
                     </h1>
                   </Stack>
                   <Switch
@@ -887,12 +896,12 @@ export const SettingsHeader = () => {
                 <Flex className="items-center justify-between w-full py-4 border-t border-gray-200">
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-gray-700 mb-1">
-                      Two-Factor Authentication
+                      {t("settings.twoFactorAuthentication")}
                     </h3>
                     <p className="text-xs text-gray-500">
                       {local2FAStatus
-                        ? "Your account is protected with two-factor authentication"
-                        : "Add an extra layer of security to your account"}
+                        ? t("settings.twoFactorAuthenticationDesc")
+                        : t("settings.twoFactorAuthenticationDesc2")}
                     </p>
                   </div>
                   <Button
@@ -904,7 +913,9 @@ export const SettingsHeader = () => {
                     }`}
                     onClick={() => setShowTwoFAModal(true)}
                   >
-                    {local2FAStatus ? "Disable 2FA" : "Enable 2FA"}
+                    {local2FAStatus
+                      ? t("settings.disable2FA")
+                      : t("settings.enable2FA")}
                   </Button>
                 </Flex>
 

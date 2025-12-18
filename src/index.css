@@ -172,3 +172,55 @@
 .hidden-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* RTL (Right-to-Left) Support for Hebrew - Minimal and Selective */
+/* Only apply RTL to body and root, let components handle their own layout */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+/* Text content alignment only - don't affect layout containers */
+[dir="rtl"] p:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] span:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h1:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h2:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h3:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h4:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h5:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] h6:not([class*="flex"]):not([class*="grid"]),
+[dir="rtl"] label:not([class*="flex"]):not([class*="grid"]) {
+  text-align: right;
+}
+
+/* Input fields - text direction only */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] textarea {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Don't reverse flex containers - keep layout intact */
+[dir="rtl"] .flex,
+[dir="rtl"] [class*="flex"],
+[dir="rtl"] .grid,
+[dir="rtl"] [class*="grid"] {
+  direction: ltr; /* Keep flex/grid in LTR for proper layout */
+}
+
+/* Keep buttons, icons, and images in natural position */
+[dir="rtl"] button,
+[dir="rtl"] svg,
+[dir="rtl"] img,
+[dir="rtl"] [class*="icon"],
+[dir="rtl"] [class*="avatar"] {
+  direction: ltr;
+}
+
+/* RTL scrollbar adjustments */
+[dir="rtl"] .classic-scroll::-webkit-scrollbar-thumb {
+  background: #73b1c2;
+}

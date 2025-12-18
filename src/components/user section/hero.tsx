@@ -16,7 +16,12 @@ export const Hero = () => {
       <Box className="absolute -z-10 top-110 right-0 w-40 h-100 bg-[#2B2BA0]/50 blur-3xl opacity-20 " />
 
       <Center className="items-center justify-center text-center gap-2">
-        <img src="/home/dotvizion.svg" alt="logo" className="size-36" onClick={()=>navigate("https://www.dotvizion.com")} />
+        <img
+          src="/home/dotvizion.svg"
+          alt="logo"
+          className="size-36"
+          onClick={() => navigate("https://www.dotvizion.com")}
+        />
         <Box className="text-[14px] text-gray-600 font-normal pb-2">
           work platform
         </Box>
@@ -32,7 +37,13 @@ export const Hero = () => {
           <Box className="w-xl max-sm:w-full mt-2 font-normal text-gray-600 text-[15px]">
             Streamline your client and project workflows, track time with
             precision, and boost team performance — all from one powerful,
-            AI-enhanced platform.
+            AI-enhanced platform. Flowlio – Task & Workflow Management with
+            Google Calendar Integration
+          </Box>
+          <Box className="w-xl max-sm:w-full mt-2 font-normal text-gray-600 text-[15px]">
+            Flowlio helps individuals and teams manage tasks, schedule
+            deadlines, and sync events with Google Calendar to stay organized
+            and productive.
           </Box>
           <Button
             onClick={() => navigate("/pricing")}
@@ -52,13 +63,13 @@ export const Hero = () => {
             </Box>
           </Flex> */}
 
-          <Box className="relative mt-2 max-sm:mt-10 w-full gap-0 px-2">
+          <Box className="relative max-sm:mt-10 w-full gap-0 px-2">
             <img
               src="/home/robo.svg"
               alt="hero"
-              className="size-34 absolute right-16 -top-12"
+              className="size-34 absolute right-16 -top-18"
             />
-            <img src="/home/dash.png" alt="hero" className="w-4xl mt-14" />
+            <img src="/home/dash.png" alt="hero" className="w-4xl mt-8" />
 
             <img
               src="/home/brain.svg"

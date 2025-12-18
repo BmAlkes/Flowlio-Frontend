@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Navbar } from "@/components/user section/navbar/navbar";
 import { useEffect } from "react";
+import { Footer } from "@/components/footer/footer";
 
 const PrivacyPolicyPage = () => {
   useEffect(() => {
@@ -303,6 +304,7 @@ const PrivacyPolicyPage = () => {
             </Stack>
           </Card>
         </Box>
+        <Footer />
       </Box>
     </>
   );

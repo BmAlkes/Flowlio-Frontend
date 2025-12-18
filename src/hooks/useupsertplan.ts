@@ -17,6 +17,7 @@ export interface UpsertPlanRequest {
   billingCycle?: "days" | "monthly" | "yearly";
   durationValue?: number | null;
   durationType?: "days" | "monthly" | "yearly" | null;
+  trialDays?: number | null; // Number of trial days (0 = no trial, null = default 7)
   features?: {
     maxUsers: number;
     maxProjects: number;

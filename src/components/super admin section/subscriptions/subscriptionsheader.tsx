@@ -42,6 +42,7 @@ type PlanState = {
   price: string;
   durationValue: string;
   durationType: "days" | "monthly" | "yearly" | "";
+  trialDays: string; // Trial days (0 = no trial, any number = trial days)
   features: string[];
   newFeature: string;
   adding: boolean;
@@ -73,6 +74,7 @@ const initialPlanState: PlanState = {
   price: "",
   durationValue: "",
   durationType: "",
+  trialDays: "7", // Default 7 days trial
   features: [""],
   newFeature: "",
   adding: false,
@@ -151,6 +153,8 @@ export const SubscriptionsHeader = () => {
             (plan as any).durationValue ?? (plan as any).duration_value ?? null;
           const durationType =
             (plan as any).durationType ?? (plan as any).duration_type ?? null;
+          const trialDays =
+            (plan as any).trialDays ?? (plan as any).trial_days ?? 7;
 
           // Convert features object back to string array for UI
           const featureStrings: string[] = [];
@@ -183,6 +187,15 @@ export const SubscriptionsHeader = () => {
               durationType === "yearly")
           ) {
             formattedDurationType = durationType;
+          }
+
+          // Format trialDays - ensure it's a string for the input
+          let formattedTrialDays = "7"; // Default to 7
+          if (trialDays !== null && trialDays !== undefined) {
+            const numValue = Number(trialDays);
+            if (!isNaN(numValue) && numValue >= 0) {
+              formattedTrialDays = numValue.toString();
+            }
           }
 
           // IMPORTANT: name and slug are IMMUTABLE (always "Basic"/"basic", "Standard"/"standard", "Premium"/"premium")
@@ -235,6 +248,7 @@ export const SubscriptionsHeader = () => {
             price: plan.price.toString(),
             durationValue: formattedDurationValue,
             durationType: formattedDurationType,
+            trialDays: formattedTrialDays,
             features: featureStrings.length > 0 ? featureStrings : [""],
             newFeature: "",
             adding: false,
@@ -497,6 +511,16 @@ export const SubscriptionsHeader = () => {
         }
       }
 
+      // Parse trialDays - convert to number if valid, otherwise default to 7
+      const parsedTrialDays =
+        updatedPlan.trialDays &&
+        updatedPlan.trialDays !== "" &&
+        updatedPlan.trialDays.trim() !== "" &&
+        !isNaN(parseInt(updatedPlan.trialDays, 10)) &&
+        parseInt(updatedPlan.trialDays, 10) >= 0
+          ? parseInt(updatedPlan.trialDays, 10)
+          : 7;
+
       const planData = {
         id: updatedPlan.id,
         name: planName,
@@ -511,6 +535,7 @@ export const SubscriptionsHeader = () => {
         billingCycle: "monthly" as const,
         durationValue: parsedDurationValue,
         durationType: validDurationType,
+        trialDays: parsedTrialDays,
       };
 
       const result = await upsertPlanMutation.mutateAsync(planData);
@@ -711,6 +736,16 @@ export const SubscriptionsHeader = () => {
     }
     // If undefined/null, send null (field was never set)
 
+    // Parse trialDays - convert to number if valid, otherwise default to 7
+    const parsedTrialDays =
+      plan.trialDays &&
+      plan.trialDays !== "" &&
+      plan.trialDays.trim() !== "" &&
+      !isNaN(parseInt(plan.trialDays, 10)) &&
+      parseInt(plan.trialDays, 10) >= 0
+        ? parseInt(plan.trialDays, 10)
+        : 7;
+
     const planData = {
       id: plan.id, // Send plan ID if available (for updates)
       name: planName, // Original plan name (IMMUTABLE - from database: "Basic", "Standard", "Premium")
@@ -725,6 +760,7 @@ export const SubscriptionsHeader = () => {
       billingCycle: "monthly" as const,
       durationValue: parsedDurationValue,
       durationType: validDurationType,
+      trialDays: parsedTrialDays,
     };
 
     try {
@@ -938,6 +974,27 @@ export const SubscriptionsHeader = () => {
                   </SelectContent>
                 </Select>
               </Flex>
+              <label htmlFor="trialDays" className="mt-3">
+                Trial Days
+                <span className="text-xs text-gray-500 ml-2">
+                  (0 = No Trial, Any number = Trial days)
+                </span>
+              </label>
+              <Input
+                type="number"
+                placeholder="e.g., 7, 14, 0"
+                className="bg-white h-12 border border-gray-200 placeholder:text-gray-400 shadow-none"
+                value={plans[plan.key as PlanKey].trialDays}
+                onChange={(e) =>
+                  handleInputChange(
+                    plan.key as PlanKey,
+                    "trialDays",
+                    e.target.value
+                  )
+                }
+                min="0"
+                step="1"
+              />
               <Box className="mt-4">
                 <h1 className="font-semibold mb-2">Included</h1>
                 <Stack className="gap-2">

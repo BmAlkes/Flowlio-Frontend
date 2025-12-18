@@ -27,11 +27,10 @@ export const Footer = () => {
         <Flex className="container mx-auto max-w-5xl justify-between items-start flex-wrap gap-8">
           {/* Column 1: Logo, text, and language */}
           <Center className="w-full md:w-1/4  items-start flex-col">
-          <FooterLink  href="https://www.dotvizion.com">
+            <FooterLink href="https://www.dotvizion.com">
+              <img src={Logo} alt="Dotvizion" className="h-18 w-auto mb-4" />
+            </FooterLink>
 
-            <img src={Logo} alt="Dotvizion" className="h-18 w-auto mb-4" />
-          </FooterLink>
-          
             <p className="text-gray-400 mb-6 text-sm">
               Streamline your project management with Flowlio's powerful tools
               for task management, calendar integration, and team collaboration.
@@ -50,7 +49,7 @@ export const Footer = () => {
               <FooterLink href="#">How It Works</FooterLink>
               <FooterLink href="#">Use Cases</FooterLink>
               <FooterLink href="#">Integrations</FooterLink>
-              <FooterLink href="#">Pricing</FooterLink>
+              <FooterLink href="/pricing">Pricing</FooterLink>
             </Flex>
           </Center>
 
