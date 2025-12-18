@@ -248,11 +248,17 @@ const CheckoutPage = () => {
   // Check backend PayPal configuration on mount (simplified - no demo mode check)
   useEffect(() => {
     // Simply mark as not checking since demo mode is removed
+    // Set immediately if we have the required data, don't wait
     if (selectedPlan && userData?.user) {
       setCheckingBackendMode(false);
       setIsBackendDemoMode(false); // Always false in production
+    } else if (!userLoading && !plansLoading) {
+      // If loading is complete but we don't have plan/user yet, still mark as not checking
+      // This prevents indefinite waiting
+      setCheckingBackendMode(false);
+      setIsBackendDemoMode(false);
     }
-  }, [selectedPlan, userData?.user]);
+  }, [selectedPlan, userData?.user, userLoading, plansLoading]);
 
   // Handle PayPal order creation
   const handlePayPalCreateOrder = async (): Promise<string> => {
@@ -539,6 +545,7 @@ const CheckoutPage = () => {
   // For live payments: Use your live PayPal Client ID from PayPal Developer Dashboard
   // The PayPal SDK automatically detects live vs sandbox based on the client ID format
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
+  const paypalMode = import.meta.env.VITE_PAYPAL_MODE || "live"; // Default to live for production
   const isFrontendPayPalConfigured =
     typeof paypalClientId === "string" && paypalClientId.trim().length > 0;
 
@@ -546,6 +553,10 @@ const CheckoutPage = () => {
   console.log("[PayPal Config Check]", {
     hasClientId: isFrontendPayPalConfigured,
     clientIdLength: paypalClientId?.length || 0,
+    paypalMode: paypalMode,
+    // Check if client ID looks like sandbox (sandbox IDs often start with specific patterns)
+    isLikelySandbox:
+      paypalClientId?.startsWith("sb-") || paypalClientId?.includes("sandbox"),
   });
 
   // Check if backend is in demo mode (extract to avoid type narrowing issues)
@@ -561,14 +572,23 @@ const CheckoutPage = () => {
   // This prevents the popup from appearing when PayPal is not set up
   const shouldLoadPayPalSDK = isPayPalFullyConfigured;
 
+  // IMPORTANT: Never use "sb" placeholder as it forces sandbox mode!
+  // Only initialize PayPal SDK with the actual client ID when ready
+  // This prevents sandbox mode from being cached on first load
+  const paypalOptions =
+    shouldLoadPayPalSDK && paypalClientId
+      ? {
+          clientId: paypalClientId,
+          currency: "USD",
+          disableFunding: "credit,card" as const,
+        }
+      : { clientId: "", currency: "USD" as const }; // Use empty string, not "sb" to avoid sandbox detection
+
   return (
     <PayPalScriptProvider
-      options={{
-        clientId: shouldLoadPayPalSDK ? paypalClientId || "" : "sb", // Use 'sb' as minimal placeholder to prevent SDK errors
-        currency: "USD",
-        disableFunding: "credit,card", // Disable credit card option for simplicity
-      }}
-      deferLoading={!shouldLoadPayPalSDK} // Don't load SDK if not configured
+      options={paypalOptions}
+      deferLoading={!shouldLoadPayPalSDK || !paypalClientId} // Don't load SDK until we have real client ID
+      key={`paypal-${paypalClientId || "disabled"}-${shouldLoadPayPalSDK}`} // Force re-initialization when client ID or config changes
     >
       <Box className="min-h-screen bg-gray-50 max-md:p-4">
         <Navbar />
@@ -733,23 +753,32 @@ const CheckoutPage = () => {
                         </a>
                       </li>
                       <li>
-                        Create a sandbox app to get your Client ID and Secret
+                        Create a <strong>LIVE</strong> app (not sandbox) to get
+                        your Client ID and Secret
                       </li>
                       <li>
                         Frontend: Add{" "}
                         <code className="bg-yellow-200 px-1 rounded">
-                          VITE_PAYPAL_CLIENT_ID=your_client_id
+                          VITE_PAYPAL_CLIENT_ID=your_live_client_id
+                        </code>{" "}
+                        and{" "}
+                        <code className="bg-yellow-200 px-1 rounded">
+                          VITE_PAYPAL_MODE=live
                         </code>{" "}
                         to your .env file
                       </li>
                       <li>
                         Backend: Add{" "}
                         <code className="bg-yellow-200 px-1 rounded">
-                          PAYPAL_CLIENT_ID=your_client_id
-                        </code>{" "}
-                        and{" "}
+                          PAYPAL_CLIENT_ID=your_live_client_id
+                        </code>
+                        ,{" "}
                         <code className="bg-yellow-200 px-1 rounded">
-                          PAYPAL_CLIENT_SECRET=your_secret
+                          PAYPAL_CLIENT_SECRET=your_live_secret
+                        </code>
+                        , and{" "}
+                        <code className="bg-yellow-200 px-1 rounded">
+                          PAYPAL_MODE=live
                         </code>{" "}
                         to your backend .env file
                       </li>
@@ -763,6 +792,31 @@ const CheckoutPage = () => {
               {/* DEMO MODE REMOVED - Only show PayPal buttons when configured */}
               {isPayPalFullyConfigured && shouldLoadPayPalSDK && (
                 <>
+                  {/* Warning if sandbox mode detected but should be live */}
+                  {(paypalMode !== "live" ||
+                    paypalClientId?.startsWith("sb-") ||
+                    paypalClientId?.includes("sandbox")) && (
+                    <Box className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="font-semibold text-red-800 mb-2">
+                        ⚠️ Sandbox Mode Detected
+                      </p>
+                      <p className="text-red-700 text-sm mb-2">
+                        Your PayPal is configured in sandbox mode. For real
+                        payments, you need:
+                      </p>
+                      <ul className="text-xs text-red-600 list-disc list-inside space-y-1">
+                        <li>
+                          A <strong>LIVE</strong> PayPal Client ID (not sandbox)
+                        </li>
+                        <li>
+                          Frontend: <code>VITE_PAYPAL_MODE=live</code> in .env
+                        </li>
+                        <li>
+                          Backend: <code>PAYPAL_MODE=live</code> in .env
+                        </li>
+                      </ul>
+                    </Box>
+                  )}
                   {/* PayPal Buttons - Only show when fully configured */}
                   <Box className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
                     <PayPalButtons
