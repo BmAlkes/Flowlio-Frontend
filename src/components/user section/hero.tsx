@@ -34,17 +34,25 @@ export const Hero = () => {
             <span className="text-[#F98618] font-semibold"> Better,</span> Track
             Faster, Grow Stronger
           </Box>
-          <Box className="w-xl max-sm:w-full mt-2 font-normal text-gray-600 text-[15px]">
-            Streamline your client and project workflows, track time with
-            precision, and boost team performance — all from one powerful,
-            AI-enhanced platform. Flowlio – Task & Workflow Management with
-            Google Calendar Integration
+          <Box className="w-xl max-sm:w-full mt-4 font-normal text-gray-700 text-[16px] max-sm:text-[16px] leading-relaxed">
+            Flowlio is a comprehensive work management and productivity platform
+            designed to help individuals, teams, and organizations streamline
+            their workflow processes, manage tasks and projects, track time, and
+            synchronize with Google Calendar.
           </Box>
-          <Box className="w-xl max-sm:w-full mt-2 font-normal text-gray-600 text-[15px]">
+          <Box className="w-xl max-sm:w-full mt-3 font-normal text-gray-600 text-[15px] leading-relaxed">
+            Our platform enables you to create and manage tasks, organize
+            projects, track work hours with precision, and seamlessly sync
+            calendar events with Google Calendar through bidirectional
+            synchronization. Flowlio also provides AI-enhanced insights to
+            optimize your workflow efficiency and boost team performance.
+          </Box>
+          {/* <Box className="w-xl max-sm:w-full mt-3 font-normal text-gray-600 text-[15px] leading-relaxed">
             Flowlio helps individuals and teams manage tasks, schedule
-            deadlines, and sync events with Google Calendar to stay organized
-            and productive.
-          </Box>
+            deadlines, collaborate on projects, track time, and sync events with
+            Google Calendar to stay organized and productive — all from one
+            powerful, AI-enhanced platform.
+          </Box> */}
           <Button
             onClick={() => navigate("/pricing")}
             className="p-2 mt-4 h-12 w-36 rounded-3xl bg-[#1797B9] cursor-pointer hover:bg-[#1797B9]/80"
