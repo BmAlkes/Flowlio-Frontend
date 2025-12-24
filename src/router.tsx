@@ -144,6 +144,9 @@ const SuperAdminSupportTicketPage = lazy(
 const SuperAdminSettingsPage = lazy(
   () => import("./pages/superadminsettings.page")
 );
+const SuperAdminUsersPage = lazy(
+  () => import("./pages/superadminusers.page")
+);
 const NotificationsPage = lazy(() => import("./pages/notifications.page"));
 const ViewerLayout = lazy(() =>
   import("./layouts/viewer.layout").then((module) => ({
@@ -395,6 +398,10 @@ const AppRoutes = () => {
         <Route
           path="demo-accounts"
           element={<LazyWrapper component={SuperAdminDemoAccountsPage} />}
+        />
+        <Route
+          path="users"
+          element={<LazyWrapper component={SuperAdminUsersPage} />}
         />
         <Route
           index

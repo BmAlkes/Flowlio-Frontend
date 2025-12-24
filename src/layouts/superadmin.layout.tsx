@@ -11,6 +11,7 @@ import {
   Settings,
   SquareKanban,
   User,
+  Users,
   FlaskConical,
   Bell,
   Mail,
@@ -32,6 +33,11 @@ export const navItems: NavItem[] = [
     title: "Sub Admin",
     url: "/superadmin/sub-admin",
     icon: <User />,
+  },
+  {
+    title: "Users",
+    url: "/superadmin/users",
+    icon: <Users />,
   },
   {
     title: "Subscriptions",
