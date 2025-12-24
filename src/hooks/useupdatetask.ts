@@ -87,6 +87,10 @@ export const useUpdateTask = () => {
         queryKey: ["organization-active-projects"],
       });
 
+      // Invalidate chart queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
+
       toast.success("Task updated successfully!");
     },
     onError: (error: any) => {
@@ -139,6 +143,10 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({
         queryKey: ["organization-active-projects"],
       });
+
+      // Invalidate chart queries for real-time updates (especially important when status changes)
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
 
       toast.success("Task status updated successfully!");
     },

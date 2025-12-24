@@ -1,14 +1,19 @@
 /**
- * Formats decimal hours into a readable format like "1h" or "45h"
- * @param totalHours - Total hours as a decimal number (e.g., 1.5, 0.75)
- * @returns Formatted string like "1h" or "45h" (rounded to nearest hour)
+ * Formats decimal hours into a readable format with hours and minutes
+ * @param totalHours - Total hours as a decimal number (e.g., 1.5, 0.75, 2.25)
+ * @returns Formatted string like "1h 30m", "0h 2m", or "2h 15m" (always shows both hours and minutes)
  */
 export const formatHours = (totalHours: number): string => {
-  if (totalHours === 0) return "0h";
+  if (totalHours === 0 || !totalHours) return "0h 0m";
 
-  // Round to nearest hour
-  const roundedHours = Math.round(totalHours);
-  return `${roundedHours}h`;
+  // Convert to total minutes for precise calculation
+  const totalMinutes = Math.round(totalHours * 60);
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  // Always show both hours and minutes for professional display
+  return `${hours}h ${minutes}m`;
 };
 
 /**

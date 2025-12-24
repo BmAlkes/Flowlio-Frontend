@@ -76,6 +76,10 @@ export const useCreateProject = () => {
       queryClient.invalidateQueries({
         queryKey: ["organization-total-clients"],
       });
+
+      // Invalidate chart queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
     },
     onError: (error) => {
       console.error("Error creating project:", error);

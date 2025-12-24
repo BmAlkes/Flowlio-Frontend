@@ -15,7 +15,8 @@ export const useFetchOrganizationHoursTracked = () => {
       >("/organizations/stats/hours-tracked");
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30 seconds - shorter stale time for more frequent updates
+    refetchOnWindowFocus: true, // Refetch when user returns to the tab/window
+    refetchInterval: 60 * 1000, // Auto-refetch every 60 seconds for real-time updates
   });
 };

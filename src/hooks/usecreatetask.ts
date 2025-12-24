@@ -74,6 +74,10 @@ export const useCreateTask = () => {
         queryKey: ["organization-active-projects"],
       });
 
+      // Invalidate chart queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
+
       toast.success("Task created successfully!");
     },
     onError: (error: any) => {

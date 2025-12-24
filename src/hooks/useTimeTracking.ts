@@ -76,8 +76,12 @@ export const useStartTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["active-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["all-time-entries"] });
+      // Invalidate time tracking stats for real-time updates
       queryClient.invalidateQueries({
         queryKey: ["organization-weekly-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organization-hours-tracked"],
       });
 
       toast.success(`Started tracking: ${data.data.taskTitle}`);
@@ -105,8 +109,12 @@ export const useEndTask = () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["active-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["all-time-entries"] });
+      // Invalidate time tracking stats for real-time updates (especially important when task ends)
       queryClient.invalidateQueries({
         queryKey: ["organization-weekly-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organization-hours-tracked"],
       });
 
       const durationHours = Math.floor(data.data.duration / 60);
@@ -146,8 +154,12 @@ export const useDeleteTimeEntry = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["active-time-entries"] });
+      // Invalidate time tracking stats for real-time updates
       queryClient.invalidateQueries({
         queryKey: ["organization-weekly-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["organization-hours-tracked"],
       });
       toast.success("Time entry deleted successfully");
     },

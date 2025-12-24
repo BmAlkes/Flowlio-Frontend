@@ -44,6 +44,14 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { useTranslation } from "react-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { useUpdateProject } from "@/hooks/useupdateproject";
 
 // Use the Project interface from the hook
 export type Data = Project;
@@ -153,6 +161,8 @@ export const ProjectTable = () => {
   const commentsWithReplies = commentsData?.data || [];
   const { mutate: handleDeleteProject, isPending: isDeletingProject } =
     useDeleteProject();
+  const { mutate: updateProject, isPending: isUpdatingStatus } =
+    useUpdateProject();
 
   // Delete confirmation handler
   const handleDeleteClick = (project: { id: string; name: string }) => {
@@ -178,6 +188,28 @@ export const ProjectTable = () => {
   const handleCancelDelete = () => {
     setDeleteConfirmOpen(false);
     setProjectToDelete(null);
+  };
+
+  // Handle status change
+  const handleStatusChange = (projectId: string, newStatus: string) => {
+    updateProject(
+      {
+        id: projectId,
+        data: {
+          status: newStatus as "pending" | "completed" | "ongoing" | "delayed",
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Project status updated successfully");
+        },
+        onError: (error: any) => {
+          toast.error(
+            error?.response?.data?.error || "Failed to update project status"
+          );
+        },
+      }
+    );
   };
 
   const columns: ColumnDef<Data>[] = [
@@ -303,7 +335,8 @@ export const ProjectTable = () => {
         const status = row.original.status as
           | "pending"
           | "completed"
-          | "ongoing";
+          | "ongoing"
+          | "delayed";
 
         const statusStyles: Record<
           typeof status,
@@ -321,20 +354,74 @@ export const ProjectTable = () => {
             text: "text-white bg-[#005FA4] border-none rounded-full",
             dot: "bg-white",
           },
+          delayed: {
+            text: "text-white bg-[#EF5350] border-none rounded-full",
+            dot: "bg-white",
+          },
         };
+
+        // Default style if status is not found
+        const defaultStyle = {
+          text: "text-white bg-gray-500 border-none rounded-full",
+          dot: "bg-white",
+        };
+
+        const currentStyle = statusStyles[status] || defaultStyle;
+
+        const statusOptions: Array<{
+          value: typeof status;
+          label: string;
+        }> = [
+          { value: "pending", label: "Pending" },
+          { value: "ongoing", label: "Ongoing" },
+          { value: "delayed", label: "Delayed" },
+          { value: "completed", label: "Completed" },
+        ];
 
         return (
           <Center>
-            <Flex
-              className={`rounded-md capitalize w-32 h-10 gap-2 border items-center ${statusStyles[status].text}`}
+            <Select
+              value={status}
+              onValueChange={(newStatus) =>
+                handleStatusChange(row.original.id, newStatus)
+              }
+              disabled={isUpdatingStatus}
             >
-              <Flex className="ml-5.5">
-                <Flex
-                  className={`w-2 h-2 rounded-full ${statusStyles[status].dot}`}
-                />
-                <span>{status}</span>
-              </Flex>
-            </Flex>
+              <SelectTrigger
+                className={`rounded-md capitalize w-32 h-10 gap-2 border justify-center items-center ${currentStyle.text} cursor-pointer hover:opacity-90`}
+              >
+                <SelectValue>
+                  <Center className="gap-2">
+                    <Flex
+                      className={`w-2 h-2 items-start rounded-full ${currentStyle.dot}`}
+                    />
+                    <span>{status || "Unknown"}</span>
+                  </Center>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((option) => {
+                  const optionStyle =
+                    statusStyles[option.value] || defaultStyle;
+                  return (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="cursor-pointer"
+                    >
+                      <Flex
+                        className={`rounded-md capitalize gap-2 border justify-center items-center px-3 py-1 ${optionStyle.text}`}
+                      >
+                        <Flex
+                          className={`w-2 h-2 items-start rounded-full ${optionStyle.dot}`}
+                        />
+                        <span>{option.label}</span>
+                      </Flex>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </Center>
         );
       },

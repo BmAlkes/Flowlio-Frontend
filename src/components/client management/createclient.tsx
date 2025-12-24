@@ -24,6 +24,7 @@ import { Stack } from "../ui/stack";
 import { useCreateClient } from "@/hooks/usecreateclient";
 import { useUpdateClient } from "@/hooks/useupdateclient";
 import { toast } from "sonner";
+import { GuidedFlowModal } from "../common/GuidedFlowModal";
 import { Loader2, Plus, X } from "lucide-react";
 import {
   FaInstagram,
@@ -141,6 +142,8 @@ export const ClientForm = ({
   const [imageError, setImageError] = useState<string>("");
   const [isCompressing, setIsCompressing] = useState(false);
   const [isImageRemoved, setIsImageRemoved] = useState(false);
+  const [showGuidedFlow, setShowGuidedFlow] = useState(false);
+  const [createdClientId, setCreatedClientId] = useState<string | null>(null);
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>(
     () => {
       if (client?.socialMediaLinks) {
@@ -399,10 +402,15 @@ export const ClientForm = ({
             createClient(
               { ...clientData, image: compressedBase64 },
               {
-                onSuccess: () => {
+                onSuccess: (response) => {
                   toast.success("Client created successfully!");
-                  onSuccess?.();
-                  onClose?.();
+                  if (mode === "create" && response?.data?.id) {
+                    setCreatedClientId(response.data.id);
+                    setShowGuidedFlow(true);
+                  } else {
+                    onSuccess?.();
+                    onClose?.();
+                  }
                 },
                 onError: () => {
                   toast.error("Failed to create client. Please try again.");
@@ -418,10 +426,15 @@ export const ClientForm = ({
       } else {
         // No image provided - create client without image
         createClient(clientData, {
-          onSuccess: () => {
+          onSuccess: (response) => {
             toast.success("Client created successfully!");
-            onSuccess?.();
-            onClose?.();
+            if (mode === "create" && response?.data?.id) {
+              setCreatedClientId(response.data.id);
+              setShowGuidedFlow(true);
+            } else {
+              onSuccess?.();
+              onClose?.();
+            }
           },
           onError: () => {
             toast.error("Failed to create client. Please try again.");
@@ -788,6 +801,27 @@ export const ClientForm = ({
           </Box>
         </form>
       </Form>
+
+      {/* Guided Flow Modal - Suggest creating project after client creation */}
+      {mode === "create" && (
+        <GuidedFlowModal
+          open={showGuidedFlow}
+          onOpenChange={setShowGuidedFlow}
+          title="Client Created Successfully!"
+          description="Great! You've added a new client. Would you like to create a project for this client?"
+          nextAction={{
+            label: "Create Project",
+            route: createdClientId
+              ? `/dashboard/project/create-project?clientId=${createdClientId}`
+              : "/dashboard/project/create-project",
+            description: "Start organizing work for this client",
+          }}
+          onSkip={() => {
+            onSuccess?.();
+            onClose?.();
+          }}
+        />
+      )}
     </PageWrapper>
   );
 };

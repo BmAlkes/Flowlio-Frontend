@@ -193,7 +193,7 @@
     "createdBy": "נוצר על ידי:",
     "totalProduction": "סה\"כ ייצור",
     "totalHours": "סה\"כ שעות",
-    "hoursAbbreviation": "שעות",
+    "hoursAbbreviation": "",
     "clickToView": "לחץ לצפייה ב{{title}}"
   },
   "projects": {

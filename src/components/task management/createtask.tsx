@@ -1,13 +1,13 @@
 import { IoArrowBack } from "react-icons/io5";
 import { PageWrapper } from "../common/pagewrapper";
 import { Box } from "../ui/box";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { Center } from "../ui/center";
 import { Stack } from "../ui/stack";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   Form,
@@ -53,6 +53,8 @@ const formSchema = z.object({
 
 export const CreateTask = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const projectIdFromUrl = searchParams.get("projectId");
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
@@ -65,14 +67,21 @@ export const CreateTask = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "Example Task",
-      description: "Example",
-      projectId: "",
+      title: "",
+      description: "",
+      projectId: projectIdFromUrl || "",
       assignedTo: "",
       startDate: new Date(),
       endDate: new Date(),
     },
   });
+
+  // Pre-fill projectId from URL if provided
+  useEffect(() => {
+    if (projectIdFromUrl) {
+      form.setValue("projectId", projectIdFromUrl);
+    }
+  }, [projectIdFromUrl, form]);
 
   // Convert file to base64 for upload
   const convertFileToBase64 = async (file: File): Promise<string> => {

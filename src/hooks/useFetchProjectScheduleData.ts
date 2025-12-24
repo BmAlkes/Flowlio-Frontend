@@ -7,6 +7,8 @@ export interface ProjectScheduleData {
   Completed: number;
   "In-Progress": number;
   Delayed: number;
+  totalTasks: number; // Add totalTasks to track empty projects
+  hasNoTasks?: boolean; // Flag to indicate if project has no tasks
 }
 
 export interface ProjectWithTaskCounts {
@@ -33,8 +35,9 @@ export const useFetchProjectScheduleData = () => {
 
       return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30 seconds - shorter stale time for more frequent updates
+    refetchOnWindowFocus: true, // Refetch when user returns to the tab/window
+    refetchInterval: 60 * 1000, // Auto-refetch every 60 seconds for real-time updates
   });
 };
 
@@ -63,13 +66,27 @@ export const transformToChartData = (
     );
   }
 
-  return filteredProjects.map((project) => ({
-    project:
-      project.name.length > 12
-        ? `${project.name.substring(0, 12)}...`
-        : project.name,
-    Completed: project.completedTasks,
-    "In-Progress": project.inProgressTasks,
-    Delayed: project.delayedTasks,
-  }));
+  return filteredProjects.map((project) => {
+    const hasNoTasks =
+      project.totalTasks === 0 ||
+      (project.completedTasks === 0 &&
+        project.inProgressTasks === 0 &&
+        project.delayedTasks === 0);
+
+    return {
+      project:
+        project.name.length > 12
+          ? `${project.name.substring(0, 12)}...`
+          : project.name,
+      // If no tasks, set all to 0 and show "No Tasks" bar
+      Completed: hasNoTasks ? 0 : project.completedTasks,
+      "In-Progress": hasNoTasks ? 0 : project.inProgressTasks,
+      Delayed: hasNoTasks ? 0 : project.delayedTasks,
+      totalTasks: project.totalTasks,
+      hasNoTasks: hasNoTasks,
+      // For projects with no tasks, show a gray bar with value 0.8 for better visibility
+      // This ensures the bar is clearly visible and noticeable in the chart
+      "No Tasks": hasNoTasks ? 10 : 0,
+    };
+  });
 };

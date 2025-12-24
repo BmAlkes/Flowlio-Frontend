@@ -23,6 +23,11 @@ export const useDeleteProject = () => {
     onSuccess: () => {
       // Invalidate and refetch projects after successful deletion
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-projects"] });
+
+      // Invalidate chart queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
     },
   });
 };

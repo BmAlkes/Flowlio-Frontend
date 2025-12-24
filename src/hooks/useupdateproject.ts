@@ -14,7 +14,7 @@ interface UpdateProjectData {
   contractfile?: string;
   organizationId?: string;
   // Newly allowed partial updates
-  status?: "pending" | "completed" | "ongoing" | "active";
+  status?: "pending" | "completed" | "ongoing" | "active" | "delayed";
   progress?: number; // 0-100
 }
 
@@ -69,6 +69,10 @@ export const useUpdateProject = () => {
       queryClient.invalidateQueries({
         queryKey: ["organization-pending-tasks"],
       });
+
+      // Invalidate chart queries for real-time updates (especially important when status changes)
+      queryClient.invalidateQueries({ queryKey: ["project-schedule-data"] });
+      queryClient.invalidateQueries({ queryKey: ["project-status-data"] });
     },
     onError: (error: any) => {
       let errorMessage = "Failed to update project";

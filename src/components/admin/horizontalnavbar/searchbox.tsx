@@ -92,7 +92,7 @@ export const SearchBox: React.FC<{
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="rounded-full h-[2.5rem] w-md max-lg:w-full text-gray-500 hover:bg-white! hover:text-gray-500 border-none items-center justify-start"
+          className="rounded-full h-[2.5rem] w-[200px] max-lg:w-full text-gray-500 hover:bg-white! hover:text-gray-500 border-none items-center justify-start"
         >
           <RiSearch2Line />
           <h1 className="max-md:hidden">{t("horizontalnavbar.search")}</h1>

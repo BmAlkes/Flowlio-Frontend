@@ -185,7 +185,7 @@
     "createdBy": "Created by:",
     "totalProduction": "Total Production",
     "totalHours": "Total Hours",
-    "hoursAbbreviation": "hrs",
+    "hoursAbbreviation": "",
     "clickToView": "Click to view {{title}}"
   },
   "projects": {

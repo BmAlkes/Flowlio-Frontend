@@ -1,7 +1,8 @@
 import { IoArrowBack } from "react-icons/io5";
 import { PageWrapper } from "../common/pagewrapper";
 import { Box } from "../ui/box";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
+import { GuidedFlowModal } from "../common/GuidedFlowModal";
 import { Center } from "../ui/center";
 import { Stack } from "../ui/stack";
 import { Button } from "../ui/button";
@@ -82,7 +83,9 @@ export const CreateProject = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const isEditMode = Boolean(id);
+  const clientIdFromUrl = searchParams.get("clientId");
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
@@ -94,6 +97,8 @@ export const CreateProject = () => {
       preview: string;
     }>
   >([]);
+  const [showGuidedFlow, setShowGuidedFlow] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
 
   // Get user authentication data
   const { data: userData, isLoading: isLoadingUser } = useUser();
@@ -156,7 +161,7 @@ export const CreateProject = () => {
     defaultValues: {
       name: "",
       projectNumber: "",
-      clientId: "",
+      clientId: clientIdFromUrl || "",
       startDate: "",
       endDate: "",
       assignedTo: "",
@@ -166,6 +171,13 @@ export const CreateProject = () => {
       projectFiles: [],
     },
   });
+
+  // Pre-fill clientId from URL if provided
+  useEffect(() => {
+    if (clientIdFromUrl && !isEditMode) {
+      form.setValue("clientId", clientIdFromUrl);
+    }
+  }, [clientIdFromUrl, isEditMode, form]);
 
   // Populate form with project data when in edit mode
   // Wait for all data to be loaded before resetting the form
@@ -277,7 +289,19 @@ export const CreateProject = () => {
       if (isEditMode && id) {
         updateProject({ id, data: projectData });
       } else {
-        createProject(projectData);
+        createProject(projectData, {
+          onSuccess: (response) => {
+            if (response?.data?.id) {
+              setCreatedProjectId(response.data.id);
+              setShowGuidedFlow(true);
+            } else {
+              navigate("/dashboard/project");
+            }
+          },
+          onError: () => {
+            // Error handling is done by the hook
+          },
+        });
       }
     } catch (error) {
       console.error("Error preparing project data:", error);
@@ -317,9 +341,15 @@ export const CreateProject = () => {
       setUploadedFile(null);
       setPdfPreview(null);
       setProjectFiles([]);
-      navigate("/dashboard/project");
+
+      // Only auto-navigate for edit mode or update success
+      // For create mode, navigation is handled by the guided flow modal
+      if (isEditMode || updateSuccess) {
+        navigate("/dashboard/project");
+      }
+      // For create mode, don't navigate here - let the modal handle it
     }
-  }, [createSuccess, updateSuccess, form, navigate]);
+  }, [createSuccess, updateSuccess, form, navigate, isEditMode]);
 
   const onDropPdf = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -859,6 +889,26 @@ export const CreateProject = () => {
           </Box>
         </form>
       </Form>
+
+      {/* Guided Flow Modal - Suggest creating task after project creation */}
+      {!isEditMode && (
+        <GuidedFlowModal
+          open={showGuidedFlow}
+          onOpenChange={setShowGuidedFlow}
+          title="Project Created Successfully!"
+          description="Excellent! Your project is set up. Would you like to create a task for this project?"
+          nextAction={{
+            label: "Create Task",
+            route: createdProjectId
+              ? `/dashboard/task-management/create-task?projectId=${createdProjectId}`
+              : "/dashboard/task-management/create-task",
+            description: "Start breaking down work into actionable tasks",
+          }}
+          onSkip={() => {
+            navigate("/dashboard/project");
+          }}
+        />
+      )}
     </PageWrapper>
   );
 };
