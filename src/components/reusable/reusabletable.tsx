@@ -70,6 +70,8 @@ export interface ReusableTableProps<TData> {
   externalColumnFilters?: ColumnFiltersState;
   // Optional pagination configuration for server-side pagination
   pagination?: PaginationConfig;
+  // Optional meta object to pass custom callbacks to table cells
+  meta?: Record<string, any>;
 }
 
 export const ReusableTable = <TData,>({
@@ -90,6 +92,7 @@ export const ReusableTable = <TData,>({
   defaultColumnFilters = [],
   externalColumnFilters,
   pagination,
+  meta,
 }: ReusableTableProps<TData>) => {
   const { t } = useTranslation();
   const [sorting, setSorting] = React.useState<SortingState>(defaultSorting);
@@ -116,6 +119,7 @@ export const ReusableTable = <TData,>({
     // Set manual pagination when external pagination is provided
     manualPagination: !!pagination,
     pageCount: pagination?.pageCount,
+    meta: meta,
     globalFilterFn: (
       row: Row<TData>,
       _columnId: string,

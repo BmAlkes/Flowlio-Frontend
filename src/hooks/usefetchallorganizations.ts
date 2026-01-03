@@ -8,8 +8,9 @@ import {
 export const useFetchAllOrganizations = (options?: { enabled?: boolean }) => {
   return useQuery<ApiResponse<any[]>, ErrorWithMessage>({
     retryDelay: 5000,
-    staleTime: 1000 * 5, // Reduced to 5 seconds for fresher data
+    staleTime: 1000 * 30, // 30 seconds - balance between freshness and performance
     refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 60 * 1000, // Auto-refetch every 60 seconds to catch renewals
     queryKey: ["fetch all organizations"],
     queryFn: async () => {
       const response = await axios.get(`/organizations/all-organizations`);

@@ -17,6 +17,7 @@ import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { IPlan } from "@/types";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
+import { SubscriptionHistoryModal } from "./SubscriptionHistoryModal";
 
 export interface SubscriptionsHeaderProps {
   fetchedPlans?: IPlan[];
@@ -167,6 +168,33 @@ export const columns: ColumnDef<Data>[] = [
       );
     },
   },
+  {
+    id: "actions",
+    header: () => <Box className="text-center text-black">Actions</Box>,
+    cell: ({ row, table }) => {
+      const organizationId = row.original.id;
+      const handleViewHistory = () => {
+        // Access the table meta to get the onViewHistory callback
+        const meta = table.options.meta as any;
+        if (meta?.onViewHistory) {
+          meta.onViewHistory(organizationId, row.original.companyName);
+        }
+      };
+
+      return (
+        <Center>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleViewHistory}
+            className="cursor-pointer"
+          >
+            View History
+          </Button>
+        </Center>
+      );
+    },
+  },
 ];
 
 export const SubscribtionTabele = ({
@@ -175,7 +203,18 @@ export const SubscribtionTabele = ({
   error = null,
 }: SubscriptionsHeaderProps) => {
   const [date, setDate] = useState<DateRange | undefined>();
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState<
+    string | null
+  >(null);
+  const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
   const { data: allOrganizationsResponse } = useFetchAllOrganizations();
+
+  const handleViewHistory = (organizationId: string, companyName: string) => {
+    setSelectedOrganizationId(organizationId);
+    setSelectedCompanyName(companyName);
+    setHistoryModalOpen(true);
+  };
 
   const plansData: Data[] =
     fetchedPlans?.map((plan: IPlan) => ({
@@ -256,7 +295,11 @@ export const SubscribtionTabele = ({
         const start = org.subscriptionStartDate
           ? new Date(org.subscriptionStartDate)
           : new Date(org.createdAt);
-        const expire = org.trialEndsAt
+        // Use subscriptionEndDate (updated on renewal) instead of trialEndsAt
+        // This ensures renewals are reflected in the table
+        const expire = org.subscriptionEndDate
+          ? new Date(org.subscriptionEndDate)
+          : org.trialEndsAt
           ? new Date(org.trialEndsAt)
           : new Date(new Date(start).getTime() + 30 * 24 * 60 * 60 * 1000);
         return {
@@ -369,7 +412,20 @@ export const SubscribtionTabele = ({
         enableGlobalFilter={false}
         onRowClick={(row) => console.log("Row clicked:", row.original)}
         enableSubscriptionsTable={true}
+        meta={{
+          onViewHistory: handleViewHistory,
+        }}
       />
+
+      {/* Subscription History Modal */}
+      {historyModalOpen && selectedOrganizationId && (
+        <SubscriptionHistoryModal
+          open={historyModalOpen}
+          onOpenChange={setHistoryModalOpen}
+          organizationId={selectedOrganizationId}
+          companyName={selectedCompanyName}
+        />
+      )}
     </Box>
   );
 };
