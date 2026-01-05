@@ -370,7 +370,7 @@ export const SubscribtionTabele = ({
               variant="outline"
               size="sm"
               onClick={() => setAuditModalOpen(true)}
-              className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+              className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 cursor-pointer"
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
               Audit Payment
