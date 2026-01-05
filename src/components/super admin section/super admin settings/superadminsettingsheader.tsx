@@ -29,6 +29,7 @@ import { useEffect } from "react";
 import { SettingsNotification } from "./settingsnotification";
 import { SettingsPasswordSecurity } from "./settingspasswordsecurity";
 import { SettingsTwoFactor } from "./settingstwofactor";
+import { SettingsPayPal } from "./settingspaypal";
 import { UpdateProfileImageContent } from "./updateprofileimagecontent";
 
 const profileSchema = z.object({
@@ -220,6 +221,7 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
         <SettingsNotification />
         <SettingsTwoFactor />
         <SettingsPasswordSecurity />
+        <SettingsPayPal />
         {/* <SettingsDelectAccount /> */}
       </Stack>
 
