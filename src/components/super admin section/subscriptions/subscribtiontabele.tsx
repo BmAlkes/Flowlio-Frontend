@@ -18,6 +18,8 @@ import { DateRange } from "react-day-picker";
 import { IPlan } from "@/types";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { SubscriptionHistoryModal } from "./SubscriptionHistoryModal";
+import { SubscriptionAuditModal } from "./SubscriptionAuditModal";
+import { AlertTriangle } from "lucide-react";
 
 export interface SubscriptionsHeaderProps {
   fetchedPlans?: IPlan[];
@@ -204,6 +206,7 @@ export const SubscribtionTabele = ({
 }: SubscriptionsHeaderProps) => {
   const [date, setDate] = useState<DateRange | undefined>();
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [auditModalOpen, setAuditModalOpen] = useState(false);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<
     string | null
   >(null);
@@ -359,9 +362,20 @@ export const SubscribtionTabele = ({
     <Box>
       <Center className="justify-between">
         <Stack className="gap-1">
-          <h1 className="text-black text-2xl max-sm:text-xl font-medium">
-            All Subscriptions
-          </h1>
+          <Flex className="items-center gap-3">
+            <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+              All Subscriptions
+            </h1>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAuditModalOpen(true)}
+              className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Audit Payment
+            </Button>
+          </Flex>
           <h1 className="text-gray-500 text-sm max-sm:text-xs">
             Showing active and non-active subscriptions
           </h1>
@@ -426,6 +440,12 @@ export const SubscribtionTabele = ({
           companyName={selectedCompanyName}
         />
       )}
+
+      {/* Subscription Audit Modal */}
+      <SubscriptionAuditModal
+        open={auditModalOpen}
+        onOpenChange={setAuditModalOpen}
+      />
     </Box>
   );
 };
