@@ -71,9 +71,9 @@ export const SignUpForm: FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       rememberMe: true,
-      createpassword: "Test@123",
-      email: `test@gmail.com`,
-      username: `test`,
+      createpassword: "",
+      email: ``,
+      username: ``,
     },
   });
 
