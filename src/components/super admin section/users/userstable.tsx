@@ -21,13 +21,11 @@ export const UsersTable = () => {
     email: string;
   } | null>(null);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-
   const {
     data: usersResponse,
     isLoading,
     error,
-  } = useFetchAllUsers({ page, limit: 20, search: search || undefined });
+  } = useFetchAllUsers({ page, limit: 20 });
 
   const users = usersResponse?.data?.users || [];
   const pagination = usersResponse?.data?.pagination;
@@ -54,9 +52,10 @@ export const UsersTable = () => {
         <Box className="text-center">#{row.original.id.slice(0, 8)}</Box>
       ),
       size: 100,
+      enableSorting: false,
     },
     {
-      id: "name",
+      accessorKey: "name",
       header: () => <Box className="text-black">Name</Box>,
       cell: ({ row }) => (
         <Flex className="items-center gap-2">
@@ -77,7 +76,7 @@ export const UsersTable = () => {
       size: 200,
     },
     {
-      id: "email",
+      accessorKey: "email",
       header: () => <Box className="text-black">Email</Box>,
       cell: ({ row }) => (
         <Box className="text-gray-700">{row.original.email}</Box>
@@ -85,7 +84,7 @@ export const UsersTable = () => {
       size: 250,
     },
     {
-      id: "role",
+      accessorKey: "role",
       header: () => <Box className="text-black">Role</Box>,
       cell: ({ row }) => (
         <Flex className="gap-2 items-center">
@@ -103,7 +102,7 @@ export const UsersTable = () => {
       size: 150,
     },
     {
-      id: "organizations",
+      accessorKey: "organizations",
       header: () => <Box className="text-black">Organizations</Box>,
       cell: ({ row }) => (
         <Box className="text-gray-700">
@@ -114,7 +113,7 @@ export const UsersTable = () => {
       size: 150,
     },
     {
-      id: "emailVerified",
+      accessorKey: "emailVerified",
       header: () => <Box className="text-black">Status</Box>,
       cell: ({ row }) => (
         <Badge
@@ -130,7 +129,7 @@ export const UsersTable = () => {
       size: 120,
     },
     {
-      id: "createdAt",
+      accessorKey: "createdAt",
       header: () => <Box className="text-black">Created At</Box>,
       cell: ({ row }) => (
         <Box className="text-gray-600 text-sm">
@@ -140,7 +139,7 @@ export const UsersTable = () => {
       size: 150,
     },
     {
-      id: "actions",
+      accessorKey: "actions",
       header: () => <Box className="text-center text-black">Actions</Box>,
       cell: ({ row }) => (
         <Center>
@@ -177,22 +176,10 @@ export const UsersTable = () => {
 
   return (
     <>
-      <Flex className="mb-4 gap-2 items-center">
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </Flex>
-
       <ReusableTable
         data={users}
         columns={getColumns()}
+        enableGlobalFilter={true}
         pagination={
           pagination
             ? {
