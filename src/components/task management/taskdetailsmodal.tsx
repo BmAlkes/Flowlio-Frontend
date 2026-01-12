@@ -9,6 +9,7 @@ import {
   Download,
   Eye,
   Trash2,
+  Edit,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import { useDeleteTask } from "@/hooks/usedeletetask";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Center } from "../ui/center";
+import { CreateTask } from "./createtask";
 
 interface TaskDetailsModalProps {
   task: {
@@ -52,6 +54,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     null
   );
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const { data: commentsResponse } = useFetchProjectComments(
     task.projectId || ""
   );
@@ -117,12 +120,22 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               <p className="text-gray-600">Task Details</p>
             </Box>
           </Flex>
-          <Flex>
+          <Flex className="gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowEditModal(true)}
+              className="w-8 h-8 p-0 hover:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 cursor-pointer"
+              title="Edit Task"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowDeleteConfirm(true)}
               className="w-8 h-8 p-0 hover:bg-red-100 rounded-full text-red-600 hover:text-red-700 cursor-pointer"
+              title="Delete Task"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -357,6 +370,21 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               )}
             </Box>
           </Box>
+        </Box>
+      )}
+
+      {/* Edit Task Modal */}
+      {showEditModal && (
+        <Box>
+          <CreateTask
+            taskId={task.id}
+            isModal={true}
+            onClose={() => {
+              setShowEditModal(false);
+              // Close the details modal and let parent refresh
+              onClose();
+            }}
+          />
         </Box>
       )}
 

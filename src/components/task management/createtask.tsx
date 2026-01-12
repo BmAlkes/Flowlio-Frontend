@@ -33,10 +33,19 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { CalendarIcon } from "../customeIcons";
 import { useCreateTask } from "@/hooks/usecreatetask";
+import { useUpdateTask } from "@/hooks/useupdatetask";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { CreateTaskRequest } from "@/hooks/usecreatetask";
 import { toast } from "sonner";
+import { useFetchTaskById } from "@/hooks/usefetchtasks";
+// import { AITaskCreator } from "./AITaskCreator";
+
+interface CreateTaskProps {
+  taskId?: string; // If provided, component works in edit mode
+  onClose?: () => void; // For modal mode
+  isModal?: boolean; // If true, renders as modal instead of page
+}
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -51,7 +60,11 @@ const formSchema = z.object({
   endDate: z.date().optional(),
 });
 
-export const CreateTask = () => {
+export const CreateTask = ({
+  taskId,
+  onClose,
+  isModal = false,
+}: CreateTaskProps = {}) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectIdFromUrl = searchParams.get("projectId");
@@ -59,29 +72,80 @@ export const CreateTask = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
 
+  // Extract URL parameters
+  const titleFromUrl = searchParams.get("title");
+  const descriptionFromUrl = searchParams.get("description");
+  const assignedToFromUrl = searchParams.get("assignedTo");
+  const startDateFromUrl = searchParams.get("startDate");
+  const endDateFromUrl = searchParams.get("endDate");
+
+  // Check if edit mode
+  const isEditMode = !!taskId;
+
   // Hooks
   const createTask = useCreateTask();
+  const updateTask = useUpdateTask();
   const { data: projectsResponse } = useFetchProjects();
   const { data: usersResponse } = useFetchOrganizationUsers();
+  const { data: taskData } = useFetchTaskById(taskId || "");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: titleFromUrl || "",
+      description: descriptionFromUrl || "",
       projectId: projectIdFromUrl || "",
-      assignedTo: "",
-      startDate: new Date(),
-      endDate: new Date(),
+      assignedTo: assignedToFromUrl || "",
+      startDate: startDateFromUrl ? new Date(startDateFromUrl) : new Date(),
+      endDate: endDateFromUrl ? new Date(endDateFromUrl) : new Date(),
     },
   });
 
-  // Pre-fill projectId from URL if provided
+  // Pre-fill form with task data if in edit mode
+  useEffect(() => {
+    if (isEditMode && taskData?.data) {
+      const task = taskData.data;
+      form.setValue("title", task.title || "");
+      form.setValue("description", task.description || "");
+      form.setValue("projectId", task.projectId || "");
+      form.setValue("assignedTo", task.assigneeId || "");
+      if (task.startDate) {
+        form.setValue("startDate", new Date(task.startDate));
+      }
+      if (task.endDate) {
+        form.setValue("endDate", new Date(task.endDate));
+      }
+    }
+  }, [isEditMode, taskData, form]);
+
+  // Pre-fill form fields from URL if provided
   useEffect(() => {
     if (projectIdFromUrl) {
       form.setValue("projectId", projectIdFromUrl);
     }
-  }, [projectIdFromUrl, form]);
+    if (titleFromUrl) {
+      form.setValue("title", titleFromUrl);
+    }
+    if (descriptionFromUrl) {
+      form.setValue("description", descriptionFromUrl);
+    }
+    if (assignedToFromUrl) {
+      form.setValue("assignedTo", assignedToFromUrl);
+    }
+    if (startDateFromUrl) {
+      form.setValue("startDate", new Date(startDateFromUrl));
+    }
+    if (endDateFromUrl) {
+      form.setValue("endDate", new Date(endDateFromUrl));
+    }
+  }, [
+    projectIdFromUrl,
+    titleFromUrl,
+    descriptionFromUrl,
+    assignedToFromUrl,
+    startDateFromUrl,
+    endDateFromUrl,
+  ]);
 
   // Convert file to base64 for upload
   const convertFileToBase64 = async (file: File): Promise<string> => {
@@ -129,27 +193,65 @@ export const CreateTask = () => {
         };
       }
 
-      const taskData: CreateTaskRequest = {
-        title: values.title,
-        description: values.description,
-        projectId: values.projectId,
-        assignedTo: values.assignedTo || undefined,
-        startDate: values.startDate?.toISOString(),
-        endDate: values.endDate?.toISOString(),
-        attachments: attachmentData ? [attachmentData] : undefined,
-      };
-      console.log("Task data", taskData);
+      if (isEditMode && taskId) {
+        // Update existing task
+        const updateData = {
+          title: values.title,
+          description: values.description,
+          projectId: values.projectId,
+          assignedTo: values.assignedTo || undefined,
+          startDate: values.startDate?.toISOString(),
+          endDate: values.endDate?.toISOString(),
+          attachments: attachmentData ? [attachmentData] : undefined,
+        };
 
-      createTask.mutate(taskData, {
-        onSuccess: () => {
-          navigate("/dashboard/task-management");
-          console.log("Task created successfully", taskData);
-        },
-        onError: (error) => {
-          toast.error("Task creation failed", error);
-          console.log("Task creation failed", error);
-        },
-      });
+        updateTask.mutate(
+          {
+            taskId,
+            data: updateData,
+          },
+          {
+            onSuccess: () => {
+              if (isModal && onClose) {
+                onClose();
+              } else {
+                navigate("/dashboard/task-management");
+              }
+            },
+            onError: (error) => {
+              toast.error("Task update failed");
+              console.log("Task update failed", error);
+            },
+          }
+        );
+      } else {
+        // Create new task
+        const taskData: CreateTaskRequest = {
+          title: values.title,
+          description: values.description,
+          projectId: values.projectId,
+          assignedTo: values.assignedTo || undefined,
+          startDate: values.startDate?.toISOString(),
+          endDate: values.endDate?.toISOString(),
+          attachments: attachmentData ? [attachmentData] : undefined,
+        };
+        console.log("Task data", taskData);
+
+        createTask.mutate(taskData, {
+          onSuccess: () => {
+            if (isModal && onClose) {
+              onClose();
+            } else {
+              navigate("/dashboard/task-management");
+            }
+            console.log("Task created successfully", taskData);
+          },
+          onError: (error) => {
+            toast.error("Task creation failed");
+            console.log("Task creation failed", error);
+          },
+        });
+      }
     } catch (error) {
       console.error("Error preparing task data:", error);
       toast.error("Failed to prepare task data");
@@ -181,21 +283,27 @@ export const CreateTask = () => {
     onDrop,
   });
 
-  return (
-    <PageWrapper className="mt-6 p-6 relative">
-      <Box
-        className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-gray-200 rounded-full hover:p-2"
-        onClick={() => navigate(-1)}
-      >
-        <IoArrowBack />
-        <p className="text-black">Back</p>
-      </Box>
+  const content = (
+    <>
+      {!isModal && (
+        <Box
+          className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-gray-200 rounded-full hover:p-2"
+          onClick={() => navigate(-1)}
+        >
+          <IoArrowBack />
+          <p className="text-black">Back</p>
+        </Box>
+      )}
 
       <Center className="justify-between mt-4 max-sm:flex-col max-sm:items-start gap-2 relative">
         <Stack className="gap-0">
-          <h1 className="text-black text-xl font-medium">New Task</h1>
+          <h1 className="text-black text-xl font-medium">
+            {isEditMode ? "Edit Task" : "New Task"}
+          </h1>
           <h1 className="text-gray-500">
-            Create and assign tasks to keep your team aligned and productive.
+            {isEditMode
+              ? "Update task details and keep your team aligned."
+              : "Create and assign tasks to keep your team aligned and productive."}
           </h1>
         </Stack>
       </Center>
@@ -206,10 +314,45 @@ export const CreateTask = () => {
             type="submit"
             variant="outline"
             className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-18 right-2 max-md:top-6"
-            disabled={createTask.isPending}
+            disabled={isEditMode ? updateTask.isPending : createTask.isPending}
           >
-            {createTask.isPending ? "Creating..." : "Save Task"}
+            {isEditMode
+              ? updateTask.isPending
+                ? "Updating..."
+                : "Update Task"
+              : createTask.isPending
+              ? "Creating..."
+              : "Save Task"}
           </Button>
+
+          {/* AI Task Creator */}
+          {/* <AITaskCreator
+            onTaskGenerated={(taskData) => {
+              // Pre-fill form with AI-generated data
+              if (taskData.title) {
+                form.setValue("title", taskData.title);
+              }
+              if (taskData.description) {
+                form.setValue("description", taskData.description);
+              }
+              if (taskData.projectId) {
+                form.setValue("projectId", taskData.projectId);
+              }
+              if (taskData.assignedTo) {
+                form.setValue("assignedTo", taskData.assignedTo);
+              }
+              if (taskData.startDate) {
+                form.setValue("startDate", new Date(taskData.startDate));
+              }
+              if (taskData.endDate) {
+                form.setValue("endDate", new Date(taskData.endDate));
+              }
+              toast.success(
+                "Form filled with AI-generated data. Review and adjust as needed."
+              );
+            }}
+          /> */}
+
           <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-4 grid grid-cols-1">
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
               <Stack className="flex-1 w-full gap-6">
@@ -260,7 +403,10 @@ export const CreateTask = () => {
                         <SelectContent className="w-full">
                           {projectsResponse?.data?.map((project) => (
                             <SelectItem key={project.id} value={project.id}>
-                              {project.projectName} ({project.projectNumber})
+                              {project.projectName}{" "}
+                              {project.projectNumber
+                                ? `(${project.projectNumber})`
+                                : ""}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -513,6 +659,28 @@ export const CreateTask = () => {
           </Box>
         </form>
       </Form>
-    </PageWrapper>
+    </>
   );
+
+  // If modal mode, wrap in modal structure
+  if (isModal) {
+    return (
+      <Box className="fixed inset-0 z-50 flex items-center justify-center">
+        {/* Backdrop */}
+        <Box
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
+        />
+        {/* Modal Content */}
+        <Box className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+          <Box className="p-6 relative max-h-[90vh] overflow-y-auto">
+            {content}
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Normal page mode
+  return <PageWrapper className="mt-6 p-6 relative">{content}</PageWrapper>;
 };
