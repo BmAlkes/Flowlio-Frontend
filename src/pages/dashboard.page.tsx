@@ -27,8 +27,8 @@ import { useState, useEffect } from "react";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
-
+// import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
+// will revert on phase 2
 const DashboardPage = () => {
   const { t } = useTranslation();
   document.title = `${t("dashboard.title")} - Flowlio`;
@@ -154,7 +154,7 @@ const DashboardPage = () => {
       />
 
       {/* AI Bot Floating Button */}
-      <DashboardAIBot />
+      {/* <DashboardAIBot /> */}
     </Stack>
   );
 };
