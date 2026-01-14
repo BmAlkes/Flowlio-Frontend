@@ -327,7 +327,7 @@ export const DashboardAIBot = () => {
           setIsOpen(true);
           setIsMinimized(false);
         }}
-        className="w-20 h-20 fixed bottom-16 right-3 z-50 cursor-pointer bg-transparent"
+        className="w-20 h-20 fixed bottom-16 right-3 z-10 cursor-pointer bg-transparent"
       >
         <img
           src="/dashboard/botgif.gif"
