@@ -1,4 +1,4 @@
-import { Plus, UserPlus, FolderPlus, CheckSquare } from "lucide-react";
+import { Plus, UserPlus, FolderPlus, CheckSquare, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +38,12 @@ export const QuickActions = () => {
       icon: CheckSquare,
       route: "/dashboard/task-management/create-task",
       description: "Create a new task",
+    },
+    {
+      label: "AI Assistance",
+      icon: Brain,
+      route: "/dashboard//ai-assist",
+      description: "Create content with AI assistance",
     },
   ];
 
