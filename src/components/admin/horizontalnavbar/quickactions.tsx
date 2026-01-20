@@ -42,7 +42,7 @@ export const QuickActions = () => {
     {
       label: "AI Assistance",
       icon: Brain,
-      route: "/dashboard//ai-assist",
+      route: "/dashboard/ai-assist",
       description: "Create content with AI assistance",
     },
   ];
