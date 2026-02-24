@@ -158,7 +158,10 @@ interface InvoiceTableProps {
 }
 
 export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
-  const { data: invoicesData, isLoading, error } = useFetchInvoices();
+  const orgInvoices = useFetchInvoices();
+  const invoicesData = orgInvoices.data;
+  const isLoading = orgInvoices.isLoading;
+  const error = orgInvoices.error;
 
   // Memoize the callback to prevent infinite loops
   const handleTableStateChange = useCallback(

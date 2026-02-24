@@ -6,9 +6,9 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Play, Square, X, Clock } from "lucide-react";
-// import { Center } from "./ui/center";
-// import { Flex } from "./ui/flex";
+import { Play, Square } from "lucide-react";
+import { Center } from "./ui/center";
+import { Flex } from "./ui/flex";
 import { Stack } from "./ui/stack";
 import { Box } from "./ui/box";
 import { toast } from "sonner";
@@ -26,16 +26,20 @@ export default function TimeModal() {
   const [selectedTask, setSelectedTask] = useState<string>("");
   const [selectedActivityType, setSelectedActivityType] = useState<string>("");
 
+  // Fetch data for regular users
   const { data: projects } = useFetchProjects();
   const { data: tasks } = useFetchTasks();
   const { data: activeTimeEntries } = useActiveTimeEntries();
 
+  // Mutations for time tracking
   const startTaskMutation = useStartTask();
   const endTaskMutation = useEndTask();
 
+  // Get current active time entry
   const activeTimeEntry = activeTimeEntries?.data?.[0];
   const isTracking = !!activeTimeEntry;
 
+  // Calculate elapsed time for active tracking
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -58,9 +62,11 @@ export default function TimeModal() {
     }
   }, [activeTimeEntry, isTracking]);
 
+  // Filter tasks based on selected project
   const filteredTasks =
     tasks?.data?.filter((task) => task.projectId === selectedProject) || [];
 
+  // Handle starting time tracking
   const handleStart = async () => {
     if (!selectedTask) {
       toast.error("Please select a task to track");
@@ -79,6 +85,7 @@ export default function TimeModal() {
     }
   };
 
+  // Handle stopping time tracking
   const handleStop = async () => {
     if (!activeTimeEntry) {
       toast.error("No active time tracking found");
@@ -92,6 +99,7 @@ export default function TimeModal() {
     }
   };
 
+  // Format timer as HH:MM:SS
   const formatTime = (seconds: number) => {
     const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
     const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
@@ -99,6 +107,7 @@ export default function TimeModal() {
     return `${h}:${m}:${s}`;
   };
 
+  // Reset task selection when project changes
   useEffect(() => {
     if (selectedProject) {
       setSelectedTask("");
@@ -109,140 +118,176 @@ export default function TimeModal() {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 size-14 z-50 bg-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-full p-0 border-2 border-gray-200 hover:border-blue-500 group"
+        className="fixed bottom-6 right-6 size-11 z-50 bg-transparent border-none p-0 hover:bg-transparent cursor-pointer"
+        style={{ outline: "none" }}
         aria-label="Open timer"
       >
-        <Clock className="size-6 text-gray-700 group-hover:text-blue-600 transition-colors" />
+        <img src="/dashboard/clock.svg" className="size-11" alt="clock" />
       </Button>
 
       {open && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            onClick={() => setOpen(false)}
-          />
-          
-          <Box className="fixed bottom-20 right-6 z-50 bg-white rounded-2xl shadow-2xl w-[420px] max-sm:w-[calc(100vw-2rem)] border border-gray-200 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-3 flex items-center justify-between rounded-t-2xl">
-              <div className="flex items-center gap-2">
-                <Clock className="size-5 text-white" />
-                <h2 className="text-base font-semibold text-white">Time Tracker</h2>
-              </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="size-8 flex items-center justify-center hover:bg-white/20 text-white rounded-full transition-colors"
-                aria-label="Close"
-                type="button"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <div className="p-5">
-              {/* Active Status */}
+        <Stack className="fixed bottom-6 right-6 z-50 items-end pointer-events-none gap-0">
+          <Box className="bg-white rounded-2xl shadow-xl w-[700px] max-lg:w-[500px] max-sm:w-[300px] max-w-full max-h-[90vh] p-0 pointer-events-auto relative">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 size-8 hover:text-gray-700 text-xl cursor-pointer bg-red-400 text-white rounded-full pb-1"
+              aria-label="Close timer"
+              type="button"
+            >
+              x
+            </button>
+            <form className="flex flex-col gap-6 h-full bg-[#F5F5F5] rounded-2xl p-6">
+              {/* Show active tracking info if tracking */}
               {isTracking && activeTimeEntry && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 flex items-center gap-3">
-                  <div className="size-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-                  <div className="text-sm flex-1 min-w-0">
-                    <p className="text-green-900 font-medium truncate">{activeTimeEntry.taskTitle}</p>
-                    <p className="text-green-700 text-xs truncate">{activeTimeEntry.projectName}</p>
-                  </div>
-                </div>
+                <Box className="bg-green-100 border border-green-300 rounded-lg p-4">
+                  <Stack className="gap-2">
+                    <h3 className="font-semibold text-green-800">
+                      Currently Tracking:
+                    </h3>
+                    <p className="text-green-700">
+                      <strong>Task:</strong> {activeTimeEntry.taskTitle}
+                    </p>
+                    <p className="text-green-700">
+                      <strong>Project:</strong> {activeTimeEntry.projectName}
+                    </p>
+                    <p className="text-green-700">
+                      <strong>Started:</strong>{" "}
+                      {new Date(activeTimeEntry.startTime).toLocaleTimeString()}
+                    </p>
+                  </Stack>
+                </Box>
               )}
 
-              <Stack className="gap-3">
-                {/* Selects */}
-                <Select
-                  value={selectedProject}
-                  onValueChange={setSelectedProject}
-                  disabled={isTracking}
-                >
-                  <SelectTrigger className={`h-11 rounded-xl border-2 text-sm ${
-                    isTracking ? 'bg-gray-50 opacity-60' : 'bg-white hover:border-blue-400'
-                  }`}>
-                    {selectedProject
-                      ? projects?.data?.find((p) => p.id === selectedProject)?.projectName || "Select Project"
-                      : "Select Project"}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects?.data?.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.projectName} ({project.projectNumber})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Flex className="flex-row max-sm:flex-col gap-2 w-full justify-between">
+                <Stack className="flex-1 max-sm:w-full gap-2">
+                  <label className="font-medium">
+                    Project<span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={selectedProject}
+                    onValueChange={setSelectedProject}
+                    disabled={isTracking}
+                  >
+                    <SelectTrigger className="rounded-full h-14 w-full py-6 border-none">
+                      {selectedProject
+                        ? projects?.data?.find((p) => p.id === selectedProject)
+                            ?.projectName || "Select Project"
+                        : "Select Project"}
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects?.data?.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.projectName} ({project.projectNumber})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Stack>
 
-                <Select
-                  value={selectedTask}
-                  onValueChange={setSelectedTask}
-                  disabled={isTracking || !selectedProject}
-                >
-                  <SelectTrigger className={`h-11 rounded-xl border-2 text-sm ${
-                    isTracking || !selectedProject ? 'bg-gray-50 opacity-60' : 'bg-white hover:border-blue-400'
-                  }`}>
-                    {selectedTask
-                      ? filteredTasks.find((t) => t.id === selectedTask)?.title || "Select Task"
-                      : !selectedProject ? "Select project first" : "Select Task"}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredTasks.map((task) => (
-                      <SelectItem key={task.id} value={task.id}>
-                        {task.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Stack className="flex-1 max-sm:w-full gap-2">
+                  <label className="font-medium">
+                    Task<span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={selectedTask}
+                    onValueChange={setSelectedTask}
+                    disabled={isTracking || !selectedProject}
+                  >
+                    <SelectTrigger className="rounded-full h-14 w-full py-6 border-none">
+                      {selectedTask
+                        ? filteredTasks.find((t) => t.id === selectedTask)
+                            ?.title || "Select Task"
+                        : "Select Task"}
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredTasks.map((task) => (
+                        <SelectItem key={task.id} value={task.id}>
+                          {task.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Stack>
 
-                <Select
-                  value={selectedActivityType}
-                  onValueChange={setSelectedActivityType}
-                  disabled={isTracking}
-                >
-                  <SelectTrigger className={`h-11 rounded-xl border-2 text-sm ${
-                    isTracking ? 'bg-gray-50 opacity-60' : 'bg-white hover:border-blue-400'
-                  }`}>
-                    {selectedActivityType === "meeting" ? "Meeting" : selectedActivityType === "agenda" ? "Agenda" : "Activity Type"}
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="agenda">Agenda</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Stack className="flex-1 max-sm:w-full gap-2">
+                  <label className="font-medium">
+                    Activity Type<span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={selectedActivityType}
+                    onValueChange={setSelectedActivityType}
+                    disabled={isTracking}
+                  >
+                    <SelectTrigger className="rounded-full h-14 w-full py-6 border-none">
+                      {selectedActivityType === "meeting"
+                        ? "Meeting"
+                        : selectedActivityType === "agenda"
+                        ? "Agenda"
+                        : "Select Activity Type"}
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="agenda">Agenda</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Stack>
+              </Flex>
+              <Flex className="items-center justify-between max-sm:flex-col gap-4 mt-4">
+                {/* Timer Display */}
+                <Box className="flex-1">
+                  <Stack className="gap-2">
+                    <label className="font-medium text-gray-700">
+                      {isTracking ? "Elapsed Time" : "Timer"}
+                    </label>
+                    <Box className="bg-white border-2 border-gray-200 rounded-lg p-4 text-center">
+                      <span className="text-3xl font-mono font-bold text-blue-600">
+                        {formatTime(elapsedTime)}
+                      </span>
+                      {isTracking && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Tracking in progress...
+                        </p>
+                      )}
+                    </Box>
+                  </Stack>
+                </Box>
 
-                {/* Timer & Button */}
-                <div className="flex items-center gap-3 mt-2">
-                  <div className="flex-1 bg-blue-50 border-2 border-blue-200 rounded-xl px-4 py-3 text-center">
-                    <div className="text-3xl font-mono font-bold text-blue-600">
-                      {formatTime(elapsedTime)}
-                    </div>
-                  </div>
-
-                  {isTracking ? (
-                    <Button
-                      type="button"
-                      className="h-[62px] px-6 rounded-xl bg-red-500 hover:bg-red-600 shadow-md hover:shadow-lg transition-all"
-                      onClick={handleStop}
-                      disabled={endTaskMutation.isPending}
-                    >
+                {isTracking ? (
+                  <Button
+                    type="button"
+                    className="cursor-pointer rounded-full px-6 py-4 h-14 text-lg max-sm:text-sm bg-red-500 hover:bg-red-600"
+                    onClick={handleStop}
+                    disabled={endTaskMutation.isPending}
+                  >
+                    <span className="flex items-center gap-2">
                       <Square className="size-4 fill-white" />
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      className="h-[62px] px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-                      onClick={handleStart}
-                      disabled={!selectedTask || startTaskMutation.isPending}
-                    >
-                      <Play className="size-4 fill-white" />
-                    </Button>
-                  )}
-                </div>
-              </Stack>
-            </div>
+                      {endTaskMutation.isPending ? "Stopping..." : "Stop"}
+                    </span>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    className="cursor-pointer rounded-full px-8 py-4 max-sm:px-4 max-sm:py-2 h-14 text-lg bg-[#47C363] hover:bg-[#47C363]/80"
+                    onClick={handleStart}
+                    disabled={!selectedTask || startTaskMutation.isPending}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Center
+                        className="w-5 h-5 rounded-full border-2 border-white flex-shrink-0"
+                        style={{
+                          background: isTracking ? "#22c55e" : "transparent",
+                        }}
+                      >
+                        <Play className="size-3 fill-white" />
+                      </Center>
+                      {startTaskMutation.isPending ? "Starting..." : "Start"}
+                    </span>
+                  </Button>
+                )}
+              </Flex>
+            </form>
           </Box>
-        </>
+        </Stack>
       )}
     </>
   );

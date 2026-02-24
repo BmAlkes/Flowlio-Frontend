@@ -7,7 +7,7 @@ import { Stack } from "../ui/stack";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   Form,
@@ -29,7 +29,7 @@ import {
 } from "../ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { CalendarIcon } from "../customeIcons";
 import { useCreateTask } from "@/hooks/usecreatetask";
@@ -38,30 +38,66 @@ import { useFetchProjects } from "@/hooks/usefetchprojects";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { CreateTaskRequest } from "@/hooks/usecreatetask";
 import { toast } from "sonner";
-import { useFetchTaskById } from "@/hooks/usefetchtasks";
+import { useFetchTaskById, useFetchTasksByAssignee } from "@/hooks/usefetchtasks";
 // import { AITaskCreator } from "./AITaskCreator";
 
 interface CreateTaskProps {
   taskId?: string; // If provided, component works in edit mode
+  parentId?: string; // If provided, component handles subtask creation
   onClose?: () => void; // For modal mode
   isModal?: boolean; // If true, renders as modal instead of page
 }
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Task title must be at least 2 characters.",
-  }),
-  description: z.string().optional(),
-  projectId: z.string().min(1, {
-    message: "Please select a project.",
-  }),
-  assignedTo: z.string().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-});
+const formSchema = z
+  .object({
+    title: z.string().min(2, {
+      message: "Task title must be at least 2 characters.",
+    }),
+    description: z.string().optional(),
+    projectId: z.string().min(1, {
+      message: "Please select a project.",
+    }),
+    assignedTo: z.string().optional(),
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    parentId: z.string().optional(),
+    startAfter: z.string().optional(),
+    finishBefore: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.startDate ||
+      !data.endDate ||
+      startOfDay(data.endDate) >= startOfDay(data.startDate),
+    {
+      message: "End date must be on or after start date.",
+      path: ["endDate"],
+    }
+  )
+  .refine(
+    (data) =>
+      !data.startAfter ||
+      !data.finishBefore ||
+      data.startAfter !== data.finishBefore,
+    {
+      message: "Start After and Finish Before cannot be the same task.",
+      path: ["finishBefore"],
+    }
+  )
+  .refine(
+    (data) =>
+      !data.startAfter ||
+      !data.finishBefore ||
+      data.startAfter !== data.finishBefore,
+    {
+      message: "Start After and Finish Before cannot be the same task.",
+      path: ["startAfter"],
+    }
+  );
 
 export const CreateTask = ({
   taskId,
+  parentId: parentIdFromProps,
   onClose,
   isModal = false,
 }: CreateTaskProps = {}) => {
@@ -71,6 +107,8 @@ export const CreateTask = ({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
+  const parentIdFromUrl = searchParams.get("parentId");
+  const parentId = parentIdFromProps || parentIdFromUrl;
 
   // Extract URL parameters
   const titleFromUrl = searchParams.get("title");
@@ -88,6 +126,7 @@ export const CreateTask = ({
   const { data: projectsResponse } = useFetchProjects();
   const { data: usersResponse } = useFetchOrganizationUsers();
   const { data: taskData } = useFetchTaskById(taskId || "");
+  const { data: parentTaskData } = useFetchTaskById(parentId || "");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,10 +137,63 @@ export const CreateTask = ({
       assignedTo: assignedToFromUrl || "",
       startDate: startDateFromUrl ? new Date(startDateFromUrl) : new Date(),
       endDate: endDateFromUrl ? new Date(endDateFromUrl) : new Date(),
+      parentId: parentId || "",
+      startAfter: "",
+      finishBefore: "",
     },
   });
 
-  // Pre-fill form with task data if in edit mode
+  const assignedTo = form.watch("assignedTo");
+  const {
+    data: assignedUserTasksResponse,
+    isLoading: isDependencyOptionsLoading,
+  } = useFetchTasksByAssignee(assignedTo || undefined);
+  const assignedUserTasks = assignedUserTasksResponse?.data ?? [];
+
+  const dependencyOptions = useMemo(() => {
+    if (isEditMode && taskId) {
+      return assignedUserTasks.filter((t) => t.id !== taskId);
+    }
+    return assignedUserTasks;
+  }, [assignedUserTasks, isEditMode, taskId]);
+
+  const watchedStartDate = form.watch("startDate");
+  const todayStart = startOfDay(new Date());
+  const prevAssignedToRef = useRef(assignedTo);
+  const hasResetDependenciesForEditRef = useRef(false);
+
+  // When taskId changes (e.g. opening a different task), allow reset again
+  useEffect(() => {
+    if (!isEditMode || !taskId) return;
+    hasResetDependenciesForEditRef.current = false;
+  }, [taskId, isEditMode]);
+
+  // When assignedTo changes, clear dependent Start After / Finish Before and re-fetch options
+  useEffect(() => {
+    if (prevAssignedToRef.current !== assignedTo) {
+      prevAssignedToRef.current = assignedTo;
+      form.setValue("startAfter", "");
+      form.setValue("finishBefore", "");
+    }
+  }, [assignedTo, form]);
+
+  // When start date changes to after end date, set end date to start date
+  useEffect(() => {
+    const start = form.getValues("startDate");
+    const end = form.getValues("endDate");
+    if (start && end && startOfDay(end) < startOfDay(start)) {
+      form.setValue("endDate", start);
+    }
+  }, [watchedStartDate, form]);
+
+  // When in subtask mode, pre-fill project from parent task
+  useEffect(() => {
+    if (parentId && parentTaskData?.data?.projectId) {
+      form.setValue("projectId", parentTaskData.data.projectId);
+    }
+  }, [parentId, parentTaskData?.data?.projectId, form]);
+
+  // Pre-fill form with task data if in edit mode (basic fields first so assignee fetch runs)
   useEffect(() => {
     if (isEditMode && taskData?.data) {
       const task = taskData.data;
@@ -115,8 +207,55 @@ export const CreateTask = ({
       if (task.endDate) {
         form.setValue("endDate", new Date(task.endDate));
       }
+      form.setValue("parentId", task.parentId || "");
     }
   }, [isEditMode, taskData, form]);
+
+  // Reset form with dependency values once options are loaded (edit mode only)
+  useEffect(() => {
+    if (!isEditMode || !taskData?.data || !taskId) return;
+    const task = taskData.data;
+    const assigneeId = task.assigneeId || "";
+    if (assignedTo !== assigneeId) return;
+    if (isDependencyOptionsLoading || !assignedUserTasksResponse) return;
+    if (hasResetDependenciesForEditRef.current) return;
+
+    hasResetDependenciesForEditRef.current = true;
+
+    const safeStartAfter =
+      task.startAfter &&
+      task.startAfter !== taskId &&
+      assignedUserTasks.some((t) => t.id === task.startAfter)
+        ? task.startAfter
+        : "";
+    const safeFinishBefore =
+      task.finishBefore &&
+      task.finishBefore !== taskId &&
+      assignedUserTasks.some((t) => t.id === task.finishBefore)
+        ? task.finishBefore
+        : "";
+
+    form.reset({
+      title: task.title || "",
+      description: task.description || "",
+      projectId: task.projectId || "",
+      assignedTo: assigneeId,
+      startDate: task.startDate ? new Date(task.startDate) : new Date(),
+      endDate: task.endDate ? new Date(task.endDate) : new Date(),
+      parentId: task.parentId || "",
+      startAfter: safeStartAfter,
+      finishBefore: safeFinishBefore,
+    });
+  }, [
+    isEditMode,
+    taskData,
+    taskId,
+    assignedTo,
+    assignedUserTasks,
+    assignedUserTasksResponse,
+    isDependencyOptionsLoading,
+    form,
+  ]);
 
   // Pre-fill form fields from URL if provided
   useEffect(() => {
@@ -138,6 +277,9 @@ export const CreateTask = ({
     if (endDateFromUrl) {
       form.setValue("endDate", new Date(endDateFromUrl));
     }
+    if (parentIdFromUrl) {
+      form.setValue("parentId", parentIdFromUrl);
+    }
   }, [
     projectIdFromUrl,
     titleFromUrl,
@@ -145,6 +287,7 @@ export const CreateTask = ({
     assignedToFromUrl,
     startDateFromUrl,
     endDateFromUrl,
+    parentIdFromUrl,
   ]);
 
   // Convert file to base64 for upload
@@ -203,6 +346,8 @@ export const CreateTask = ({
           startDate: values.startDate?.toISOString(),
           endDate: values.endDate?.toISOString(),
           attachments: attachmentData ? [attachmentData] : undefined,
+          startAfter: values.startAfter || null,
+          finishBefore: values.finishBefore || null,
         };
 
         updateTask.mutate(
@@ -234,6 +379,9 @@ export const CreateTask = ({
           startDate: values.startDate?.toISOString(),
           endDate: values.endDate?.toISOString(),
           attachments: attachmentData ? [attachmentData] : undefined,
+          parentId: values.parentId || undefined,
+          startAfter: values.startAfter || null,
+          finishBefore: values.finishBefore || null,
         };
         console.log("Task data", taskData);
 
@@ -298,11 +446,13 @@ export const CreateTask = ({
       <Center className="justify-between mt-4 max-sm:flex-col max-sm:items-start gap-2 relative">
         <Stack className="gap-0">
           <h1 className="text-black text-xl font-medium">
-            {isEditMode ? "Edit Task" : "New Task"}
+            {isEditMode ? "Edit Task" : parentId ? "New Subtask" : "New Task"}
           </h1>
           <h1 className="text-gray-500">
             {isEditMode
               ? "Update task details and keep your team aligned."
+              : parentId
+              ? "Create a subtask to break down your main objective."
               : "Create and assign tasks to keep your team aligned and productive."}
           </h1>
         </Stack>
@@ -322,8 +472,21 @@ export const CreateTask = ({
                 : "Update Task"
               : createTask.isPending
               ? "Creating..."
+              : parentId
+              ? "Save Subtask"
               : "Save Task"}
           </Button>
+
+          {(isModal || isEditMode) && onClose && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="bg-white text-black border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-18 right-40 max-md:top-20 max-md:right-2"
+            >
+              Cancel
+            </Button>
+          )}
 
           {/* AI Task Creator */}
           {/* <AITaskCreator
@@ -391,6 +554,7 @@ export const CreateTask = ({
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={!!parentId}
                       >
                         <FormControl className="w-full h-12">
                           <SelectTrigger
@@ -546,6 +710,7 @@ export const CreateTask = ({
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          disabled={(date) => date < todayStart}
                         />
                       </PopoverContent>
                     </Popover>
@@ -562,7 +727,7 @@ export const CreateTask = ({
                     <FormLabel>Assign To:</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl className="w-full h-12">
                         <SelectTrigger
@@ -582,6 +747,83 @@ export const CreateTask = ({
                             {userMember.firstname} {userMember.lastname} (
                             {userMember.email})
                             {!userMember.user?.id && " (No user account)"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Box>
+
+            <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1 mt-3 max-sm:mt-0">
+              <FormField
+                control={form.control}
+                name="startAfter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start After</FormLabel>
+                    <Select
+                      value={field.value && dependencyOptions.some((t) => t.id === field.value) ? field.value : undefined}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.trigger(["startAfter", "finishBefore"]);
+                      }}
+                      disabled={
+                        !assignedTo ||
+                        (!!assignedTo && isDependencyOptionsLoading)
+                      }
+                    >
+                      <FormControl className="w-full h-12">
+                        <SelectTrigger
+                          size="lg"
+                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100 disabled:opacity-60"
+                        >
+                          <SelectValue placeholder="Select task (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="w-full">
+                        {dependencyOptions.map((task) => (
+                          <SelectItem key={task.id} value={task.id}>
+                            {task.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="finishBefore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Finish Before</FormLabel>
+                    <Select
+                      value={field.value && dependencyOptions.some((t) => t.id === field.value) ? field.value : undefined}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.trigger(["startAfter", "finishBefore"]);
+                      }}
+                      disabled={
+                        !assignedTo ||
+                        (!!assignedTo && isDependencyOptionsLoading)
+                      }
+                    >
+                      <FormControl className="w-full h-12">
+                        <SelectTrigger
+                          size="lg"
+                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100 disabled:opacity-60"
+                        >
+                          <SelectValue placeholder="Select task (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="w-full">
+                        {dependencyOptions.map((task) => (
+                          <SelectItem key={task.id} value={task.id}>
+                            {task.title}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -626,6 +868,9 @@ export const CreateTask = ({
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          disabled={(date) =>
+                            date < startOfDay(watchedStartDate || new Date())
+                          }
                         />
                       </PopoverContent>
                     </Popover>

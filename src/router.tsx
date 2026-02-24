@@ -1,11 +1,14 @@
 import { lazy } from "react";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter,  Route, Routes } from "react-router";
 import { LazyWrapper } from "./components/common/LazyWrapper";
 import {
   ProtectedRoute,
   SuperAdminRoute,
   SubAdminRoute,
   ViewerRoute,
+  ClientRoute,
+  AdminManagerOrOrgOwnerRoute,
+  OrgOwnerOnlyRoute,
 } from "./components/common/ProtectedRoute";
 import {
   useSessionPersistence,
@@ -32,6 +35,7 @@ const DashboardLayout = lazy(() =>
     default: module.DashboardLayout,
   }))
 );
+
 const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
 const VerifyEmailPage = lazy(() => import("./pages/verifyemail.page"));
 const VerifyCodePage = lazy(() => import("./pages/verifycode.page"));
@@ -311,15 +315,27 @@ const AppRoutes = () => {
         />
         <Route element={<LazyWrapper component={UserLayout} />} path="user" />
         <Route
-          element={<LazyWrapper component={AddUserMembersPage} />}
+          element={
+            <OrgOwnerOnlyRoute>
+              <LazyWrapper component={AddUserMembersPage} />
+            </OrgOwnerOnlyRoute>
+          }
           path="user-management/add-user-members"
         />
         <Route
-          element={<LazyWrapper component={UserManagementPage} />}
+          element={
+            <OrgOwnerOnlyRoute>
+              <LazyWrapper component={UserManagementPage} />
+            </OrgOwnerOnlyRoute>
+          }
           path="user-management"
         />
         <Route
-          element={<LazyWrapper component={PaymentLinksPage} />}
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={PaymentLinksPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
           path="payment-links"
         />
         <Route
@@ -327,15 +343,27 @@ const AppRoutes = () => {
           path="support"
         />
         <Route
-          element={<LazyWrapper component={InvoicePage} />}
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={InvoicePage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
           path="invoice"
         />
         <Route
-          element={<LazyWrapper component={ClientManagementPage} />}
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={ClientManagementPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
           path="client-management"
         />
         <Route
-          element={<LazyWrapper component={CreateClient} />}
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={CreateClient} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
           path="client-management/create-client"
         />
         <Route
@@ -408,6 +436,18 @@ const AppRoutes = () => {
           element={<LazyWrapper component={SuperAdminDashboardPage} />}
         />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
+      </Route>
+
+      {/* Client portal - same layout as dashboard (sidebar + navbar), requires client role */}
+      <Route
+        path="/clients"
+        element={
+          <ClientRoute>
+            <LazyWrapper component={DashboardLayout} />
+          </ClientRoute>
+        }
+      >
+       
       </Route>
 
       {/* Viewer layout - requires viewer role */}

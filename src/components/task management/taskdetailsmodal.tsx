@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   X,
   Calendar,
@@ -10,16 +10,32 @@ import {
   Eye,
   Trash2,
   Edit,
+  Link2,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
+import { useFetchSubtasks } from "@/hooks/usefetchtasks";
 import { useDeleteTask } from "@/hooks/usedeletetask";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Center } from "../ui/center";
 import { CreateTask } from "./createtask";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+
+type TaskForMap = {
+  id: string;
+  title: string;
+  status: string;
+  startAfter?: string | null;
+  finishBefore?: string | null;
+};
 
 interface TaskDetailsModalProps {
   task: {
@@ -40,13 +56,21 @@ interface TaskDetailsModalProps {
       size: number;
       type: string;
     }>;
+    parentId?: string;
+    parentTitle?: string;
+    startAfter?: string | null;
+    finishBefore?: string | null;
   };
+  allTasks: TaskForMap[];
+  onOpenTask: (taskId: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   task,
+  allTasks,
+  onOpenTask,
   isOpen,
   onClose,
 }) => {
@@ -55,10 +79,43 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   );
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateSubtaskModal, setShowCreateSubtaskModal] = useState(false);
   const { data: commentsResponse } = useFetchProjectComments(
     task.projectId || ""
   );
+  const { data: subtasksResponse } = useFetchSubtasks(
+    !task.parentId ? task.id : undefined
+  );
+  const subtasks = subtasksResponse?.data ?? [];
   const deleteTask = useDeleteTask();
+
+  const mapSubtaskStatus = (apiStatus: string) => {
+    const m: Record<string, string> = {
+      todo: "To Do",
+      in_progress: "In Progress",
+      updated: "Updated",
+      delay: "Delay",
+      changes: "Changes",
+      completed: "Completed",
+    };
+    return m[apiStatus] ?? apiStatus;
+  };
+
+  const taskMap = useMemo(() => {
+    const map: Record<string, TaskForMap> = {};
+    for (const t of allTasks) {
+      map[t.id] = t;
+    }
+    return map;
+  }, [allTasks]);
+
+  const startAfterTask = task.startAfter
+    ? taskMap[task.startAfter] ?? null
+    : null;
+  const finishBeforeTask = task.finishBefore
+    ? taskMap[task.finishBefore] ?? null
+    : null;
+  const hasDependencies = !!startAfterTask || !!finishBeforeTask;
 
   if (!isOpen) return null;
 
@@ -139,6 +196,17 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             >
               <Trash2 className="w-4 h-4" />
             </Button>
+            {!task.parentId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCreateSubtaskModal(true)}
+                className="hover:bg-green-50 border-green-200 text-green-600 hover:text-green-700 cursor-pointer h-8 px-3 rounded-full text-xs font-medium gap-1"
+                title="Add Subtask"
+              >
+                + Subtask
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -263,6 +331,59 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                   </Box>
                 </Box>
               )}
+
+              {/* Subtasks (only for main tasks) */}
+              {!task.parentId && (
+                <Box className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Subtasks ({subtasks.length})
+                  </h3>
+                  {subtasks.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No subtasks yet</p>
+                  ) : (
+                    <Box className="space-y-3 max-h-60 overflow-y-auto">
+                      {subtasks.map((st) => (
+                        <Box
+                          key={st.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => onOpenTask(st.id)}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" && onOpenTask(st.id)
+                          }
+                          className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer"
+                        >
+                          <Flex className="flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                            <span className="font-medium text-gray-900">
+                              {st.title}
+                            </span>
+                            <span
+                              className={cn(
+                                "inline-flex px-2 py-0.5 rounded-full text-xs font-medium",
+                                getStatusColor(mapSubtaskStatus(st.status))
+                              )}
+                            >
+                              {mapSubtaskStatus(st.status)}
+                            </span>
+                            {st.assigneeName && (
+                              <span className="text-gray-600 flex items-center gap-1">
+                                <User className="w-3.5 h-3.5" />
+                                {st.assigneeName}
+                              </span>
+                            )}
+                            <span className="text-gray-500">
+                              {st.endDate
+                                ? format(new Date(st.endDate), "dd MMM, yyyy")
+                                : "No due date"}
+                            </span>
+                          </Flex>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              )}
             </Box>
 
             {/* Sidebar */}
@@ -278,6 +399,27 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 >
                   {task.status}
                 </span>
+              </Box>
+
+              {/* Task Level */}
+              <Box className="bg-white rounded-xl p-4 border border-gray-200">
+                <h3 className="font-semibold text-gray-900 mb-3">Task Level</h3>
+                <span
+                  className={cn(
+                    "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
+                    task.parentId
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-blue-100 text-blue-800"
+                  )}
+                >
+                  {task.parentId ? "Subtask" : "Main Task"}
+                </span>
+                {task.parentId && task.parentTitle && (
+                  <Box className="mt-3">
+                    <p className="text-xs text-gray-500 mb-1">Related to Main Task:</p>
+                    <p className="text-sm font-medium text-purple-700">{task.parentTitle}</p>
+                  </Box>
+                )}
               </Box>
 
               {/* Project Info */}
@@ -325,6 +467,63 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                       {task.assigneeName}
                     </span>
                   </Flex>
+                </Box>
+              )}
+
+              {/* Dependencies */}
+              {hasDependencies && (
+                <Box className="bg-white rounded-xl p-4 border border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Dependencies
+                  </h3>
+                  <Box className="space-y-3 border-t border-gray-100 pt-3">
+                    {startAfterTask && (
+                      <Box>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Start After
+                        </p>
+                        {startAfterTask.status !== "Completed" ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onOpenTask(startAfterTask.id)
+                                  }
+                                  className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-left"
+                                >
+                                  {startAfterTask.title}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Complete this task before starting.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onOpenTask(startAfterTask.id)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-left"
+                          >
+                            {startAfterTask.title}
+                          </button>
+                        )}
+                      </Box>
+                    )}
+                    {finishBeforeTask && (
+                      <Box>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Finish Before
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {finishBeforeTask.title}
+                        </p>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               )}
             </Box>
@@ -381,6 +580,21 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             isModal={true}
             onClose={() => {
               setShowEditModal(false);
+              // Close the details modal and let parent refresh
+              onClose();
+            }}
+          />
+        </Box>
+      )}
+
+      {/* Create Subtask Modal */}
+      {showCreateSubtaskModal && (
+        <Box>
+          <CreateTask
+            parentId={task.id}
+            isModal={true}
+            onClose={() => {
+              setShowCreateSubtaskModal(false);
               // Close the details modal and let parent refresh
               onClose();
             }}

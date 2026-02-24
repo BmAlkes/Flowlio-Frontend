@@ -3,7 +3,7 @@ import { AppSidebar, type NavItem } from "@/components/admin/appsidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { CSSProperties } from "react";
 import { Box } from "@/components/ui/box";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { getNavigationItemsByRole } from "@/utils/role-based-navigation";
 import { useUser } from "@/providers/user.provider";
 import { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ export const DashboardLayout = () => {
   const { data: userData, isLoading } = useUser();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Don't redirect while still loading user data
@@ -37,12 +38,25 @@ export const DashboardLayout = () => {
         return;
       }
 
-      // For all other users (operators, regular users), stay in dashboard
+      // Clients: same layout as users/viewers; only redirect to /clients if they hit /dashboard
+      if (user.role === "client") {
+        setNavItems(getNavigationItemsByRole("client"));
+        if (location.pathname.startsWith("/dashboard")) {
+          navigate("/clients", { replace: true });
+        }
+        return;
+      }
+
+      // For all other users (operators, regular users, org owners), stay in dashboard
       const userRole = user.role || "user";
-      const roleBasedNavItems = getNavigationItemsByRole(userRole);
+      const roleBasedNavItems = getNavigationItemsByRole(
+        userRole,
+        user.isOrganizationOwner,
+        user.isOrganizationManager
+      );
       setNavItems(roleBasedNavItems);
     }
-  }, [userData, isLoading, navigate]);
+  }, [userData, isLoading, navigate, location.pathname]);
 
   return (
     // <SubscriptionGuard>

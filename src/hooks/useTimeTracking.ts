@@ -33,8 +33,23 @@ export const useActiveTimeEntries = () => {
         throw error;
       }
     },
-    refetchInterval: 5000, // Refresh more frequently for responsiveness
+    // Only poll when there's an active time entry, otherwise use longer interval
+    // Also pause polling when tab is not visible to save resources
+    refetchInterval: (query) => {
+      // Don't poll if tab is hidden
+      if (document.hidden) {
+        return false;
+      }
+
+      const hasActiveEntry =
+        query.state.data?.data?.length && query.state.data?.data?.length > 0;
+      // If there's an active entry, poll every 5 seconds for real-time updates
+      // If no active entry, poll every 30 seconds to check for new entries
+      return hasActiveEntry ? 5000 : 30000;
+    },
     staleTime: 0,
+    // Refetch when window becomes visible again
+    refetchOnWindowFocus: true,
   });
 };
 

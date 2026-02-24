@@ -10,6 +10,7 @@ interface CreateClientData {
   address?: string;
   status?: string;
   image?: string | null;
+  customFields?: Record<string, any>;
 }
 
 interface CreateClientResponse {
@@ -25,6 +26,7 @@ interface CreateClientResponse {
     businessIndustry?: string;
     address?: string;
     status: string;
+    customFields?: Record<string, any>;
     createdAt: string;
   };
 }
@@ -36,7 +38,7 @@ export const useCreateClient = () => {
     mutationFn: async (data: CreateClientData) => {
       const response = await axios.post<CreateClientResponse>(
         "/clients/create",
-        data
+        data,
       );
       return response.data;
     },

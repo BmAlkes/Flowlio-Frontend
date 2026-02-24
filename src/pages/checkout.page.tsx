@@ -110,8 +110,8 @@ const CheckoutPage = () => {
     finalPlanIndex !== null && plansArray.length > 0
       ? plansArray[finalPlanIndex]
       : planIdToUse
-      ? plansArray.find((p: IPlan) => p.id === planIdToUse) || null
-      : null;
+        ? plansArray.find((p: IPlan) => p.id === planIdToUse) || null
+        : null;
 
   // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
   const planDetails = useMemo(() => {
@@ -375,7 +375,7 @@ const CheckoutPage = () => {
       console.error("Error capturing PayPal order:", error);
       toast.error(
         error?.response?.data?.message ||
-          "Failed to process payment. Please try again."
+        "Failed to process payment. Please try again."
       );
     } finally {
       setIsProcessing(false);
@@ -545,6 +545,7 @@ const CheckoutPage = () => {
   // For live payments: Use your live PayPal Client ID from PayPal Developer Dashboard
   // The PayPal SDK automatically detects live vs sandbox based on the client ID format
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
+  console.log("paypalClientId", paypalClientId);
   const paypalMode = import.meta.env.VITE_PAYPAL_MODE || "live"; // Default to live for production
   const isFrontendPayPalConfigured =
     typeof paypalClientId === "string" && paypalClientId.trim().length > 0;
@@ -578,10 +579,10 @@ const CheckoutPage = () => {
   const paypalOptions =
     shouldLoadPayPalSDK && paypalClientId
       ? {
-          clientId: paypalClientId,
-          currency: "USD",
-          disableFunding: "credit,card" as const,
-        }
+        clientId: paypalClientId,
+        currency: "USD",
+        disableFunding: "credit,card" as const,
+      }
       : { clientId: "", currency: "USD" as const }; // Use empty string, not "sb" to avoid sandbox detection
 
   return (
@@ -796,27 +797,27 @@ const CheckoutPage = () => {
                   {(paypalMode !== "live" ||
                     paypalClientId?.startsWith("sb-") ||
                     paypalClientId?.includes("sandbox")) && (
-                    <Box className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="font-semibold text-red-800 mb-2">
-                        ⚠️ Sandbox Mode Detected
-                      </p>
-                      <p className="text-red-700 text-sm mb-2">
-                        Your PayPal is configured in sandbox mode. For real
-                        payments, you need:
-                      </p>
-                      <ul className="text-xs text-red-600 list-disc list-inside space-y-1">
-                        <li>
-                          A <strong>LIVE</strong> PayPal Client ID (not sandbox)
-                        </li>
-                        <li>
-                          Frontend: <code>VITE_PAYPAL_MODE=live</code> in .env
-                        </li>
-                        <li>
-                          Backend: <code>PAYPAL_MODE=live</code> in .env
-                        </li>
-                      </ul>
-                    </Box>
-                  )}
+                      <Box className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="font-semibold text-red-800 mb-2">
+                          ⚠️ Sandbox Mode Detected
+                        </p>
+                        <p className="text-red-700 text-sm mb-2">
+                          Your PayPal is configured in sandbox mode. For real
+                          payments, you need:
+                        </p>
+                        <ul className="text-xs text-red-600 list-disc list-inside space-y-1">
+                          <li>
+                            A <strong>LIVE</strong> PayPal Client ID (not sandbox)
+                          </li>
+                          <li>
+                            Frontend: <code>VITE_PAYPAL_MODE=live</code> in .env
+                          </li>
+                          <li>
+                            Backend: <code>PAYPAL_MODE=live</code> in .env
+                          </li>
+                        </ul>
+                      </Box>
+                    )}
                   {/* PayPal Buttons - Only show when fully configured */}
                   <Box className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
                     <PayPalButtons

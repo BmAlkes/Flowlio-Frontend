@@ -29,6 +29,7 @@ export interface Project {
       type: string;
     };
   };
+  customFields?: Record<string, any>;
 }
 
 export interface ProjectsResponse {

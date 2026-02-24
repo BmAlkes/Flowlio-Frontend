@@ -15,8 +15,11 @@ import { InvoiceCreationModal } from "./invoicecreationmodal";
 import { Invoice } from "@/hooks/usefetchinvoices";
 import { toast } from "sonner";
 import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
+import { useUser } from "@/providers/user.provider";
 
 export const InvoiceHeader: FC = () => {
+  const { data: userData } = useUser();
+  const isClient = userData?.user?.role === "client";
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [tableState, setTableState] = useState<{
     selectedRows: Invoice[];
@@ -94,42 +97,43 @@ export const InvoiceHeader: FC = () => {
           </h1>
         </Stack>
 
-        <Center className="gap-3">
-          <Button
-            onClick={handleCreateInvoice}
-            className="bg-[#1797b9] hover:bg-[#1797b9]/80 text-white rounded-full px-6 py-4 flex items-center gap-2"
-          >
-            <CirclePlus className="w-4 h-4" />
-            Create Invoice
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full w-36 h-10 justify-between items-center">
-                <h1 className="text-[14px] px-4">Export</h1>
-                <Center className="bg-[#3e3e3f] rounded-tr-full rounded-br-full h-10 w-10">
-                  <ChevronDown className="size-4" />
+        {!isClient && (
+          <Center className="gap-3">
+            <Button
+              onClick={handleCreateInvoice}
+              className="bg-[#1797b9] hover:bg-[#1797b9]/80 text-white rounded-full px-6 py-4 flex items-center gap-2"
+            >
+              <CirclePlus className="w-4 h-4" />
+              Create Invoice
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full w-36 h-10 justify-between items-center">
+                  <h1 className="text-[14px] px-4">Export</h1>
+                  <Center className="bg-[#3e3e3f] rounded-tr-full rounded-br-full h-10 w-10">
+                    <ChevronDown className="size-4" />
+                  </Center>
                 </Center>
-              </Center>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="p-1">
-              <DropdownMenuCheckboxItem
-                className="p-2 cursor-pointer"
-                onClick={handleExportSelected}
-                disabled={tableState.selectedRows.length === 0}
-              >
-                Export Selected ({tableState.selectedRows.length})
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                className="p-2 cursor-pointer"
-                onClick={handleExportCurrentPage}
-                disabled={tableState.currentPageRows.length === 0}
-              >
-                Export Current Page ({tableState.currentPageRows.length})
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Center>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="p-1">
+                <DropdownMenuCheckboxItem
+                  className="p-2 cursor-pointer"
+                  onClick={handleExportSelected}
+                  disabled={tableState.selectedRows.length === 0}
+                >
+                  Export Selected ({tableState.selectedRows.length})
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  className="p-2 cursor-pointer"
+                  onClick={handleExportCurrentPage}
+                  disabled={tableState.currentPageRows.length === 0}
+                >
+                  Export Current Page ({tableState.currentPageRows.length})
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Center>
+        )}
       </Center>
 
       <InvoiceTable onTableStateChange={handleTableStateChange} />
