@@ -44,6 +44,13 @@ import {
   SelectValue,
 } from "../ui/select";
 import { FaWebAwesome } from "react-icons/fa6";
+import { useFetchCustomFields } from "@/hooks/usecustomfields";
+import { Checkbox } from "../ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { CalendarIcon } from "../customeIcons";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const socialMediaTypes = [
   {
@@ -105,6 +112,8 @@ const formSchema = z.object({
       })
     )
     .optional(),
+  customFields: z.record(z.any()).optional(),
+  portalPassword: z.string().optional(),
 });
 
 interface ClientFormProps {
@@ -120,6 +129,7 @@ interface ClientFormProps {
     status: string;
     image?: string;
     socialMediaLinks?: string; // JSON string
+    customFields?: Record<string, any>;
   };
   onSuccess?: () => void;
   onClose?: () => void;
@@ -139,6 +149,9 @@ export const ClientForm = ({
   const [pdfPreview, setPdfPreview] = useState<string | null>(
     client?.image || null
   );
+
+  // Fetch custom field definitions
+  const { data: customFieldsData } = useFetchCustomFields("client");
   const [imageError, setImageError] = useState<string>("");
   const [isCompressing, setIsCompressing] = useState(false);
   const [isImageRemoved, setIsImageRemoved] = useState(false);
@@ -174,6 +187,8 @@ export const ClientForm = ({
       socialMediaLinks: client?.socialMediaLinks
         ? JSON.parse(client.socialMediaLinks)
         : [],
+      customFields: client?.customFields || {},
+      portalPassword: "",
     },
   });
 
@@ -191,6 +206,7 @@ export const ClientForm = ({
         address: client.address,
         industry: client.businessIndustry,
         socialMediaLinks: parsedSocialLinks,
+        customFields: client.customFields || {},
       });
       setSocialMediaLinks(parsedSocialLinks);
       setPdfPreview(client.image || null);
@@ -297,6 +313,14 @@ export const ClientForm = ({
     // Image upload is optional
     setImageError("");
 
+    // Validate password for create mode
+    if (mode === "create") {
+      if (!values.portalPassword || values.portalPassword.length < 8) {
+        toast.error("Password must be at least 8 characters.");
+        return;
+      }
+    }
+
     // Convert form data to match backend schema
     const clientData = {
       name: values.fullname,
@@ -309,6 +333,8 @@ export const ClientForm = ({
       socialMediaLinks: JSON.stringify(
         socialMediaLinks.filter((link) => link.url.trim() !== "")
       ),
+      customFields: values.customFields,
+      ...(mode === "create" && { password: values.portalPassword }),
     };
 
     if (mode === "edit") {
@@ -675,6 +701,39 @@ export const ClientForm = ({
               />
             </Box>
 
+            {/* Grant Portal Access - Create mode only */}
+            {mode === "create" && (
+              <Box className="mt-6 p-4 border border-gray-200 rounded-xl bg-gray-50/80">
+                <Stack className="gap-4">
+                  <h1 className="text-black text-xl font-medium">
+                    Client Portal Access
+                  </h1>
+                  <p className="text-gray-600 text-sm">
+                    Every client will have portal access to view projects, tasks & invoices
+                  </p>
+                  <FormField
+                    control={form.control}
+                    name="portalPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Portal password (required)</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="bg-white rounded-full placeholder:text-gray-400 max-w-md"
+                            size="xl"
+                            type="password"
+                            placeholder="Min. 8 characters"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </Stack>
+              </Box>
+            )}
+
             {/* Social Media Links Section */}
             <Box className="mt-6">
               <Stack className="gap-4">
@@ -798,6 +857,97 @@ export const ClientForm = ({
                 </Box>
               </Stack>
             </Box>
+
+            {/* Custom Fields Section */}
+            {customFieldsData?.data && customFieldsData.data.length > 0 && (
+              <Box className="space-y-6 mt-6 pt-6 border-t border-gray-200">
+                <h1 className="text-black text-xl font-medium">Custom Fields</h1>
+                <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+                  {customFieldsData.data.map((field) => (
+                    <FormField
+                      key={field.id}
+                      control={form.control}
+                      name={`customFields.${field.id}`}
+                      render={({ field: formField }) => (
+                        <FormItem>
+                          <FormLabel>{field.name}:</FormLabel>
+                          <FormControl>
+                            {field.type === "select" ? (
+                              <Select
+                                onValueChange={formField.onChange}
+                                value={formField.value}
+                              >
+                                <SelectTrigger className="bg-white rounded-full h-14">
+                                  <SelectValue placeholder={`Select ${field.name}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {field.options?.map((opt) => (
+                                    <SelectItem key={opt} value={opt}>
+                                      {opt}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : field.type === "boolean" ? (
+                                <div className="flex items-center space-x-2 h-14">
+                                  <Checkbox 
+                                    checked={formField.value === "true" || formField.value === true}
+                                    onCheckedChange={(checked) => formField.onChange(checked)}
+                                  />
+                                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    {field.name}
+                                  </label>
+                                </div>
+                            ) : field.type === "date" ? (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "w-full justify-start text-left font-normal rounded-full h-14 bg-white",
+                                      !formField.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {formField.value ? (
+                                      format(new Date(formField.value), "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={
+                                      formField.value ? new Date(formField.value) : undefined
+                                    }
+                                    onSelect={(date) =>
+                                       formField.onChange(date ? date.toISOString() : "")
+                                    }
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            ) : (
+                               <Input
+                                  className="bg-white rounded-full placeholder:text-gray-400"
+                                  size="xl"
+                                  type={field.type === "number" ? "number" : "text"}
+                                  placeholder={`Enter ${field.name}`}
+                                  {...formField}
+                                  value={formField.value || ""}
+                               />
+                            )}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         </form>
       </Form>

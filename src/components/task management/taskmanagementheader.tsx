@@ -14,12 +14,15 @@ import { CustomDropdown, CustomDropdownItem } from "../ui/custom-dropdown";
 import { useFetchTasks } from "@/hooks/usefetchtasks";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
+// removed client-specific hooks
 import { useUpdateTaskStatus } from "@/hooks/useupdatetask";
 import { format } from "date-fns";
 import { TaskDetailsModal } from "./taskdetailsmodal";
 
 export const TaskManagementHeader = () => {
   const navigate = useNavigate();
+  // client-specific logic removed
+
   const [search, setSearch] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -27,10 +30,14 @@ export const TaskManagementHeader = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hasInitializedProject = useRef(false);
 
-  // Fetch real data
-  const { data: tasksResponse } = useFetchTasks();
-  const { data: usersResponse } = useFetchOrganizationUsers();
-  const { data: projectsResponse } = useFetchProjects();
+  const orgTasks = useFetchTasks();
+  const orgUsers = useFetchOrganizationUsers();
+  const orgProjects = useFetchProjects();
+
+  const tasksResponse = orgTasks.data;
+  const usersResponse = orgUsers.data;
+  const projectsResponse = orgProjects.data;
+
   const updateTaskStatus = useUpdateTaskStatus();
 
   const realTasks = tasksResponse?.data || [];
@@ -78,6 +85,12 @@ export const TaskManagementHeader = () => {
           assigneeImage: task.assigneeImage,
           creatorName: task.creatorName,
           attachments: task.attachments,
+          parentId: task.parentId,
+          parentTitle: task.parentId
+            ? realTasks.find((rt) => rt.id === task.parentId)?.title
+            : undefined,
+          startAfter: task.startAfter ?? undefined,
+          finishBefore: task.finishBefore ?? undefined,
         }))
       : initialTasks;
   const setTasks = () => {}; // No-op since we're using real data
@@ -154,14 +167,14 @@ export const TaskManagementHeader = () => {
             </h1>
           </Stack>
 
-          <Button
-            variant="outline"
-            className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/dashboard/task-management/create-task")}
-          >
-            <CirclePlus className="fill-white text-black size-5" />
-            Create Task
-          </Button>
+            <Button
+              variant="outline"
+              className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/dashboard/task-management/create-task")}
+            >
+              <CirclePlus className="fill-white text-black size-5" />
+              Create Task
+            </Button>
         </Center>
 
         <Flex className="justify-between max-sm:items-start flex-col lg:flex-row items-center w-full gap-4">
@@ -286,6 +299,15 @@ export const TaskManagementHeader = () => {
             assigneeImage: selectedTask.assigneeImage,
             creatorName: selectedTask.creatorName,
             attachments: selectedTask.attachments,
+            parentId: selectedTask.parentId,
+            parentTitle: selectedTask.parentTitle,
+            startAfter: selectedTask.startAfter,
+            finishBefore: selectedTask.finishBefore,
+          }}
+          allTasks={tasks}
+          onOpenTask={(taskId) => {
+            const t = tasks.find((x) => x.id === taskId);
+            if (t) setSelectedTask(t);
           }}
           isOpen={isModalOpen}
           onClose={handleCloseModal}

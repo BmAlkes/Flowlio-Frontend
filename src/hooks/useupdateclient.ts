@@ -10,6 +10,7 @@ export interface UpdateClientData {
   address?: string;
   status?: string;
   image?: string;
+  customFields?: Record<string, any>;
 }
 
 export interface UpdateClientResponse {
@@ -25,6 +26,7 @@ export interface UpdateClientResponse {
     businessIndustry?: string;
     address?: string;
     status: string;
+    customFields?: Record<string, any>;
     createdAt: string; // Added for new clients
     updatedAt: string;
   };

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { HorizontalNavbar } from "@/components/admin/horizontalnavbar/horizontalnavbar";
 import { AppSidebar, type NavItem } from "@/components/admin/appsidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -14,6 +16,7 @@ import {
 } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { IoSettingsOutline } from "react-icons/io5";
+import { useUser } from "@/providers/user.provider";
 
 export const navItems: NavItem[] = [
   {
@@ -66,6 +69,17 @@ export const navItems: NavItem[] = [
 document.title = "Viewer - Flowlio";
 
 export const ViewerLayout = () => {
+  const { data: userData, isLoading } = useUser();
+  const navigate = useNavigate();
+
+  // If user was promoted (role no longer viewer), send them to dashboard
+  useEffect(() => {
+    if (isLoading || !userData?.user) return;
+    if (userData.user.role !== "viewer") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [userData?.user?.role, isLoading, navigate]);
+
   return (
     <Box className="bg-gradient-to-l from-indigo-50 via-slate-50 to-indigo-50 border-[2px] rounded-none border-white p-1 min-h-screen">
       <SidebarProvider

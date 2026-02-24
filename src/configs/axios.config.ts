@@ -36,6 +36,27 @@ export const axios = ax.create({
   withCredentials: true,
 });
 
+// Track if user is logging out to prevent new requests
+let isLoggingOut = false;
+
+export const setLoggingOut = (value: boolean) => {
+  isLoggingOut = value;
+};
+
+// Add request interceptor to block requests during logout
+axios.interceptors.request.use(
+  (config) => {
+    // Block all requests if user is logging out
+    if (isLoggingOut) {
+      return Promise.reject(new Error("User is logging out"));
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Add response interceptor to handle authentication errors
 axios.interceptors.response.use(
   (response) => response,
@@ -45,6 +66,11 @@ axios.interceptors.response.use(
       error.config?.url?.includes("/auth/sign-out") ||
       error.config?.url?.includes("/auth/signout")
     ) {
+      return Promise.reject(error);
+    }
+
+    // Don't process errors if user is logging out
+    if (isLoggingOut) {
       return Promise.reject(error);
     }
 

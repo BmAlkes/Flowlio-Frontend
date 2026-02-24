@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .cursorignore
+
+.agent
+.gemini
+.trae
+.claude
+.agents
+.cursor
+.qodo
+.skills

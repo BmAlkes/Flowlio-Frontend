@@ -1,6 +1,11 @@
 import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
 import { createAccessControl } from "better-auth/plugins/access";
 
+/**
+ * Role-based permissions. Note: Invoices, Payment Links, Client Management, User Management
+ * are also allowed for role "user" when isOrganizationOwner === true (org owner / purchaser).
+ * That condition is enforced in frontend route guards (AdminManagerOrOrgOwnerRoute) and in backend API checks.
+ */
 const pages = {
   ...defaultStatements,
   Dashboard: ["view"],
@@ -55,20 +60,14 @@ export const subAdmin = ac.newRole({
   Settings: ["view", "update"],
 });
 
-// User: Basic access - can view dashboard and settings
+// User (Member): No access to financial/sensitive unless isOrganizationOwner (see comment above)
 export const user = ac.newRole({
   Dashboard: ["view"],
-  "Client Management": ["create", "read", "update", "delete", "impersonate"],
-  "User Management": adminAc.statements.user,
   TimeTracking: ["read", "update"],
-  "Sub Admin Management": ["create", "read", "update", "delete", "impersonate"],
   Projects: ["create", "read", "update", "delete"],
   "Task Management": ["create", "read", "update", "delete"],
   Calender: ["create", "read", "update", "delete"],
-  Invoices: ["create", "read", "update", "delete"],
   "AI Assist": ["use", "create", "read", "update", "delete"],
-  "Payment Links": ["create", "read"],
-  // "My Subscriptions": ["read"],
   "Support Tickets": ["create", "read", "update", "delete"],
   Settings: ["view", "update"],
   Notifications: ["read", "view", "update", "delete"],
@@ -97,6 +96,14 @@ export const operator = ac.newRole({
   Notifications: ["read", "view", "update", "delete"],
 });
 
+// Client: Portal access only - projects, tasks, invoices for their own data
+export const client = ac.newRole({
+  Dashboard: ["view"],
+  Projects: ["read"],
+  "Task Management": ["read"],
+  Invoices: ["read"],
+});
+
 // Export roles for the adminClient plugin - using the correct structure
 export const roles = {
   superadmin: superAdmin,
@@ -104,4 +111,5 @@ export const roles = {
   user: user,
   viewer: viewer,
   operator: operator,
+  client: client,
 };

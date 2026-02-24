@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -13,11 +14,22 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { Star } from "lucide-react";
 import {
   useDeleteUserMember,
   useDeactivateUserMember,
   useReactivateUserMember,
 } from "@/hooks/usedeleteusermember";
+import { useUpdateOrganizationManager } from "@/hooks/useUpdateOrganizationManager";
+import { useUser } from "@/providers/user.provider";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 export type Data = {
@@ -203,6 +215,16 @@ export const UserManagementTable = ({
   isLoading: boolean;
   refetch: () => void;
 }) => {
+  const { data: userData } = useUser();
+  const isOrganizationOwner = userData?.user?.isOrganizationOwner === true;
+
+  const updateOrgManager = useUpdateOrganizationManager();
+  const [orgManagerModal, setOrgManagerModal] = useState<{
+    open: boolean;
+    type: "promote" | "demote";
+    member: { id: string; name: string } | null;
+  }>({ open: false, type: "promote", member: null });
+
   // Delete user member hook
   const deleteUserMember = useDeleteUserMember();
   const deactivateUserMember = useDeactivateUserMember();
@@ -253,16 +275,83 @@ export const UserManagementTable = ({
     }
   };
 
+  const handleConfirmOrgManager = async () => {
+    if (!orgManagerModal.member) return;
+    try {
+      await updateOrgManager.mutateAsync({
+        memberId: orgManagerModal.member.id,
+        setAsManager: orgManagerModal.type === "promote",
+      });
+      toast.success(
+        orgManagerModal.type === "promote"
+          ? "User is now Organization Manager."
+          : "User has been removed from Organization Manager."
+      );
+      setOrgManagerModal({ open: false, type: "promote", member: null });
+      refetch();
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        (orgManagerModal.type === "promote"
+          ? "Failed to make Organization Manager."
+          : "Failed to remove from Organization Manager.");
+      toast.error(msg);
+    }
+  };
+
   // Update action buttons to use real functions
   const updatedColumns = columns.map((col) => {
     if ("accessorKey" in col && col.accessorKey === "actions") {
       return {
         ...col,
         cell: ({ row }: any) => {
-          const { id, isActive, email } = row.original;
+          const { id, isActive, email, firstname, lastname, userrole } =
+            row.original;
+          const displayName = `${firstname} ${lastname}`.trim() || email;
+          const canPromote = userrole === "viewer";
+          const canDemote = userrole === "user";
+          const showOrgManagerButton =
+            isOrganizationOwner && (canPromote || canDemote);
 
           return (
             <Center className="space-x-2">
+              {showOrgManagerButton && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`border-none w-9 h-9 cursor-pointer rounded-md ${
+                          canDemote
+                            ? "bg-amber-500 text-white hover:bg-amber-600"
+                            : "bg-gray-600 text-white hover:bg-gray-700"
+                        }`}
+                        onClick={() =>
+                          setOrgManagerModal({
+                            open: true,
+                            type: canPromote ? "promote" : "demote",
+                            member: { id, name: displayName },
+                          })
+                        }
+                        disabled={updateOrgManager.isPending}
+                      >
+                        <Star
+                          className={`size-4 ${canDemote ? "fill-current" : ""}`}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="mb-2">
+                      <p>
+                        {canPromote
+                          ? "Make Organization Manager"
+                          : "Remove from Organization Manager"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -342,6 +431,62 @@ export const UserManagementTable = ({
         enablePaymentLinksCalender={false}
         onRowClick={(row) => console.log("Row clicked:", row.original)}
       />
+
+      {/* Organization Manager confirm modal */}
+      <Dialog
+        open={orgManagerModal.open}
+        onOpenChange={(open) =>
+          !open &&
+          setOrgManagerModal({ open: false, type: "promote", member: null })
+        }
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {orgManagerModal.type === "promote"
+                ? "Make Organization Manager"
+                : "Remove from Organization Manager"}
+            </DialogTitle>
+            <DialogDescription>
+              {orgManagerModal.type === "promote" ? (
+                <>
+                  Are you sure you want to make{" "}
+                  <span className="font-semibold text-foreground">
+                    {orgManagerModal.member?.name}
+                  </span>{" "}
+                  Organization Manager? They will have access to Invoices,
+                  Payment Links, and Client Management.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to remove{" "}
+                  <span className="font-semibold text-foreground">
+                    {orgManagerModal.member?.name}
+                  </span>{" "}
+                  from Organization Manager? They will no longer have access to
+                  those features.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() =>
+                setOrgManagerModal({ open: false, type: "promote", member: null })
+              }
+            >
+              No
+            </Button>
+            <Button
+              onClick={handleConfirmOrgManager}
+              disabled={updateOrgManager.isPending}
+            >
+              {updateOrgManager.isPending ? "..." : "Yes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

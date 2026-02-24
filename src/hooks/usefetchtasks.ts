@@ -23,6 +23,7 @@ export interface Task {
   }>;
   createdAt: string;
   updatedAt: string;
+  parentId?: string;
   // Project data
   projectId: string;
   projectName: string;
@@ -41,6 +42,9 @@ export interface Task {
   clientName?: string;
   clientEmail?: string;
   clientImage?: string;
+  // Dependencies
+  startAfter?: string | null;
+  finishBefore?: string | null;
 }
 
 export interface GetTasksResponse {
@@ -75,6 +79,22 @@ export const useFetchTasks = (params?: {
   });
 };
 
+export const useFetchTasksByAssignee = (assigneeId: string | undefined) => {
+  return useQuery({
+    queryKey: ["tasks", { assignedTo: assigneeId }],
+    queryFn: async (): Promise<GetTasksResponse> => {
+      const searchParams = new URLSearchParams();
+      if (assigneeId) searchParams.append("assignedTo", assigneeId);
+      const url = `/tasks/all?${searchParams.toString()}`;
+      const response = await axios.get(url);
+      return response.data;
+    },
+    enabled: !!assigneeId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
 export const useFetchTaskById = (taskId: string) => {
   return useQuery({
     queryKey: ["task", taskId],
@@ -89,5 +109,18 @@ export const useFetchTaskById = (taskId: string) => {
     enabled: !!taskId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useFetchSubtasks = (parentTaskId: string | undefined) => {
+  return useQuery({
+    queryKey: ["tasks", "subtasks", parentTaskId],
+    queryFn: async (): Promise<GetTasksResponse> => {
+      const response = await axios.get(`/tasks/${parentTaskId}/subtasks`);
+      return response.data;
+    },
+    enabled: !!parentTaskId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 };

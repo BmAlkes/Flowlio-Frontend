@@ -5,6 +5,19 @@
 /* checking github */
 * {
   font-family:  "Noto Sans Hebrew", sans-serif;
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--sidebar-ring)  ;
+    border-radius: 10px;
+  }
 }
 :root {
   --background: oklch(1 0 0);
@@ -136,7 +149,15 @@
   width: 8px;
 }
 
-/* Hide scrollbar arrows */
+/* Hide scrollbar arrows globally */
+::-webkit-scrollbar-button {
+  display: none;
+  background: transparent;
+  width: 0;
+  height: 0;
+}
+
+/* Hide scrollbar arrows for classic-scroll */
 .classic-scroll::-webkit-scrollbar-button {
   display: none;
 }

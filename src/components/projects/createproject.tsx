@@ -42,6 +42,8 @@ import { useFetchAllOrganizations } from "../../hooks/usefetchallorganizations";
 import { useUser } from "../../providers/user.provider";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useFetchCustomFields } from "../../hooks/usecustomfields";
+import { Checkbox } from "../ui/checkbox";
 
 const formSchema = z
   .object({
@@ -65,6 +67,7 @@ const formSchema = z
         })
       )
       .optional(),
+    customFields: z.record(z.any()).optional(),
   })
   .refine(
     (data) => {
@@ -109,6 +112,10 @@ export const CreateProject = () => {
     isLoading: isLoadingUserOrg,
     error: userOrgError,
   } = useFetchAllOrganizations();
+
+  // Fetch custom field definitions
+  // Fetch custom field definitions
+  const { data: customFieldsData } = useFetchCustomFields("project");
 
   // Fetch project data if in edit mode
   const {
@@ -169,6 +176,7 @@ export const CreateProject = () => {
       address: "",
       contractfile: "",
       projectFiles: [],
+      customFields: {},
     },
   });
 
@@ -205,6 +213,7 @@ export const CreateProject = () => {
         description: project.description || "",
         address: project.address || "",
         contractfile: project.contractfile || "",
+        customFields: project.customFields || {},
       });
 
       // Explicitly set Select values after reset to ensure they're recognized
@@ -284,6 +293,7 @@ export const CreateProject = () => {
           projectFiles: convertedProjectFiles,
         }),
         organizationId: finalOrganizationId,
+        customFields: values.customFields,
       };
 
       if (isEditMode && id) {
@@ -886,6 +896,97 @@ export const CreateProject = () => {
                 )}
               />
             </Box>
+
+            {/* Custom Fields Section */}
+            {customFieldsData?.data && customFieldsData.data.length > 0 && (
+              <Box className="space-y-6 mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-medium text-black">Custom Fields</h3>
+                <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+                  {customFieldsData.data.map((field) => (
+                    <FormField
+                      key={field.id}
+                      control={form.control}
+                      name={`customFields.${field.id}`}
+                      render={({ field: formField }) => (
+                        <FormItem>
+                          <FormLabel>{field.name}</FormLabel>
+                          <FormControl>
+                            {field.type === "select" ? (
+                              <Select
+                                onValueChange={formField.onChange}
+                                value={formField.value}
+                              >
+                                <SelectTrigger className="bg-white rounded-full h-12">
+                                  <SelectValue placeholder={`Select ${field.name}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {field.options?.map((opt) => (
+                                    <SelectItem key={opt} value={opt}>
+                                      {opt}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : field.type === "boolean" ? (
+                                <div className="flex items-center space-x-2 h-12">
+                                  <Checkbox 
+                                    checked={formField.value === "true" || formField.value === true}
+                                    onCheckedChange={(checked) => formField.onChange(checked)}
+                                  />
+                                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    {field.name}
+                                  </label>
+                                </div>
+                            ) : field.type === "date" ? (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "w-full justify-start text-left font-normal rounded-full h-12 bg-white",
+                                      !formField.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {formField.value ? (
+                                      format(new Date(formField.value), "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={
+                                      formField.value ? new Date(formField.value) : undefined
+                                    }
+                                    onSelect={(date) =>
+                                       formField.onChange(date ? date.toISOString() : "")
+                                    }
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            ) : (
+                               <Input
+                                  className="bg-white rounded-full placeholder:text-gray-400"
+                                  size="lg"
+                                  type={field.type === "number" ? "number" : "text"}
+                                  placeholder={`Enter ${field.name}`}
+                                  {...formField}
+                                  value={formField.value || ""}
+                               />
+                            )}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         </form>
       </Form>
