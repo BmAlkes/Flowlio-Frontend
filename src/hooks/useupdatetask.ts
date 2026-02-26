@@ -25,6 +25,9 @@ export interface UpdateTaskRequest {
     size: number;
     type: string;
   }>;
+  parentId?: string;
+  startAfter?: string | null;
+  finishBefore?: string | null;
 }
 
 export interface UpdateTaskResponse {

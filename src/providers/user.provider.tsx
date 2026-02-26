@@ -33,6 +33,10 @@ type Data = {
     role: Role;
     subadminId: string;
     isSuperAdmin: boolean;
+    /** Set true for account purchaser (org owner); allows Invoices, Payment Links, Client Management, User Management */
+    isOrganizationOwner?: boolean;
+    /** Allows same access as owner except User Management */
+    isOrganizationManager?: boolean;
     organizationId?: string;
     organization?: {
       id: string;
@@ -59,6 +63,8 @@ type Data = {
       organizationSize?: string;
       planId?: string;
     } | null;
+    /** For role "client": the client record id used for client-scoped API calls */
+    clientId?: string | null;
   };
   session: SessionObject["session"];
 };
@@ -158,14 +164,10 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
       // Clear session persistence data on logout
       clearLastVisitedPage();
 
-      // Also clear React Query cache when logging out
-      queryClient.removeQueries({ queryKey: ["user-profile"] });
-      queryClient.removeQueries({ queryKey: ["get-current-org-user-members"] });
-      queryClient.removeQueries({ queryKey: ["get-all-user-members"] });
-      queryClient.removeQueries({ queryKey: ["projects"] });
-      queryClient.removeQueries({ queryKey: ["project"] });
-      queryClient.removeQueries({ queryKey: ["organization-clients"] });
-      queryClient.removeQueries({ queryKey: ["organization-users"] });
+      // Cancel all ongoing queries and clear cache when logging out
+      queryClient.cancelQueries();
+      queryClient.clear();
+      queryClient.removeQueries();
 
       return;
     }
@@ -179,9 +181,12 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
           user: {
             ...authData.user,
             ...userProfileData.data,
-            role: authData.user.role || userProfileData.data.role, // Use Better Auth role first, fallback to profile
+            // Prefer profile role so backend-updated role (e.g. viewer→user after Org Manager promote) wins over session
+            role: userProfileData.data.role || authData.user.role,
             subadminId: userProfileData.data.subadminId,
             isSuperAdmin: userProfileData.data.isSuperAdmin,
+            isOrganizationManager: userProfileData.data.isOrganizationManager,
+            clientId: userProfileData.data.clientId,
           },
         };
         setData(enhancedData as unknown as Data);

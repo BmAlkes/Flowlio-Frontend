@@ -8,14 +8,29 @@ import { SquareKanban, UserPen, Clock } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, Bell } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
+import { BadgeDollarSign } from "lucide-react";
+import { FolderOpen, ListTodo, FileText } from "lucide-react";
 
-/**
- * Role-based navigation system for PlanFlo
- * Based on the permission system defined in backend
- */
+// Client portal: three sections – Project Management, Task Management, Invoices
+const clientNavItems: NavItem[] = [
+  {
+    title: "Project Management",
+    url: "/clients/projects",
+    icon: React.createElement(FolderOpen),
+  },
+  {
+    title: "Task Management",
+    url: "/clients/tasks",
+    icon: React.createElement(ListTodo),
+  },
+  {
+    title: "Invoices",
+    url: "/clients/invoices",
+    icon: React.createElement(FileText),
+  },
+]; 
 
-// Viewer navigation items (read-only access)
-// Can view: Dashboard, Projects, My Tasks, Support Tickets, Settings
+
 const viewerNavItems: NavItem[] = [
   {
     title: "Viewer",
@@ -90,9 +105,62 @@ const operatorNavItems: NavItem[] = [
   },
 ];
 
-// User navigation items (basic user)
-// Can view: Dashboard, My Tasks, Settings
+// User (Member) navigation items - no Invoices, Payment Links, Client Management, User Management (Admin/Manager only)
 const userNavItems: NavItem[] = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: React.createElement(SquareKanban),
+  },
+  {
+    url: "/dashboard/project",
+    title: "Projects",
+    icon: React.createElement(GroupIcon),
+  },
+  {
+    url: "/dashboard/task-management",
+    title: "Tasks Management",
+    icon: React.createElement(TaskManagementIcon),
+  },
+  {
+    url: "/dashboard/calender",
+    title: "Calender",
+    icon: React.createElement(IoCalendarOutline),
+  },
+  {
+    url: "/dashboard/time-tracking",
+    title: "Time Tracking",
+    icon: React.createElement(Clock),
+  },
+  {
+    url: "/dashboard/ai-assist",
+    title: "AI Assistance",
+    icon: React.createElement(LuWandSparkles),
+  },
+  {
+    url: "/dashboard/subscription",
+    title: "My Subscriptions",
+    icon: React.createElement(BadgeDollarSign),
+  },
+  {
+    url: "/dashboard/support",
+    title: "Support Tickets",
+    icon: React.createElement(MessageCircleQuestion),
+  },
+  {
+    url: "/dashboard/notifications",
+    title: "Notifications",
+    icon: React.createElement(Bell),
+  },
+  {
+    url: "/dashboard/settings",
+    title: "Settings",
+    icon: React.createElement(IoSettingsOutline),
+  },
+];
+
+// User as organization owner (purchaser): same as user + Invoices, Payment Links, Client Management, User Management
+const userOrgOwnerNavItems: NavItem[] = [
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -146,7 +214,7 @@ const userNavItems: NavItem[] = [
   {
     url: "/dashboard/subscription",
     title: "My Subscriptions",
-    icon: React.createElement(TbInvoice),
+    icon: React.createElement(BadgeDollarSign),
   },
   {
     url: "/dashboard/support",
@@ -316,12 +384,33 @@ const superAdminNavItems: NavItem[] = [
   },
 ];
 
+// User as organization manager: same as owner but without User Management
+const userOrgManagerNavItems: NavItem[] = userOrgOwnerNavItems.filter(
+  (item) => item.title !== "User Management",
+);
+
 /**
- * Get navigation items based on user role
+ * Get navigation items based on user role (and org owner/manager flags for role "user").
+ * Organization owner (user + isOrganizationOwner) sees Invoices, Payment Links, Client Management, User Management.
+ * Organization manager (user + isOrganizationManager) sees all except User Management.
  * @param role - User role (superadmin, subadmin, operator, viewer, user)
+ * @param isOrganizationOwner - If true and role is "user", show financial/admin pages (sidebar)
+ * @param isOrganizationManager - If true and role is "user", show financial/admin pages except User Management
  * @returns Array of navigation items for the role
  */
-export const getNavigationItemsByRole = (role: string): NavItem[] => {
+export const getNavigationItemsByRole = (
+  role: string,
+  isOrganizationOwner?: boolean,
+  isOrganizationManager?: boolean,
+): NavItem[] => {
+  if (role === "user") {
+    if (isOrganizationOwner === true) {
+      return userOrgOwnerNavItems;
+    }
+    if (isOrganizationManager === true) {
+      return userOrgManagerNavItems;
+    }
+  }
   switch (role) {
     case "superadmin":
       return superAdminNavItems;
@@ -331,6 +420,8 @@ export const getNavigationItemsByRole = (role: string): NavItem[] => {
       return operatorNavItems;
     case "viewer":
       return viewerNavItems;
+    case "client":
+      return clientNavItems;
     case "user":
     default:
       return userNavItems;
@@ -338,13 +429,23 @@ export const getNavigationItemsByRole = (role: string): NavItem[] => {
 };
 
 /**
- * Check if user has access to a specific route
+ * Check if user has access to a specific route (respects isOrganizationOwner for role "user").
  * @param role - User role
  * @param route - Route to check access for
+ * @param isOrganizationOwner - If true and role is "user", allow financial/admin routes
  * @returns boolean indicating if user has access
  */
-export const hasRouteAccess = (role: string, route: string): boolean => {
-  const navItems = getNavigationItemsByRole(role);
+export const hasRouteAccess = (
+  role: string,
+  route: string,
+  isOrganizationOwner?: boolean,
+  isOrganizationManager?: boolean,
+): boolean => {
+  const navItems = getNavigationItemsByRole(
+    role,
+    isOrganizationOwner,
+    isOrganizationManager,
+  );
   return navItems.some((item) => {
     if (item.url === route) return true;
     if (item.subItems) {
@@ -383,7 +484,7 @@ export const getRolePageTitle = (role: string): string => {
  */
 export const getRoleWelcomeMessage = (
   role: string,
-  userName: string
+  userName: string,
 ): string => {
   switch (role) {
     case "superadmin":

@@ -84,6 +84,7 @@ const isPathAccessibleForRole = (path: string, userRole?: string): boolean => {
   if (!path) return false;
   if (path.startsWith("/superadmin")) return userRole === "superadmin";
   if (path.startsWith("/viewer")) return userRole === "viewer";
+  if (path.startsWith("/clients")) return userRole === "client";
   if (path.startsWith("/dashboard"))
     return ["user", "subadmin", "operator"].includes(userRole || "");
   if (path.startsWith("/auth") || path === "/") return true;
@@ -116,6 +117,9 @@ export const getRoleBasedRedirectPathAfterLogin = (
       break;
     case "viewer":
       defaultPath = "/viewer";
+      break;
+    case "client":
+      defaultPath = "/clients";
       break;
     case "subadmin":
     case "operator":

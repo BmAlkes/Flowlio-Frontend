@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { Box } from "../ui/box";
 import { Logo } from "./logo";
 import { useQueryClient } from "@tanstack/react-query";
+import { setLoggingOut } from "@/configs/axios.config";
 
 interface NavItemBase {
   icon: ReactElement;
@@ -73,26 +74,29 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      // Clear React Query cache first
-      queryClient.removeQueries({ queryKey: ["user-profile"] });
-      queryClient.removeQueries({ queryKey: ["get-current-org-user-members"] });
-      queryClient.removeQueries({ queryKey: ["get-all-user-members"] });
-      queryClient.removeQueries({ queryKey: ["projects"] });
-      queryClient.removeQueries({ queryKey: ["project"] });
-      queryClient.removeQueries({ queryKey: ["organization-clients"] });
-      queryClient.removeQueries({ queryKey: ["organization-users"] });
-      queryClient.removeQueries({ queryKey: ["tasks"] });
-      queryClient.removeQueries({ queryKey: ["sub-admins"] });
 
-      // Clear all cached data
+      // Set flag to block all new axios requests
+      setLoggingOut(true);
+
+      // Cancel all ongoing queries first to prevent new requests
+      await queryClient.cancelQueries();
+
+      // Clear all React Query cache
       queryClient.clear();
+
+      // Remove all queries to prevent refetching
+      queryClient.removeQueries();
 
       // Clear any localStorage items (if any)
       localStorage.removeItem("auth-token");
       localStorage.removeItem("user-session");
+      localStorage.removeItem("organizationId");
 
       // Sign out from Better Auth (this handles server-side session cleanup)
       await authClient.signOut();
+
+      // Small delay to ensure cleanup completes before navigation
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Navigate to sign-in page
       navigate("/auth/signin", { replace: true });
@@ -101,10 +105,20 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
       console.error("Logout error:", error);
       toast.error("Logout failed. Please try again.");
 
+      // Force cleanup even if logout fails
+      setLoggingOut(true);
+      queryClient.cancelQueries();
+      queryClient.clear();
+      queryClient.removeQueries();
+
       // Force redirect even if logout fails
       navigate("/auth/signin", { replace: true });
     } finally {
       setIsLoggingOut(false);
+      // Reset flag after a delay to allow navigation
+      setTimeout(() => {
+        setLoggingOut(false);
+      }, 1000);
     }
   };
 

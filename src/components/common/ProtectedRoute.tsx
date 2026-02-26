@@ -10,7 +10,7 @@ import { DemoPasswordGuard } from "./demopasswordguard";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: "superadmin" | "subadmin" | "operator" | "viewer" | "user";
+  requiredRole?: "superadmin" | "subadmin" | "operator" | "viewer" | "user" | "client";
   requiredOrganization?: boolean;
 }
 
@@ -20,10 +20,13 @@ const ROLE_HIERARCHY: Record<string, number> = {
   operator: 3,
   subadmin: 4,
   superadmin: 5,
+  // client is separate: only exact match, no hierarchy
+  client: -1,
 };
 
 const hasRole = (userRole: string, requiredRole: string): boolean => {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+  if (requiredRole === "client") return userRole === "client";
+  return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[requiredRole] ?? 0);
 };
 
 export const ProtectedRoute = ({
@@ -70,6 +73,9 @@ export const ProtectedRoute = ({
             break;
           case "viewer":
             fallbackPath = "/viewer";
+            break;
+          case "client":
+            fallbackPath = "/clients";
             break;
           case "subadmin":
           case "operator":
@@ -155,3 +161,126 @@ export const ViewerRoute = ({ children }: { children: ReactNode }) => (
 export const UserRoute = ({ children }: { children: ReactNode }) => (
   <ProtectedRoute requiredRole="user">{children}</ProtectedRoute>
 );
+
+/** Client portal: only role "client" can access /clients */
+export const ClientRoute = ({ children }: { children: ReactNode }) => (
+  <ProtectedRoute requiredRole="client">{children}</ProtectedRoute>
+);
+
+/** Allow: superadmin, subadmin, or user with isOrganizationOwner (Invoices, Payment Links, Client Management, User Management) */
+const hasAdminManagerOrOrgOwnerAccess = (
+  role: string,
+  isOrganizationOwner?: boolean,
+  isOrganizationManager?: boolean
+): boolean =>
+  role === "superadmin" ||
+  role === "subadmin" ||
+  (role === "user" &&
+    (isOrganizationOwner === true || isOrganizationManager === true));
+
+export const AdminManagerOrOrgOwnerRoute = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const { data: userData, isLoading } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!userData?.user) {
+      storeRedirectFrom(location.pathname);
+      navigate("/auth/signin", {
+        replace: true,
+        state: { from: location.pathname },
+      });
+      return;
+    }
+    storeLastVisitedPage(location.pathname);
+    const user = userData.user;
+    if (
+      !hasAdminManagerOrOrgOwnerAccess(
+        user.role || "",
+        user.isOrganizationOwner,
+        user.isOrganizationManager
+      )
+    ) {
+      toast.error(
+        "Access denied. This area is for organization owners or managers."
+      );
+      navigate("/dashboard", { replace: true });
+    }
+  }, [userData, isLoading, navigate, location]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
+  if (!userData?.user) return null;
+  if (
+    !hasAdminManagerOrOrgOwnerAccess(
+      userData.user.role || "",
+      userData.user.isOrganizationOwner,
+      userData.user.isOrganizationManager
+    )
+  ) {
+    return null;
+  }
+  return <DemoPasswordGuard>{children}</DemoPasswordGuard>;
+};
+
+/** Allow: superadmin, subadmin, or user with isOrganizationOwner ONLY (User Management) */
+export const OrgOwnerOnlyRoute = ({ children }: { children: ReactNode }) => {
+  const { data: userData, isLoading } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!userData?.user) {
+      storeRedirectFrom(location.pathname);
+      navigate("/auth/signin", {
+        replace: true,
+        state: { from: location.pathname },
+      });
+      return;
+    }
+    storeLastVisitedPage(location.pathname);
+    const user = userData.user;
+    const isSuperOrSub = user.role === "superadmin" || user.role === "subadmin";
+    const isOwner = user.role === "user" && user.isOrganizationOwner === true;
+
+    if (!isSuperOrSub && !isOwner) {
+      toast.error("Access denied. This area is only for organization owners.");
+      navigate("/dashboard", { replace: true });
+    }
+  }, [userData, isLoading, navigate, location]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
+  if (!userData?.user) return null;
+
+  const user = userData.user;
+  const isSuperOrSub = user.role === "superadmin" || user.role === "subadmin";
+  const isOwner = user.role === "user" && user.isOrganizationOwner === true;
+
+  if (!isSuperOrSub && !isOwner) {
+    return null;
+  }
+  return <DemoPasswordGuard>{children}</DemoPasswordGuard>;
+};

@@ -17,6 +17,9 @@ export interface CreateTaskRequest {
     size: number;
     type: string;
   }>;
+  parentId?: string;
+  startAfter?: string | null;
+  finishBefore?: string | null;
 }
 
 export interface CreateTaskResponse {
@@ -85,6 +88,9 @@ export const useCreateTask = () => {
       const errorMessage =
         error.response?.data?.message || "Failed to create task";
       toast.error(errorMessage);
+      
     },
   });
 };
+
+
