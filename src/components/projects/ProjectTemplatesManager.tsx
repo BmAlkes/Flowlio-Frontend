@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
-import { Trash2, Plus, Edit2, Check, X, GripVertical } from "lucide-react";
+import { Trash2, Plus, Edit2, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,7 @@ export const ProjectTemplatesManager = () => {
   const { data: templatesData, isLoading } = useFetchProjectTemplates();
   const { mutate: createTemplate, isPending: isCreating } = useCreateProjectTemplate();
   const { mutate: updateTemplate, isPending: isUpdating } = useUpdateProjectTemplate();
-  const { mutate: deleteTemplate, isPending: isDeleting } = useDeleteProjectTemplate();
+  const { mutate: deleteTemplate } = useDeleteProjectTemplate();
 
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
