@@ -1,5 +1,7 @@
-import { lazy } from "react";
-import { BrowserRouter,  Route, Routes } from "react-router";
+import { lazy, useEffect } from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { ThemeProvider } from "./components/theme-provider";
+import { useTheme } from "next-themes";
 import { LazyWrapper } from "./components/common/LazyWrapper";
 import {
   ProtectedRoute,
@@ -18,22 +20,22 @@ import ViewerSettingsPage from "./pages/viewersettings.page";
 
 // Lazy load all page components
 const PasswordresetsucessPage = lazy(
-  () => import("./pages/passwordresetsuccess.page")
+  () => import("./pages/passwordresetsuccess.page"),
 );
 const AuthenticationLayout = lazy(() =>
   import("./layouts/authentication.layout").then((module) => ({
     default: module.AuthenticationLayout,
-  }))
+  })),
 );
 const TaskManagementPage = lazy(() =>
   import("./pages/taskmanagement.page").then((module) => ({
     default: module.TaskManagementPage,
-  }))
+  })),
 );
 const DashboardLayout = lazy(() =>
   import("./layouts/dashboard.layout").then((module) => ({
     default: module.DashboardLayout,
-  }))
+  })),
 );
 
 const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
@@ -43,7 +45,7 @@ const UnsubscribePage = lazy(() => import("./pages/unsubscribe.page"));
 const AiAssistPage = lazy(() =>
   import("./pages/aiassist.page").then((module) => ({
     default: module.AiAssistPage,
-  }))
+  })),
 );
 const SettingsPage = lazy(() => import("./pages/settings.page"));
 const DashboardPage = lazy(() => import("./pages/dashboard.page"));
@@ -51,48 +53,48 @@ const TimeTrackingPage = lazy(() => import("./pages/timetracking.page"));
 const NotFound = lazy(() =>
   import("./pages/notfound.page").then((module) => ({
     default: module.NotFound,
-  }))
+  })),
 );
 const ForbiddenPage = lazy(() =>
   import("./pages/forbidden.page").then((module) => ({
     default: module.ForbiddenPage,
-  }))
+  })),
 );
 const SigninPage = lazy(() => import("./pages/signin.page"));
 const SignInOTPPage = lazy(() =>
   import("./pages/SignInOTP.page").then((module) => ({
     default: module.SignInOTPPage,
-  }))
+  })),
 );
 const CheckoutPage = lazy(() => import("./pages/checkout.page"));
 const SignupPage = lazy(() => import("./pages/signup.page"));
 const UserLayout = lazy(() =>
   import("./layouts/user.layout").then((module) => ({
     default: module.UserLayout,
-  }))
+  })),
 );
 const HomePage = lazy(() => import("./pages/home.page"));
 const WorkFlowPage = lazy(() =>
   import("./pages/workflow.page").then((module) => ({
     default: module.WorkFlowPage,
-  }))
+  })),
 );
 const InsightsPage = lazy(() =>
   import("./pages/insights.page").then((module) => ({
     default: module.InsightsPage,
-  }))
+  })),
 );
 const PricingPage = lazy(() =>
   import("./pages/pricing.page").then((module) => ({
     default: module.PricingPage,
-  }))
+  })),
 );
 const ProjectsPage = lazy(() => import("./pages/projects.page"));
 const CreateProjectPage = lazy(() => import("./pages/createproject.page"));
 const ProjectViewPage = lazy(() =>
   import("./pages/projectview.page").then((module) => ({
     default: module.ProjectViewPage,
-  }))
+  })),
 );
 const CreateTaskPage = lazy(() => import("./pages/createtask.page"));
 const AddUserMembersPage = lazy(() => import("./pages/addusermemebers.page"));
@@ -101,7 +103,7 @@ const CalenderPage = lazy(() => import("./pages/calender.page"));
 const PaymentLinksPage = lazy(() =>
   import("./pages/paymentlinks.page").then((module) => ({
     default: module.PaymentLinksPage,
-  }))
+  })),
 );
 const InvoicePage = lazy(() => import("./pages/invoice.page"));
 const SupportPage = lazy(() => import("./pages/support.page"));
@@ -110,81 +112,115 @@ const TermsOfServicePage = lazy(() => import("./pages/termsofservice.page"));
 const SuperAdminLayout = lazy(() =>
   import("./layouts/superadmin.layout").then((module) => ({
     default: module.SuperAdminLayout,
-  }))
+  })),
 );
 const SuperAdminDashboardPage = lazy(
-  () => import("./pages/superadmindashboard.page")
+  () => import("./pages/superadmindashboard.page"),
 );
 const SuperAdminDemoAccountsPage = lazy(
-  () => import("./pages/superadmindemoaccounts.page")
+  () => import("./pages/superadmindemoaccounts.page"),
 );
 const SuperAdminCompaniesPage = lazy(
-  () => import("./pages/superadmincompanies.page")
+  () => import("./pages/superadmincompanies.page"),
 );
 const CompanyViewDetailsPage = lazy(
-  () => import("./pages/companyviewdetails.page")
+  () => import("./pages/companyviewdetails.page"),
 );
 const SuperAdminSubAdminPage = lazy(
-  () => import("./pages/superadminsubadmin.page")
+  () => import("./pages/superadminsubadmin.page"),
 );
 const CreateSubAdmin = lazy(() =>
   import("./components/super admin section/sub admin/createsubadmin").then(
-    (module) => ({ default: module.CreateSubAdmin })
-  )
+    (module) => ({ default: module.CreateSubAdmin }),
+  ),
 );
 const SuperAdminSubscriptionsPage = lazy(() =>
   import("./pages/superadminsubscriptions.page").then((module) => ({
     default: module.SuperAdminSubscriptionsPage,
-  }))
+  })),
 );
 const SuperAdminNewsletterPage = lazy(() =>
   import("./pages/superadminnewsletter.page").then((module) => ({
     default: module.SuperAdminNewsletterPage,
-  }))
+  })),
 );
 const SuperAdminSupportTicketPage = lazy(
-  () => import("./pages/superadminsupportticket.page")
+  () => import("./pages/superadminsupportticket.page"),
 );
 const SuperAdminSettingsPage = lazy(
-  () => import("./pages/superadminsettings.page")
+  () => import("./pages/superadminsettings.page"),
 );
-const SuperAdminUsersPage = lazy(
-  () => import("./pages/superadminusers.page")
-);
+const SuperAdminUsersPage = lazy(() => import("./pages/superadminusers.page"));
 const NotificationsPage = lazy(() => import("./pages/notifications.page"));
 const ViewerLayout = lazy(() =>
   import("./layouts/viewer.layout").then((module) => ({
     default: module.ViewerLayout,
-  }))
+  })),
 );
 const ViewerDashboardPage = lazy(() => import("./pages/viewerdashboard.page"));
 const ViewermyProjectsPage = lazy(
-  () => import("./pages/viewermyprojects.page")
+  () => import("./pages/viewermyprojects.page"),
 );
 const ViewermyTasksPage = lazy(() =>
   import("./pages/viewermytasks.page").then((module) => ({
     default: module.ViewermyTasksPage,
-  }))
+  })),
 );
 const ViewerSupportsPage = lazy(() => import("./pages/viewersupports.page"));
 const ViewerProjectDetailsPage = lazy(
-  () => import("./pages/viewerprojectdetails.page")
+  () => import("./pages/viewerprojectdetails.page"),
 );
 const ViewerCalendarPage = lazy(() => import("./pages/viewercalendar.page"));
 const ViewerAiAssistantPage = lazy(() =>
   import("./pages/aiassist.page").then((module) => ({
     default: module.AiAssistPage,
-  }))
+  })),
 );
 const ClientManagementPage = lazy(
-  () => import("./pages/clientmanagement.page")
+  () => import("./pages/clientmanagement.page"),
 );
-const CreateClient = lazy(() =>
-  import("./components/client management/createclient").then((module) => ({
-    default: module.CreateClient,
-  }))
-);
+const CreateClientPage = lazy(() => import("./pages/createclient.page"));
 const SubscriptionsPage = lazy(() => import("./pages/subscriptions.page"));
+const ClientMediaCenterPage = lazy(() => import("./pages/clientmediacenter.page"));
+const ClientPortalSettingsPage = lazy(
+  () => import("./pages/clientportalsettings.page"),
+);
+const ReportsPage = lazy(() => import("./pages/reports.page"));
+const ProjectTemplatesPage = lazy(() => import("./pages/projecttemplates.page"));
+
+const ClientProjectsPage = lazy(() => import("./pages/clientprojects.page"));
+const ClientTasksPage = lazy(() => import("./pages/clienttasks.page"));
+const ClientInvoicesPage = lazy(() => import("./pages/clientinvoices.page"));
+const ClientProposalsPage = lazy(() => import("./pages/clientproposals.page"));
+const ClientActivityPage = lazy(() => import("./pages/clientactivity.page"));
+const OrgProposalsPage = lazy(() => import("./pages/proposals.page"));
+
+// Force Light Theme on non-dashboard paths
+const ThemeWatcher = () => {
+  const { setTheme, theme } = useTheme();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // List of dashboard/CRM route prefixes
+    const dashboardPrefixes = [
+      "/dashboard",
+      "/superadmin",
+      "/clients",
+      "/viewer",
+    ];
+    const isDashboard = dashboardPrefixes.some((prefix) =>
+      pathname.startsWith(prefix),
+    );
+
+    if (!isDashboard) {
+      if (theme !== "light") {
+        setTheme("light");
+      }
+    }
+  }, [pathname, setTheme, theme]);
+
+  return null;
+};
 
 // Main app routes component
 const AppRoutes = () => {
@@ -290,6 +326,10 @@ const AppRoutes = () => {
           path="project/edit/:id"
         />
         <Route
+          element={<LazyWrapper component={ProjectTemplatesPage} />}
+          path="project/templates"
+        />
+        <Route
           element={<LazyWrapper component={ProjectViewPage} />}
           path="project/view/:id"
         />
@@ -361,7 +401,7 @@ const AppRoutes = () => {
         <Route
           element={
             <AdminManagerOrOrgOwnerRoute>
-              <LazyWrapper component={CreateClient} />
+              <LazyWrapper component={CreateClientPage} />
             </AdminManagerOrOrgOwnerRoute>
           }
           path="client-management/create-client"
@@ -369,6 +409,26 @@ const AppRoutes = () => {
         <Route
           element={<LazyWrapper component={SubscriptionsPage} />}
           path="subscription"
+        />
+        <Route
+          element={<LazyWrapper component={ClientMediaCenterPage} />}
+          path="client-management/media-center"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={ReportsPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="reports"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={OrgProposalsPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="proposals"
         />
         <Route index element={<LazyWrapper component={DashboardPage} />} />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
@@ -447,7 +507,39 @@ const AppRoutes = () => {
           </ClientRoute>
         }
       >
-       
+        <Route index element={<LazyWrapper component={ClientProjectsPage} />} />
+        <Route
+          path="projects"
+          element={<LazyWrapper component={ClientProjectsPage} />}
+        />
+        <Route
+          path="projects/view/:id"
+          element={<LazyWrapper component={ProjectViewPage} />}
+        />
+        <Route
+          path="tasks"
+          element={<LazyWrapper component={ClientTasksPage} />}
+        />
+        <Route
+          path="invoices"
+          element={<LazyWrapper component={ClientInvoicesPage} />}
+        />
+        <Route
+          path="proposals"
+          element={<LazyWrapper component={ClientProposalsPage} />}
+        />
+        <Route
+          path="activity"
+          element={<LazyWrapper component={ClientActivityPage} />}
+        />
+        <Route
+          path="media-center"
+          element={<LazyWrapper component={ClientMediaCenterPage} />}
+        />
+        <Route
+          path="settings"
+          element={<LazyWrapper component={ClientPortalSettingsPage} />}
+        />
       </Route>
 
       {/* Viewer layout - requires viewer role */}
@@ -515,7 +607,15 @@ const AppRoutes = () => {
 export const AppRouter = () => {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <ThemeWatcher />
+        <AppRoutes />
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

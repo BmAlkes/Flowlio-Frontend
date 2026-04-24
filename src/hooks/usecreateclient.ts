@@ -4,6 +4,7 @@ import { axios, type ErrorWithMessage } from "@/configs/axios.config";
 interface CreateClientData {
   name: string;
   email: string;
+  password?: string; // Add password field
   phone?: string;
   cpfcnpj?: string;
   businessIndustry?: string;

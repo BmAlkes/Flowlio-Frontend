@@ -13,18 +13,24 @@ import { useDeleteNewsletterSubscriber } from "@/hooks/usedeletenewslettersubscr
 import { useFetchNewsletterStats } from "@/hooks/usefetchnewslettersubscribers";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, CardSkeleton, ErrorState } from "@/components/skeletons";
 
 export const NewsletterSubscribersTable = () => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const limit = 20;
 
   const {
     data: subscribersResponse,
-    isLoading,
+    isLoading: isSubscribersLoading,
+    isFetching: isSubscribersFetching,
     error,
   } = useFetchNewsletterSubscribers(page, limit);
 
-  const { data: statsResponse } = useFetchNewsletterStats();
+  const { data: statsResponse, isLoading: isStatsLoading, isFetching: isStatsFetching } = useFetchNewsletterStats();
+
+  const loading = isSubscribersLoading || isSubscribersFetching || isStatsLoading || isStatsFetching;
   const deleteMutation = useDeleteNewsletterSubscriber();
 
   const subscribers = subscribersResponse?.data?.subscribers || [];
@@ -34,7 +40,7 @@ export const NewsletterSubscribersTable = () => {
   const handleDelete = (subscriber: NewsletterSubscriber) => {
     if (
       window.confirm(
-        `Are you sure you want to delete ${subscriber.email} from the newsletter list?`
+        `Are you sure you want to delete ${subscriber.email} from the newsletter list?`,
       )
     ) {
       deleteMutation.mutate(subscriber.id);
@@ -44,25 +50,25 @@ export const NewsletterSubscribersTable = () => {
   const columns: ColumnDef<NewsletterSubscriber>[] = [
     {
       accessorKey: "email",
-      header: "Email",
+      header: t("superadmin.newsletter.table.email", "Email"),
       cell: ({ row }) => (
         <div className="font-medium">{row.original.email}</div>
       ),
     },
     {
       accessorKey: "subscribed",
-      header: "Status",
+      header: t("superadmin.newsletter.table.status", "Status"),
       cell: ({ row }) => (
         <Flex className="items-center gap-2">
           {row.original.subscribed ? (
             <>
               <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span className="text-green-600">Subscribed</span>
+              <span className="text-green-600">{t("superadmin.newsletter.active", "Subscribed")}</span>
             </>
           ) : (
             <>
               <XCircle className="h-4 w-4 text-red-500" />
-              <span className="text-red-600">Unsubscribed</span>
+              <span className="text-red-600">{t("superadmin.newsletter.unsubscribed", "Unsubscribed")}</span>
             </>
           )}
         </Flex>
@@ -70,7 +76,7 @@ export const NewsletterSubscribersTable = () => {
     },
     {
       accessorKey: "subscribedAt",
-      header: "Subscribed At",
+      header: t("superadmin.newsletter.table.subscribedAt", "Subscribed At"),
       cell: ({ row }) => {
         const date = new Date(row.original.subscribedAt);
         return <div>{date.toLocaleDateString()}</div>;
@@ -78,7 +84,7 @@ export const NewsletterSubscribersTable = () => {
     },
     {
       accessorKey: "createdAt",
-      header: "Created At",
+      header: t("superadmin.newsletter.table.createdAt", "Created At"),
       cell: ({ row }) => {
         const date = new Date(row.original.createdAt);
         return <div>{date.toLocaleDateString()}</div>;
@@ -86,14 +92,14 @@ export const NewsletterSubscribersTable = () => {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("superadmin.newsletter.table.actions", "Actions"),
       cell: ({ row }) => (
         <Button
           variant="ghost"
           size="sm"
           onClick={() => handleDelete(row.original)}
           disabled={deleteMutation.isPending}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
         >
           <FaRegTrashAlt className="h-4 w-4" />
         </Button>
@@ -101,20 +107,22 @@ export const NewsletterSubscribersTable = () => {
     },
   ];
 
-  if (isLoading) {
+  if (loading && subscribers.length === 0) {
     return (
-      <Center className="px-4 py-6">
-        <div className="text-gray-500">Loading subscribers...</div>
-      </Center>
+      <Box className="px-4 py-4">
+        <CardSkeleton count={3} className="mb-6 h-24" />
+        <TableSkeleton rows={10} columns={5} withActions />
+      </Box>
     );
   }
 
-  if (error) {
+  if (error && subscribers.length === 0) {
     return (
-      <Center className="px-4 py-6">
-        <div className="text-red-500">
-          Error loading subscribers. Please try again.
-        </div>
+      <Center className="px-4 py-10">
+        <ErrorState
+          title={t("common.error")}
+          message={error.message || t("common.errorDescription", "Error loading subscribers. Please try again.")}
+        />
       </Center>
     );
   }
@@ -124,21 +132,21 @@ export const NewsletterSubscribersTable = () => {
       {/* Statistics Cards */}
       {stats && (
         <Flex className="gap-4 mb-6 max-sm:flex-col">
-          <Box className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm text-gray-500 mb-1">Total Subscribers</div>
-            <div className="text-2xl font-semibold text-gray-900">
+          <Box className="flex-1 bg-card border border-border rounded-lg p-4">
+            <div className="text-sm text-muted-foreground mb-1">{t("superadmin.newsletter.totalSubscribers", "Total Subscribers")}</div>
+            <div className="text-2xl font-semibold text-foreground">
               {stats.total}
             </div>
           </Box>
-          <Box className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm text-gray-500 mb-1">Active</div>
+          <Box className="flex-1 bg-card border border-border rounded-lg p-4">
+            <div className="text-sm text-muted-foreground mb-1">{t("superadmin.newsletter.active", "Active")}</div>
             <div className="text-2xl font-semibold text-green-600">
               {stats.subscribed}
             </div>
           </Box>
-          <Box className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm text-gray-500 mb-1">Unsubscribed</div>
-            <div className="text-2xl font-semibold text-red-600">
+          <Box className="flex-1 bg-card border border-border rounded-lg p-4">
+            <div className="text-sm text-muted-foreground mb-1">{t("superadmin.newsletter.unsubscribed", "Unsubscribed")}</div>
+            <div className="text-2xl font-semibold text-destructive">
               {stats.unsubscribed}
             </div>
           </Box>

@@ -19,6 +19,7 @@ import { SuperAdminCalendarPopOver } from "./calendarpopover";
 import { DiamondIcon } from "./diamondicon";
 import { useFetchAllData } from "@/hooks/useFetchAllData";
 import { processChartData } from "@/utils/chartDataProcessor";
+import { ChartSkeleton, ErrorState } from "@/components/skeletons";
 
 export const SuperAdminBarChartComponent: FC<BoxProps> = ({
   className,
@@ -28,7 +29,14 @@ export const SuperAdminBarChartComponent: FC<BoxProps> = ({
     new Date().getFullYear()
   );
 
-  const { data: allDataResponse, isLoading, error } = useFetchAllData();
+  const {
+    data: allDataResponse,
+    isLoading,
+    isFetching,
+    error,
+  } = useFetchAllData();
+
+  const loading = isLoading || isFetching;
 
   // Process the data for the selected year
   const chartData = allDataResponse?.data
@@ -82,19 +90,16 @@ export const SuperAdminBarChartComponent: FC<BoxProps> = ({
       </Stack>
 
       <ChartContainer className="mt-5 w-full h-[21.8rem] " config={{}}>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-gray-500">Loading chart data...</div>
-          </div>
+        {loading ? (
+          <ChartSkeleton height={350} />
         ) : error ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-red-500">
-              Failed to load chart data: {error.message}
-            </div>
-          </div>
+          <ErrorState
+            title="Failed to load chart data"
+            message={error.message}
+          />
         ) : chartData.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-gray-500">
+            <div className="text-muted-foreground">
               No data available for the selected year
             </div>
           </div>

@@ -98,7 +98,7 @@ export const Superchared = ({ isWorkFlow }: SupercharedProps) => {
   return (
     <Box
       className={cn(
-        "w-full relative max-sm:mt-0  bg-white z-[20]",
+        "w-full relative max-sm:mt-0  bg-card z-[20]",
         isWorkFlow === false ? "-mt-70" : "-mt-10"
       )}
     >
@@ -110,7 +110,7 @@ export const Superchared = ({ isWorkFlow }: SupercharedProps) => {
             className="size-20 absolute left-18 max-sm:hidden"
           />
 
-          <Center className="flex-col gap-2 text-center bg-white p-8">
+          <Center className="flex-col gap-2 text-center bg-card p-8">
             <Box className="text-5xl font-[100] text-[#333333] max-sm:text-2xl">
               Your Workflow,
               <span className="text-[#F98618] font-semibold ">
@@ -125,7 +125,7 @@ export const Superchared = ({ isWorkFlow }: SupercharedProps) => {
         </>
       )}
 
-      <Center className="w-full h-full bg-white">
+      <Center className="w-full h-full bg-card">
         <Box className="relative w-full overflow-hidden select-none">
           {/* Left brush effect */}
           <Box className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />

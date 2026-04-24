@@ -98,6 +98,9 @@ export const useStartTask = () => {
       queryClient.invalidateQueries({
         queryKey: ["organization-hours-tracked"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
+      });
 
       toast.success(`Started tracking: ${data.data.taskTitle}`);
     },
@@ -130,6 +133,9 @@ export const useEndTask = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["organization-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
       });
 
       const durationHours = Math.floor(data.data.duration / 60);
@@ -175,6 +181,9 @@ export const useDeleteTimeEntry = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["organization-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
       });
       toast.success("Time entry deleted successfully");
     },

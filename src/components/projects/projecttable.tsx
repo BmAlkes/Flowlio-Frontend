@@ -8,6 +8,9 @@ import {
   MessageCircleReply,
   PencilLine,
   Trash2,
+  Lock,
+  Globe,
+  DollarSign,
 } from "lucide-react";
 import { ReusableTable } from "../reusable/reusabletable";
 import { format, isWithinInterval } from "date-fns";
@@ -36,6 +39,7 @@ import { axios } from "@/configs/axios.config";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
+import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import {
   Dialog,
   DialogContent,
@@ -55,16 +59,27 @@ import {
 import { ProjectFilter } from "./ProjectFilter";
 import { useFetchCustomFields } from "@/hooks/usecustomfields";
 import { useUpdateProject } from "@/hooks/useupdateproject";
+import { ProjectExpenses } from "./ProjectExpenses";
+import { useUser } from "@/providers/user.provider";
+import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 // Use the Project interface from the hook
 export type Data = Project & { customFields?: Record<string, any> };
 
-export const ProjectTable = () => {
+export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
   const { t } = useTranslation();
+  const { data: userData } = useUser();
+  const showFinancials =
+    canViewInternalProjectFinancials(userData?.user) && !isClient;
   const orgProjects = useFetchProjects();
+  const orgUsers = useFetchOrganizationUsers();
   const projectsData = orgProjects.data;
-  const isLoading = orgProjects.isLoading;
+  const usersData = orgUsers.data;
+  const isLoading = orgProjects.isLoading || orgUsers.isLoading;
+  const isFetching = orgProjects.isFetching || orgUsers.isFetching;
   const error = orgProjects.error;
+  const loading = isLoading || isFetching;
 
   const queryClient = useQueryClient();
 
@@ -77,11 +92,17 @@ export const ProjectTable = () => {
 
   // Transform API data to match table expectations
   const transformedData: Data[] =
-    projectsData?.data?.map((project) => ({
-      ...project,
-      startDate: project.startDate ? new Date(project.startDate) : null,
-      endDate: project.endDate ? new Date(project.endDate) : null,
-    })) || [];
+    projectsData?.data?.map((project) => {
+      const assignee = usersData?.data?.userMembers?.find(
+        (u) => u.user?.id === project.assignedTo || u.id === project.assignedTo,
+      );
+      return {
+        ...project,
+        assignedProject: assignee?.user?.name || project.assignedProject,
+        startDate: project.startDate ? new Date(project.startDate) : null,
+        endDate: project.endDate ? new Date(project.endDate) : null,
+      };
+    }) || [];
 
   const props = useGeneralModalDisclosure();
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
@@ -93,6 +114,9 @@ export const ProjectTable = () => {
     id: string;
     name: string;
   } | null>(null);
+  const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const [activeProjectForExpenses, setActiveProjectForExpenses] =
+    useState<Project | null>(null);
 
   // API hooks for comments
   const { data: commentsData, isLoading: commentsLoading } =
@@ -211,10 +235,10 @@ export const ProjectTable = () => {
         },
         onError: (error: any) => {
           toast.error(
-            error?.response?.data?.error || "Failed to update project status"
+            error?.response?.data?.error || "Failed to update project status",
           );
         },
-      }
+      },
     );
   };
 
@@ -228,20 +252,21 @@ export const ProjectTable = () => {
     if (Object.keys(filters).length > 0) {
       for (const [key, value] of Object.entries(filters)) {
         const projectValue = project.customFields?.[key];
-        
+
         // Handle "ALL_VALUES_RESET"
         if (value === "ALL_VALUES_RESET") continue;
 
         if (value === undefined || value === null || value === "") continue;
 
         // Exact match for select/boolean
-        if (projectValue !== value && typeof value !== 'string') return false;
-        
+        if (projectValue !== value && typeof value !== "string") return false;
+
         // Partial match for text string
-        if (typeof value === 'string' && typeof projectValue === 'string') {
-             if (!projectValue.toLowerCase().includes(value.toLowerCase())) return false;
+        if (typeof value === "string" && typeof projectValue === "string") {
+          if (!projectValue.toLowerCase().includes(value.toLowerCase()))
+            return false;
         } else if (projectValue != value) {
-             return false;
+          return false;
         }
       }
     }
@@ -251,20 +276,21 @@ export const ProjectTable = () => {
   const columns: ColumnDef<Data>[] = [
     {
       id: "select",
-      header: () => <Box className="text-center text-black">#</Box>,
+      header: () => <Box className="text-center text-foreground">#</Box>,
       cell: ({ row }) => <Box className="text-center">{row.index + 1}</Box>,
       enableSorting: false,
     },
     {
       accessorKey: "projectName",
       header: () => (
-        <Box className="text-black p-1">{t("projects.projectName")}</Box>
+        <Box className="text-foreground p-1">{t("projects.projectName")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="capitalize p-1 w-30 max-sm:w-full">
-          {row.original.projectName.length > 28
-            ? row.original.projectName.slice(0, 28) + "..."
-            : row.original.projectName}
+        <Box 
+          className="capitalize p-1 min-w-[150px] max-w-[250px] truncate max-sm:w-full" 
+          title={row.original.projectName}
+        >
+          {row.original.projectName}
         </Box>
       ),
     },
@@ -272,19 +298,27 @@ export const ProjectTable = () => {
     {
       accessorKey: "clientName",
       header: () => (
-        <Box className="text-black text-center">{t("projects.client")}</Box>
+        <Box className="text-foreground text-center">{t("projects.client")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="capitalize text-center">{row.original.clientName}</Box>
+        <Box 
+          className="capitalize text-center min-w-[120px] max-w-[200px] truncate mx-auto" 
+          title={row.original.clientName}
+        >
+          {row.original.clientName}
+        </Box>
       ),
     },
     {
       accessorKey: "assignedProject",
       header: () => (
-        <Box className="text-black text-center">{t("projects.assignedTo")}</Box>
+        <Box className="text-foreground text-center">{t("projects.assignedTo")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="capitalize text-center">
+        <Box 
+          className="capitalize text-center min-w-[120px] max-w-[200px] truncate mx-auto" 
+          title={row.original.assignedProject}
+        >
           {row.original.assignedProject}
         </Box>
       ),
@@ -292,7 +326,7 @@ export const ProjectTable = () => {
     {
       accessorKey: "startDate",
       header: () => (
-        <Box className="text-center text-black">{t("common.startDate")}</Box>
+        <Box className="text-center text-foreground">{t("common.startDate")}</Box>
       ),
       cell: ({ row }) => {
         const startDate = row.original.startDate;
@@ -328,7 +362,7 @@ export const ProjectTable = () => {
     {
       accessorKey: "endDate",
       header: () => (
-        <Box className="text-center text-black">{t("common.endDate")}</Box>
+        <Box className="text-center text-foreground">{t("common.endDate")}</Box>
       ),
       cell: ({ row }) => {
         const endDate = row.original.endDate;
@@ -348,7 +382,7 @@ export const ProjectTable = () => {
     {
       accessorKey: "progress",
       header: () => (
-        <Box className="text-center text-black">{t("projects.progress")}</Box>
+        <Box className="text-center text-foreground">{t("projects.progress")}</Box>
       ),
       cell: ({ row }) => {
         return (
@@ -360,9 +394,59 @@ export const ProjectTable = () => {
       },
     },
     {
+      accessorKey: "budget",
+      header: () => (
+        <Box className="text-center text-foreground">{t("projects.budget")}</Box>
+      ),
+      cell: ({ row }) => {
+        const budget = (row.original as any).budget;
+        return (
+          <Center className="text-center">
+            {budget && Number(budget) > 0
+              ? `$${Number(budget).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+              : "-"}
+          </Center>
+        );
+      },
+    },
+    {
+      accessorKey: "visibility",
+      header: () => (
+        <Box className="text-center text-foreground">{t("projects.visibility")}</Box>
+      ),
+      cell: ({ row }) => {
+        const visibility = row.original.visibility || "private";
+        return (
+          <Center>
+            {visibility === "private" ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Lock className="w-4 h-4 text-orange-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {t("projects.privateProject")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Globe className="w-4 h-4 text-blue-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>{t("projects.publicProject")}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </Center>
+        );
+      },
+    },
+    {
       accessorKey: "status",
       header: () => (
-        <Box className="text-center text-black">{t("projects.status")}</Box>
+        <Box className="text-center text-foreground">{t("projects.status")}</Box>
       ),
       cell: ({ row }) => {
         const status = row.original.status as
@@ -395,7 +479,7 @@ export const ProjectTable = () => {
 
         // Default style if status is not found
         const defaultStyle = {
-          text: "text-white bg-gray-500 border-none rounded-full",
+          text: "text-white bg-muted/500 border-none rounded-full",
           dot: "bg-white",
         };
 
@@ -460,28 +544,44 @@ export const ProjectTable = () => {
       },
     },
     // Dynamic Custom Columns
-    ...(customFieldsData?.data.map(field => ({
+    ...(customFieldsData?.data.map((field) => ({
       accessorKey: `customFields.${field.id}`,
       id: field.id,
       header: () => (
-        <Box className="text-center text-black p-1">{field.name}</Box>
+        <Box className="text-center text-foreground p-1">{field.name}</Box>
       ),
       cell: ({ row }: { row: any }) => {
-         const val = row.original.customFields?.[field.id];
-         return (
-            <Box className="text-center p-1 capitalize">
-               {val !== undefined && val !== null ? String(val) : "-"}
-            </Box>
-         );
-      }
+        const val = row.original.customFields?.[field.id];
+        if (val === undefined || val === null)
+          return <Box className="text-center p-1">-</Box>;
+
+        if (field.type === "select" && field.options) {
+          const option = field.options.find((opt: any) => opt.label === val);
+          if (option) {
+            return (
+              <Center>
+                <Flex className="items-center gap-2 px-2 py-1 bg-muted/50 rounded-full border border-border text-xs">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: option.color }}
+                  />
+                  <span className="capitalize">{val}</span>
+                </Flex>
+              </Center>
+            );
+          }
+        }
+
+        return <Box className="text-center p-1 capitalize">{String(val)}</Box>;
+      },
     })) || []),
     {
       accessorKey: "actions",
       header: () => (
-         <Box className="text-center text-black">{t("common.actions")}</Box>
+        <Box className="text-center text-foreground">{t("common.actions")}</Box>
       ),
-       // ... existing actions cell
-       cell: ({ row }) => {
+      // ... existing actions cell
+      cell: ({ row }) => {
         return (
           <Center className="space-x-2">
             <TooltipProvider>
@@ -495,11 +595,11 @@ export const ProjectTable = () => {
                     }}
                     onMouseEnter={() => prefetchProject(row.original.id)}
                   >
-                    <Eye className="fill-white size-7 " />
+                    <Eye className="size-5 text-white" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>View Project</p>
+                  <p>{t("projects.viewProject")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -514,11 +614,11 @@ export const ProjectTable = () => {
                       navigate(`/dashboard/project/edit/${row.original.id}`);
                     }}
                   >
-                    <PencilLine className="fill-white text-white" />
+                    <PencilLine className="size-5 text-white" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>Edit Project</p>
+                  <p>{t("projects.editProject")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -534,10 +634,32 @@ export const ProjectTable = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>Add Comment</p>
+                  <p>{t("projects.addComment")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            {showFinancials && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-emerald-600 hover:bg-emerald-600/80 rounded-md border-none cursor-pointer"
+                      onClick={() => {
+                        setActiveProjectForExpenses(row.original);
+                        setExpenseModalOpen(true);
+                      }}
+                    >
+                      <DollarSign className="text-white size-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="mb-2">
+                    <p>{t("projects.projectExpenses")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -552,31 +674,30 @@ export const ProjectTable = () => {
                     }
                     disabled={isDeletingProject}
                   >
-                    <FaRegTrashAlt className="text-white fill-white size-4 " />
+                    <FaRegTrashAlt className="size-4 text-white" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>Delete Project</p>
+                  <p>{t("projects.deleteProject")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </Center>
         );
       },
-    }
+    },
   ];
 
   return (
     <>
       <Box className="flex justify-end px-4 mb-2">
-         <ProjectFilter onFilterChange={setFilters} />
+        <ProjectFilter onFilterChange={setFilters} />
       </Box>
 
-      {isLoading ? (
-        <Box className="flex items-center justify-center p-8">
-          <Box className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></Box>
-          <Box className="ml-2">Loading projects...</Box>
-        </Box>
+      {loading ? (
+        <TableSkeleton rows={7} columns={6} withAvatar withActions />
+      ) : error ? (
+        <ErrorState title="Failed to load projects" message={error.message} />
       ) : (
         <>
           <ReusableTable
@@ -599,13 +720,13 @@ export const ProjectTable = () => {
           <Box className="mb-4 text-lg font-semibold">Project Comments</Box>
 
           {/* Comments list with nested replies */}
-          <Box className="flex flex-col gap-3 max-h-64 overflow-y-auto mb-4 bg-gray-50 p-3 rounded">
+          <Box className="flex flex-col gap-3 max-h-64 overflow-y-auto mb-4 bg-muted/50 p-3 rounded">
             {commentsLoading ? (
-              <Box className="text-gray-400 text-center py-4">
+              <Box className="text-muted-foreground text-center py-4">
                 Loading comments...
               </Box>
             ) : activeProjectId && commentsWithReplies.length === 0 ? (
-              <Box className="text-gray-400 text-center py-4">
+              <Box className="text-muted-foreground text-center py-4">
                 No comments yet.
               </Box>
             ) : (
@@ -613,17 +734,17 @@ export const ProjectTable = () => {
                 <Box key={comment.id} className="space-y-2">
                   {/* Main comment */}
                   <Box className="flex items-start gap-2 group">
-                    <Flex className="flex-1 items-start justify-between bg-white p-3 rounded shadow-sm text-sm">
+                    <Flex className="flex-1 items-start justify-between bg-card p-3 rounded shadow-sm text-sm">
                       <Stack className="flex-1">
                         <Flex className="justify-between">
                           <Box className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-xs text-gray-900">
+                            <span className="font-medium text-xs text-foreground">
                               {comment.userName}
                             </span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-muted-foreground">
                               {format(
                                 new Date(comment.createdAt),
-                                "MMM d, yyyy hh:mm a"
+                                "MMM d, yyyy hh:mm a",
                               )}
                             </span>
                           </Box>
@@ -649,7 +770,7 @@ export const ProjectTable = () => {
 
                   {/* Reply input for this comment */}
                   {replyTo === comment.id && (
-                    <Box className="ml-6 bg-white p-2 rounded border">
+                    <Box className="ml-6 bg-card p-2 rounded border">
                       <Input
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
@@ -688,16 +809,16 @@ export const ProjectTable = () => {
                     <Box className="ml-6 space-y-2">
                       {comment.replies.map((reply) => (
                         <Box key={reply.id} className="flex items-start gap-2">
-                          <Flex className="flex-1 items-start justify-between bg-white p-2 rounded shadow-sm text-sm border-l-2 border-blue-200">
+                          <Flex className="flex-1 items-start justify-between bg-card p-2 rounded shadow-sm text-sm border-l-2 border-primary/30">
                             <Stack className="flex-1">
                               <Box className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-xs text-gray-900">
+                                <span className="font-medium text-xs text-foreground">
                                   {reply.userName}
                                 </span>
-                                <span className="text-xs text-gray-400">
+                                <span className="text-xs text-muted-foreground">
                                   {format(
                                     new Date(reply.createdAt),
-                                    "MMM d, yyyy hh:mm a"
+                                    "MMM d, yyyy hh:mm a",
                                   )}
                                 </span>
                               </Box>
@@ -734,7 +855,7 @@ export const ProjectTable = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAddComment();
               }}
-              className="bg-white rounded-full placeholder:text-gray-400 h-11 border border-gray-400"
+              className="bg-background rounded-full placeholder:text-muted-foreground h-11 border border-border"
             />
 
             <Button
@@ -777,6 +898,26 @@ export const ProjectTable = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Expenses Modal — org owner / admins only */}
+      {showFinancials && (
+        <GeneralModal
+          open={expenseModalOpen}
+          onOpenChange={setExpenseModalOpen}
+          contentProps={{ className: "max-w-3xl overflow-hidden p-0" }}
+        >
+          {activeProjectForExpenses && (
+            <Box className="p-0">
+              <ProjectExpenses
+                projectId={activeProjectForExpenses.id}
+                budget={(activeProjectForExpenses as any).budget || 0}
+                isClient={isClient}
+                isModal={true}
+              />
+            </Box>
+          )}
+        </GeneralModal>
+      )}
     </>
   );
 };

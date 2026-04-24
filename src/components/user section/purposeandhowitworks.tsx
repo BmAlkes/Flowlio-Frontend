@@ -15,7 +15,7 @@ import {
 export const PurposeAndHowItWorks = () => {
   return (
     <Box
-      className="w-full bg-gradient-to-b from-gray-100 to-white py-16 px-4"
+      className="w-full bg-gradient-to-b from-muted/50 to-white py-16 px-4"
       style={{
         listStyle: "none",
       }}
@@ -25,21 +25,21 @@ export const PurposeAndHowItWorks = () => {
           {/* Purpose Section */}
           <Box className="w-full">
             <Center className="text-center mb-8 flex-col">
-              <Box className="max-sm:text-3xl text-gray-900 mb-3 text-5xl font-[100]">
+              <Box className="max-sm:text-3xl text-foreground mb-3 text-5xl font-[100]">
                 Purpose of{" "}
                 <span className="text-[#F98618] font-semibold ">
                   Flowlio Application
                 </span>
               </Box>
-              <Box className="text-lg text-gray-600 max-w-3xl">
+              <Box className="text-lg text-muted-foreground max-w-3xl">
                 Understanding what Flowlio does and why we need your data
               </Box>
             </Center>
 
-            <Box className="bg-white rounded-xl shadow-lg p-8 max-sm:p-6 border border-gray-200">
+            <Box className="bg-card rounded-xl shadow-lg p-8 max-sm:p-6 border border-border">
               <Stack className="space-y-6">
-                <Box className="text-base text-gray-700 leading-relaxed">
-                  <strong className="text-gray-900">Flowlio</strong> is a
+                <Box className="text-base text-foreground leading-relaxed">
+                  <strong className="text-foreground">Flowlio</strong> is a
                   comprehensive work management and productivity platform
                   designed to help individuals, teams, and organizations
                   streamline their workflow processes. The primary purpose of
@@ -50,10 +50,10 @@ export const PurposeAndHowItWorks = () => {
                   <Flex className="items-start gap-3 p-4 bg-blue-50 rounded-lg">
                     <CheckSquare className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
                     <Box>
-                      <Box className="font-semibold text-gray-900 mb-1">
+                      <Box className="font-semibold text-foreground mb-1">
                         Task & Project Management
                       </Box>
-                      <Box className="text-sm text-gray-700">
+                      <Box className="text-sm text-foreground">
                         Enable users to create, manage, and track tasks and
                         projects in one centralized platform
                       </Box>
@@ -63,10 +63,10 @@ export const PurposeAndHowItWorks = () => {
                   <Flex className="items-start gap-3 p-4 bg-green-50 rounded-lg">
                     <Clock className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
                     <Box>
-                      <Box className="font-semibold text-gray-900 mb-1">
+                      <Box className="font-semibold text-foreground mb-1">
                         Time Tracking
                       </Box>
-                      <Box className="text-sm text-gray-700">
+                      <Box className="text-sm text-foreground">
                         Provide time tracking capabilities to monitor work hours
                         and improve productivity
                       </Box>
@@ -76,10 +76,10 @@ export const PurposeAndHowItWorks = () => {
                   <Flex className="items-start gap-3 p-4 bg-purple-50 rounded-lg">
                     <RefreshCw className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
                     <Box>
-                      <Box className="font-semibold text-gray-900 mb-1">
+                      <Box className="font-semibold text-foreground mb-1">
                         Calendar Synchronization
                       </Box>
-                      <Box className="text-sm text-gray-700">
+                      <Box className="text-sm text-foreground">
                         Offer bidirectional synchronization with Google Calendar
                         to keep events synchronized
                       </Box>
@@ -89,10 +89,10 @@ export const PurposeAndHowItWorks = () => {
                   <Flex className="items-start gap-3 p-4 bg-orange-50 rounded-lg">
                     <Users className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
                     <Box>
-                      <Box className="font-semibold text-gray-900 mb-1">
+                      <Box className="font-semibold text-foreground mb-1">
                         Team Collaboration
                       </Box>
-                      <Box className="text-sm text-gray-700">
+                      <Box className="text-sm text-foreground">
                         Facilitate team collaboration through project
                         management, task assignment, and deadline tracking
                       </Box>
@@ -102,10 +102,10 @@ export const PurposeAndHowItWorks = () => {
                   <Flex className="items-start gap-3 p-4 bg-indigo-50 rounded-lg md:col-span-2">
                     <BarChart3 className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
                     <Box>
-                      <Box className="font-semibold text-gray-900 mb-1">
+                      <Box className="font-semibold text-foreground mb-1">
                         AI-Enhanced Insights
                       </Box>
-                      <Box className="text-sm text-gray-700">
+                      <Box className="text-sm text-foreground">
                         Deliver AI-enhanced insights and recommendations to
                         optimize workflow efficiency
                       </Box>
@@ -115,7 +115,7 @@ export const PurposeAndHowItWorks = () => {
 
                 <Box className="mt-6 p-5 bg-blue-50 rounded-lg border-l-4 border-[#1797B9]">
                   <Box className="text-sm text-gray-800 leading-relaxed">
-                    <strong className="text-gray-900">
+                    <strong className="text-foreground">
                       Google Calendar Integration Purpose:
                     </strong>{" "}
                     Flowlio requests access to your Google Calendar data
@@ -130,7 +130,7 @@ export const PurposeAndHowItWorks = () => {
                   </Box>
                 </Box>
 
-                <Box className="text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200 text-center">
+                <Box className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border text-center">
                   For detailed information about how we handle your data, please
                   review our{" "}
                   <Link
@@ -148,29 +148,29 @@ export const PurposeAndHowItWorks = () => {
           {/* How It Works Section */}
           <Box className="w-full">
             <Center className="flex-col text-center mb-8">
-              <Box className="max-sm:text-3xl text-gray-900 mb-3 text-5xl font-[100] leading-tight">
+              <Box className="max-sm:text-3xl text-foreground mb-3 text-5xl font-[100] leading-tight">
                 How{" "}
                 <span className="text-[#F98618] font-semibold "> Flowlio</span>{" "}
                 Works
               </Box>
-              <Box className="text-lg text-gray-600 max-w-3xl">
+              <Box className="text-lg text-muted-foreground max-w-3xl">
                 Simple steps to get started and maximize your productivity
               </Box>
             </Center>
 
             <Box className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Step 1 */}
-              <Box className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
                 <Center className="mb-4">
                   <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
                     1
                   </Box>
                 </Center>
                 <Box className="text-center">
-                  <Box className="text-xl font-semibold text-gray-900 mb-2">
+                  <Box className="text-xl font-semibold text-foreground mb-2">
                     Sign Up & Connect
                   </Box>
-                  <Box className="text-sm text-gray-600 leading-relaxed">
+                  <Box className="text-sm text-muted-foreground leading-relaxed">
                     Create your Flowlio account and connect your Google Calendar
                     for seamless synchronization. No credit card required to get
                     started.
@@ -179,17 +179,17 @@ export const PurposeAndHowItWorks = () => {
               </Box>
 
               {/* Step 2 */}
-              <Box className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
                 <Center className="mb-4">
                   <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
                     2
                   </Box>
                 </Center>
                 <Box className="text-center">
-                  <Box className="text-xl font-semibold text-gray-900 mb-2">
+                  <Box className="text-xl font-semibold text-foreground mb-2">
                     Create & Manage
                   </Box>
-                  <Box className="text-sm text-gray-600 leading-relaxed">
+                  <Box className="text-sm text-muted-foreground leading-relaxed">
                     Create tasks, projects, and calendar events. Flowlio
                     automatically syncs your events with Google Calendar in
                     real-time, keeping everything up to date.
@@ -198,17 +198,17 @@ export const PurposeAndHowItWorks = () => {
               </Box>
 
               {/* Step 3 */}
-              <Box className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
                 <Center className="mb-4">
                   <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
                     3
                   </Box>
                 </Center>
                 <Box className="text-center">
-                  <Box className="text-xl font-semibold text-gray-900 mb-2">
+                  <Box className="text-xl font-semibold text-foreground mb-2">
                     Track & Optimize
                   </Box>
-                  <Box className="text-sm text-gray-600 leading-relaxed">
+                  <Box className="text-sm text-muted-foreground leading-relaxed">
                     Track your time, monitor productivity, and get AI-powered
                     insights to optimize your workflow and achieve better
                     results.

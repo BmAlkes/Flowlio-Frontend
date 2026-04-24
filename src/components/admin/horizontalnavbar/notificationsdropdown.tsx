@@ -71,7 +71,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
       case "organization":
         return "bg-purple-500";
       default:
-        return "bg-gray-500";
+        return "bg-muted/500";
     }
   };
 
@@ -87,12 +87,24 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
       markAsReadMutation.mutate(notification.id);
     }
 
-    // Navigate to notifications page based on user role
+    const ticketId = notification.data?.ticketId;
     const userRole = user?.user.role;
+
+    if (ticketId && notification.type.includes("support_ticket")) {
+      if (userRole === "superadmin" || userRole === "subadmin") {
+        navigate(`/superadmin/support-tickets?ticketId=${ticketId}`);
+      } else if (userRole === "viewer") {
+        navigate(`/viewer/viewer-support?ticketId=${ticketId}`);
+      } else {
+        navigate(`/dashboard/support?ticketId=${ticketId}`);
+      }
+      return;
+    }
+
+    // Default redirection if no ticketId
     if (userRole === "superadmin" || userRole === "subadmin") {
       navigate("/superadmin/notifications");
     } else if (userRole === "viewer") {
-      // Check if viewer has notifications route, otherwise use dashboard
       navigate("/dashboard/notifications");
     } else {
       navigate("/dashboard/notifications");
@@ -108,13 +120,13 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
               <Button
                 size="icon"
                 className={cn(
-                  "p-5 relative bg-white text-black hover:bg-white border border-gray-300 rounded-full cursor-pointer",
+                  "p-5 relative bg-background text-foreground hover:bg-card border border-border rounded-full cursor-pointer",
                   className
                 )}
               >
                 <Bell className="font-extralight" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-2 left-5.5 size-6 rounded-full bg-red-500 text-white text-[9px] font-medium border-2 border-gray-100">
+                  <Badge className="absolute -top-2 left-5.5 size-6 rounded-full bg-red-500 text-white text-[9px] font-medium border-2 border-border">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </Badge>
                 )}
@@ -167,7 +179,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         <DropdownMenuSeparator className="my-2" />
         <Box className="space-y-1 max-h-[400px] overflow-y-auto">
           {isLoading ? (
-            <Box className="text-center py-4 text-gray-500">
+            <Box className="text-center py-4 text-muted-foreground">
               Loading notifications...
             </Box>
           ) : notifications.length > 0 ? (
@@ -175,7 +187,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
               <Flex
                 key={notification.id}
                 className={cn(
-                  "gap-3 items-start p-2 rounded-lg cursor-pointer hover:bg-gray-50",
+                  "gap-3 items-start p-2 rounded-lg cursor-pointer hover:bg-muted/50",
                   !notification.read && "bg-blue-50"
                 )}
                 onClick={(e) => handleNotificationClick(notification, e)}
@@ -197,17 +209,17 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
                   >
                     {notification.title}
                   </p>
-                  <p className="text-sm text-gray-500 line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
                     {notification.message}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     {format(new Date(notification.createdAt), "PPp")}
                   </p>
                 </Box>
               </Flex>
             ))
           ) : (
-            <Box className="text-center py-4 text-gray-500">
+            <Box className="text-center py-4 text-muted-foreground">
               No notifications
             </Box>
           )}

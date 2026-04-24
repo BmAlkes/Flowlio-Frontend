@@ -64,7 +64,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
 
           <p
             className={cn(
-              "text-base text-black font-light leading-6 max-w-[40rem] max-md:w-full",
+              "text-base text-foreground font-light leading-6 max-w-[40rem] max-md:w-full",
               isInsights === true ? "w-xl text-[15px]" : "sm:text-lg"
             )}
           >
@@ -86,7 +86,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
               <img
                 src={item.img}
                 alt={item.title}
-                className="w-full h-48 object-cover p-1 border border-gray-300"
+                className="w-full h-48 object-cover p-1 border border-border"
                 loading="lazy"
               />
               <h2 className="text-xl text-[#1797B9] font-medium">

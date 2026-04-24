@@ -55,7 +55,7 @@ export const GuidedFlowModal = ({
             </Box>
             <DialogTitle className="text-xl">{title}</DialogTitle>
           </Box>
-          <DialogDescription className="text-base text-gray-600 pt-2">
+          <DialogDescription className="text-base text-muted-foreground pt-2">
             {description}
           </DialogDescription>
         </DialogHeader>

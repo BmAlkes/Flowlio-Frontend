@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,16 +15,32 @@ import {
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { useCreateInvoice } from "@/hooks/usecreateinvoice";
+import { useCreateRecurringInvoice } from "@/hooks/usecreaterecurringinvoice";
 import { useFetchClients } from "@/hooks/usefetchclients";
-import { Upload, FileText, X } from "lucide-react";
+import { Upload, FileText, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { GeneralModal } from "../common/generalmodal";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   clientId: z.string().min(1, "Client is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   description: z.string().optional(),
   dueDate: z.string().optional(),
+  isRecurring: z.boolean().default(false),
+  templateName: z.string().optional(),
+  frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+}).refine(data => {
+  if (data.isRecurring) {
+    return !!data.templateName && !!data.frequency && !!data.startDate;
+  }
+  return true;
+}, {
+  message: "Required fields for recurring invoice are missing",
+  path: ["templateName"]
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -41,6 +57,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const createInvoiceMutation = useCreateInvoice();
+  const createRecurringMutation = useCreateRecurringInvoice();
   const { data: clientsData } = useFetchClients();
 
   const {
@@ -57,8 +74,25 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
       amount: 0,
       description: "",
       dueDate: "",
+      isRecurring: false,
+      frequency: "monthly",
     },
   });
+
+  const isRecurring = watch("isRecurring");
+
+  // Reset recurring fields when toggled off
+  useEffect(() => {
+    if (!isRecurring) {
+      setValue("templateName", "");
+      setValue("startDate", "");
+      setValue("endDate", "");
+    } else {
+      // Set default start date to today if recurring is turned on
+      const today = new Date().toISOString().split('T')[0];
+      setValue("startDate", today);
+    }
+  }, [isRecurring, setValue]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -79,21 +113,42 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
 
   const onSubmit = async (data: FormData) => {
     try {
+      if (data.isRecurring) {
+        // Handle Recurring Template Creation
+        createRecurringMutation.mutate({
+          templateName: data.templateName!,
+          clientId: data.clientId,
+          amount: data.amount,
+          description: data.description,
+          frequency: data.frequency!,
+          startDate: data.startDate!,
+          endDate: data.endDate || undefined,
+        }, {
+          onSuccess: () => {
+            reset();
+            onClose();
+          }
+        });
+        return;
+      }
+
+      // Handle One-time Invoice Creation
       let pdfBase64 = undefined;
       let pdfFileName = undefined;
 
       if (pdfFile) {
-        // Convert PDF to base64
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64 = e.target?.result as string;
-          pdfBase64 = base64; // Keep the full data URL format
+          pdfBase64 = base64;
           pdfFileName = pdfFile.name;
 
-          // Submit with PDF data
           createInvoiceMutation.mutate(
             {
-              ...data,
+              clientId: data.clientId,
+              amount: data.amount,
+              description: data.description,
+              dueDate: data.dueDate,
               pdfFile: pdfBase64,
               pdfFileName: pdfFileName,
             },
@@ -108,8 +163,12 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
         };
         reader.readAsDataURL(pdfFile);
       } else {
-        // Submit without PDF
-        createInvoiceMutation.mutate(data, {
+        createInvoiceMutation.mutate({
+          clientId: data.clientId,
+          amount: data.amount,
+          description: data.description,
+          dueDate: data.dueDate,
+        }, {
           onSuccess: () => {
             reset();
             onClose();
@@ -127,16 +186,70 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
     onClose();
   };
 
+  const isPending = createInvoiceMutation.isPending || createRecurringMutation.isPending;
+
   return (
     <GeneralModal
       open={isOpen}
       onOpenChange={handleClose}
-      contentProps={{ className: "h-[600px] overflow-y-auto" }}
+      contentProps={{ className: "h-[650px] overflow-y-auto" }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Flex className="items-center justify-between bg-muted/50 p-4 rounded-lg border border-border">
+          <Box className="space-y-0.5">
+            <Label className="text-sm font-semibold text-foreground">Make Recurring</Label>
+            <p className="text-xs text-muted-foreground">Automatically generate invoices at intervals</p>
+          </Box>
+          <Switch 
+            checked={isRecurring}
+            onCheckedChange={(checked) => setValue("isRecurring", checked)}
+          />
+        </Flex>
+
+        {isRecurring && (
+          <Box className="space-y-4 p-4 border border-primary/20 bg-primary/5 rounded-lg animate-in fade-in slide-in-from-top-2">
+            <Box className="w-full">
+              <label className="text-sm font-medium text-foreground">Template Name *</label>
+              <Input 
+                placeholder="e.g. Monthly Maintenance Fee"
+                {...register("templateName")}
+              />
+              {errors.templateName && (
+                <p className="text-red-500 text-sm mt-1">{errors.templateName.message}</p>
+              )}
+            </Box>
+
+            <Flex className="gap-4 max-sm:flex-col">
+              <Box className="flex-1">
+                <label className="text-sm font-medium text-foreground">Frequency *</label>
+                <Select
+                  value={watch("frequency")}
+                  onValueChange={(value) => setValue("frequency", value as any)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select frequency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Box>
+              <Box className="flex-1">
+                <label className="text-sm font-medium text-foreground">Start Date *</label>
+                <Input type="date" {...register("startDate")} />
+                {errors.startDate && (
+                  <p className="text-red-500 text-sm mt-1">{errors.startDate.message}</p>
+                )}
+              </Box>
+            </Flex>
+          </Box>
+        )}
         {/* Client Selection */}
         <Box className="w-full">
-          <label className="text-sm font-medium text-gray-700">Client *</label>
+          <label className="text-sm font-medium text-foreground">Client *</label>
           <Select
             value={watch("clientId")}
             onValueChange={(value) => setValue("clientId", value)}
@@ -158,21 +271,22 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
             </p>
           )}
         </Box>
-        {/* Due Date */}
-        <Box className="">
-          <label className="block text-sm font-medium text-gray-700">
-            Due Date
-          </label>
-          <Input type="date" {...register("dueDate")} />
-          {errors.dueDate && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.dueDate.message}
-            </p>
-          )}
-        </Box>
+        {!isRecurring && (
+          <Box className="">
+            <label className="block text-sm font-medium text-foreground">
+              Due Date
+            </label>
+            <Input type="date" {...register("dueDate")} />
+            {errors.dueDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.dueDate.message}
+              </p>
+            )}
+          </Box>
+        )}
         {/* Amount */}
         <Box>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Amount *
           </label>
           <Input
@@ -189,7 +303,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
 
         {/* Description */}
         <Box>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Description
           </label>
           <Textarea
@@ -204,75 +318,84 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
           )}
         </Box>
 
-        {/* PDF Upload */}
-        <Box>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Attach PDF (Optional)
-          </label>
+        {!isRecurring && (
+          <Box>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Attach PDF (Optional)
+            </label>
 
-          {!pdfFile ? (
-            <Box className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="pdf-upload"
-              />
-              <label htmlFor="pdf-upload" className="cursor-pointer">
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-sm text-gray-600 mb-2">
-                  Click to upload PDF or drag and drop
-                </p>
-                <p className="text-xs text-gray-500">
-                  PDF files only, max 10MB
-                </p>
-              </label>
-            </Box>
-          ) : (
-            <Box className="border border-gray-200 rounded-lg p-4">
-              <Flex className="items-center justify-between">
-                <Flex className="items-center space-x-3">
-                  <FileText className="h-8 w-8 text-red-500" />
-                  <Box>
-                    <p className="text-sm font-medium text-gray-900">
-                      {pdfFile.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </Box>
+            {!pdfFile ? (
+              <Box className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="pdf-upload"
+                />
+                <label htmlFor="pdf-upload" className="cursor-pointer">
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Click to upload PDF or drag and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PDF files only, max 10MB
+                  </p>
+                </label>
+              </Box>
+            ) : (
+              <Box className="border border-border rounded-lg p-4">
+                <Flex className="items-center justify-between">
+                  <Flex className="items-center space-x-3">
+                    <FileText className="h-8 w-8 text-red-500" />
+                    <Box>
+                      <p className="text-sm font-medium text-foreground">
+                        {pdfFile.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {(pdfFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </Box>
+                  </Flex>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={removePdfFile}
+                    className="text-muted-foreground hover:text-red-500"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </Flex>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={removePdfFile}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </Flex>
-            </Box>
-          )}
-        </Box>
+              </Box>
+            )}
+          </Box>
+        )}
 
-        {/* Action Buttons */}
         <Flex className="justify-end space-x-3 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
-            disabled={createInvoiceMutation.isPending}
+            disabled={isPending}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={createInvoiceMutation.isPending}
-            className="bg-[#1797b9] hover:bg-[#1797b9]/90"
+            disabled={isPending}
+            variant="default"
           >
-            {createInvoiceMutation.isPending ? "Creating..." : "Create Invoice"}
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : isRecurring ? (
+              "Create Template"
+            ) : (
+              "Create Invoice"
+            )}
           </Button>
         </Flex>
       </form>

@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
-import { Eye } from "lucide-react";
+import { MessageCircle, FileCheck, Trash2, Hash, Building2 } from "lucide-react";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import {
@@ -12,20 +12,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import CheckSvg from "/super admin/check.svg";
-// import { useFetchSupportTickets } from "@/hooks/usefetchsupporttickets";
-// import { useDeleteSupportTicket } from "@/hooks/usedeletesupportticket";
 import { toast } from "sonner";
 import { useState } from "react";
-import { SupportTicketModal } from "./supportticketmodal";
 import type { UniversalSupportTicket } from "@/hooks/useUniversalSupportTickets";
-import { useUpdateUniversalSupportTicket } from "@/hooks/useUniversalSupportTickets";
+import { 
+  useUpdateUniversalSupportTicket, 
+  getPriorityColor, 
+  getStatusColor 
+} from "@/hooks/useUniversalSupportTickets";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SupportChatModal } from "@/components/support/supportchatmodal";
 
 export type Data = UniversalSupportTicket;
 
 export const SupportTicketTable = ({
   data,
   isLoading,
+  isFetching,
   error,
   refetch,
   pagination,
@@ -34,6 +40,7 @@ export const SupportTicketTable = ({
 }: {
   data: UniversalSupportTicket[];
   isLoading: boolean;
+  isFetching?: boolean;
   error: any;
   refetch: () => void;
   pagination?: {
@@ -45,288 +52,217 @@ export const SupportTicketTable = ({
   onPageChange?: (page: number) => void;
   deleteSupportTicket: (id: string) => void;
 }) => {
+  const { t } = useTranslation();
   const [selectedTicket, setSelectedTicket] = useState<Data | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { mutate: updateSupportTicket } = useUpdateUniversalSupportTicket();
 
-  const handleDelete = (id: string) => {
-    if (
-      window.confirm("Are you sure you want to delete this support ticket?")
-    ) {
-      deleteSupportTicket(id);
-      refetch();
-    }
-  };
+  const loading = isLoading || isFetching;
 
   const handleViewTicket = (ticket: Data) => {
     setSelectedTicket(ticket);
     setIsModalOpen(true);
   };
 
-  const handleCloseTicket = (id: string) => {
-    if (window.confirm("Are you sure you want to close this support ticket?")) {
-      updateSupportTicket(
-        { id, data: { status: "closed" } },
-        {
-          onSuccess: () => {
-            toast.success("Support Ticket closed successfully");
-            refetch();
-          },
-          onError: (error: any) => {
-            toast.error(
-              error.response?.data?.message || "Failed to close support ticket"
-            );
-          },
-        }
-      );
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedTicket(null);
-    refetch();
-  };
-
   const columns: ColumnDef<Data>[] = [
     {
-      id: "select",
-      header: () => <Box className="text-center text-black p-3">Ticket ID</Box>,
+      accessorKey: "ticketNumber",
+      header: () => <Box className="text-foreground font-semibold px-2">Ticket #</Box>,
       cell: ({ row }) => (
-        <Box className="text-center p-3">#{row.original.ticketNumber}</Box>
+        <Flex className="items-center gap-2 px-2">
+          <Hash className="size-3 text-blue-500" />
+          <span className="font-bold text-blue-600">#{row.original.ticketNumber}</span>
+        </Flex>
       ),
-      enableSorting: false,
-      // enableHiding: false,
     },
-
     {
       accessorKey: "subject",
-      header: () => <Box className="text-black ">Subject</Box>,
+      header: () => <Box className="text-foreground font-semibold">Subject</Box>,
       cell: ({ row }) => (
-        <Box className="capitalize w-30 max-sm:w-full">
-          {row.original.subject.length > 28
-            ? row.original.subject.slice(0, 28) + "..."
-            : row.original.subject}
-        </Box>
+        <p className="text-sm font-semibold text-foreground truncate max-w-[200px] capitalize">
+          {row.original.subject}
+        </p>
       ),
     },
-
     {
       accessorKey: "client",
-      header: () => <Box className="text-black text-center">Client</Box>,
-      cell: ({ row }) => (
-        <Box className="capitalize text-center">
-          {row.original.clientOrganization?.name ||
-            row.original.client ||
-            "General"}
-        </Box>
-      ),
+      header: () => <Box className="text-foreground font-semibold">Client / Org</Box>,
+      cell: ({ row }) => {
+        const clientValue = row.original.client;
+        const isId = clientValue && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clientValue);
+        const orgName = row.original.clientOrganization?.name || (isId || clientValue === "General" ? "" : clientValue) || "-";
+        return (
+          <Flex className="items-center gap-2">
+            <Building2 className="size-3.5 text-muted-foreground" />
+            <span className="text-sm truncate max-w-[150px]">{orgName}</span>
+          </Flex>
+        );
+      },
     },
-
     {
       accessorKey: "assignedto",
-      header: () => <Box className="text-black text-center">Assigned To</Box>,
+      header: () => <Box className="text-foreground font-semibold">Assigned To</Box>,
+      cell: ({ row }) => {
+        const name = row.original.assignedUser?.name || row.original.assignedOrganization?.name || row.original.assignedto || "Unassigned";
+        return (
+          <Flex className="items-center gap-2">
+            <Avatar className="size-6 border border-border">
+              <AvatarFallback className="bg-muted text-[10px] uppercase">{name.slice(0, 2)}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm truncate max-w-[120px]">{name}</span>
+          </Flex>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: () => <Box className="text-center text-foreground font-semibold">Status</Box>,
       cell: ({ row }) => (
-        <Box className="capitalize text-center">
-          {row.original.assignedUser?.name ||
-            row.original.assignedOrganization?.name ||
-            row.original.assignedto ||
-            "Unassigned"}
+        <Center>
+          <Badge variant="outline" className={`capitalize rounded-full px-2.5 py-0.5 border-none ${getStatusColor(row.original.status)}`}>
+            {row.original.status}
+          </Badge>
+        </Center>
+      ),
+    },
+    {
+      accessorKey: "priority",
+      header: () => <Box className="text-center text-foreground font-semibold">Priority</Box>,
+      cell: ({ row }) => (
+        <Center>
+          <Badge variant="outline" className={`capitalize rounded-full px-2.5 py-0.5 border-none ${getPriorityColor(row.original.priority)}`}>
+            {row.original.priority}
+          </Badge>
+        </Center>
+      ),
+    },
+    {
+      accessorKey: "createdon",
+      header: () => <Box className="text-center text-foreground font-semibold">Created</Box>,
+      cell: ({ row }) => (
+        <Box className="text-xs text-muted-foreground text-center">
+          {format(new Date(row.original.createdon), "MMM dd, yyyy")}
         </Box>
       ),
     },
-
     {
-      accessorKey: "priority",
-      header: () => <Box className="text-center text-black">priority</Box>,
-      cell: ({ row }) => {
-        return (
-          <Center className="text-center font-semibold capitalize">
-            {row.original.priority}
-          </Center>
-        );
-      },
-    },
+      id: "actions",
+      header: () => <Box className="text-center text-foreground font-semibold">Actions</Box>,
+      cell: ({ row }) => (
+        <Flex className="justify-center items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600"
+                  onClick={() => handleViewTicket(row.original)}
+                >
+                  <MessageCircle className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Open Chat</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-    {
-      accessorKey: "createdon",
-      header: () => <Box className="text-center text-black">Created On</Box>,
-      cell: ({ row }) => {
-        const createdon = row.original.createdon;
-        try {
-          return (
-            <Box className="text-center">{format(createdon, "d MMM yyyy")}</Box>
-          );
-        } catch (error) {
-          console.error("Invalid date:", createdon);
-          console.log(error);
-          return <Box className="text-center">Invalid Date</Box>;
-        }
-      },
-    },
-
-    {
-      accessorKey: "status",
-      header: () => <Box className="text-center text-black">Status</Box>,
-      cell: ({ row }) => {
-        const status = row.original.status as "open" | "closed";
-
-        const statusStyles: Record<
-          typeof status,
-          { text: string; dot: string }
-        > = {
-          open: {
-            text: "text-white bg-[#00A400] border-none rounded-full",
-            dot: "bg-white",
-          },
-          closed: {
-            text: "text-white bg-[#F98618] border-none rounded-full",
-            dot: "bg-white",
-          },
-        };
-
-        return (
-          <Center>
-            <Flex
-              className={`rounded-md capitalize w-26 h-10 gap-2 border items-center ${statusStyles[status].text}`}
-            >
-              <Flex className="ml-5.5">
-                <Flex
-                  className={`w-2 h-2 rounded-full ${statusStyles[status].dot}`}
-                />
-                <span>{status}</span>
-              </Flex>
-            </Flex>
-          </Center>
-        );
-      },
-    },
-
-    {
-      accessorKey: "actions",
-      header: () => <Box className="text-center text-black">Actions</Box>,
-      cell: ({ row }) => {
-        return (
-          <Center className="space-x-2">
+          {row.original.status !== "closed" && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => handleViewTicket(row.original)}
-                    variant="outline"
-                    className="bg-black border-none w-10 h-9 hover:bg-black cursor-pointer rounded-md "
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-full hover:bg-green-50 dark:hover:bg-green-900/30 text-green-600"
+                    onClick={() => {
+                      if (window.confirm("Mark as resolved and finalize conversation?")) {
+                        updateSupportTicket({ 
+                          id: row.original.id, 
+                          data: { status: "closed" } 
+                        }, {
+                          onSuccess: () => {
+                            toast.success("Ticket closed & locked");
+                            refetch();
+                          }
+                        });
+                      }
+                    }}
                   >
-                    <Eye className="fill-white size-7 " />
+                    <FileCheck className="size-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className="mb-2">
-                  <p>View Ticket</p>
-                </TooltipContent>
+                <TooltipContent>Resolve & Lock</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          )}
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => handleCloseTicket(row.original.id)}
-                    variant="outline"
-                    className="bg-[#23B95D] hover:bg-[#23B95D]/80 rounded-md border-none cursor-pointer"
-                  >
-                    <img src={CheckSvg} alt="check" className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="mb-2">
-                  <p>Close Ticket</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => handleDelete(row.original.id)}
-                    variant="outline"
-                    className="bg-[#A50403] hover:bg-[#A50403]/80 rounded-md border-none cursor-pointer text-white hover:text-white"
-                  >
-                    X
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="mb-2">
-                  <p>Delete Ticket</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Center>
-        );
-      },
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600"
+                  onClick={() => {
+                    if (window.confirm("Permanently delete this ticket and all history?")) {
+                      deleteSupportTicket(row.original.id);
+                      refetch();
+                    }
+                  }}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete Permanently</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Flex>
+      ),
     },
   ];
 
-  if (isLoading) {
+  if (loading && (!data || data.length === 0)) {
     return (
-      <Center className="flex items-center justify-center h-64">
-        <Box className="text-lg">Loading support tickets...</Box>
-      </Center>
+      <Box className="bg-white dark:bg-muted/10 rounded-[2rem] border border-border p-8 mt-6">
+        <TableSkeleton rows={8} columns={8} withActions />
+      </Box>
     );
   }
 
-  if (error) {
+  if (error && (!data || data.length === 0)) {
     return (
-      <Center className="h-64">
-        <Box className="text-lg text-red-600">
-          Error loading support tickets. Please try again.
-        </Box>
+      <Center className="py-20 bg-white dark:bg-muted/10 rounded-[2rem] border border-border mt-6">
+        <ErrorState title={t("common.error")} message={error.message || "Failed to load support tickets"} />
       </Center>
     );
   }
-
-  if (!data || data.length === 0) {
-    return (
-      <Center className="h-64">
-        <Box className="text-lg text-gray-500">No support tickets found.</Box>
-      </Center>
-    );
-  }
-
-  // Calculate pagination based on actual data length if pagination metadata is missing
-  const dataLength = data?.length ?? 0;
-  const pageSize = pagination?.limit ?? 20;
-  const currentPage = pagination?.page ?? 1;
-  const calculatedTotal = pagination?.total ?? dataLength;
-  const calculatedTotalPages =
-    pagination?.totalPages ?? (Math.ceil(dataLength / pageSize) || 1);
 
   return (
-    <>
+    <Box className="bg-white dark:bg-muted/10 rounded-[2.5rem] border border-border p-8 mt-6 shadow-sm">
       <ReusableTable
         data={data ?? []}
         columns={columns}
-        // searchInput={false}
-        enablePaymentLinksCalender={true}
-        onRowClick={(row) => {
-          handleViewTicket(row.original);
-        }}
         pagination={
           onPageChange
             ? {
-                pageIndex: Math.max(0, currentPage - 1),
-                pageSize: pageSize,
-                pageCount: calculatedTotalPages,
-                total: calculatedTotal,
+                pageIndex: (pagination?.page ?? 1) - 1,
+                pageSize: pagination?.limit ?? 20,
+                pageCount: pagination?.totalPages ?? 1,
+                total: pagination?.total ?? 0,
                 onPageChange: (newPage: number) => onPageChange(newPage + 1),
               }
             : undefined
         }
       />
 
-      <SupportTicketModal
-        ticket={selectedTicket}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onCloseTicket={handleCloseTicket}
+      <SupportChatModal 
+        isOpen={isModalOpen} 
+        ticket={selectedTicket} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedTicket(null);
+        }} 
       />
-    </>
+    </Box>
   );
 };

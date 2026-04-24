@@ -3,7 +3,8 @@ import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Center } from "@/components/ui/center";
 import { cn } from "@/lib/utils";
-import { formatHour, CustomEvent, daysShort } from "./calendarUtils";
+import { formatHour, CustomEvent, getDaysShort } from "./calendarUtils";
+import { useTranslation } from "react-i18next";
 
 interface MonthViewProps {
   currentDate: Date;
@@ -20,6 +21,9 @@ export const MonthView: React.FC<MonthViewProps> = ({
   setPopupPosition,
   gridContainerRef,
 }) => {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+  const daysShort = getDaysShort(currentLanguage);
   const firstDayOfMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
@@ -40,7 +44,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
     calendarDays.push(
       <Box
         key={`empty-${i}`}
-        className="min-h-[120px] border border-gray-200 bg-gray-50"
+        className="min-h-[120px] border border-border bg-muted/50"
       ></Box>
     );
   }
@@ -61,23 +65,23 @@ export const MonthView: React.FC<MonthViewProps> = ({
       <Box
         key={day}
         className={cn(
-          "min-h-[120px] border border-gray-200 bg-white p-2 relative",
+          "min-h-[120px] border border-border bg-card p-2 relative",
           currentDay.toDateString() === new Date().toDateString() &&
-            "bg-blue-50"
+            "bg-primary/10"
         )}
       >
         <Box
           className={cn(
             "text-sm font-medium mb-1",
             currentDay.toDateString() === new Date().toDateString() &&
-              "text-blue-600"
+              "text-primary"
           )}
         >
           {day}
         </Box>
         <Flex className="flex-col gap-1">
           {dayEvents.slice(0, 3).map((event: any, idx: number) => {
-            const eventText = `${formatHour(event.startHour)} ${event.title}`;
+            const eventText = `${formatHour(event.startHour, currentLanguage)} ${event.title}`;
             const maxLength = 20; // Maximum characters before truncation
             const displayText =
               eventText.length > maxLength
@@ -87,7 +91,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
             return (
               <Box
                 key={idx}
-                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded truncate cursor-pointer hover:bg-blue-200 max-w-full overflow-hidden"
+                className="text-xs bg-primary/20 text-primary-foreground px-2 py-1 rounded truncate cursor-pointer hover:bg-primary/30 max-w-full overflow-hidden"
                 title={eventText} // Show full text on hover
                 onClick={(e) => {
                   setSelectedEvent(event);
@@ -143,8 +147,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
             );
           })}
           {dayEvents.length > 3 && (
-            <Box className="text-xs text-gray-500">
-              +{dayEvents.length - 3} more
+            <Box className="text-xs text-muted-foreground">
+              +{dayEvents.length - 3} {t("calendar.more")}
             </Box>
           )}
         </Flex>
@@ -155,11 +159,11 @@ export const MonthView: React.FC<MonthViewProps> = ({
   return (
     <>
       {/* Date Row */}
-      <Box className="grid grid-cols-7 bg-[#F8FAFC] border-b border-[#E5E7EB] mt-6">
+      <Box className="grid grid-cols-7 bg-background border-b border-border mt-6">
         {daysShort.map((day) => (
           <Center
             key={day}
-            className="text-center text-sm font-semibold text-[#323334] py-3"
+            className="text-center text-sm font-semibold text-foreground py-3"
           >
             {day}
           </Center>

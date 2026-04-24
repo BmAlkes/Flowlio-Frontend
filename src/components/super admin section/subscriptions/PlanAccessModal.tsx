@@ -111,7 +111,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   }
                   className="w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Maximum number of users allowed (e.g., 0, 2, 6, 8, etc.)
                 </p>
               </Box>
@@ -131,7 +131,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   }
                   className="w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Maximum number of projects allowed
                 </p>
               </Box>
@@ -151,7 +151,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   }
                   className="w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Maximum storage space in gigabytes
                 </p>
               </Box>
@@ -171,7 +171,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   }
                   className="w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Maximum number of tasks each user can create
                 </p>
               </Box>
@@ -194,7 +194,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                 />
                 <Label htmlFor="aiAssist" className="cursor-pointer flex-1">
                   AI Assist
-                  <span className="text-xs text-gray-500 block">
+                  <span className="text-xs text-muted-foreground block">
                     Access to AI-powered assistance features
                   </span>
                 </Label>
@@ -213,7 +213,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   className="cursor-pointer flex-1"
                 >
                   Priority Support
-                  <span className="text-xs text-gray-500 block">
+                  <span className="text-xs text-muted-foreground block">
                     Priority customer support access
                   </span>
                 </Label>
@@ -232,7 +232,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   className="cursor-pointer flex-1"
                 >
                   Calendar Access
-                  <span className="text-xs text-gray-500 block">
+                  <span className="text-xs text-muted-foreground block">
                     Access to calendar and event management features
                   </span>
                 </Label>
@@ -251,7 +251,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                   className="cursor-pointer flex-1"
                 >
                   Task Management
-                  <span className="text-xs text-gray-500 block">
+                  <span className="text-xs text-muted-foreground block">
                     Access to task creation and management features
                   </span>
                 </Label>
@@ -267,7 +267,7 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
                 />
                 <Label htmlFor="timeTracking" className="cursor-pointer flex-1">
                   Time Tracking
-                  <span className="text-xs text-gray-500 block">
+                  <span className="text-xs text-muted-foreground block">
                     Access to time tracking and reporting features
                   </span>
                 </Label>

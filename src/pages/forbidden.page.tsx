@@ -8,7 +8,7 @@ export const ForbiddenPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <Box className="text-center max-w-md mx-auto p-8">
         <Stack className="items-center gap-6">
           {/* Icon */}
@@ -18,8 +18,8 @@ export const ForbiddenPage = () => {
 
           {/* Title */}
           <Stack className="gap-2">
-            <h1 className="text-3xl font-bold text-gray-900">Access Denied</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-foreground">Access Denied</h1>
+            <p className="text-muted-foreground">
               You don't have permission to access this page. Please contact your
               administrator if you believe this is an error.
             </p>
@@ -46,7 +46,7 @@ export const ForbiddenPage = () => {
           </Stack>
 
           {/* Error Code */}
-          <Box className="text-sm text-gray-500">Error 403 - Forbidden</Box>
+          <Box className="text-sm text-muted-foreground">Error 403 - Forbidden</Box>
         </Stack>
       </Box>
     </div>

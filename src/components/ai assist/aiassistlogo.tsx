@@ -2,6 +2,8 @@ import { Flex } from "../ui/flex";
 import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import { useMediaQuery } from "usehooks-ts";
+import logoSmall from "/logo/5000x5000-3.svg";
+import logoLarge from "/logo/dotvizion.svg";
 
 interface AiAssistLogoProps {
   containerClassName?: string;
@@ -26,13 +28,13 @@ export const AiAssistLogo: FC<AiAssistLogoProps> = ({
       {isSmallScreen ? (
         <img
           alt="logo"
-          src="/logo/5000x5000-3.svg"
+          src={logoSmall}
           className={cn("max-w-34", className)}
         />
       ) : (
         <img
           alt="logo"
-          src="/logo/dotvizion.svg"
+          src={logoLarge}
           className={cn("max-w-34", className)}
         />
       )}

@@ -3,13 +3,19 @@ import { axios } from "@/configs/axios.config";
 
 export type CustomFieldType = "text" | "number" | "date" | "select" | "boolean";
 
+export interface OptionWithColor {
+  label: string;
+  color: string;
+}
+
+
 export interface CustomFieldDefinition {
   id: string;
   organizationId: string;
   entityType: string;
   name: string;
   type: CustomFieldType;
-  options?: string[];
+  options?: OptionWithColor[];
   createdAt: string;
   updatedAt: string;
 }
@@ -17,14 +23,14 @@ export interface CustomFieldDefinition {
 export interface CreateCustomFieldData {
   name: string;
   type: CustomFieldType;
-  options?: string[];
+  options?: OptionWithColor[];
   entityType?: string;
 }
 
 export interface UpdateCustomFieldData {
   id: string;
   name?: string;
-  options?: string[];
+  options?: OptionWithColor[];
 }
 
 // Fetch Custom Fields

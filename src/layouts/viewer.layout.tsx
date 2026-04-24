@@ -20,48 +20,48 @@ import { useUser } from "@/providers/user.provider";
 
 export const navItems: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "dashboard",
     url: "/viewer",
     icon: <SquareKanban />,
   },
   {
     url: "/viewer/my-projects",
-    title: "Projects",
+    title: "projects",
     icon: <GroupIcon />,
   },
   {
     url: "/viewer/my-tasks",
-    title: "My Tasks",
+    title: "myTasks",
     icon: <TaskManagementIcon />,
   },
   {
     url: "/viewer/calendar",
-    title: "Calendar",
+    title: "calendar",
     icon: <Calendar />,
   },
   {
     url: "/viewer/time-tracking",
-    title: "Time Tracking",
+    title: "timeTracking",
     icon: <Clock />,
   },
   {
     url: "/viewer/ai-assistant",
-    title: "AI Assistant",
+    title: "aiAssistant",
     icon: <Bot />,
   },
   {
     url: "/viewer/viewer-support",
-    title: "Support",
+    title: "support",
     icon: <MessageCircleQuestion />,
   },
   // {
   //   url: "/viewer/notifications",
-  //   title: "Notifications",
+  //   title: "notifications",
   //   icon: <Bell />,
   // },
   {
     url: "/viewer/viewer-settings",
-    title: "Settings",
+    title: "settings",
     icon: <IoSettingsOutline />,
   },
 ];
@@ -81,7 +81,7 @@ export const ViewerLayout = () => {
   }, [userData?.user?.role, isLoading, navigate]);
 
   return (
-    <Box className="bg-gradient-to-l from-indigo-50 via-slate-50 to-indigo-50 border-[2px] rounded-none border-white p-1 min-h-screen">
+    <Box className="bg-background min-h-screen">
       <SidebarProvider
         style={
           {

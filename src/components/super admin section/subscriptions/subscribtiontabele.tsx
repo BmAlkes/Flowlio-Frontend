@@ -20,6 +20,8 @@ import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { SubscriptionHistoryModal } from "./SubscriptionHistoryModal";
 import { SubscriptionAuditModal } from "./SubscriptionAuditModal";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 export interface SubscriptionsHeaderProps {
   fetchedPlans?: IPlan[];
@@ -38,10 +40,10 @@ export type Data = {
   expiredate: Date;
 };
 
-export const columns: ColumnDef<Data>[] = [
+export const getColumns = (t: any): ColumnDef<Data>[] => [
   {
     accessorKey: "companyName",
-    header: () => <Box className="text-black p-4">Company Name</Box>,
+    header: () => <Box className="text-foreground p-4">{t("superadmin.subscriptions.table.company", "Company Name")}</Box>,
     cell: ({ row }) => (
       <Box className="capitalize p-4 w-30 max-sm:w-full">
         {row.original.companyName.length > 28
@@ -53,7 +55,7 @@ export const columns: ColumnDef<Data>[] = [
   {
     accessorKey: "subscribtionplan",
     header: () => (
-      <Box className="text-black text-start">Subscribtion Plan</Box>
+      <Box className="text-foreground text-start">{t("superadmin.subscriptions.table.plan", "Subscription Plan")}</Box>
     ),
     cell: ({ row }) => (
       <Box className="captialize text-start">
@@ -64,7 +66,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "startDate",
-    header: () => <Box className="text-center text-black">Start Date</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.startDate", "Start Date")}</Box>,
     cell: ({ row }) => {
       const startDate = row.original.startDate;
       try {
@@ -97,7 +99,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "expiredate",
-    header: () => <Box className="text-center text-black">Expire Date</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.expireDate", "Expire Date")}</Box>,
     cell: ({ row }) => {
       const expiredate = row.original.expiredate;
       try {
@@ -114,7 +116,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "amount",
-    header: () => <Box className="text-center text-black">Amount</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.amount", "Amount")}</Box>,
     cell: ({ row }) => {
       return (
         <Center className="text-center">{"$" + row.original.amount} </Center>
@@ -123,7 +125,7 @@ export const columns: ColumnDef<Data>[] = [
   },
   {
     accessorKey: "lastbilledon",
-    header: () => <Box className="text-center text-black">Last Billed On</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.lastBilled", "Last Billed On")}</Box>,
     cell: ({ row }) => {
       return (
         <Box className="text-center">
@@ -134,7 +136,7 @@ export const columns: ColumnDef<Data>[] = [
   },
   {
     accessorKey: "status",
-    header: () => <Box className="text-center text-black">Status</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.status", "Status")}</Box>,
     cell: ({ row }) => {
       const status = row.original.status as
         | "active"
@@ -144,15 +146,15 @@ export const columns: ColumnDef<Data>[] = [
       const statusStyles: Record<string, { text: string; dot: string }> = {
         active: {
           text: "text-white bg-[#00A400] border-none rounded-full",
-          dot: "bg-white",
+          dot: "bg-card",
         },
         inActive: {
           text: "text-white bg-[#F98618] border-none rounded-full",
-          dot: "bg-white",
+          dot: "bg-card",
         },
         "non active": {
           text: "text-white bg-[#F98618] border-none rounded-full",
-          dot: "bg-white",
+          dot: "bg-card",
         },
       };
 
@@ -172,7 +174,7 @@ export const columns: ColumnDef<Data>[] = [
   },
   {
     id: "actions",
-    header: () => <Box className="text-center text-black">Actions</Box>,
+    header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.actions", "Actions")}</Box>,
     cell: ({ row, table }) => {
       const organizationId = row.original.id;
       const handleViewHistory = () => {
@@ -191,7 +193,7 @@ export const columns: ColumnDef<Data>[] = [
             onClick={handleViewHistory}
             className="cursor-pointer"
           >
-            View History
+            {t("common.viewHistory", "View History")}
           </Button>
         </Center>
       );
@@ -204,6 +206,7 @@ export const SubscribtionTabele = ({
   isLoading = false,
   error = null,
 }: SubscriptionsHeaderProps) => {
+  const { t } = useTranslation();
   const [date, setDate] = useState<DateRange | undefined>();
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
@@ -211,7 +214,13 @@ export const SubscribtionTabele = ({
     string | null
   >(null);
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
-  const { data: allOrganizationsResponse } = useFetchAllOrganizations();
+  const {
+    data: allOrganizationsResponse,
+    isLoading: isOrganizationsLoading,
+    isFetching: isOrganizationsFetching,
+  } = useFetchAllOrganizations();
+
+  const loading = isLoading || isOrganizationsLoading || isOrganizationsFetching;
 
   const handleViewHistory = (organizationId: string, companyName: string) => {
     setSelectedOrganizationId(organizationId);
@@ -327,33 +336,21 @@ export const SubscribtionTabele = ({
       : [];
 
   // Show loading state
-  if (isLoading) {
+  if (loading && tableData.length === 0) {
     return (
-      <Box>
-        <Stack className="gap-1 mb-6">
-          <h1 className="text-black text-2xl font-medium max-md:text-lg">
-            Subscription Plans
-          </h1>
-          <h1 className="text-gray-500 max-md:text-sm">
-            Loading subscription plans...
-          </h1>
-        </Stack>
+      <Box className="px-4 py-4">
+        <TableSkeleton rows={8} columns={7} />
       </Box>
     );
   }
 
-  // Show error state
-  if (error) {
+  if (error && tableData.length === 0) {
     return (
-      <Box>
-        <Stack className="gap-1 mb-6">
-          <h1 className="text-black text-2xl font-medium max-md:text-lg">
-            Subscription Plans
-          </h1>
-          <h1 className="text-red-500 max-md:text-sm">
-            Error loading subscription plans: {error.message}
-          </h1>
-        </Stack>
+      <Box className="py-10">
+        <ErrorState
+          title={t("common.error")}
+          message={error.message || t("common.errorDescription", "Error loading subscriptions.")}
+        />
       </Box>
     );
   }
@@ -363,8 +360,8 @@ export const SubscribtionTabele = ({
       <Center className="justify-between">
         <Stack className="gap-1">
           <Flex className="items-center gap-3">
-            <h1 className="text-black text-2xl max-sm:text-xl font-medium">
-              All Subscriptions
+            <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
+              {t("superadmin.subscriptions.allSubscriptions", "All Subscriptions")}
             </h1>
             <Button
               variant="outline"
@@ -373,11 +370,11 @@ export const SubscribtionTabele = ({
               className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 cursor-pointer"
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
-              Audit Payment
+              {t("superadmin.subscriptions.auditPayment", "Audit Payment")}
             </Button>
           </Flex>
-          <h1 className="text-gray-500 text-sm max-sm:text-xs">
-            Showing active and non-active subscriptions
+          <h1 className="text-muted-foreground text-sm max-sm:text-xs">
+            {t("superadmin.subscriptions.allSubscriptionsDesc", "Showing active and non-active subscriptions")}
           </h1>
         </Stack>
 
@@ -385,7 +382,7 @@ export const SubscribtionTabele = ({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="border border-gray-100 max-md:ml-auto"
+              className="border border-border max-md:ml-auto"
             >
               <CalendarIcon className="fill-[#1797B9]" />
               This Month
@@ -418,7 +415,7 @@ export const SubscribtionTabele = ({
 
       <ReusableTable
         data={tableData}
-        columns={columns}
+        columns={getColumns(t)}
         // searchInput={false}
         enablePaymentLinksCalender={false}
         searchClassName="rounded-full"

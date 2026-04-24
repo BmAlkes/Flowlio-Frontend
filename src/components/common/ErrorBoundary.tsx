@@ -39,9 +39,9 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white border rounded-xl p-6 text-center">
+          <div className="max-w-md w-full bg-card border rounded-xl p-6 text-center">
             <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Please try again. If the problem persists, refresh the page.
             </p>
             {process.env.NODE_ENV !== "production" && (
@@ -63,7 +63,7 @@ export class ErrorBoundary extends React.Component<
               <button
                 type="button"
                 onClick={this.handleRefresh}
-                className="inline-flex items-center rounded-full bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300 cursor-pointer transition-all duration-300"
+                className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-gray-800 hover:bg-gray-300 cursor-pointer transition-all duration-300"
               >
                 Refresh Page
               </button>

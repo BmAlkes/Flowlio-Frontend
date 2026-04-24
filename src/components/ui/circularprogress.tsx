@@ -25,7 +25,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       className="overflow-hidden"
       style={{ width: size, height: size, position: "relative" }}
     >
-      <svg className="bg-white rounded-full" width={size} height={size}>
+      <svg className="bg-background rounded-full" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -48,8 +48,8 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
         />
       </svg>
       <Center className="absolute top-0 left-0 w-full h-full flex-col gap-0">
-        <span className="text-gray-500 text-[11px]">{label}</span>
-        <span className="text-black text-[13px] font-medium">{time}</span>
+        <span className="text-muted-foreground text-[11px]">{label}</span>
+        <span className="text-foreground text-[13px] font-medium">{time}</span>
       </Center>
     </div>
   );

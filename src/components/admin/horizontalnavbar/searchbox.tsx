@@ -92,7 +92,7 @@ export const SearchBox: React.FC<{
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="rounded-full h-[2.5rem] w-[200px] max-lg:w-full text-gray-500 hover:bg-white! hover:text-gray-500 border-none items-center justify-start"
+          className="rounded-full h-[2.5rem] w-[200px] max-lg:w-full text-muted-foreground hover:bg-card! hover:text-muted-foreground border-none items-center justify-start"
         >
           <RiSearch2Line />
           <h1 className="max-md:hidden">{t("horizontalnavbar.search")}</h1>
@@ -102,7 +102,7 @@ export const SearchBox: React.FC<{
         <Stack className={className}>
           <Input
             placeholder="Search projects or tasks..."
-            className="bg-white min-h-10"
+            className="bg-card min-h-10"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -111,11 +111,11 @@ export const SearchBox: React.FC<{
           />
           {/* Simple suggestions */}
           {query && (
-            <div className="bg-white rounded-md border border-gray-200 max-h-56 overflow-auto">
+            <div className="bg-card rounded-md border border-border max-h-56 overflow-auto">
               {filteredProjects.slice(0, 5).map((p) => (
                 <div
                   key={p.id}
-                  className="px-3 py-2 cursor-pointer hover:bg-gray-50"
+                  className="px-3 py-2 cursor-pointer hover:bg-muted/50"
                   onClick={() => {
                     const target = getProjectPath
                       ? getProjectPath(p.id, pathname)
@@ -131,7 +131,7 @@ export const SearchBox: React.FC<{
               {filteredTasks.slice(0, 5).map((t) => (
                 <div
                   key={t.id}
-                  className="px-3 py-2 cursor-pointer hover:bg-gray-50"
+                  className="px-3 py-2 cursor-pointer hover:bg-muted/50"
                   onClick={() =>
                     navigate(
                       `/viewer/my-tasks?q=${encodeURIComponent(t.title)}`
@@ -142,7 +142,7 @@ export const SearchBox: React.FC<{
                 </div>
               ))}
               {filteredProjects.length === 0 && filteredTasks.length === 0 && (
-                <div className="px-3 py-2 text-gray-500">No results</div>
+                <div className="px-3 py-2 text-muted-foreground">No results</div>
               )}
             </div>
           )}

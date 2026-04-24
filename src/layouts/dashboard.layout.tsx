@@ -42,7 +42,7 @@ export const DashboardLayout = () => {
       if (user.role === "client") {
         setNavItems(getNavigationItemsByRole("client"));
         if (location.pathname.startsWith("/dashboard")) {
-          navigate("/clients", { replace: true });
+          navigate("/clients/projects", { replace: true });
         }
         return;
       }
@@ -52,7 +52,7 @@ export const DashboardLayout = () => {
       const roleBasedNavItems = getNavigationItemsByRole(
         userRole,
         user.isOrganizationOwner,
-        user.isOrganizationManager
+        user.isOrganizationManager,
       );
       setNavItems(roleBasedNavItems);
     }
@@ -60,7 +60,7 @@ export const DashboardLayout = () => {
 
   return (
     // <SubscriptionGuard>
-    <Box className="bg-gradient-to-l from-indigo-50 via-slate-50 to-indigo-50 border-[2px] rounded-none border-white p-1 min-h-screen">
+    <Box className="bg-background min-h-screen">
       <SidebarProvider
         style={
           {

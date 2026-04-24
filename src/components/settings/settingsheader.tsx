@@ -27,6 +27,7 @@ import { axios } from "@/configs/axios.config";
 import { authClient } from "@/lib/auth-client";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { DetailsPageSkeleton } from "../skeletons";
 
 const settingsSchema = z
   .object({
@@ -53,7 +54,7 @@ const settingsSchema = z
     {
       message: "If changing password, all password fields must be filled.",
       path: ["currentpassword"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -68,7 +69,7 @@ const settingsSchema = z
     {
       message: "Current password must be 8-12 characters long.",
       path: ["currentpassword"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -81,7 +82,7 @@ const settingsSchema = z
     {
       message: "New password must be 8-12 characters long.",
       path: ["newpassword"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -96,7 +97,7 @@ const settingsSchema = z
     {
       message: "Confirm password must be 8-12 characters long.",
       path: ["confirmpassword"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -109,7 +110,7 @@ const settingsSchema = z
     {
       message: "New password and confirm password must match.",
       path: ["confirmpassword"],
-    }
+    },
   );
 
 export const SettingsHeader = () => {
@@ -124,7 +125,7 @@ export const SettingsHeader = () => {
   const enable2FAMutation = useEnable2FA();
 
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -190,7 +191,7 @@ export const SettingsHeader = () => {
       setValue("invoiceRemindersNotifications", prefs.invoiceReminders ?? true);
       setValue(
         "projectActivityUpdatesNotifications",
-        prefs.projectActivityUpdates ?? true
+        prefs.projectActivityUpdates ?? true,
       );
     }
   }, [userData, setValue]);
@@ -357,11 +358,11 @@ export const SettingsHeader = () => {
 
       if (enabled) {
         toast.success(
-          "🔔 Payment alerts enabled! You'll receive notifications for transactions and overdue payments."
+          "🔔 Payment alerts enabled! You'll receive notifications for transactions and overdue payments.",
         );
       } else {
         toast.info(
-          "🔕 Payment alerts disabled. You won't receive payment notifications."
+          "🔕 Payment alerts disabled. You won't receive payment notifications.",
         );
       }
     } catch (error) {
@@ -369,7 +370,7 @@ export const SettingsHeader = () => {
       // Revert the toggle on error
       setValue("paymentAlertNotifications", !enabled);
       toast.error(
-        "Failed to update payment alert preferences. Please try again."
+        "Failed to update payment alert preferences. Please try again.",
       );
     }
   };
@@ -396,11 +397,11 @@ export const SettingsHeader = () => {
 
       if (enabled) {
         toast.success(
-          "📧 Invoice reminders enabled! You'll be notified about upcoming due dates and pending payments."
+          "📧 Invoice reminders enabled! You'll be notified about upcoming due dates and pending payments.",
         );
       } else {
         toast.info(
-          "🔕 Invoice reminders disabled. You won't receive invoice notifications."
+          "🔕 Invoice reminders disabled. You won't receive invoice notifications.",
         );
       }
     } catch (error) {
@@ -408,7 +409,7 @@ export const SettingsHeader = () => {
       // Revert the toggle on error
       setValue("invoiceRemindersNotifications", !enabled);
       toast.error(
-        "Failed to update invoice reminder preferences. Please try again."
+        "Failed to update invoice reminder preferences. Please try again.",
       );
     }
   };
@@ -435,11 +436,11 @@ export const SettingsHeader = () => {
 
       if (enabled) {
         toast.success(
-          "🚀 Project activity updates enabled! You'll receive alerts on project changes and task assignments."
+          "🚀 Project activity updates enabled! You'll receive alerts on project changes and task assignments.",
         );
       } else {
         toast.info(
-          "🔕 Project activity updates disabled. You won't receive project notifications."
+          "🔕 Project activity updates disabled. You won't receive project notifications.",
         );
       }
     } catch (error) {
@@ -447,7 +448,7 @@ export const SettingsHeader = () => {
       // Revert the toggle on error
       setValue("projectActivityUpdatesNotifications", !enabled);
       toast.error(
-        "Failed to update project activity preferences. Please try again."
+        "Failed to update project activity preferences. Please try again.",
       );
     }
   };
@@ -514,13 +515,13 @@ export const SettingsHeader = () => {
       if (error) {
         toast.error(
           (error as any)?.message ||
-            "Failed to change password. Please check your current password."
+            "Failed to change password. Please check your current password.",
         );
         return;
       }
 
       toast.success(
-        "Password changed successfully! You will be logged out from other devices for security."
+        "Password changed successfully! You will be logged out from other devices for security.",
       );
 
       // Clear password fields
@@ -540,12 +541,7 @@ export const SettingsHeader = () => {
   if (isLoading || !userData?.user) {
     return (
       <ComponentWrapper className="mt-8 px-6 py-5 max-md:px-6">
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading settings...</p>
-          </div>
-        </div>
+        <DetailsPageSkeleton withSidebar={false} withTabs={false} />
       </ComponentWrapper>
     );
   }
@@ -556,14 +552,14 @@ export const SettingsHeader = () => {
         <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
           <Stack className="gap-0">
             <h1 className="text-2xl font-medium">{t("settings.title")}</h1>
-            <h1 className="text-gray-500 font-normal">
+            <h1 className="text-muted-foreground font-normal">
               {t("settings.subtitle")}
             </h1>
           </Stack>
           <Button
             type="submit"
             variant="outline"
-            className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer h-11"
+            className="bg-primary text-primary-foreground border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer h-11"
             disabled={
               updateProfileMutation.isPending ||
               updateProfileImageMutation.isPending
@@ -577,7 +573,7 @@ export const SettingsHeader = () => {
         </Center>
 
         <Stack className="gap-8 mt-4">
-          <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3 ">
+          <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3 ">
             <h1 className="text-xl font-medium">{t("settings.userProfile")}</h1>
 
             <Flex className="justify-between w-xs max-sm:w-full">
@@ -586,13 +582,13 @@ export const SettingsHeader = () => {
                   avatarPreview || userData?.user?.image || "/dashboard/1.svg"
                 }
                 alt="Profile"
-                className="rounded-full bg-cover bg-center w-26 h-26 border-2 border-dashed border-gray-600"
+                className="rounded-full bg-cover bg-center w-26 h-26 border-2 border-dashed border-muted-foreground"
               />
 
               <Flex className="flex-col gap-2">
                 <Button
                   type="button"
-                  className="bg-black text-white rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-black/80"
+                  className="bg-primary text-primary-foreground rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-primary/90"
                   onClick={handleChooseFile}
                   disabled={updateProfileImageMutation.isPending}
                 >
@@ -609,7 +605,7 @@ export const SettingsHeader = () => {
                 />
                 <Button
                   type="button"
-                  className="bg-[#DDDDDD] text-black rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-[#DDDDDD]/80 hover:text-white"
+                  className="bg-secondary text-secondary-foreground rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-secondary/80"
                   onClick={handleRemove}
                   disabled={
                     !avatarPreview || updateProfileImageMutation.isPending
@@ -623,7 +619,7 @@ export const SettingsHeader = () => {
             <Flex className="justify-between gap-6 w-full max-sm:flex-col">
               <Flex className="mt-4 w-3xl max-sm:w-full flex-1 flex-col gap-4">
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background border-border"
                   size="lg"
                   type="text"
                   placeholder={t("settings.fullName")}
@@ -636,7 +632,7 @@ export const SettingsHeader = () => {
                 )}
 
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background border-border"
                   size="lg"
                   type="text"
                   placeholder={t("settings.phone")}
@@ -644,23 +640,23 @@ export const SettingsHeader = () => {
                 />
 
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background border-border"
                   size="lg"
                   type="text"
                   placeholder={t("settings.address")}
                   {...register("address")}
                 />
 
-                <Flex className="w-full relative border border-gray-200 rounded-full">
+                <Flex className="w-full relative border border-border rounded-full">
                   <Input
-                    className="bg-white rounded-full relative"
+                    className="bg-background border-border relative"
                     size="lg"
                     disabled
                     type="email"
                     placeholder={t("settings.email")}
                     {...register("email")}
                   />
-                  <IoMdLock className="size-6 text-gray-500 absolute right-4 top-3 " />
+                  <IoMdLock className="size-6 text-muted-foreground absolute right-4 top-3 " />
                 </Flex>
                 {errors.email && (
                   <span className="text-red-500 text-xs">
@@ -673,13 +669,13 @@ export const SettingsHeader = () => {
           </Stack>
 
           {/* Security Settings Section */}
-          <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
+          <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3">
             <h1 className="text-2xl font-semibold">
               {t("settings.securitySettings")}
             </h1>
 
-            <Box className=" bg-[#f6fcfe] border border-white mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
-              <p className="text-sm text-gray-600">
+            <Box className=" bg-muted border border-border mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
+              <p className="text-sm text-muted-foreground">
                 <strong>{t("settings.profileUpdates")}:</strong>{" "}
                 {t("settings.profileUpdatesDesc")}
                 <br />
@@ -690,13 +686,13 @@ export const SettingsHeader = () => {
           </Stack>
 
           {/* Dedicated Password Change Section */}
-          <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
+          <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3">
             <h1 className="text-2xl font-semibold">
               {t("settings.passwordSecurity")}
             </h1>
 
-            <Box className="bg-yellow-50 border border-yellow-200 mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
-              <p className="text-sm text-yellow-800">
+            <Box className="bg-yellow-900/20 border border-yellow-700 mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
+              <p className="text-sm text-yellow-500">
                 <strong>🔒 {t("settings.securityNotice")}:</strong>{" "}
                 {t("settings.securityNoticeDesc")}
                 <br />
@@ -705,10 +701,10 @@ export const SettingsHeader = () => {
             </Box>
 
             <Box className="mt-8">
-              <h2 className="text-lg font-medium text-gray-700 mb-4">
+              <h2 className="text-lg font-medium text-foreground mb-4">
                 {t("settings.changePassword")}
               </h2>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm bg-background border-border mb-6">
                 {t("settings.changePasswordDesc")}
               </p>
 
@@ -716,7 +712,7 @@ export const SettingsHeader = () => {
                 {/* Current Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background border-border pr-12"
                     size="lg"
                     type={showCurrentPassword ? "text" : "password"}
                     placeholder={t("settings.currentPassword")}
@@ -724,7 +720,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowCurrentPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -743,7 +739,7 @@ export const SettingsHeader = () => {
                 {/* New Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background border-border pr-12"
                     placeholder={t("settings.newPassword")}
                     type={showNewPassword ? "text" : "password"}
                     size="lg"
@@ -751,7 +747,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowNewPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -770,7 +766,7 @@ export const SettingsHeader = () => {
                 {/* Confirm Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background border-border pr-12"
                     placeholder={t("settings.confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
                     size="lg"
@@ -778,7 +774,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -798,7 +794,7 @@ export const SettingsHeader = () => {
                 {/* Password Strength Indicator */}
                 {watch("newpassword") && (
                   <Box className="mt-2">
-                    <div className="text-xs text-gray-600 mb-2">
+                    <div className="text-xs text-muted-foreground mb-2">
                       {t("settings.passwordStrength")}:
                     </div>
                     <div className="flex gap-1">
@@ -809,12 +805,12 @@ export const SettingsHeader = () => {
                             getPasswordStrength(watch("newpassword") ?? "") >=
                             level
                               ? "bg-green-500"
-                              : "bg-gray-200"
+                              : "bg-muted"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {getPasswordStrengthText(watch("newpassword") ?? "")}
                     </p>
                   </Box>
@@ -879,10 +875,10 @@ export const SettingsHeader = () => {
                 <Flex className="justify-between w-full rounded-md max-md:px-3">
                   <Stack className="gap-0">
                     <span className="text-[#7184B4]">
-                      {t("settings.projectActivityUpdates")}
+                      {t("settings.projectActivity")}
                     </span>
                     <h1 className="text-md max-md:text-sm">
-                      {t("settings.projectActivityUpdatesDesc")}
+                      {t("settings.projectActivityDesc")}
                     </h1>
                   </Stack>
                   <Switch
@@ -893,15 +889,15 @@ export const SettingsHeader = () => {
                 </Flex>
 
                 {/* Two-Factor Authentication Section */}
-                <Flex className="items-center justify-between w-full py-4 border-t border-gray-200">
+                <Flex className="items-center justify-between w-full py-4 border-t border-border">
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-700 mb-1">
-                      {t("settings.twoFactorAuthentication")}
+                    <h3 className="text-sm font-medium text-foreground mb-1">
+                      {t("settings.twoFactorAuth")}
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {local2FAStatus
-                        ? t("settings.twoFactorAuthenticationDesc")
-                        : t("settings.twoFactorAuthenticationDesc2")}
+                        ? t("settings.twoFactorDesc")
+                        : t("settings.twoFactorDesc")}
                     </p>
                   </div>
                   <Button

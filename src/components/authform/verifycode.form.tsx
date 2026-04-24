@@ -149,7 +149,7 @@ export const VerifyCodeForm: FC = () => {
                       size="lg"
                       placeholder="Enter 6-digit code"
                       maxLength={6}
-                      className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm text-center text-2xl tracking-widest"
+                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm text-center text-2xl tracking-widest"
                       {...field}
                       onChange={(e) => {
                         // Only allow numbers
@@ -160,7 +160,7 @@ export const VerifyCodeForm: FC = () => {
                   </FormControl>
                   <FormMessage />
                   {email && (
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-muted-foreground mt-2">
                       Code sent to {email}
                     </p>
                   )}
@@ -185,7 +185,7 @@ export const VerifyCodeForm: FC = () => {
             </Button>
 
             <Flex className="justify-center flex-wrap max-sm:justify-center max-sm:flex-col mt-2">
-              <h2 className="text-sm text-gray-600">
+              <h2 className="text-sm text-muted-foreground">
                 Didn't receive the code?
                 <button
                   type="button"

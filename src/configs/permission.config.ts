@@ -99,8 +99,8 @@ export const operator = ac.newRole({
 // Client: Portal access only - projects, tasks, invoices for their own data
 export const client = ac.newRole({
   Dashboard: ["view"],
-  Projects: ["read"],
-  "Task Management": ["read"],
+  Projects: ["read", "update"],
+  "Task Management": ["read", "update"],
   Invoices: ["read"],
 });
 

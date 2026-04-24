@@ -38,14 +38,14 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
       {isLoading ? (
         <Flex className="items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="ml-3 text-gray-600">
+          <span className="ml-3 text-muted-foreground">
             Loading PayPal configuration...
           </span>
         </Flex>
       ) : config ? (
         <Stack className="gap-6">
           {/* Configuration Status */}
-          <Box className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+          <Box className="border border-border rounded-lg p-6 bg-muted/50">
             <Flex className="items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Configuration Status</h3>
               {config.configured ? (
@@ -63,14 +63,14 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
 
             {/* Mode */}
             <Flex className="items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Mode:</span>
+              <span className="text-sm text-muted-foreground">Mode:</span>
               <Flex className="items-center gap-2">
                 {config.isLive ? (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400 rounded-full text-sm font-medium">
                     Live
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-400 rounded-full text-sm font-medium">
                     Sandbox
                   </span>
                 )}
@@ -79,15 +79,15 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
 
             {/* Client ID */}
             <Flex className="items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Client ID:</span>
-              <span className="text-sm font-mono text-gray-800">
+              <span className="text-sm text-muted-foreground">Client ID:</span>
+              <span className="text-sm font-mono text-foreground">
                 {config.clientId}
               </span>
             </Flex>
 
             {/* Connection Status */}
             <Flex className="items-center justify-between">
-              <span className="text-sm text-gray-600">Connection:</span>
+              <span className="text-sm text-muted-foreground">Connection:</span>
               {config.isConnected ? (
                 <Flex className="items-center gap-2 text-green-600">
                   <CheckCircle2 className="h-4 w-4" />
@@ -103,10 +103,10 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
 
             {/* Error Message */}
             {config.error && (
-              <Box className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+              <Box className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded">
                 <Flex className="items-start gap-2">
-                  <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-red-700">{config.error}</span>
+                  <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-red-700 dark:text-red-300">{config.error}</span>
                 </Flex>
               </Box>
             )}
@@ -117,13 +117,13 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
             config.accountInfo.email &&
             config.accountInfo.email !== "Not available" &&
             !config.accountInfo.email.startsWith("http") ? (
-              <Box className="border border-gray-200 rounded-lg p-6 bg-blue-50">
+              <Box className="border border-border rounded-lg p-6 bg-blue-50 dark:bg-blue-900/10">
                 <h3 className="text-lg font-semibold mb-4">
                   Account Information
                 </h3>
                 <Stack className="gap-3">
                   <Flex className="items-center justify-between">
-                    <span className="text-sm text-gray-600">Email:</span>
+                    <span className="text-sm text-muted-foreground">Email:</span>
                     <p className="text-sm font-medium text-gray-800 break-all">
                       {config.accountInfo.email}
                     </p>
@@ -131,14 +131,14 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
                   {config.accountInfo.name &&
                     config.accountInfo.name !== "Not available" && (
                       <Flex className="items-center justify-between">
-                        <span className="text-sm text-gray-600">Name:</span>
-                        <span className="text-sm font-medium text-gray-800">
+                        <span className="text-sm text-muted-foreground">Name:</span>
+                    <span className="text-sm font-medium text-foreground">
                           {config.accountInfo.name}
                         </span>
                       </Flex>
                     )}
                   <Flex className="items-center justify-between">
-                    <span className="text-sm text-gray-600">Verified:</span>
+                    <span className="text-sm text-muted-foreground">Verified:</span>
                     {config.accountInfo.verified ? (
                       <Flex className="items-center gap-2 text-green-600">
                         <CheckCircle2 className="h-4 w-4" />
@@ -154,14 +154,14 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
                 </Stack>
               </Box>
             ) : (
-              <Box className="border border-gray-200 rounded-lg p-6 bg-yellow-50">
+              <Box className="border border-border rounded-lg p-6 bg-yellow-50">
                 <Flex className="items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                   <Box>
-                    <h3 className="text-lg font-semibold mb-2 text-yellow-800">
+                    <h3 className="text-lg font-semibold mb-2 text-yellow-800 dark:text-yellow-400">
                       Account Information Not Available
                     </h3>
-                    <p className="text-sm text-yellow-700">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-500/90">
                       Account email and name cannot be retrieved using client
                       credentials. To see which PayPal account is receiving
                       payments:
@@ -204,14 +204,14 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
               </Box>
             )
           ) : (
-            <Box className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+            <Box className="border border-border rounded-lg p-6 bg-muted/50">
               <Flex className="items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                 <Box>
                   <h3 className="text-lg font-semibold mb-2">
                     Account Information Not Available
                   </h3>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-muted-foreground">
                     Account information cannot be retrieved. Check your PayPal
                     Dashboard to see which account is configured.
                   </p>
@@ -226,10 +226,10 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
               <Flex className="items-start gap-2">
                 <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                 <Box>
-                  <h4 className="font-semibold text-red-800 mb-1">
+                  <h4 className="font-semibold text-red-800 dark:text-red-400 mb-1">
                     ⚠️ Sandbox Mode Active
                   </h4>
-                  <p className="text-sm text-red-700">
+                  <p className="text-sm text-red-700 dark:text-red-400/90">
                     Your PayPal is currently in sandbox mode. No real payments
                     will be processed. To receive real payments, switch to live
                     mode by updating your credentials with a LIVE PayPal Client
@@ -265,7 +265,7 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
       ) : (
         <Box className="p-6 text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <p className="text-gray-600">Failed to load PayPal configuration</p>
+          <p className="text-muted-foreground">Failed to load PayPal configuration</p>
           <Button onClick={() => refetch()} variant="outline" className="mt-4">
             Retry
           </Button>

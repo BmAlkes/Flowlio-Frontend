@@ -993,8 +993,9 @@
 .react-tel-input .form-control {
   font-size: 16px;
   /* margin-top: 6px; */
-  background: #ffffff;
-  border: 1px solid #cacaca;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   border-radius: 27px;
   margin-bottom: 2px;
   /* width: 300px; */
@@ -1007,7 +1008,7 @@
 }
 
 .react-tel-input .form-control:hover {
-  border-color: #000;
+  border-color: var(--ring);
 }
 
 .react-tel-input .form-control:focus {
@@ -1117,7 +1118,8 @@
   padding: 0;
   margin: 10px 0 10px -1px;
   box-shadow: 1px 2px 18px rgba(0, 0, 0, 0.25);
-  background-color: white;
+  background-color: var(--card);
+  color: var(--foreground);
   width: 300px;
   max-height: 220px;
   overflow-y: scroll;
@@ -1134,7 +1136,7 @@
 .react-tel-input .country-list .divider {
   padding-bottom: 5px;
   margin-bottom: 5px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--border);
 }
 
 .react-tel-input .country-list .country {
@@ -1143,15 +1145,15 @@
 }
 
 .react-tel-input .country-list .country .dial-code {
-  color: #6b6b6b;
+  color: var(--muted-foreground);
 }
 
 .react-tel-input .country-list .country:hover {
-  background-color: #f1f1f1;
+  background-color: var(--muted);
 }
 
 .react-tel-input .country-list .country.highlight {
-  background-color: #f1f1f1;
+  background-color: var(--muted);
 }
 
 .react-tel-input .country-list .flag {
@@ -1167,7 +1169,7 @@
   z-index: 2;
   position: sticky;
   top: 0;
-  background-color: #fff;
+  background-color: var(--card);
   padding: 10px 0 6px 10px;
 }
 
@@ -1177,7 +1179,9 @@
 }
 
 .react-tel-input .country-list .search-box {
-  border: 2px solid #cacaca;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--foreground);
   border-radius: 6px;
   font-size: 15px;
   line-height: 15px;
@@ -1202,7 +1206,7 @@
   font-size: 13px;
   left: 25px;
   top: -7px;
-  background: #fff;
+  background: var(--card);
   padding: 0 5px;
   color: #de0000;
 }
@@ -1215,7 +1219,8 @@
   font-style: initial;
   font-weight: 600;
   display: block;
-  background: white;
+  background: var(--card);
+  color: var(--foreground);
   padding: 0 5px;
   font-size: 13px;
   white-space: nowrap;

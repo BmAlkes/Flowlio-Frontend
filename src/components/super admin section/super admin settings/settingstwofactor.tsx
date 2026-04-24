@@ -11,8 +11,10 @@ import { useUser } from "@/providers/user.provider";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export const SettingsTwoFactor = () => {
+  const { t } = useTranslation();
   const { data: userData } = useUser();
   const queryClient = useQueryClient();
   const verifyOTPMutation = useVerifyOTP();
@@ -125,13 +127,13 @@ export const SettingsTwoFactor = () => {
   };
 
   return (
-    <Flex className="justify-between w-full bg-white border border-gray-400/50 p-8 rounded-md max-md:px-3">
+    <Flex className="justify-between w-full bg-card border border-gray-400/50 p-8 rounded-md max-md:px-3">
       <Stack className="w-full">
         <h1 className="text-3xl font-semibold max-sm:text-xl">
-          Two-Factor Authentication (2FA)
+          {t("settings.twoFATitle", "Two-Factor Authentication (2FA)")}
         </h1>
         <h1 className="max-md:text-xs">
-          Choose Two-Factor Authentication (2FA) option for smart security
+          {t("settings.twoFADesc", "Choose Two-Factor Authentication (2FA) option for smart security")}
         </h1>
       </Stack>
 

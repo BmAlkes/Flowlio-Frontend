@@ -258,7 +258,7 @@ function SidebarTrigger({
   const is768 = useMediaQuery("(max-width: 768px)");
   return (
     <Button
-      className={cn("size-8 shadow-lg rounded-full bg-white", className)}
+      className={cn("size-8 shadow-lg rounded-full bg-card border border-border", className)}
       data-slot="sidebar-trigger"
       data-sidebar="trigger"
       variant="ghost"

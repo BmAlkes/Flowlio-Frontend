@@ -11,6 +11,8 @@ import {
   Trash2,
   Edit,
   Link2,
+  Clock,
+  Upload,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,7 @@ import { format } from "date-fns";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useFetchSubtasks } from "@/hooks/usefetchtasks";
 import { useDeleteTask } from "@/hooks/usedeletetask";
+import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Center } from "../ui/center";
@@ -28,6 +31,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { FileVersionHistoryModal } from "../common/fileversionhistorymodal";
+import { useUploadFileVersion } from "@/hooks/useuploadfileversion";
+import { toast } from "sonner";
+import { Attachment } from "@/types";
 
 type TaskForMap = {
   id: string;
@@ -49,13 +56,7 @@ interface TaskDetailsModalProps {
     assigneeName?: string;
     assigneeImage?: string;
     creatorName?: string;
-    attachments?: Array<{
-      id: string;
-      name: string;
-      url: string;
-      size: number;
-      type: string;
-    }>;
+    attachments?: Array<Attachment>;
     parentId?: string;
     parentTitle?: string;
     startAfter?: string | null;
@@ -80,13 +81,31 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateSubtaskModal, setShowCreateSubtaskModal] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [activeAttachment, setActiveAttachment] = useState<Attachment | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const uploadVersion = useUploadFileVersion();
   const { data: commentsResponse } = useFetchProjectComments(
     task.projectId || ""
   );
   const { data: subtasksResponse } = useFetchSubtasks(
     !task.parentId ? task.id : undefined
   );
-  const subtasks = subtasksResponse?.data ?? [];
+  const { data: membersData } = useGetCurrentOrgUserMembers();
+  const members = membersData?.data?.userMembers || [];
+
+  const subtasks = useMemo(() => {
+    const rawSubtasks = subtasksResponse?.data ?? [];
+    return rawSubtasks.map((st) => {
+      const member = members.find((m: any) => m.user?.id === st.assigneeId || m.id === st.assigneeId);
+      return {
+        ...st,
+        assigneeName: member?.user?.name || st.assigneeName,
+      };
+    });
+  }, [subtasksResponse, members]);
+
   const deleteTask = useDeleteTask();
 
   const mapSubtaskStatus = (apiStatus: string) => {
@@ -129,14 +148,14 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
   const getStatusColor = (status: string) => {
     const colors = {
-      "To Do": "bg-gray-100 text-gray-800",
+      "To Do": "bg-muted text-gray-800",
       "In Progress": "bg-blue-100 text-blue-800",
       Updated: "bg-yellow-100 text-yellow-800",
       Delay: "bg-red-100 text-red-800",
       Changes: "bg-purple-100 text-purple-800",
       Completed: "bg-green-100 text-green-800",
     };
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    return colors[status as keyof typeof colors] || "bg-muted text-gray-800";
   };
 
   const getFileIcon = (type: string) => {
@@ -156,6 +175,33 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     });
   };
 
+  const handleOpenHistory = (attachment: Attachment) => {
+    setActiveAttachment(attachment);
+    setHistoryModalOpen(true);
+  };
+
+  const handleUploadClick = (attachment: Attachment) => {
+    setActiveAttachment(attachment);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && activeAttachment) {
+      try {
+        await uploadVersion.mutateAsync({
+          attachmentId: activeAttachment.id,
+          file,
+        });
+        toast.success("New version uploaded successfully");
+      } catch (error) {
+        toast.error("Failed to upload new version");
+      }
+    }
+    // Reset input
+    if (event.target) event.target.value = "";
+  };
+
   return (
     <Box className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -165,16 +211,16 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
       />
 
       {/* Modal */}
-      <Box className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <Box className="relative bg-background rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <Flex className="gap-0 justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <Flex className="gap-0 justify-between p-6 border-b border-border bg-gradient-to-r from-blue-500/5 to-indigo-50">
           <Flex className="gap-4">
-            <Center className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+            <Center className="w-12 h-12 bg-gradient-to-br from-blue-500/50 to-indigo-600 rounded-xl">
               <FileText className="w-6 h-6 text-white" />
             </Center>
             <Box>
-              <h2 className="text-2xl font-bold text-gray-900">{task.title}</h2>
-              <p className="text-gray-600">Task Details</p>
+              <h2 className="text-2xl font-bold text-foreground">{task.title}</h2>
+              <p className="text-muted-foreground">Task Details</p>
             </Box>
           </Flex>
           <Flex className="gap-2">
@@ -211,7 +257,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="w-8 h-8 p-0 hover:bg-gray-200 rounded-full cursor-pointer"
+              className="w-8 h-8 p-0 hover:bg-muted rounded-full cursor-pointer"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -225,12 +271,12 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             <Box className="lg:col-span-2 space-y-6">
               {/* Description */}
               {task.description && (
-                <Box className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                <Box className="bg-muted/50 rounded-xl p-4">
+                  <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Description
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-foreground leading-relaxed">
                     {task.description}
                   </p>
                 </Box>
@@ -238,8 +284,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Attachments */}
               {task.attachments && task.attachments.length > 0 && (
-                <Box className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Box className="bg-muted/50 rounded-xl p-4">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                     <File className="w-4 h-4" />
                     Attachments ({task.attachments.length})
                   </h3>
@@ -247,22 +293,51 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     {task.attachments.map((attachment) => (
                       <Box
                         key={attachment.id}
-                        className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer group"
-                        onClick={() => setSelectedAttachment(attachment.url)}
+                        className="bg-card rounded-lg p-3 border border-border hover:border-blue-300 transition-colors cursor-pointer group"
                       >
-                        <Flex className="gap-3">
+                        <Flex className="gap-3" onClick={() => setSelectedAttachment(attachment.url)}>
                           <Center className="w-10 h-10 bg-blue-100 rounded-lg text-blue-600">
                             {getFileIcon(attachment.type)}
                           </Center>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">
+                            <p className="font-medium text-foreground truncate">
                               {attachment.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                               {formatFileSize(attachment.size)}
+                              {attachment.versions && attachment.versions.length > 1 && (
+                                <span className="ml-2 px-1.5 py-0.5 bg-muted text-[10px] font-bold rounded uppercase">
+                                  V{attachment.versions[0].versionNumber}
+                                </span>
+                              )}
                             </p>
                           </div>
-                          <Box className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Box className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-8 h-8 p-0"
+                              title="View History"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenHistory(attachment);
+                              }}
+                            >
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-8 h-8 p-0"
+                              title="Upload New Version"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUploadClick(attachment);
+                              }}
+                              disabled={uploadVersion.isPending}
+                            >
+                              <Upload className="w-4 h-4 text-muted-foreground" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -298,8 +373,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Project Comments */}
               {projectComments.length > 0 && (
-                <Box className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Box className="bg-muted/50 rounded-xl p-4">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Project Comments ({projectComments.length})
                   </h3>
@@ -307,23 +382,23 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     {projectComments.map((comment) => (
                       <Box
                         key={comment.id}
-                        className="bg-white rounded-lg p-3 border border-gray-200"
+                        className="bg-card rounded-lg p-3 border border-border"
                       >
                         <Flex className="mb-2">
                           <Center className="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-full text-white text-xs font-semibold">
                             {comment.userName.charAt(0).toUpperCase()}
                           </Center>
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-foreground">
                             {comment.userName}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground">
                             {format(
                               new Date(comment.createdAt),
                               "MMM d, yyyy 'at' h:mm a"
                             )}
                           </span>
                         </Flex>
-                        <p className="text-gray-700 text-sm">
+                        <p className="text-foreground text-sm">
                           {comment.content}
                         </p>
                       </Box>
@@ -334,13 +409,13 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Subtasks (only for main tasks) */}
               {!task.parentId && (
-                <Box className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Box className="bg-muted/50 rounded-xl p-4">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Subtasks ({subtasks.length})
                   </h3>
                   {subtasks.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No subtasks yet</p>
+                    <p className="text-muted-foreground text-sm">No subtasks yet</p>
                   ) : (
                     <Box className="space-y-3 max-h-60 overflow-y-auto">
                       {subtasks.map((st) => (
@@ -352,10 +427,10 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                           onKeyDown={(e) =>
                             e.key === "Enter" && onOpenTask(st.id)
                           }
-                          className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer"
+                          className="bg-card rounded-lg p-3 border border-border hover:border-blue-300 transition-colors cursor-pointer"
                         >
                           <Flex className="flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                            <span className="font-medium text-gray-900">
+                            <span className="font-medium text-foreground">
                               {st.title}
                             </span>
                             <span
@@ -367,12 +442,12 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                               {mapSubtaskStatus(st.status)}
                             </span>
                             {st.assigneeName && (
-                              <span className="text-gray-600 flex items-center gap-1">
+                              <span className="text-muted-foreground flex items-center gap-1">
                                 <User className="w-3.5 h-3.5" />
                                 {st.assigneeName}
                               </span>
                             )}
-                            <span className="text-gray-500">
+                            <span className="text-muted-foreground">
                               {st.endDate
                                 ? format(new Date(st.endDate), "dd MMM, yyyy")
                                 : "No due date"}
@@ -389,8 +464,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             {/* Sidebar */}
             <Box className="space-y-6">
               {/* Status */}
-              <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-3">Status</h3>
+              <Box className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="font-semibold text-foreground mb-3">Status</h3>
                 <span
                   className={cn(
                     "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
@@ -402,8 +477,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               </Box>
 
               {/* Task Level */}
-              <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-3">Task Level</h3>
+              <Box className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="font-semibold text-foreground mb-3">Task Level</h3>
                 <span
                   className={cn(
                     "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
@@ -416,38 +491,38 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 </span>
                 {task.parentId && task.parentTitle && (
                   <Box className="mt-3">
-                    <p className="text-xs text-gray-500 mb-1">Related to Main Task:</p>
+                    <p className="text-xs text-muted-foreground mb-1">Related to Main Task:</p>
                     <p className="text-sm font-medium text-purple-700">{task.parentTitle}</p>
                   </Box>
                 )}
               </Box>
 
               {/* Project Info */}
-              <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-3">Project</h3>
+              <Box className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="font-semibold text-foreground mb-3">Project</h3>
                 <Flex>
                   <Center className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg">
                     <FileText className="w-4 h-4 text-white" />
                   </Center>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-foreground">
                     {task.project}
                   </span>
                 </Flex>
               </Box>
 
               {/* Due Date */}
-              <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Box className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Due Date
                 </h3>
-                <p className="text-gray-700">{task.dueDate}</p>
+                <p className="text-foreground">{task.dueDate}</p>
               </Box>
 
               {/* Assignee */}
               {task.assigneeName && (
-                <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Box className="bg-card rounded-xl p-4 border border-border">
+                  <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <User className="w-4 h-4" />
                     Assigned To
                   </h3>
@@ -463,7 +538,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                         {task.assigneeName.charAt(0).toUpperCase()}
                       </Center>
                     )}
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-foreground">
                       {task.assigneeName}
                     </span>
                   </Flex>
@@ -472,15 +547,15 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Dependencies */}
               {hasDependencies && (
-                <Box className="bg-white rounded-xl p-4 border border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Box className="bg-card rounded-xl p-4 border border-border">
+                  <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <Link2 className="w-4 h-4" />
                     Dependencies
                   </h3>
-                  <Box className="space-y-3 border-t border-gray-100 pt-3">
+                  <Box className="space-y-3 border-t border-border pt-3">
                     {startAfterTask && (
                       <Box>
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground mb-1">
                           Start After
                         </p>
                         {startAfterTask.status !== "Completed" ? (
@@ -515,10 +590,10 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                     )}
                     {finishBeforeTask && (
                       <Box>
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground mb-1">
                           Finish Before
                         </p>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {finishBeforeTask.title}
                         </p>
                       </Box>
@@ -538,16 +613,16 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedAttachment(null)}
           />
-          <Box className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-            <Flex className="gap-0 justify-between p-4 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">
+          <Box className="relative bg-card rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <Flex className="gap-0 justify-between p-4 border-b border-border">
+              <h3 className="font-semibold text-foreground">
                 Attachment Preview
               </h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedAttachment(null)}
-                className="w-8 h-8 p-0 hover:bg-gray-200 rounded-full"
+                className="w-8 h-8 p-0 hover:bg-muted rounded-full"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -609,20 +684,20 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowDeleteConfirm(false)}
           />
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+          <div className="relative bg-card rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <Trash2 className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-foreground">
                   Delete Task
                 </h3>
-                <p className="text-gray-600">This action cannot be undone</p>
+                <p className="text-muted-foreground">This action cannot be undone</p>
               </div>
             </div>
 
-            <p className="text-gray-700 mb-6">
+            <p className="text-foreground mb-6">
               Are you sure you want to delete <strong>"{task.title}"</strong>?
               This will permanently remove the task and all its data.
             </p>
@@ -647,6 +722,26 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
           </div>
         </div>
       )}
+      {/* File Version History Modal */}
+      {activeAttachment && (
+        <FileVersionHistoryModal
+          isOpen={historyModalOpen}
+          onClose={() => {
+            setHistoryModalOpen(false);
+            setActiveAttachment(null);
+          }}
+          fileName={activeAttachment.name}
+          attachmentId={activeAttachment.id}
+        />
+      )}
+
+      {/* Hidden File Input for Version Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
     </Box>
   );
 };

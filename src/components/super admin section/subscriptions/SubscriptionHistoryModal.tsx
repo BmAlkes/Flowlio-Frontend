@@ -46,7 +46,7 @@ export const SubscriptionHistoryModal = ({
         {isLoading && (
           <Flex className="items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-[#1797B9]" />
-            <Box className="ml-3 text-gray-600">
+            <Box className="ml-3 text-muted-foreground">
               Loading subscription history...
             </Box>
           </Flex>
@@ -61,8 +61,8 @@ export const SubscriptionHistoryModal = ({
         )}
 
         {!isLoading && !error && subscriptionHistory.length === 0 && (
-          <Box className="p-4 bg-gray-50 border border-gray-200 rounded-md text-center">
-            <p className="text-gray-600">No subscription history found.</p>
+          <Box className="p-4 bg-muted/50 border border-border rounded-md text-center">
+            <p className="text-muted-foreground">No subscription history found.</p>
           </Box>
         )}
 
@@ -94,13 +94,13 @@ export const SubscriptionHistoryModal = ({
                     className={`p-4 border rounded-lg ${
                       isActive
                         ? "border-green-200 bg-green-50"
-                        : "border-gray-200 bg-white"
+                        : "border-border bg-card"
                     }`}
                   >
                     <Flex className="justify-between items-start mb-3">
                       <Box>
                         <Flex className="items-center gap-2 mb-1">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-lg font-semibold text-foreground">
                             {subscription.planName}
                           </h3>
                           {isActive && (
@@ -114,7 +114,7 @@ export const SubscriptionHistoryModal = ({
                             </Box>
                           )}
                         </Flex>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           ${subscription.planPrice}{" "}
                           {subscription.planCurrency || "USD"}
                           {subscription.plan?.billingCycle && (
@@ -125,7 +125,7 @@ export const SubscriptionHistoryModal = ({
                         </p>
                       </Box>
                       <Box className="text-right">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           Subscription #{index + 1}
                         </p>
                         {renewalCount > 0 && (
@@ -139,10 +139,10 @@ export const SubscriptionHistoryModal = ({
 
                     <Stack className="gap-2 mt-3">
                       <Flex className="justify-between text-sm">
-                        <span className="text-gray-600">Status:</span>
+                        <span className="text-muted-foreground">Status:</span>
                         <span
                           className={`font-medium ${
-                            isActive ? "text-green-600" : "text-gray-600"
+                            isActive ? "text-green-600" : "text-muted-foreground"
                           }`}
                         >
                           {subscription.status.charAt(0).toUpperCase() +
@@ -152,8 +152,8 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.currentPeriodStart && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Period Start:</span>
-                          <span className="text-gray-900">
+                          <span className="text-muted-foreground">Period Start:</span>
+                          <span className="text-foreground">
                             {format(
                               new Date(subscription.currentPeriodStart),
                               "MMM d, yyyy"
@@ -164,8 +164,8 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.currentPeriodEnd && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Period End:</span>
-                          <span className="text-gray-900">
+                          <span className="text-muted-foreground">Period End:</span>
+                          <span className="text-foreground">
                             {format(
                               new Date(subscription.currentPeriodEnd),
                               "MMM d, yyyy"
@@ -179,10 +179,10 @@ export const SubscriptionHistoryModal = ({
                         subscription.trialEnd && (
                           <>
                             <Flex className="justify-between text-sm">
-                              <span className="text-gray-600">
+                              <span className="text-muted-foreground">
                                 Trial Start:
                               </span>
-                              <span className="text-gray-900">
+                              <span className="text-foreground">
                                 {format(
                                   new Date(subscription.trialStart),
                                   "MMM d, yyyy"
@@ -190,8 +190,8 @@ export const SubscriptionHistoryModal = ({
                               </span>
                             </Flex>
                             <Flex className="justify-between text-sm">
-                              <span className="text-gray-600">Trial End:</span>
-                              <span className="text-gray-900">
+                              <span className="text-muted-foreground">Trial End:</span>
+                              <span className="text-foreground">
                                 {format(
                                   new Date(subscription.trialEnd),
                                   "MMM d, yyyy"
@@ -203,7 +203,7 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.cancelAtPeriodEnd && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Cancellation:</span>
+                          <span className="text-muted-foreground">Cancellation:</span>
                           <span className="text-orange-600 font-medium">
                             Scheduled for period end
                           </span>
@@ -212,8 +212,8 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.cancelledAt && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Cancelled On:</span>
-                          <span className="text-gray-900">
+                          <span className="text-muted-foreground">Cancelled On:</span>
+                          <span className="text-foreground">
                             {format(
                               new Date(subscription.cancelledAt),
                               "MMM d, yyyy"
@@ -224,7 +224,7 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.lastRenewedAt && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Last Renewed:</span>
+                          <span className="text-muted-foreground">Last Renewed:</span>
                           <span className="text-blue-600 font-medium">
                             {format(
                               new Date(subscription.lastRenewedAt),
@@ -236,8 +236,8 @@ export const SubscriptionHistoryModal = ({
 
                       {subscription.createdAt && (
                         <Flex className="justify-between text-sm">
-                          <span className="text-gray-600">Created:</span>
-                          <span className="text-gray-500">
+                          <span className="text-muted-foreground">Created:</span>
+                          <span className="text-muted-foreground">
                             {format(
                               new Date(subscription.createdAt),
                               "MMM d, yyyy"

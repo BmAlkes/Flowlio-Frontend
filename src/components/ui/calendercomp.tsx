@@ -25,7 +25,7 @@ export const CalendarComponent: React.FC<CalendarComponentProps> = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="cursor-pointer flex items-center space-x-2 px-4 py-2 rounded-md border border-gray-200 h-10"
+          className="cursor-pointer flex items-center space-x-2 px-4 py-2 rounded-md border border-border h-10"
         >
           <CalendarIcon />
           <span>

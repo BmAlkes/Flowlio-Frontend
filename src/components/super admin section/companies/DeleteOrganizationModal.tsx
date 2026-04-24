@@ -59,10 +59,10 @@ export const DeleteOrganizationModal = ({
             <AlertTriangle className="h-5 w-5" />
             {isPendingUser ? "Delete Pending User" : "Delete Organization"}
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-muted-foreground">
             This action cannot be undone. This will permanently delete{" "}
             {isPendingUser ? "the pending user" : "the organization"}{" "}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-foreground">
               "{organizationName}"
             </span>{" "}
             {isPendingUser
@@ -72,7 +72,7 @@ export const DeleteOrganizationModal = ({
         </DialogHeader>
 
         <Box className="py-4">
-          <Box className="space-y-2 text-sm text-gray-600 max-h-96 overflow-y-auto">
+          <Box className="space-y-2 text-sm text-muted-foreground max-h-96 overflow-y-auto">
             {isPendingUser ? (
               <>
                 <Flex className="items-center gap-2">

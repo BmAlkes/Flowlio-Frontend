@@ -8,7 +8,7 @@ export const ComponentWrapper = forwardRef<HTMLDivElement, BoxProps>(
       <Box
         ref={ref}
         className={cn(
-          "bg-[#f8fafb] border-2 border-white rounded-xl shadow-component",
+          "bg-card border-2 border-border rounded-xl shadow-component",
           className
         )}
         {...props}

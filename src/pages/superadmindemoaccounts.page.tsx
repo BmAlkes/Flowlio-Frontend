@@ -32,6 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton } from "@/components/skeletons";
 
 type DemoOrg = {
   id: string;
@@ -51,6 +53,7 @@ type DemoOrg = {
 };
 
 const SuperAdminDemoAccountsPage = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -270,13 +273,13 @@ const SuperAdminDemoAccountsPage = () => {
 
   return (
     <Stack className="pt-5 gap-3 px-2">
-      <Box className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 overflow-hidden">
+      <Box className="bg-card rounded-xl p-6 shadow-sm border border-border overflow-hidden">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">
-              Create Demo Account
+            <h2 className="text-xl font-semibold text-foreground mb-1">
+              {t("superadmin.demoAccounts.createDemoAccount", "Create Demo Account")}
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Create a new demo account with temporary access credentials
             </p>
           </div>
@@ -285,7 +288,7 @@ const SuperAdminDemoAccountsPage = () => {
               onClick={handleShowForm}
               className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 cursor-pointer"
             >
-              Create Demo Account
+              {t("superadmin.demoAccounts.createDemoAccount", "Create Demo Account")}
             </Button>
           )}
         </div>
@@ -302,7 +305,7 @@ const SuperAdminDemoAccountsPage = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="name"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Organization Name <span className="text-red-500">*</span>
               </Label>
@@ -313,7 +316,7 @@ const SuperAdminDemoAccountsPage = () => {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 The name of the demo organization
               </p>
             </div>
@@ -321,7 +324,7 @@ const SuperAdminDemoAccountsPage = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Email Address <span className="text-red-500">*</span>
               </Label>
@@ -333,7 +336,7 @@ const SuperAdminDemoAccountsPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Login email for the demo account
               </p>
             </div>
@@ -341,7 +344,7 @@ const SuperAdminDemoAccountsPage = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Password <span className="text-red-500">*</span>
               </Label>
@@ -353,7 +356,7 @@ const SuperAdminDemoAccountsPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Login password for the demo account
               </p>
             </div>
@@ -361,7 +364,7 @@ const SuperAdminDemoAccountsPage = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="trialDays"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Trial Duration (Days)
               </Label>
@@ -375,7 +378,7 @@ const SuperAdminDemoAccountsPage = () => {
                 onChange={(e) => setTrialDays(Number(e.target.value))}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Number of days the demo account will be active (default: 14)
               </p>
             </div>
@@ -383,7 +386,7 @@ const SuperAdminDemoAccountsPage = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="role"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 User Role
               </Label>
@@ -396,7 +399,7 @@ const SuperAdminDemoAccountsPage = () => {
                   <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Permission level for the demo account
               </p>
             </div>
@@ -414,7 +417,7 @@ const SuperAdminDemoAccountsPage = () => {
               onClick={handleCancel}
               variant="outline"
               disabled={loading || isAnimating}
-              className="border-gray-300 hover:bg-gray-50 h-10 px-6 cursor-pointer"
+              className="border-border hover:bg-muted/50 h-10 px-6 cursor-pointer"
             >
               <X className="w-4 h-4 mr-2" />
               Cancel
@@ -425,14 +428,14 @@ const SuperAdminDemoAccountsPage = () => {
         {/* Loading section below form - shows when form is hidden and loading */}
         {!showForm && loading && (
           <div className="mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <Box className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 border-2 border-blue-200 shadow-lg">
+            <Box className="bg-gradient-to-r from-blue-500/5 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg p-8 border-2 border-blue-200 dark:border-blue-900/50 shadow-lg">
               <Center className="flex-col gap-4">
                 <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
                 <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     Creating Demo Account...
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Please wait while we set up your demo account
                   </p>
                 </div>
@@ -442,37 +445,32 @@ const SuperAdminDemoAccountsPage = () => {
         )}
       </Box>
 
-      <Box className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Demo Accounts
+      <Box className="bg-card rounded-xl p-6 shadow-sm border border-border">
+        <h2 className="text-xl font-semibold text-foreground mb-4">
+          {t("superadmin.demoAccounts.title", "Demo Accounts")}
         </h2>
         {fetchingDemos ? (
-          <Center className="py-12">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-              <p className="text-sm text-gray-600">Loading demo accounts...</p>
-            </div>
-          </Center>
+          <TableSkeleton rows={5} columns={7} withActions />
         ) : (
-          <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm ">
+          <div className="overflow-x-auto border border-border rounded-lg shadow-sm ">
             <Table className="w-full ">
-              <TableHeader className="bg-gray-100">
+              <TableHeader className="bg-muted">
                 <TableRow>
-                  <TableHead>Organization</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Trial Ends</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.organization", "Organization")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.user", "User")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.email", "Email")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.role", "Role")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.status", "Status")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.trialEnds", "Trial Ends")}</TableHead>
+                  <TableHead>{t("superadmin.demoAccounts.table.created", "Created")}</TableHead>
+                  <TableHead className="text-center">{t("superadmin.demoAccounts.table.actions", "Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {demos.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">
-                      <p className="text-gray-500">No demo accounts found</p>
+                      <p className="text-muted-foreground">No demo accounts found</p>
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -481,7 +479,7 @@ const SuperAdminDemoAccountsPage = () => {
                       key={d.id}
                       className={
                         loadingActions[d.id] === "delete"
-                          ? "opacity-60 bg-gray-50"
+                          ? "opacity-60 bg-muted/50"
                           : ""
                       }
                     >
@@ -511,11 +509,11 @@ const SuperAdminDemoAccountsPage = () => {
                         <Center className="gap-2">
                           <Button
                             variant="ghost"
-                            className={`cursor-pointer border ${
+                            className={`cursor-pointer border-2 shadow-sm transition-all duration-200 ${
                               d.status === "suspended" ||
                               d.status === "inactive"
-                                ? "hover:bg-green-50 bg-green-50 text-green-700"
-                                : "hover:bg-yellow-50 bg-yellow-50 text-yellow-700"
+                                ? "hover:bg-green-50 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/40 dark:hover:bg-green-900/40"
+                                : "hover:bg-yellow-50 bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-900/40 dark:hover:bg-yellow-900/40"
                             }`}
                             onClick={() => handleToggleStatus(d.id, d.status)}
                             disabled={loadingActions[d.id] !== undefined}
@@ -539,7 +537,7 @@ const SuperAdminDemoAccountsPage = () => {
                           </Button>
                           <Button
                             variant="ghost"
-                            className="hover:bg-blue-50 cursor-pointer border bg-blue-50 text-blue-700"
+                            className="hover:bg-blue-50 cursor-pointer border-2 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/40 dark:hover:bg-blue-900/40 shadow-sm transition-all duration-200"
                             onClick={() => handleEditClick(d)}
                             disabled={loadingActions[d.id] !== undefined}
                           >
@@ -547,7 +545,7 @@ const SuperAdminDemoAccountsPage = () => {
                           </Button>
                           <Button
                             variant="ghost"
-                            className="hover:bg-red-50 cursor-pointer border bg-red-50 text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="hover:bg-red-50 cursor-pointer border-2 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/40 dark:hover:bg-red-900/40 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => handleDelete(d.id)}
                             disabled={loadingActions[d.id] !== undefined}
                           >
@@ -592,11 +590,11 @@ const SuperAdminDemoAccountsPage = () => {
                   id="convertToClient"
                   checked={convertToClient}
                   onChange={(e) => setConvertToClient(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 border-border rounded focus:ring-blue-500"
                 />
                 <Label
                   htmlFor="convertToClient"
-                  className="text-sm text-gray-700 cursor-pointer"
+                  className="text-sm text-foreground cursor-pointer"
                 >
                   Convert this demo account to a regular client account
                 </Label>
@@ -622,7 +620,7 @@ const SuperAdminDemoAccountsPage = () => {
                     onChange={(e) => setEditTrialDays(Number(e.target.value))}
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Number of days to extend from current trial end date
                   </p>
                 </div>
@@ -642,7 +640,7 @@ const SuperAdminDemoAccountsPage = () => {
                     onChange={(e) => setEditTrialEndsAt(e.target.value)}
                     className="w-full"
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Set a specific end date for the trial period
                   </p>
                 </div>

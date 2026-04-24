@@ -529,10 +529,10 @@ const CheckoutPage = () => {
 
   if (!selectedPlan || (userLoading && !fromSignup)) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Box className="min-h-screen bg-muted/50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             {userLoading ? "Checking authentication..." : "Loading plan..."}
           </p>
         </div>
@@ -591,7 +591,7 @@ const CheckoutPage = () => {
       deferLoading={!shouldLoadPayPalSDK || !paypalClientId} // Don't load SDK until we have real client ID
       key={`paypal-${paypalClientId || "disabled"}-${shouldLoadPayPalSDK}`} // Force re-initialization when client ID or config changes
     >
-      <Box className="min-h-screen bg-gray-50 max-md:p-4">
+      <Box className="min-h-screen bg-muted/50 max-md:p-4">
         <Navbar />
 
         {/* Trial Expired Message Banner */}
@@ -653,16 +653,16 @@ const CheckoutPage = () => {
 
               {/* User Info Display */}
               {userData?.user && (
-                <Box className="mt-4 p-4 bg-white rounded-lg">
+                <Box className="mt-4 p-4 bg-card rounded-lg">
                   <h4 className="font-semibold mb-2">Purchasing for:</h4>
-                  <p className="text-sm text-gray-600">{userData.user.name}</p>
-                  <p className="text-sm text-gray-600">{userData.user.email}</p>
+                  <p className="text-sm text-muted-foreground">{userData.user.name}</p>
+                  <p className="text-sm text-muted-foreground">{userData.user.email}</p>
                 </Box>
               )}
             </Box>
 
             {/* Right: Organization & Payment Details */}
-            <Box className="h-auto bg-gradient-to-r from-red-50 to-indigo-100 rounded-lg shadow p-8 w-full md:w-1/2">
+            <Box className="h-auto bg-gradient-to-r from-red-500/5 to-indigo-500/10 rounded-lg shadow p-8 w-full md:w-1/2">
               {createOrganization && (
                 <>
                   <h2 className="text-xl font-semibold mb-4 font-Outfit">
@@ -678,7 +678,7 @@ const CheckoutPage = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            className="border rounded-lg p-2 w-full bg-white h-12"
+                            className="border rounded-lg p-2 w-full bg-card h-12"
                             placeholder="Enter your organization name"
                             {...field}
                           />
@@ -723,7 +723,7 @@ const CheckoutPage = () => {
                         ? "Processing Demo Payment..."
                         : "Complete Demo Payment"}
                     </Button>
-                    <p className="text-xs text-gray-500 mt-2 text-center">
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
                       This simulates a successful payment and creates your
                       organization
                     </p>
@@ -819,7 +819,7 @@ const CheckoutPage = () => {
                       </Box>
                     )}
                   {/* PayPal Buttons - Only show when fully configured */}
-                  <Box className="mb-4 bg-white rounded-lg p-4 border border-gray-200">
+                  <Box className="mb-4 bg-card rounded-lg p-4 border border-border">
                     <PayPalButtons
                       createOrder={handlePayPalCreateOrder}
                       onApprove={handlePayPalApprove}
@@ -851,7 +851,7 @@ const CheckoutPage = () => {
                 </>
               )}
 
-              <div className="text-xs text-gray-500 mt-4">
+              <div className="text-xs text-muted-foreground mt-4">
                 By completing your purchase, you agree to the company's Terms of
                 Service
               </div>

@@ -23,12 +23,12 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
 }) => {
   if (!features) {
     return (
-      <ComponentWrapper className="w-full bg-white border border-gray-200 shadow-none">
+      <ComponentWrapper className="w-full bg-card border border-border shadow-none">
         <Box className="p-6">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">
             Plan Access & Features
           </h2>
-          <p className="text-gray-500">No plan features configured</p>
+          <p className="text-muted-foreground">No plan features configured</p>
         </Box>
       </ComponentWrapper>
     );
@@ -111,7 +111,7 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
   ];
 
   return (
-    <ComponentWrapper className="w-full bg-white border border-gray-200 shadow-none">
+    <ComponentWrapper className="w-full bg-card border border-border shadow-none">
       <Box className="p-6">
         <Flex className="justify-between items-center mb-6">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -125,9 +125,9 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
         <Stack className="gap-6">
           {/* Usage Limits Section */}
           <Box>
-            <h3 className="text-md font-semibold mb-4 text-gray-700 flex items-center gap-2">
+            <h3 className="text-md font-semibold mb-4 text-muted-foreground flex items-center gap-2">
               <span>Usage Limits</span>
-              <span className="text-xs font-normal text-gray-500">
+              <span className="text-xs font-normal text-muted-foreground">
                 (What users can create)
               </span>
             </h3>
@@ -137,13 +137,13 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
                 return (
                   <Flex
                     key={index}
-                    className={`items-center gap-4 p-4 ${limit.bgColor} rounded-lg border border-gray-200 hover:shadow-sm transition-shadow`}
+                    className={`items-center gap-4 p-4 ${limit.bgColor} rounded-lg border border-border hover:shadow-sm transition-shadow`}
                   >
-                    <div className={`p-2 rounded-lg bg-white ${limit.color}`}>
+                    <div className={`p-2 rounded-lg bg-card ${limit.color}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <Flex className="flex-col flex-1">
-                      <span className="text-xs text-gray-600 mb-1">
+                      <span className="text-xs text-muted-foreground mb-1">
                         {limit.label}
                       </span>
                       <span className="text-lg font-bold text-gray-800">
@@ -158,9 +158,9 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
 
           {/* Feature Access Section */}
           <Box>
-            <h3 className="text-md font-semibold mb-4 text-gray-700 flex items-center gap-2">
+            <h3 className="text-md font-semibold mb-4 text-muted-foreground flex items-center gap-2">
               <span>Feature Access</span>
-              <span className="text-xs font-normal text-gray-500">
+              <span className="text-xs font-normal text-muted-foreground">
                 (What users can access)
               </span>
             </h3>
@@ -173,7 +173,7 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
                     className={`items-center gap-3 p-3 rounded-lg border transition-colors ${
                       isEnabled
                         ? "bg-green-50 border-green-200"
-                        : "bg-gray-50 border-gray-200"
+                        : "bg-muted/50 border-border"
                     }`}
                   >
                     {isEnabled ? (
@@ -188,12 +188,12 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
                     <Flex className="flex-col flex-1">
                       <span
                         className={`text-sm font-medium ${
-                          isEnabled ? "text-gray-800" : "text-gray-500"
+                          isEnabled ? "text-gray-800" : "text-muted-foreground"
                         }`}
                       >
                         {feature.label}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {feature.description}
                       </span>
                     </Flex>
@@ -215,7 +215,7 @@ export const PlanAccessDisplay: React.FC<PlanAccessDisplayProps> = ({
           {/* Custom Features Section */}
           {features.customFeatures && features.customFeatures.length > 0 && (
             <Box>
-              <h3 className="text-md font-semibold mb-3 text-gray-700">
+              <h3 className="text-md font-semibold mb-3 text-muted-foreground">
                 Custom Features
               </h3>
               <div className="flex flex-wrap gap-2">

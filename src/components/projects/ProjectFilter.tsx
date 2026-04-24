@@ -93,11 +93,18 @@ export const ProjectFilter = ({ onFilterChange }: ProjectFilterProps) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ALL_VALUES_RESET">All</SelectItem>
-                      {field.options?.map((opt) => (
-                        <SelectItem key={opt} value={opt}>
-                          {opt}
-                        </SelectItem>
-                      ))}
+                      {field.options?.map((opt: any) => {
+                        const label = typeof opt === 'string' ? opt : opt.label;
+                        const color = typeof opt === 'string' ? undefined : opt.color;
+                        return (
+                          <SelectItem key={label} value={label}>
+                            <div className="flex items-center gap-2">
+                              {color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />}
+                              <span>{label}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 ) : field.type === "boolean" ? (
@@ -126,7 +133,7 @@ export const ProjectFilter = ({ onFilterChange }: ProjectFilterProps) => {
             ))}
             
             {(!customFieldsData?.data || customFieldsData.data.length === 0) && (
-              <div className="text-xs text-gray-500 text-center py-4">
+              <div className="text-xs text-muted-foreground text-center py-4">
                 No custom fields available to filter.
               </div>
             )}

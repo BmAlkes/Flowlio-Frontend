@@ -51,8 +51,46 @@ interface UserProfile {
     isDemo: boolean;
     passwordChanged: boolean;
   } | null;
+  clientProfile?: {
+    id: string;
+    organizationId: string;
+    userId?: string;
+    name?: string;
+    email?: string;
+    phone?: string | null;
+    address?: string | null;
+    image?: string | null;
+    imagePublicId?: string | null;
+    cpfcnpj?: string | null;
+    businessIndustry?: string | null;
+    [key: string]: unknown;
+  } | null;
   /** For role "client": the client record id for API calls (projects, tasks, invoices) */
   clientId?: string | null;
+}
+
+/**
+ * For portal `client` users, `/user/profile` often returns null `phone`/`address`/`image` on the
+ * user row while the linked CRM record holds values in `clientProfile`. Merge for forms and UI.
+ */
+export function getMergedProfileFormValues(u: UserProfile): {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  image: string | null;
+} {
+  const cp = u.clientProfile;
+  const phone = u.phone ?? cp?.phone ?? "";
+  const address = u.address ?? cp?.address ?? "";
+  const image = u.image ?? cp?.image ?? null;
+  return {
+    fullName: u.name ?? cp?.name ?? "",
+    email: u.email ?? cp?.email ?? "",
+    phone: phone == null ? "" : String(phone),
+    address: address == null ? "" : String(address),
+    image,
+  };
 }
 
 export const useUserProfile = (options?: { enabled?: boolean }) => {

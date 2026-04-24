@@ -93,7 +93,7 @@ const isPathAccessibleForRole = (path: string, userRole?: string): boolean => {
 
 export const getRoleBasedRedirectPathAfterLogin = (
   userRole?: string,
-  validateAccess: boolean = true
+  validateAccess: boolean = true,
 ): string => {
   const redirectFrom = getAndClearRedirectFrom();
   if (redirectFrom) {
@@ -119,7 +119,7 @@ export const getRoleBasedRedirectPathAfterLogin = (
       defaultPath = "/viewer";
       break;
     case "client":
-      defaultPath = "/clients";
+      defaultPath = "/clients/projects";
       break;
     case "subadmin":
     case "operator":

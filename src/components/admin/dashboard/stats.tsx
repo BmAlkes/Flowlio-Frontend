@@ -62,7 +62,7 @@ export const Stats: FC<{
                 key={index}
                 className={cn(
                   "px-2.5 py-3 relative overflow-hidden cursor-pointer",
-                  index !== 3 || (isViewer && "bg-[#d5f6fc]")
+                  index !== 3 || (isViewer && "bg-accent/30")
                 )}
               >
                 <Link to={item.link} className="flex flex-col">
@@ -75,14 +75,14 @@ export const Stats: FC<{
                           </h2>
                           <p
                             className={cn(
-                              "font-light text-gray-500 text-sm text-left",
+                              "font-light text-muted-foreground text-sm text-left",
                               classNameDescription
                             )}
                           >
                             {item.description}
                           </p>
                         </Stack>
-                        <Box className="bg-black w-38 text-white p-2 rounded-sm text-xs font-light mt-2">
+                        <Box className="bg-foreground w-38 text-background p-2 rounded-sm text-xs font-light mt-2">
                           {t("dashboard.totalProduction")} :{" "}
                           {totalProductionHours.toFixed(1)}{" "}
                           {t("dashboard.hoursAbbreviation")}
@@ -103,7 +103,7 @@ export const Stats: FC<{
                           <h2 className=" font-medium">{item.title}</h2>
                           <p
                             className={cn(
-                              "font-light text-gray-500 text-sm",
+                              "font-light text-muted-foreground text-sm",
                               classNameDescription
                             )}
                           >
@@ -121,7 +121,7 @@ export const Stats: FC<{
                         {index === 2 && (
                           <span
                             className={cn(
-                              "text-gray-400 font-light",
+                              "text-muted-foreground font-light",
                               (isSuperAdmin || isViewer) && "hidden"
                             )}
                           >

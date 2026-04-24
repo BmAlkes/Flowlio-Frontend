@@ -31,6 +31,8 @@ import { SettingsPasswordSecurity } from "./settingspasswordsecurity";
 import { SettingsTwoFactor } from "./settingstwofactor";
 import { SettingsPayPal } from "./settingspaypal";
 import { UpdateProfileImageContent } from "./updateprofileimagecontent";
+import { useTranslation } from "react-i18next";
+import { DetailsPageSkeleton } from "@/components/skeletons";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -38,6 +40,7 @@ const profileSchema = z.object({
 });
 
 export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
+  const { t } = useTranslation();
   const modalProps = useGeneralModalDisclosure();
   const queryClient = useQueryClient();
   const updateProfileMutation = useUpdateUserProfile();
@@ -82,11 +85,11 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
       await queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       await queryClient.invalidateQueries({ queryKey: ["user"] });
 
-      toast.success("Profile updated successfully!");
+      toast.success(t("settings.profileUpdated"));
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message ||
-          "Failed to update profile. Please try again."
+          t("settings.profileUpdateFailed")
       );
     }
   };
@@ -94,35 +97,35 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
   // Add null check for user
   if (!user) {
     return (
-      <ComponentWrapper className="mt-8 px-10 py-4 max-md:px-6">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <div className="mt-4 text-gray-500">Loading user data...</div>
+      <ComponentWrapper className="mt-8 px-10 py-6 max-md:px-6">
+        <h1 className="text-2xl font-semibold mb-6">{t("settings.title")}</h1>
+        <DetailsPageSkeleton withSidebar={false} withTabs={false} />
       </ComponentWrapper>
     );
   }
 
   return (
     <ComponentWrapper className="mt-8 px-10 py-4 max-md:px-6">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+      <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
 
       <Stack className="gap-8">
         {/* Profile Information Section */}
-        <Stack className="gap-0 min-h-4 w-md max-md:w-full border border-gray-200 rounded-md overflow-hidden mt-4">
-          <Flex className="justify-between bg-white p-4 border-b border-gray-200">
-            <h1 className="text-lg font-semibold">Profile Information</h1>
+        <Stack className="gap-0 min-h-4 w-md max-md:w-full border border-border/60 rounded-md overflow-hidden mt-4">
+          <Flex className="justify-between bg-card p-4 border-b border-border">
+            <h1 className="text-lg font-semibold">{t("superadminSettings.profileInformation")}</h1>
             <Center className="text-green-600 gap-2 font-semibold text-sm">
               <span className="bg-green-600 rounded-full min-h-2 w-2 animate-pulse"></span>
               {user.role === "superadmin"
-                ? "Super Admin"
+                ? t("superadminSettings.superAdmin")
                 : user.role === "subadmin"
-                ? "Sub Admin"
+                ? t("superadminSettings.subAdmin")
                 : user.role === "user"
-                ? "User"
-                : "Unknown"}
+                ? t("superadminSettings.user")
+                : t("superadminSettings.unknown")}
             </Center>
           </Flex>
 
-          <Box className="bg-[#F8F8F8] p-6">
+          <Box className="bg-card/50 dark:bg-muted/10 p-6">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -131,11 +134,11 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                 {/* Avatar Section */}
                 <Flex className="justify-between items-start mb-6">
                   <Box>
-                    <FormLabel className="text-sm font-medium text-gray-700 mb-2 block">
-                      Profile Picture
+                    <FormLabel className="text-sm font-medium text-muted-foreground mb-2 block">
+                      {t("superadminSettings.profilePicture")}
                     </FormLabel>
                     <Flex className="gap-4 items-center justify-between w-full">
-                      <Avatar className="relative hover:z-1 border-2 border-white size-20">
+                      <Avatar className="relative hover:z-1 border-2 border-border/40 size-20">
                         <AvatarImage
                           src={user.image || "https://github.com/shadcn.png"}
                           alt={user.name || "User"}
@@ -150,9 +153,9 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                         variant="outline"
                         size="sm"
                         onClick={handleChangeLogo}
-                        className="bg-white hover:bg-gray-50 ml-auto cursor-pointer"
+                        className="bg-card hover:bg-muted/50 ml-auto cursor-pointer"
                       >
-                        Change Logo
+                        {t("superadminSettings.changeLogo")}
                       </Button>
                     </Flex>
                   </Box>
@@ -164,13 +167,13 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Full Name
+                      <FormLabel className="text-sm font-medium text-muted-foreground">
+                        {t("settings.fullName")}
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
-                          className="bg-white rounded-full placeholder:text-gray-400"
+                          className="bg-card rounded-full placeholder:text-muted-foreground"
                           placeholder="Enter your full name"
                         />
                       </FormControl>
@@ -185,14 +188,14 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Email Address
+                      <FormLabel className="text-sm font-medium text-muted-foreground">
+                        {t("settings.email")}
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="email"
-                          className="bg-white rounded-full placeholder:text-gray-400"
+                          className="bg-card rounded-full placeholder:text-muted-foreground"
                           placeholder="Enter your email address"
                         />
                       </FormControl>
@@ -209,8 +212,8 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                     className="bg-[#1797b9] hover:bg-[#1797b9]/80 rounded-full px-6 cursor-pointer"
                   >
                     {updateProfileMutation.isPending
-                      ? "Saving..."
-                      : "Save Changes"}
+                      ? t("common.saving")
+                      : t("settings.saveChanges")}
                   </Button>
                 </Flex>
               </form>

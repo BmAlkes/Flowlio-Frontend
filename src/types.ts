@@ -137,13 +137,7 @@ export interface Task {
   startDate?: string;
   estimatedHours?: number;
   actualHours?: number;
-  attachments?: Array<{
-    id: string;
-    name: string;
-    url: string;
-    size: number;
-    type: string;
-  }>;
+  attachments?: Array<Attachment>;
   createdAt: string;
   updatedAt: string;
   // Project data
@@ -164,6 +158,28 @@ export interface Task {
   clientName?: string;
   clientEmail?: string;
   clientImage?: string;
+  visibility: "public" | "private";
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  type: string;
+  versions?: FileVersion[];
+}
+
+export interface FileVersion {
+  id: string;
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  versionNumber: number;
+  createdAt: string;
 }
 
 export interface CreateTaskRequest {
@@ -177,12 +193,13 @@ export interface CreateTaskRequest {
   actualHours?: number;
   attachments?: Array<{
     id: string;
-    file: string;
+    file: string; // Base64 or Blob URL for first-time upload
     name: string;
     url: string;
     size: number;
     type: string;
   }>;
+  visibility?: "public" | "private";
 }
 
 export type IPlan<T = {}> = {
@@ -263,7 +280,7 @@ export type INotification<T = {}> = {
   createdAt: Date;
   message: string;
   type: // tasks
-  | "task_assigned"
+    | "task_assigned"
     | "task_updated"
     | "task_completed"
     // issues

@@ -266,8 +266,8 @@ const WorkloadGantt = ({
           },
           lane: t.id,
           metadata: {
-            assigneeName: t.assigneeName || member?.user?.name || "Unassigned",
-            assigneeImage: t.assigneeImage || member?.user?.image,
+            assigneeName: member?.user?.name || t.assigneeName || "Unassigned",
+            assigneeImage: member?.user?.image || t.assigneeImage,
             projectName: t.projectName,
             task: t,
           },

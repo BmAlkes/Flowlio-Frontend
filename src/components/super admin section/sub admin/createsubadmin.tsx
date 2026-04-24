@@ -119,17 +119,17 @@ export const CreateSubAdmin = () => {
   return (
     <PageWrapper className="mt-6 p-6 relative">
       <Box
-        className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-gray-200 rounded-full hover:p-2 "
+        className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2 "
         onClick={() => navigate(-1)}
       >
         <IoArrowBack />
-        <p className="text-black">Back</p>
+        <p className="text-foreground">Back</p>
       </Box>
 
       <Center className="justify-between mt-6 max-sm:flex-col max-sm:items-start gap-2">
         <Stack className="gap-0">
-          <h1 className="text-black text-xl font-medium">Create Sub Admin</h1>
-          <h1 className="text-gray-500">
+          <h1 className="text-foreground text-xl font-medium">Create Sub Admin</h1>
+          <h1 className="text-muted-foreground">
             Create Sub Admin and allow permissions to keep your team aligned and
             productive.
           </h1>
@@ -140,13 +140,13 @@ export const CreateSubAdmin = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
           <Button
             variant="outline"
-            className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-20 right-4"
+            className="bg-foreground text-background border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-20 right-4"
             isLoading={isCreatePending}
             type="submit"
           >
             Add & Save
           </Button>
-          <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-4 grid grid-cols-1">
+          <Box className="bg-card rounded-xl border border-border p-6 gap-4 grid grid-cols-1">
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
               <FormField
                 control={form.control}
@@ -156,7 +156,7 @@ export const CreateSubAdmin = () => {
                     <FormLabel>First Name:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                         size="lg"
                         type="text"
                         placeholder="Enter First Name"
@@ -176,7 +176,7 @@ export const CreateSubAdmin = () => {
                     <FormLabel>Last Name:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                         placeholder="Enter Last Name"
                         type="text"
                         size="lg"
@@ -198,7 +198,7 @@ export const CreateSubAdmin = () => {
                     <FormLabel>Email:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                         placeholder="Enter Email"
                         type="email"
                         size="lg"
@@ -218,7 +218,7 @@ export const CreateSubAdmin = () => {
                     <FormLabel>Contact Number (Optional):</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                         size="lg"
                         type="tel"
                         placeholder="Enter Contact Number"
@@ -245,7 +245,7 @@ export const CreateSubAdmin = () => {
                       <FormControl className="w-full h-11">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-300 rounded-full w-full h-12"
+                          className="bg-background border border-border rounded-full w-full h-12"
                         >
                           <SelectValue placeholder="Select Permission Status" />
                         </SelectTrigger>
@@ -256,7 +256,7 @@ export const CreateSubAdmin = () => {
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                    <Box className="text-xs text-gray-500 mt-1">
+                    <Box className="text-xs text-muted-foreground mt-1">
                       <Box>
                         • <strong>Active:</strong> Sub admin can log in and
                         access the system
@@ -271,7 +271,7 @@ export const CreateSubAdmin = () => {
               />
             </Box>
 
-            <h1 className="text-gray-500 font-medium mt-4">Set Password</h1>
+            <h1 className="text-muted-foreground font-medium mt-4">Set Password</h1>
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1 mt-2">
               <FormField
                 control={form.control}
@@ -282,7 +282,7 @@ export const CreateSubAdmin = () => {
                       <FormLabel>Password:</FormLabel>
                       <FormControl>
                         <Input
-                          className="bg-white rounded-full placeholder:text-gray-400"
+                          className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                           size="lg"
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter Password"
@@ -293,9 +293,9 @@ export const CreateSubAdmin = () => {
                     </FormItem>
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
-                    >
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                >
                       {showPassword ? (
                         <IoEyeOff size={20} />
                       ) : (
@@ -303,7 +303,7 @@ export const CreateSubAdmin = () => {
                       )}
                     </button>
                     {/* Password requirements helper text */}
-                    <Box className="text-xs text-gray-500 mt-2 space-y-1">
+                    <Box className="text-xs text-muted-foreground mt-2 space-y-1">
                       <Box>Password must contain:</Box>
                       <Box>• At least 8 characters</Box>
                       <Box>• At least one uppercase letter (A-Z)</Box>
@@ -324,7 +324,7 @@ export const CreateSubAdmin = () => {
                       <FormLabel>Confirm Password:</FormLabel>
                       <FormControl>
                         <Input
-                          className="bg-white rounded-full placeholder:text-gray-400"
+                          className="bg-background border-border rounded-full placeholder:text-muted-foreground"
                           size="lg"
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter Confirm Password"
@@ -338,7 +338,7 @@ export const CreateSubAdmin = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                  className="absolute right-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer"
                 >
                   {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
                 </button>

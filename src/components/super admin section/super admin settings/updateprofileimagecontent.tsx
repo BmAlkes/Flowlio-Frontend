@@ -118,14 +118,14 @@ export const UpdateProfileImageContent = ({
       {/* Header */}
       <Box>
         <h2 className="text-xl font-semibold">Update Profile Picture</h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Upload a new profile picture for your account
         </p>
       </Box>
 
       {/* Current Image Preview */}
       <Box className="flex justify-center">
-        <Avatar className="size-24 border-2 border-gray-200">
+        <Avatar className="size-24 border-2 border-border">
           <AvatarImage src={previewUrl || displayImage} alt={displayName} />
           <AvatarFallback>
             {displayName?.charAt(0)?.toUpperCase() || "U"}
@@ -138,7 +138,7 @@ export const UpdateProfileImageContent = ({
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
           isDragOver
             ? "border-blue-500 bg-blue-50"
-            : "border-gray-300 hover:border-gray-400"
+            : "border-border hover:border-gray-400"
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -154,14 +154,14 @@ export const UpdateProfileImageContent = ({
         />
 
         <Stack className="gap-2 items-center">
-          <IoCloudUpload size={32} className="text-gray-400" />
+          <IoCloudUpload size={32} className="text-muted-foreground" />
           <Box>
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-muted-foreground">
               {selectedFile
                 ? selectedFile.name
                 : "Click to upload or drag and drop"}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               PNG, JPG, JPEG, WebP up to 5MB
             </p>
           </Box>

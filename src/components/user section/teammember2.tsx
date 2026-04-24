@@ -62,7 +62,7 @@ export const TeamMember2 = () => {
                 onClick={() => {
                   navigate("/pricing");
                 }}
-                className="rounded-full w-33 h-11 cursor-pointer hover:transform hover:scale-105 transition-all duration-300  hover:bg-white hover:text-black"
+                className="rounded-full w-33 h-11 cursor-pointer hover:transform hover:scale-105 transition-all duration-300  hover:bg-card hover:text-foreground"
               >
                 Get Started <ArrowRight />
               </Button>

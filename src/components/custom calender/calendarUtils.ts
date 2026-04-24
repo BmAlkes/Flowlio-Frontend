@@ -25,21 +25,23 @@ export type CustomEvent = CalendarEvent;
 
 export const initialEvents: CalendarEvent[] = [];
 
-export function formatHour(hour: number) {
-  // Handle hours 1-24 (Google Calendar format)
-  if (hour >= 1 && hour <= 12) {
-    return `${hour} AM`;
-  } else if (hour >= 13 && hour <= 24) {
-    const displayHour = hour - 12;
-    return `${displayHour} PM`;
-  }
-  // Fallback for any edge cases
-  const h = hour % 12 === 0 ? 12 : hour % 12;
-  const ampm = hour < 12 ? "AM" : "PM";
-  return `${h} ${ampm}`;
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
+
+export function formatHour(hour: number, localeCode: string = "en-US") {
+  const d = new Date();
+  d.setHours(hour, 0, 0, 0);
+  const locale = localeCode === "es" ? es : enUS;
+  return format(d, "h a", { locale });
 }
 
-export const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+export function getDaysShort(localeCode: string = "en-US") {
+  const locale = localeCode === "es" ? es : enUS;
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(2021, 0, 3 + i); // Start from a Sunday
+    return format(d, "EEE", { locale });
+  });
+}
 
 export function getStartOfWeek(date: Date) {
   const d = new Date(date);

@@ -215,11 +215,11 @@ export const Pricing: FC<PricingProps> = ({
       <Center className="flex-col min-h-[60vh] max-md:pb-10">
         <Stack className="text-center justify-center items-center px-4 gap-6">
           <Loader2 className="w-12 h-12 animate-spin text-[#F98618]" />
-          <Flex className="text-center text-black font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
+          <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
             Choose
             <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
           </Flex>
-          <Box className="w-lg max-sm:w-full font-[200] text-black text-[15px]">
+          <Box className="w-lg max-sm:w-full font-[200] text-foreground text-[15px]">
             Loading our pricing plans...
           </Box>
         </Stack>
@@ -232,7 +232,7 @@ export const Pricing: FC<PricingProps> = ({
     return (
       <Center className="flex-col min-h-[60vh] max-md:pb-10">
         <Stack className="text-center justify-center items-center px-4 gap-6">
-          <Flex className="text-center text-black font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
+          <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
             Choose
             <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
           </Flex>
@@ -253,19 +253,19 @@ export const Pricing: FC<PricingProps> = ({
   return (
     <Center className="flex-col max-md:pb-10 ">
       <Stack className="text-center justify-center items-center px-4 max-sm:mt-5">
-        <Flex className="text-center text-black font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
+        <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
           Choose
           <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
         </Flex>
 
-        <Box className="w-lg max-sm:w-full font-[200] text-black text-[15px]">
+        <Box className="w-lg max-sm:w-full font-[200] text-foreground text-[15px]">
           Get access to premium features designed to boost productivity and
           simplify your workflow with seamless performance.
         </Box>
       </Stack>
 
       <Flex className="p-2 gap-6 max-lg:flex-col mt-5">
-        <Stack className="justify-start items-start border-2 py-12 px-10 border-gray-100 rounded-xl max-w-[28rem] min-h-[23rem] max-sm:w-full bg-gradient-to-r from-indigo-50 to-white gap-3 relative z-0 overflow-hidden">
+        <Stack className="justify-start items-start border-2 py-12 px-10 border-border rounded-xl max-w-[28rem] min-h-[23rem] max-sm:w-full bg-gradient-to-r from-indigo-500/5 to-white gap-3 relative z-0 overflow-hidden">
           {/* Dynamic Features Section */}
           <Box className="w-full flex items-start">
             {selectedPlan !== null && plansResponse?.data?.[selectedPlan] ? (
@@ -289,7 +289,7 @@ export const Pricing: FC<PricingProps> = ({
                     );
                     if (features.length === 0) {
                       return (
-                        <Box className="text-gray-500 text-sm text-center py-4">
+                        <Box className="text-muted-foreground text-sm text-center py-4">
                           No features available for this plan
                         </Box>
                       );
@@ -306,7 +306,7 @@ export const Pricing: FC<PricingProps> = ({
                         <Box>
                           <Check className="size-4 text-indigo-600" />
                         </Box>
-                        <h1 className="text-black text-[15px]">{feature}</h1>
+                        <h1 className="text-foreground text-[15px]">{feature}</h1>
                       </Flex>
                     ));
                   })()}
@@ -326,10 +326,10 @@ export const Pricing: FC<PricingProps> = ({
                     const IconComponent = feature.icon;
                     return (
                       <Flex key={index} className="gap-4">
-                        <Box className="flex items-center justify-center w-6 h-6 rounded-full  text-gray-600">
+                        <Box className="flex items-center justify-center w-6 h-6 rounded-full  text-muted-foreground">
                           <IconComponent className="size-4" />
                         </Box>
-                        <h1 className="text-black text-[15px]">
+                        <h1 className="text-foreground text-[15px]">
                           {feature.text}
                         </h1>
                       </Flex>
@@ -349,7 +349,7 @@ export const Pricing: FC<PricingProps> = ({
               className={`flex-col justify-between items-center px-6 py-8 rounded-xl gap-5 max-sm:p-5 transition-all duration-300 cursor-pointer ${
                 selectedPlan === index
                   ? "bg-gradient-to-r from-indigo-300 to-indigo-300 shadow-lg shadow-blue-500/25 transform scale-105"
-                  : "bg-gradient-to-r from-red-50 to-indigo-100 hover:shadow-md hover:shadow-gray-300/50"
+                  : "bg-gradient-to-r from-red-500/5 to-indigo-500/10 hover:shadow-md hover:shadow-gray-300/50"
               }`}
             >
               <Flex className="justify-between items-center w-full">
@@ -384,7 +384,7 @@ export const Pricing: FC<PricingProps> = ({
                 </Flex>
                 <Flex
                   className={`flex-col items-end ${
-                    selectedPlan === index ? "text-white" : "text-black"
+                    selectedPlan === index ? "text-white" : "text-foreground"
                   }`}
                 >
                   <Flex className="items-baseline">
@@ -409,7 +409,7 @@ export const Pricing: FC<PricingProps> = ({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "bg-gradient-to-r from-white to-indigo-300 cursor-pointer border border-gray-200 px-4 py-2 rounded-lg hover:border-white font-Outfit text-sm text-gray-800 w-full mt-2"
+                    "bg-gradient-to-r from-white to-indigo-300 cursor-pointer border border-border px-4 py-2 rounded-lg hover:border-white font-Outfit text-sm text-gray-800 w-full mt-2"
                   )}
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent triggering the parent onClick

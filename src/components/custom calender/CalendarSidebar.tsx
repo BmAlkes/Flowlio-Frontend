@@ -4,6 +4,9 @@ import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import { Center } from "@/components/ui/center";
 import { Plus, ChevronDown } from "lucide-react";
 import { CustomEvent } from "./calendarUtils";
@@ -43,6 +46,8 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   allMeetings,
   navigateToMeetingWeek,
 }) => {
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === "es" ? es : enUS;
   const getPlatformIcon = (platform: string) => {
     switch (platform) {
       case "google_meet":
@@ -59,7 +64,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   const [showPlatforms, setShowPlatforms] = useState(true);
 
   return (
-    <Flex className="w-[290px] bg-white flex-col gap-6 items-start h-[127rem]">
+    <Flex className="w-[290px] bg-card flex-col gap-6 items-start h-[127rem]">
       {/* Mini Calendar */}
       <Stack className="w-full p-3">
         <Button
@@ -67,7 +72,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           size="lg"
           onClick={onNewEvent}
         >
-          New Event <Plus className="size-5 text-white" />
+          {t("calendar.newEvent")} <Plus className="size-5 text-white" />
         </Button>
         <Calendar
           className="w-full p-0 overflow-hidden mt-4"
@@ -84,11 +89,11 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       {/* My Calendars */}
       <Stack className="w-full p-3">
         <Flex className="items-center justify-between">
-          <span className="font-semibold">My Calendars</span>
+          <span className="font-semibold">{t("calendar.myCalendars")}</span>
           <Flex className="items-center gap-2">
-            <Plus className="size-4 cursor-pointer text-gray-500" />
+            <Plus className="size-4 cursor-pointer text-muted-foreground" />
             <ChevronDown
-              className={`size-4 cursor-pointer text-gray-500 transition-transform duration-300 ${
+              className={`size-4 cursor-pointer text-muted-foreground transition-transform duration-300 ${
                 showMyCalendars ? "rotate-180" : ""
               }`}
               onClick={() => setShowMyCalendars(!showMyCalendars)}
@@ -104,7 +109,9 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                     alt={calendar.name}
                     className="size-4"
                   />
-                  <span className="text-sm font-normal">{calendar.name}</span>
+                  <span className="text-sm font-normal">
+                    {t(`calendar.${calendar.name.toLowerCase()}`)}
+                  </span>
                 </Center>
               ))
             : null}
@@ -114,11 +121,11 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       {/* Platforms */}
       <Stack className="w-full p-3">
         <Flex className="items-center justify-between">
-          <Box className="font-semibold mb-4">Platforms</Box>
+          <Box className="font-semibold mb-4">{t("calendar.platforms")}</Box>
           <Flex className="items-center">
-            <Plus className="size-4 cursor-pointer text-gray-500" />
+            <Plus className="size-4 cursor-pointer text-muted-foreground" />
             <ChevronDown
-              className={`size-4 cursor-pointer text-gray-500 transition-transform duration-300 ${
+              className={`size-4 cursor-pointer text-muted-foreground transition-transform duration-300 ${
                 showPlatforms ? "rotate-180" : ""
               }`}
               onClick={() => setShowPlatforms(!showPlatforms)}
@@ -148,9 +155,9 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
       {/* All Events */}
       <Stack className="w-full p-3">
         <Flex className="items-center justify-between">
-          <Box className="font-semibold mb-4">All Events</Box>
+          <Box className="font-semibold mb-4">{t("calendar.allEvents")}</Box>
           <Flex className="items-center">
-            <ChevronDown className="size-4 cursor-pointer text-gray-500" />
+            <ChevronDown className="size-4 cursor-pointer text-muted-foreground" />
           </Flex>
         </Flex>
         <Flex className="flex-col gap-2 items-start max-h-80 overflow-y-auto">
@@ -158,7 +165,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
             allMeetings.map((meeting: any, index: number) => (
               <Center
                 key={meeting.id || index}
-                className="gap-3 cursor-pointer hover:bg-gray-50 p-1 rounded-md w-full transition-colors justify-between"
+                className="gap-3 cursor-pointer hover:bg-muted/50 p-1 rounded-md w-full transition-colors justify-between"
                 onClick={() => navigateToMeetingWeek(meeting)}
               >
                 <Flex>
@@ -172,18 +179,17 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                   </span>
                 </Flex>
                 <Flex className="items-center min-w-0">
-                  <span className="text-xs text-gray-500">
-                    {new Date(meeting.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(meeting.date), "MMM d", {
+                      locale: currentLocale,
                     })}
                   </span>
                 </Flex>
               </Center>
             ))
           ) : (
-            <Box className="text-sm text-gray-500 italic">
-              No meetings scheduled
+            <Box className="text-sm text-muted-foreground italic">
+              {t("calendar.noMeetings")}
             </Box>
           )}
         </Flex>

@@ -158,7 +158,7 @@ export const CustomCalendarHeader = () => {
 
   return (
     <>
-      <Box className="mt-6 rounded-lg border border-gray-200">
+      <Box className="mt-6 rounded-lg border border-border">
         <Flex className="rounded-lg items-start overflow-hidden max-md:overflow-x-scroll gap-0">
           {/* Sidebar */}
           <CalendarSidebar
@@ -173,7 +173,7 @@ export const CustomCalendarHeader = () => {
           />
 
           {/* Main Calendar Area */}
-          <Box className="flex-1 bg-[#F8FAFC]" style={{ flex: 1 }}>
+          <Box className="flex-1 bg-background" style={{ flex: 1 }}>
             {/* Calendar Header */}
             <CalendarHeader
               viewMode={viewMode}

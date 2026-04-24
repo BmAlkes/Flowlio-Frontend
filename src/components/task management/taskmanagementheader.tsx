@@ -14,12 +14,16 @@ import { CustomDropdown, CustomDropdownItem } from "../ui/custom-dropdown";
 import { useFetchTasks } from "@/hooks/usefetchtasks";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
+import { useFetchCustomFields } from "@/hooks/usecustomfields";
 // removed client-specific hooks
 import { useUpdateTaskStatus } from "@/hooks/useupdatetask";
 import { format } from "date-fns";
 import { TaskDetailsModal } from "./taskdetailsmodal";
+import { useTranslation } from "react-i18next";
+import { KanbanSkeleton } from "@/components/skeletons";
 
 export const TaskManagementHeader = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   // client-specific logic removed
 
@@ -33,10 +37,16 @@ export const TaskManagementHeader = () => {
   const orgTasks = useFetchTasks();
   const orgUsers = useFetchOrganizationUsers();
   const orgProjects = useFetchProjects();
+  const { data: customFieldsData } = useFetchCustomFields("project");
 
   const tasksResponse = orgTasks.data;
   const usersResponse = orgUsers.data;
   const projectsResponse = orgProjects.data;
+
+  // Show skeleton while tasks or projects are loading
+  const isLoadingData =
+    orgTasks.isLoading || orgTasks.isFetching ||
+    orgProjects.isLoading || orgProjects.isFetching;
 
   const updateTaskStatus = useUpdateTaskStatus();
 
@@ -69,29 +79,37 @@ export const TaskManagementHeader = () => {
   // Map real tasks to KanbanBoard format, or use initial tasks
   const tasks: KanbanTask[] =
     realTasks.length > 0
-      ? realTasks.map((task) => ({
-          id: task.id,
-          title: task.title,
-          project: task.projectName || "Unknown Project",
-          projectId: task.projectId, // Include projectId for fetching comments
-          dueDate: task.endDate
-            ? format(new Date(task.endDate), "dd MMM, yyyy")
-            : "No due date",
-          status: mapStatusToKanban(task.status) as any,
-          comments: [], // Will be populated with project comments
-          // Additional data for modal
-          description: task.description,
-          assigneeName: task.assigneeName,
-          assigneeImage: task.assigneeImage,
-          creatorName: task.creatorName,
-          attachments: task.attachments,
-          parentId: task.parentId,
-          parentTitle: task.parentId
-            ? realTasks.find((rt) => rt.id === task.parentId)?.title
-            : undefined,
-          startAfter: task.startAfter ?? undefined,
-          finishBefore: task.finishBefore ?? undefined,
-        }))
+      ? realTasks.map((task) => {
+          const project = projects.find((p) => p.id === task.projectId);
+          const assignee = users.find(
+            (u) =>
+              (u.user?.id === task.assigneeId || u.id === task.assigneeId) &&
+              u.user?.name,
+          );
+          return {
+            id: task.id,
+            title: task.title,
+            project: task.projectName || t("taskManagement.unknownProject"),
+            projectId: task.projectId,
+            dueDate: task.endDate
+              ? format(new Date(task.endDate), "dd MMM, yyyy")
+              : t("taskManagement.noDueDate"),
+            status: mapStatusToKanban(task.status) as any,
+            comments: [],
+            description: task.description,
+            assigneeName: assignee?.user?.name || task.assigneeName,
+            assigneeImage: task.assigneeImage,
+            creatorName: task.creatorName,
+            attachments: task.attachments,
+            parentId: task.parentId,
+            parentTitle: task.parentId
+              ? realTasks.find((rt) => rt.id === task.parentId)?.title
+              : undefined,
+            startAfter: task.startAfter ?? undefined,
+            finishBefore: task.finishBefore ?? undefined,
+            projectCustomFields: project?.customFields,
+          };
+        })
       : initialTasks;
   const setTasks = () => {}; // No-op since we're using real data
 
@@ -158,22 +176,21 @@ export const TaskManagementHeader = () => {
       <Stack className="gap-4 py-2">
         <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
           <Stack className="gap-1">
-            <h1 className="text-black text-3xl max-sm:text-xl font-medium">
-              Task Management
+            <h1 className="text-foreground text-3xl max-sm:text-xl font-medium">
+              {t("appSidebar.tasksManagement")}
             </h1>
             <h1 className={`max-sm:text-sm text-[#616572]`}>
-              Efficiently track, assign, and monitor tasks to ensure smooth
-              workflow and productivity.
+              {t("taskManagement.subtitle")}
             </h1>
           </Stack>
 
             <Button
               variant="outline"
-              className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+              className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
               onClick={() => navigate("/dashboard/task-management/create-task")}
             >
-              <CirclePlus className="fill-white text-black size-5" />
-              Create Task
+              <CirclePlus className="size-5 text-white" />
+              {t("taskManagement.createTask")}
             </Button>
         </Center>
 
@@ -182,10 +199,10 @@ export const TaskManagementHeader = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
             <Input
               type="search"
-              placeholder="Search Project"
+              placeholder={t("taskManagement.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-white h-10  placeholder:text-black  placeholder:text-[15px] border border-gray-100 rounded-md focus:outline-none active:border-gray-200 focus:ring-0 focus:ring-offset-0"
+              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-card h-10  placeholder:text-foreground  placeholder:text-[15px] border border-border rounded-md focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0"
             />
           </Flex>
 
@@ -203,16 +220,18 @@ export const TaskManagementHeader = () => {
                   variant="ghost"
                   aria-haspopup="dialog"
                   className={cn(
-                    "cursor-pointer bg-white border border-gray-200 rounded-full h-10 w-36 text-black shadow-none flex p-3 justify-between overflow-hidden"
+                    "cursor-pointer bg-card border border-border rounded-full h-10 w-36 text-foreground shadow-none flex p-3 justify-between overflow-hidden"
                   )}
                 >
                   <ChevronDown />
                   {selectedProjects.length > 0
                     ? selectedProjects.length === 1
                       ? projects.find((p) => p.id === selectedProjects[0])
-                          ?.projectName || "Projects"
-                      : `${selectedProjects.length} Projects`
-                    : "Projects"}
+                          ?.projectName || t("taskManagement.projects")
+                      : t("taskManagement.nProjects", {
+                          count: selectedProjects.length,
+                        })
+                    : t("taskManagement.projects")}
                 </Button>
               }
             >
@@ -220,7 +239,7 @@ export const TaskManagementHeader = () => {
                 checked={selectedProjects.length === 0}
                 onClick={() => setSelectedProjects([])}
               >
-                All Projects
+                {t("taskManagement.allProjects")}
               </CustomDropdownItem>
               {projects.map((project) => (
                 <CustomDropdownItem
@@ -243,16 +262,21 @@ export const TaskManagementHeader = () => {
                   variant="ghost"
                   aria-haspopup="dialog"
                   className={cn(
-                    "ml-auto cursor-pointer bg-white border border-gray-200 rounded-full h-10 w-32 text-black shadow-none flex p-3 gap-8 overflow-hidden"
+                    "ml-auto cursor-pointer bg-card border border-border rounded-full h-10 w-32 text-foreground shadow-none flex p-3 gap-8 overflow-hidden"
                   )}
                 >
                   <ChevronDown />
                   {selectedUsers.length > 0
                     ? selectedUsers.length === 1
                       ? users.find((u) => u.user?.id === selectedUsers[0])
-                          ?.firstname || "Users"
-                      : `${selectedUsers.length} Users`
-                    : "Users"}
+                          ?.user?.name ||
+                        users.find((u) => u.user?.id === selectedUsers[0])
+                          ?.firstname ||
+                        t("taskManagement.users")
+                      : t("taskManagement.nUsers", {
+                          count: selectedUsers.length,
+                        })
+                    : t("taskManagement.users")}
                 </Button>
               }
             >
@@ -260,7 +284,7 @@ export const TaskManagementHeader = () => {
                 checked={selectedUsers.length === 0}
                 onClick={() => setSelectedUsers([])}
               >
-                All Users
+                {t("taskManagement.allUsers")}
               </CustomDropdownItem>
               {users.map((user) => (
                 <CustomDropdownItem
@@ -268,7 +292,7 @@ export const TaskManagementHeader = () => {
                   checked={selectedUsers.includes(user.user?.id || user.id)}
                   onClick={() => handleUserToggle(user.user?.id || user.id)}
                 >
-                  {user.firstname} {user.lastname}
+                  {user.user?.name || `${user.firstname} ${user.lastname}`.trim()}
                 </CustomDropdownItem>
               ))}
             </CustomDropdown>
@@ -279,10 +303,16 @@ export const TaskManagementHeader = () => {
       <KanbanBoard
         tasks={tasks}
         setTasks={setTasks}
-        filteredTasks={filteredTasks}
+        filteredTasks={isLoadingData ? [] : filteredTasks}
         onStatusUpdate={handleStatusUpdate}
         onTaskClick={handleTaskClick}
+        projectCustomFieldsData={customFieldsData?.data}
       />
+
+      {/* Kanban skeleton overlay while loading */}
+      {isLoadingData && (
+        <KanbanSkeleton columns={5} cardsPerColumn={3} />
+      )}
 
       {/* Task Details Modal */}
       {selectedTask && (

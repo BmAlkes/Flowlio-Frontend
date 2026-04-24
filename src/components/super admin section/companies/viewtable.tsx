@@ -17,7 +17,7 @@ export type Data = {
 export const columns: ColumnDef<Data>[] = [
   {
     accessorKey: "name",
-    header: () => <Box className="text-black p-4">Employee Name</Box>,
+    header: () => <Box className="text-foreground p-4">Employee Name</Box>,
     cell: ({ row }) => (
       <Box className="capitalize p-4 max-sm:w-full">
         {row.original.name.length > 28
@@ -28,12 +28,12 @@ export const columns: ColumnDef<Data>[] = [
   },
   {
     accessorKey: "email",
-    header: () => <Box className="text-black text-start">Email</Box>,
+    header: () => <Box className="text-foreground text-start">Email</Box>,
     cell: ({ row }) => <Box className="text-start">{row.original.email}</Box>,
   },
   {
     accessorKey: "role",
-    header: () => <Box className="text-black text-start">Role</Box>,
+    header: () => <Box className="text-foreground text-start">Role</Box>,
     cell: ({ row }) => (
       <Box className="text-start capitalize">{row.original.role}</Box>
     ),
@@ -41,11 +41,11 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "status",
-    header: () => <Center className="text-black">Status</Center>,
+    header: () => <Center className="text-foreground">Status</Center>,
     cell: ({ row }) => {
       return (
         <Center className="capitalize w-20 h-9 gap-2 border text-white bg-[#00A400] border-[#00A400] rounded-full text-center mx-auto">
-          <Box className="w-1.5 h-1.5 rounded-full bg-white" />
+          <Box className="w-1.5 h-1.5 rounded-full bg-card" />
           <h1 className="text-white text-xs text-center ">
             {row.original.status}
           </h1>
@@ -56,16 +56,16 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "joinedAt",
-    header: () => <Box className="text-center text-black">Joined Date</Box>,
+    header: () => <Box className="text-center text-foreground">Joined Date</Box>,
     cell: ({ row }) => {
       if (!row.original.joinedAt) {
-        return <Center className="space-x-2 text-gray-400">N/A</Center>;
+        return <Center className="space-x-2 text-muted-foreground">N/A</Center>;
       }
       try {
         const joinedDate = new Date(row.original.joinedAt);
         // Check if date is valid and not epoch date (Jan 1, 1970)
         if (isNaN(joinedDate.getTime()) || joinedDate.getTime() === 0) {
-          return <Center className="space-x-2 text-gray-400">N/A</Center>;
+          return <Center className="space-x-2 text-muted-foreground">N/A</Center>;
         }
         return (
           <Center className="space-x-2">
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Data>[] = [
           </Center>
         );
       } catch {
-        return <Center className="space-x-2 text-gray-400">N/A</Center>;
+        return <Center className="space-x-2 text-muted-foreground">N/A</Center>;
       }
     },
   },
@@ -95,8 +95,8 @@ export const ViewTable = ({ users }: ViewTableProps) => {
   }));
 
   return (
-    <PageWrapper className="bg-white border-none w-full min-h-full p-0">
-      <h1 className="text-black text-xl max-sm:text-lg font-medium p-4 pb-0">
+    <PageWrapper className="bg-card border-none w-full min-h-full p-0">
+      <h1 className="text-foreground text-xl max-sm:text-lg font-medium p-4 pb-0">
         Employees ({users.length})
       </h1>
 

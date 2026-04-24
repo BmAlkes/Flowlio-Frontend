@@ -14,7 +14,7 @@ const FooterLink = ({
 }) => (
   <a
     href={href}
-    className="text-gray-400 hover:text-white transition-colors duration-300"
+    className="text-muted-foreground hover:text-white transition-colors duration-300"
   >
     {children}
   </a>
@@ -31,11 +31,11 @@ export const Footer = () => {
               <img src={Logo} alt="Dotvizion" className="h-18 w-auto mb-4" />
             </FooterLink>
 
-            <p className="text-gray-400 mb-6 text-sm">
+            <p className="text-muted-foreground mb-6 text-sm">
               Streamline your project management with Flowlio's powerful tools
               for task management, calendar integration, and team collaboration.
             </p>
-            <Flex className="items-center text-gray-400 cursor-pointer hover:text-white transition-colors duration-300">
+            <Flex className="items-center text-muted-foreground cursor-pointer hover:text-white transition-colors duration-300">
               <FiGlobe className="mr-2" />
               <span>English</span>
             </Flex>
@@ -66,7 +66,7 @@ export const Footer = () => {
           {/* Column 4: Stay in Touch */}
           <Center className="w-full sm:w-1/2 md:w-auto items-start flex-col max-sm:items-center">
             <h3 className="font-semibold text-cyan-400 mb-4">Stay in Touch</h3>
-            <Flex className="flex-col space-y-2 text-gray-400 items-start max-sm:items-center">
+            <Flex className="flex-col space-y-2 text-muted-foreground items-start max-sm:items-center">
               <span>info@dotvizion.com</span>
               <span>Available 24/7 through our platform</span>
             </Flex>
@@ -76,21 +76,21 @@ export const Footer = () => {
       <Box className="bg-[#3F3F3F] text-white py-4 px-4 sm:px-6 lg:px-8">
         <Flex className="container mx-auto max-w-5xl justify-between items-start flex-wrap gap-8">
           <span>© 2025 Flowlio. All rights reserved.</span>
-          <span className="text-gray-400 hover:text-white transition-colors duration-300">Flowlio is a product by <FooterLink href="https://www.dotvizion.com">Dotvizion</FooterLink></span>
+          <span className="text-muted-foreground hover:text-white transition-colors duration-300">Flowlio is a product by <FooterLink href="https://www.dotvizion.com">Dotvizion</FooterLink></span>
           <Flex className="text-white space-x-4 items-center">
             <Link
               to="/privacy-policy"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="text-muted-foreground hover:text-white transition-colors duration-300"
             >
               Privacy Policy
             </Link>
             <Link
               to="/terms-of-service"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="text-muted-foreground hover:text-white transition-colors duration-300"
             >
               Terms of Service
             </Link>
-            <span className="text-gray-400">Cookie Settings</span>
+            <span className="text-muted-foreground">Cookie Settings</span>
           </Flex>
         </Flex>
       </Box>

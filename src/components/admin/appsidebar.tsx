@@ -27,6 +27,7 @@ import {
 import { ComponentProps, FC, type ReactElement, useState } from "react";
 import { ChevronRight, LogOut, Loader } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "usehooks-ts";
 import { Button } from "../ui/button";
 import { Center } from "../ui/center";
@@ -70,6 +71,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -124,7 +126,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
 
   return (
     <Sidebar
-      className="**:data-[sidebar=sidebar]:bg-slate-50 **:data-[sidebar=sidebar]:border-4 **:data-[sidebar=sidebar]:border-white"
+      className="**:data-[sidebar=sidebar]:bg-sidebar **:data-[sidebar=sidebar]:border-4 **:data-[sidebar=sidebar]:border-border dark:**:data-[sidebar=sidebar]:bg-[#1d1d1d]"
       variant="floating"
       collapsible="icon"
       {...props}
@@ -135,10 +137,10 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
           isCompact={state === "collapsed" && !isMobile}
           className={state === "collapsed" ? "m-auto" : undefined}
           containerClassName={cn(
-            "bg-[#F8FAFB] py-5 rounded-md",
+            "  py-5 rounded-md",
             state === "collapsed" && !isMobile
               ? "py-2 inset-0 bg-transparent"
-              : "justify-start! ml-2"
+              : "justify-start! ml-2",
           )}
         />
 
@@ -152,7 +154,9 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
               />
             </TooltipTrigger>
             <TooltipContent className="mb-2">
-              <p>{state === "collapsed" ? "Open" : "Close"}</p>
+              <p>
+                {state === "collapsed" ? t("common.open") : t("common.close")}
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -163,7 +167,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
             <SidebarMenu>
               {navItems.map((item, index) => {
                 const normalizePath = (path: string) =>
-                  path.replace(/\/+$/, "").split("?")[0];
+                  decodeURIComponent(path).replace(/\/+$/, "").split("?")[0];
 
                 const currentPath = normalizePath(location.pathname);
                 const itemPath = normalizePath(item.url);
@@ -171,16 +175,22 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
 
                 const theSubPath = item.subItems?.map((subItem) => subItem.url);
                 const isSubItemActive = theSubPath?.some(
-                  (subPath) => normalizePath(subPath) === currentPath
+                  (subPath) => normalizePath(subPath) === currentPath,
                 );
 
-                // Check if current path includes the parent item's URL (for nested routes like dashboard/project/create-project)
+                const isAnotherTopLevelActive = navItems.some(
+                  (ni) =>
+                    ni.url !== item.url &&
+                    normalizePath(ni.url) === currentPath,
+                );
+
                 const isParentActive =
                   itemPath !== "/" &&
                   itemPath !== "/dashboard" &&
                   itemPath !== "/superadmin" &&
                   itemPath !== "/viewer" &&
-                  currentPath.startsWith(itemPath);
+                  currentPath.startsWith(itemPath + "/") &&
+                  !isAnotherTopLevelActive;
 
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -189,7 +199,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                         <SidebarMenuButton
                           className={
                             isSubItemActive || isParentActive
-                              ? "bg-gray-300/50"
+                              ? "bg-accent/50"
                               : ""
                           }
                           tooltip={{
@@ -204,11 +214,11 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                           <li
                                             key={subItem.url}
                                             className={cn(
-                                              `flex items-center gap-2 p-2 rounded-md hover:bg-white/10`
+                                              `flex items-center gap-2 p-2 rounded-md hover:bg-accent`,
                                             )}
                                           >
                                             {renderIcon(subItem.icon, "invert")}
-                                            {subItem.title}
+                                            {t(`appSidebar.${subItem.title}`)}
                                           </li>
                                         </Link>
                                       );
@@ -235,18 +245,18 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                   item.icon,
                                   `${
                                     state === "collapsed" ? "ml-1" : undefined
-                                  } `
+                                  } `,
                                 )}
                                 <span
                                   className={
                                     state === "collapsed" && !is768
                                       ? "hidden"
                                       : is768
-                                      ? "block"
-                                      : undefined
+                                        ? "block"
+                                        : undefined
                                   }
                                 >
-                                  {item.title}
+                                  {t(`appSidebar.${item.title}`)}
                                 </span>
                               </Center>
                               {(state === "expanded" || is768) && (
@@ -258,7 +268,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                         <CollapsibleContent
                           className={
                             isSubItemActive || isParentActive
-                              ? "bg-gray-300/50 rounded-sm mt-1"
+                              ? "bg-accent/50 rounded-sm mt-1"
                               : ""
                           }
                         >
@@ -275,17 +285,17 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                   className={cn(
                                     "relative flex items-center gap-2 p-2",
                                     isSubItemActive
-                                      ? "text-black rounded-md"
-                                      : "text-gray-400"
+                                      ? "text-foreground rounded-md"
+                                      : "text-muted-foreground",
                                   )}
                                 >
                                   {/* Left-side indicator */}
                                   <Box
                                     className={cn(
-                                      "absolute -left-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-black",
+                                      "absolute -left-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full",
                                       isSubItemActive
-                                        ? "bg-black w-2 h-2"
-                                        : "border border-gray-400 bg-white"
+                                        ? "bg-foreground w-2 h-2"
+                                        : "border border-muted-foreground bg-background",
                                     )}
                                   >
                                     {/* Vertical Line */}
@@ -295,8 +305,8 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                           ? "hidden"
                                           : "absolute left-1/2 top-full w-[1px] h-9 -translate-x-1/2",
                                         isSubItemActive
-                                          ? "bg-gray-500"
-                                          : "bg-gray-400"
+                                          ? "bg-muted-foreground"
+                                          : "bg-muted",
                                       )}
                                     />
                                   </Box>
@@ -311,11 +321,11 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                         state === "collapsed" && !is768
                                           ? "hidden"
                                           : is768
-                                          ? "block"
-                                          : undefined
+                                            ? "block"
+                                            : undefined,
                                       )}
                                     >
-                                      {subItem.title}
+                                      {t(`appSidebar.${subItem.title}`)}
                                     </span>
                                   </Link>
                                 </SidebarMenuSubItem>
@@ -334,7 +344,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                         tooltip={{
                           children: (
                             <span className="capitalize text-[14px]">
-                              {item.title}
+                              {t(`appSidebar.${item.title}`)}
                             </span>
                           ),
                         }}
@@ -355,7 +365,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                               index === 0 && state !== "collapsed"
                                 ? "transform rotate-180"
                                 : ""
-                            }`
+                            }`,
                           )}
 
                           <span
@@ -363,11 +373,11 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                               state === "collapsed" && !is768
                                 ? "hidden"
                                 : is768
-                                ? "block"
-                                : undefined
+                                  ? "block"
+                                  : undefined
                             }
                           >
-                            {item.title}
+                            {t(`appSidebar.${item.title}`)}
                           </span>
                         </Link>
                       </SidebarMenuButton>
@@ -381,7 +391,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
       </SidebarContent>
       <SidebarFooter>
         <Button
-          className="bg-transparent text-black hover:bg-red-50 cursor-pointer border-none flex items-start justify-start gap-2 shadow-none"
+          className="bg-transparent text-foreground hover:bg-destructive/10 cursor-pointer border-none flex items-start justify-start gap-2 shadow-none"
           onClick={handleLogout}
           disabled={isLoggingOut}
           aria-busy={isLoggingOut}
@@ -396,7 +406,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
               {isLoggingOut ? (
                 <Center>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />
-                  Logging out...
+                  {t("common.loggingOut")}
                 </Center>
               ) : (
                 <Flex className="items-center gap-2">
@@ -406,7 +416,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                       state === "collapsed" ? "m-auto size-4" : "size-4"
                     }
                   />
-                  <span className="text-sm">Logout</span>
+                  <span className="text-sm">{t("common.logout")}</span>
                 </Flex>
               )}
             </span>

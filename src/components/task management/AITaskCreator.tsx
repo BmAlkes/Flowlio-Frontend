@@ -86,7 +86,7 @@ export const AITaskCreator = ({
   }
 
   return (
-    <Box className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+    <Box className="bg-gradient-to-br from-blue-500/5 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
       <Flex className="justify-between items-center mb-3">
         <Flex className="items-center gap-2">
           <Sparkles className="w-5 h-5 text-blue-600" />
@@ -108,7 +108,7 @@ export const AITaskCreator = ({
 
       <Stack className="gap-3">
         <Box>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">
+          <label className="text-sm font-medium text-foreground mb-2 block">
             Describe your task in natural language:
           </label>
           <Textarea
@@ -116,12 +116,12 @@ export const AITaskCreator = ({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g., 'Create a landing page for Project Alpha, assign to John, due next Friday, estimated 8 hours'"
-            className="min-h-[100px] bg-white border-gray-300 focus:border-blue-400 focus:ring-blue-400"
+            className="min-h-[100px] bg-card border-border focus:border-blue-400 focus:ring-blue-400"
             disabled={aiTaskCreation.isPending}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Press{" "}
-            <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">
+            <kbd className="px-1 py-0.5 bg-muted rounded text-xs">
               Ctrl + Enter
             </kbd>{" "}
             to generate
@@ -156,8 +156,8 @@ export const AITaskCreator = ({
           </Flex>
         )}
 
-        <Box className="bg-white/60 rounded-lg p-3 border border-blue-200">
-          <p className="text-xs text-gray-600">
+        <Box className="bg-card/60 rounded-lg p-3 border border-blue-200">
+          <p className="text-xs text-muted-foreground">
             <strong>💡 Tips:</strong> Include details like project name,
             assignee, due date, and time estimates for better results.
           </p>

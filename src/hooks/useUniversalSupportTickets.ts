@@ -49,6 +49,19 @@ export interface UniversalSupportTicket {
   };
 }
 
+export interface SupportTicketMessage {
+  id: string;
+  ticketId: string;
+  senderId: string;
+  senderRole: string;
+  senderName: string;
+  message: string;
+  createdAt: string;
+  sender?: {
+    image: string | null;
+  };
+}
+
 export interface CreateUniversalSupportTicketRequest {
   subject: string;
   description: string;
@@ -211,6 +224,75 @@ export const useAssignmentOptions = () => {
       return response.data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+};
+
+export const useSupportTicketMessages = (ticketId: string) => {
+  return useQuery<ApiResponse<SupportTicketMessage[]>, ErrorWithMessage>({
+    queryKey: ["universal-support-ticket-messages", ticketId],
+    queryFn: async () => {
+      const response = await axios.get<ApiResponse<SupportTicketMessage[]>>(
+        `/support-tickets/${ticketId}/messages`
+      );
+      return response.data;
+    },
+    enabled: !!ticketId,
+    refetchInterval: 3000, // Poll every 3 seconds for real-time feel
+  });
+};
+
+export const useCreateSupportTicketMessage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ApiResponse<SupportTicketMessage>,
+    ErrorWithMessage,
+    { ticketId: string; message: string }
+  >({
+    mutationFn: async ({ ticketId, message }) => {
+      const response = await axios.post<ApiResponse<SupportTicketMessage>>(
+        `/support-tickets/${ticketId}/messages`,
+        { message }
+      );
+      return response.data;
+    },
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["universal-support-ticket-messages", ticketId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["universal-support-tickets"],
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || "Failed to send reply"
+      );
+    },
+  });
+};
+
+export const useClearSupportTicketMessages = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ApiResponse<void>, ErrorWithMessage, string>({
+    mutationFn: async (ticketId) => {
+      const response = await axios.delete<ApiResponse<void>>(
+        `/support-tickets/${ticketId}/messages`
+      );
+      return response.data;
+    },
+    onSuccess: (_, ticketId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["universal-support-ticket-messages", ticketId],
+      });
+      toast.success("Chat history cleared");
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || "Failed to clear chat history"
+      );
+    },
   });
 };
 

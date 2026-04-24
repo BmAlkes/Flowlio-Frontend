@@ -138,8 +138,8 @@ export const Navbar: FC<NavbarProps> = ({
             <Link
               to="/workflow"
               className={cn(
-                "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618]",
-                isHomePage === true && "text-gray-500",
+                "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-muted focus:bg-muted focus:text-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618]",
+                isHomePage === true && "text-muted-foreground",
                 isInsightsPage === true && "text-white",
                 isWorkflowPage && "text-[#F98618]"
               )}
@@ -149,8 +149,8 @@ export const Navbar: FC<NavbarProps> = ({
             <Link
               to="/insights"
               className={cn(
-                "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-gray-100 hover:text-[#F98618] focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden",
-                isHomePage === true && "text-gray-500",
+                "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-muted hover:text-[#F98618] focus:bg-muted focus:text-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden",
+                isHomePage === true && "text-muted-foreground",
                 isWorkflowPage && "text-white",
                 isInsightsPage === true && "text-[#F98618]"
               )}
@@ -230,8 +230,8 @@ export const Navbar: FC<NavbarProps> = ({
             to="/pricing"
             onClick={() => navigate("/pricing")}
             className={cn(
-              "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618]",
-              isHomePage === true && "text-gray-500",
+              "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-muted focus:bg-muted focus:text-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618]",
+              isHomePage === true && "text-muted-foreground",
               isInsightsPage === true && "text-white",
 
               isWorkflowPage && "text-white"
@@ -242,8 +242,8 @@ export const Navbar: FC<NavbarProps> = ({
           <Box
             onClick={() => navigate("/auth/signin")}
             className={cn(
-              "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618] cursor-pointer",
-              isHomePage === true && "text-gray-500",
+              "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-muted focus:bg-muted focus:text-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-none data-[state=open]:bg-none dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-none max-lg:hidden hover:text-[#F98618] cursor-pointer",
+              isHomePage === true && "text-muted-foreground",
               isWorkflowPage && "text-white",
               isInsightsPage === true && "text-white"
             )}

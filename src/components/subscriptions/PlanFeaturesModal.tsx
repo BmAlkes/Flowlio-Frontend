@@ -30,7 +30,7 @@ export const PlanFeaturesModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-gray-900">
+          <DialogTitle className="text-2xl font-semibold text-foreground">
             {planName} Plan Features
           </DialogTitle>
           <DialogDescription className="text-base">
@@ -39,14 +39,14 @@ export const PlanFeaturesModal = ({
                 ${planPrice}
               </Box>
               {planDescription && (
-                <Box className="text-gray-600 mt-2">{planDescription}</Box>
+                <Box className="text-muted-foreground mt-2">{planDescription}</Box>
               )}
             </Box>
           </DialogDescription>
         </DialogHeader>
 
         <Box className="mt-6">
-          <Box className="text-lg font-semibold mb-4 text-gray-900">
+          <Box className="text-lg font-semibold mb-4 text-foreground">
             What's Included:
           </Box>
           {(() => {
@@ -57,7 +57,7 @@ export const PlanFeaturesModal = ({
               // If features is an array
               if (Array.isArray(features)) {
                 displayFeatures = features.map((f: any) =>
-                  typeof f === "string" ? f : f.name || f.title || String(f)
+                  typeof f === "string" ? f : f.name || f.title || String(f),
                 );
               }
               // If features is an object
@@ -69,14 +69,14 @@ export const PlanFeaturesModal = ({
                   displayFeatures.push(
                     `Up to ${featureObj.maxUsers} user${
                       featureObj.maxUsers > 1 ? "s" : ""
-                    }`
+                    }`,
                   );
                 }
                 if (featureObj.maxProjects) {
                   displayFeatures.push(
                     `Up to ${featureObj.maxProjects} project${
                       featureObj.maxProjects > 1 ? "s" : ""
-                    }`
+                    }`,
                   );
                 }
                 if (featureObj.maxStorage) {
@@ -86,7 +86,7 @@ export const PlanFeaturesModal = ({
                   displayFeatures.push(
                     `Up to ${featureObj.maxTasks} task${
                       featureObj.maxTasks > 1 ? "s" : ""
-                    } per user`
+                    } per user`,
                   );
                 }
 
@@ -122,15 +122,15 @@ export const PlanFeaturesModal = ({
                 {displayFeatures.map((feature: string, index: number) => (
                   <Box
                     key={index}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <Box className="text-gray-700">{feature}</Box>
+                    <Box className="text-foreground">{feature}</Box>
                   </Box>
                 ))}
               </Stack>
             ) : (
-              <Box className="text-gray-500 text-center py-8">
+              <Box className="text-muted-foreground text-center py-8">
                 No features available for this plan.
               </Box>
             );

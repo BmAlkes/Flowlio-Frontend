@@ -22,7 +22,7 @@ export const SubscriptionGuard = ({
         <div className="flex items-center justify-center min-h-screen">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <p className="text-gray-600">Checking subscription status...</p>
+            <p className="text-muted-foreground">Checking subscription status...</p>
           </div>
         </div>
       )
@@ -34,7 +34,7 @@ export const SubscriptionGuard = ({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-2">Error checking subscription</p>
-          <p className="text-gray-600 text-sm">{error.message}</p>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
         </div>
       </div>
     );
@@ -50,7 +50,7 @@ export const SubscriptionGuard = ({
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <p className="text-gray-600">Redirecting to pricing page...</p>
+        <p className="text-muted-foreground">Redirecting to pricing page...</p>
       </div>
     </div>
   );

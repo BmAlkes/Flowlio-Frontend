@@ -38,7 +38,7 @@ const Nav = ({
       </Button>
       <p className="space-x-1">
         <span>{month}</span>
-        <span className="text-gray-400 text-xs">{year}</span>
+        <span className="text-muted-foreground text-xs">{year}</span>
       </p>
       <Button
         variant="outline"

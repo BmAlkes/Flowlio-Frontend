@@ -24,6 +24,7 @@ import { Center } from "@/components/ui/center";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
+import newChatIcon from "/dashboard/newchaticon.svg";
 
 export const AiAssistPage = () => {
   const modalProps = useGeneralModalDisclosure();
@@ -84,10 +85,10 @@ export const AiAssistPage = () => {
               <Lock className="w-12 h-12 text-red-600" />
             </div>
             <Stack className="gap-2 text-center max-w-md">
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <h2 className="text-2xl font-semibold text-foreground">
                 AI Assist Not Available
               </h2>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 {featureAccess?.data?.reason ||
                   "AI Assist is not available in your current plan. Please upgrade to access this feature."}
               </p>
@@ -119,8 +120,8 @@ export const AiAssistPage = () => {
           >
             <AiAssitSidebar className="hidden sm:block" />
 
-            <SidebarInset className="bg-gradient-to-r from-[#F2F2F2] to-[#f0f2f7] overflow-auto w-full max-w-full">
-              <Stack className="p-3 h-16 justify-between bg-gradient-to-r from-white to-indigo-50 w-full ml-auto">
+            <SidebarInset className="bg-background overflow-auto w-full max-w-full">
+              <Stack className="p-3 h-16 justify-between bg-card w-full ml-auto border-b border-border">
                 <Flex className="justify-end gap-2 flex-wrap sm:flex-nowrap w-full min-w-0">
                   <Button
                     className="rounded-full h-11 sm:w-32 min-w-0"
@@ -128,7 +129,7 @@ export const AiAssistPage = () => {
                     onClick={handleNewChat}
                   >
                     <img
-                      src="/dashboard/newchaticon.svg"
+                      src={newChatIcon}
                       alt="plus"
                       className="size-4"
                     />
@@ -145,7 +146,7 @@ export const AiAssistPage = () => {
 
                   <SidebarTrigger
                     className={cn(
-                      "text-black bg-gray-100/20 hover:bg-gray-100/30 hidden max-md:block p-2",
+                      "text-foreground bg-gray-100/20 hover:bg-gray-100/30 hidden max-md:block p-2",
                       state === "collapsed" ? " rotate-180" : "ml-auto"
                     )}
                   />

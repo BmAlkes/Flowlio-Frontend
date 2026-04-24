@@ -223,31 +223,31 @@ export const SubscriptionAuditModal = ({
                   </h3>
                   <Box className="border rounded-lg overflow-hidden">
                     <table className="w-full">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-muted/50">
                         <tr>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Company Name
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Plan
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Price
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Issue
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Status
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
                             Actions
                           </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {auditData.report.map((item, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
+                          <tr key={index} className="hover:bg-muted/50">
                             <td className="px-4 py-3 text-sm">
                               {item.organizationName}
                             </td>
@@ -353,7 +353,7 @@ export const SubscriptionAuditModal = ({
             {selectedSubscription?.action === "reactivate" ? (
               <Stack className="gap-4">
                 <Box>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">
                     Payment Amount (Optional)
                   </label>
                   <Input
@@ -364,7 +364,7 @@ export const SubscriptionAuditModal = ({
                   />
                 </Box>
                 <Box>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">
                     Payment Method (Optional)
                   </label>
                   <Input
@@ -375,7 +375,7 @@ export const SubscriptionAuditModal = ({
                   />
                 </Box>
                 <Box>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">
                     Notes (Optional)
                   </label>
                   <Textarea
@@ -389,18 +389,18 @@ export const SubscriptionAuditModal = ({
             ) : (
               <Stack className="gap-4">
                 <Box>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">
                     Reason
                   </label>
                   <Input
                     type="text"
                     value="Non-payment"
                     disabled
-                    className="bg-gray-50"
+                    className="bg-muted/50"
                   />
                 </Box>
                 <Box>
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">
                     Notes (Optional)
                   </label>
                   <Textarea

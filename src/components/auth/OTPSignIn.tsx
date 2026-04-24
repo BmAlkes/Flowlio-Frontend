@@ -78,28 +78,28 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
   };
   const navigate = useNavigate();
   return (
-    <Center className="min-h-screen bg-gray-50 px-4">
-      <Box className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <Center className="min-h-screen bg-muted/50 px-4">
+      <Box className="w-full max-w-md bg-card rounded-xl shadow-lg p-8">
         {/* Header */}
         <Stack className="gap-4 text-center mb-8">
           <Center className="mx-auto w-16 h-16 bg-blue-100 rounded-full">
             <Mail className="w-8 h-8 text-blue-600" />
           </Center>
           <Stack className="gap-2">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               Check Your Email
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               We've sent a 6-digit verification code to
             </p>
-            <p className="font-semibold text-gray-900">{email}</p>
+            <p className="font-semibold text-foreground">{email}</p>
           </Stack>
         </Stack>
 
         {/* OTP Form */}
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <Stack className="gap-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Enter Verification Code
             </label>
             <Input
@@ -170,7 +170,7 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
 
         {/* Help Text */}
         <Box className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Didn't receive the code? Check your spam folder or{" "}
             <button
               type="button"

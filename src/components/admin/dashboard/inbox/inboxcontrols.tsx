@@ -13,20 +13,20 @@ export const InboxControls = () => {
       <Flex className="justify-between max-md:flex-col max-md:items-start">
         <Box>
           <h1 className="text-3xl font-medium capitalize">Inbox</h1>
-          <p className="text-gray-500 mt-1 max-md:text-sm">
+          <p className="text-muted-foreground mt-1 max-md:text-sm">
             Manage and track all your notifications and messages in one place.
           </p>
         </Box>
 
         <Flex className="gap-2 max-md:mt-4">
-          <Button variant="outline" size="sm" className="text-gray-600">
+          <Button variant="outline" size="sm" className="text-muted-foreground">
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="text-gray-600"
+            className="text-muted-foreground"
             onClick={markAllAsRead}
           >
             <CheckSquare className="mr-2 h-4 w-4" />

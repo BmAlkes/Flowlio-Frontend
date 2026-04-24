@@ -15,6 +15,7 @@ import {
   transformOngoingTaskData,
 } from "@/hooks/useFetchOngoingTasks";
 import { useTranslation } from "react-i18next";
+import { ListSkeleton } from "@/components/skeletons";
 
 export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
   const { t } = useTranslation();
@@ -50,18 +51,14 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         className={cn("p-5 rounded-lg overflow-hidden", className)}
         {...props}
       >
-        <Stack className="gap-5 items-center">
-          <Flex className="justify-start mr-auto">
-            <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
+        <Stack className="gap-5">
+          <Flex className="justify-start mr-auto gap-2">
+          <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
             </h1>
           </Flex>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">
-              {t("dashboard.loadingOngoingTasks")}
-            </div>
-          </div>
+          <ListSkeleton rows={3} />
         </Stack>
       </ComponentWrapper>
     );
@@ -76,7 +73,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
       >
         <Stack className="gap-5 items-center">
           <Flex className="justify-start mr-auto">
-            <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
+          <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
             </h1>
@@ -100,13 +97,13 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
       >
         <Stack className="gap-5 items-center">
           <Flex className="justify-start mr-auto">
-            <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
+          <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
             </h1>
           </Flex>
           <div className="flex items-center justify-center h-32">
-            <div className="text-gray-500">
+            <div className="text-muted-foreground">
               {t("dashboard.noOngoingTasksFound")}
             </div>
           </div>
@@ -122,7 +119,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
     >
       <Stack className="gap-5 items-center">
         <Flex className="justify-start mr-auto">
-          <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
+          <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
           <h1 className="text-lg font-medium">
             {t("dashboard.ongoingTasksTitle")}
           </h1>
@@ -148,7 +145,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
           {(emblaApi) => (
             <>
               <Button
-                className="rounded-full shadow-lg absolute bg-white top-0 left-0 inset-y-0 m-auto -translate-x-5"
+                className="rounded-full shadow-lg absolute bg-background top-0 left-0 inset-y-0 m-auto -translate-x-5"
                 onClick={() => emblaApi.scrollPrev()}
                 variant="ghost"
                 size="icon"
@@ -156,7 +153,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
                 <FaCaretLeft />
               </Button>
               <Button
-                className="rounded-full shadow-lg absolute bg-white top-0 right-0 inset-y-0 m-auto translate-x-5"
+                className="rounded-full shadow-lg absolute bg-background top-0 right-0 inset-y-0 m-auto translate-x-5"
                 onClick={() => emblaApi.scrollNext()}
                 variant="ghost"
                 size="icon"

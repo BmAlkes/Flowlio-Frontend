@@ -59,7 +59,7 @@ export const FaqDropdown: React.FC<{ className?: string }> = ({
               <Button
                 size="icon"
                 className={cn(
-                  "p-5 bg-white text-black hover:bg-white border border-gray-300 rounded-full cursor-pointer",
+                  "p-5 bg-background text-foreground hover:bg-card border border-border rounded-full cursor-pointer",
                   className
                 )}
               >
@@ -80,7 +80,7 @@ export const FaqDropdown: React.FC<{ className?: string }> = ({
         >
           {faqs.map(({ question, answer }, key) => (
             <AccordionItem className="my-2" value={question} key={key}>
-              <AccordionTrigger className="bg-gray-200 px-2 hover:no-underline">
+              <AccordionTrigger className="bg-muted px-2 hover:no-underline">
                 {question}
               </AccordionTrigger>
               <AccordionContent>{answer}</AccordionContent>

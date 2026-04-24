@@ -19,7 +19,10 @@ import {
   useEnable2FA,
 } from "@/hooks/useBetterAuthTwoFA";
 import { useUser } from "@/providers/user.provider";
-import { useUserProfile } from "@/hooks/useuserprofile";
+import {
+  useUserProfile,
+  getMergedProfileFormValues,
+} from "@/hooks/useuserprofile";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateUserProfile } from "@/hooks/useupdateuserprofile";
@@ -80,19 +83,22 @@ export const ViewerSettingsHeader = () => {
   // Loading guard to avoid empty fields flash during refetch
   const isProfileReady = Boolean(userProfile?.data);
 
-  // Keep profile form in sync with latest user data
+  // Keep profile form in sync with latest user data (includes client CRM row for portal users)
   useEffect(() => {
     const u = userProfile?.data;
     if (u) {
-      if (u.image) {
-        setAvatarPreview(u.image);
+      const merged = getMergedProfileFormValues(u);
+      if (merged.image) {
+        setAvatarPreview(merged.image);
+      } else {
+        setAvatarPreview(userData?.user?.image || "/dashboard/1.svg");
       }
       profileForm.reset({
         avatar: undefined,
-        fullName: u.name ?? "",
-        email: u.email ?? "",
-        phone: u.phone ?? "",
-        address: u.address ?? "",
+        fullName: merged.fullName,
+        email: merged.email,
+        phone: merged.phone,
+        address: merged.address,
         paymentAlertNotifications:
           u.notificationPreferences?.paymentAlerts ?? true,
         invoiceRemindersNotifications:
@@ -101,7 +107,7 @@ export const ViewerSettingsHeader = () => {
           u.notificationPreferences?.projectActivityUpdates ?? true,
       });
     }
-  }, [userProfile?.data]);
+  }, [userProfile?.data, userData?.user?.image]);
 
   // Password Form
   const passwordChangeSchema = z
@@ -318,7 +324,7 @@ export const ViewerSettingsHeader = () => {
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading settings...</p>
+            <p className="text-muted-foreground">Loading settings...</p>
           </div>
         </div>
       ) : (
@@ -327,14 +333,14 @@ export const ViewerSettingsHeader = () => {
           <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
             <Stack className="gap-1">
               <h1 className="text-2xl font-medium">Setting</h1>
-              <h1 className="text-gray-500 font-normal">
+              <h1 className="text-muted-foreground font-normal">
                 Need Help? We've Got You Covered.
               </h1>
             </Stack>
             <Button
               type="submit"
               variant="outline"
-              className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer h-11"
+              className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer h-11"
               disabled={
                 profileSaving ||
                 updateProfileMutation.isPending ||
@@ -349,7 +355,7 @@ export const ViewerSettingsHeader = () => {
             </Button>
           </Center>
           <Stack className="gap-8 mt-8">
-            <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3 ">
+            <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3 ">
               <h1 className="text-xl font-medium">User Profile</h1>
               <Flex className="justify-between w-xs max-sm:w-full">
                 <img
@@ -374,7 +380,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="bg-[#DDDDDD] text-black rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-[#DDDDDD]/80 hover:text-white"
+                    className="bg-[#DDDDDD] text-foreground rounded-full flex items-center gap-2 cursor-pointer h-10 w-30 hover:bg-[#DDDDDD]/80 hover:text-white"
                     onClick={handleRemove}
                     disabled={!avatarPreview}
                   >
@@ -384,7 +390,7 @@ export const ViewerSettingsHeader = () => {
               </Flex>
               <Flex className="mt-4 w-3xl max-sm:w-full flex-col gap-4">
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background rounded-full"
                   size="lg"
                   type="text"
                   placeholder="Full Name"
@@ -396,29 +402,29 @@ export const ViewerSettingsHeader = () => {
                   </span>
                 )}
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background rounded-full"
                   size="lg"
                   type="text"
                   placeholder="Phone Number"
                   {...register("phone")}
                 />
                 <Input
-                  className="bg-white rounded-full"
+                  className="bg-background rounded-full"
                   size="lg"
                   type="text"
                   placeholder="Address"
                   {...register("address")}
                 />
-                <Flex className="w-full relative border border-gray-200 rounded-full">
+                <Flex className="w-full relative border border-border rounded-full">
                   <Input
-                    className="bg-white rounded-full relative"
+                    className="bg-background rounded-full relative"
                     size="lg"
                     type="email"
                     placeholder="Email"
                     {...register("email")}
                     disabled
                   />
-                  <IoMdLock className="size-6 text-gray-500 absolute right-4 top-3 " />
+                  <IoMdLock className="size-6 text-muted-foreground absolute right-4 top-3 " />
                 </Flex>
                 {errors.email && (
                   <span className="text-red-500 text-xs">
@@ -429,7 +435,7 @@ export const ViewerSettingsHeader = () => {
             </Stack>
 
             {/* SECURITY - PASSWORD SECTION */}
-            <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
+            <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3">
               <h1 className="text-2xl font-semibold">Password Security</h1>
               <Box className="bg-yellow-50 border border-yellow-200 mt-4 min-h-6 w-3xl p-4 rounded-md max-md:w-full max-md:text-xs">
                 <p className="text-sm text-yellow-800">
@@ -444,7 +450,7 @@ export const ViewerSettingsHeader = () => {
               <Stack className="gap-6 w-3xl max-md:w-full mt-8">
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background rounded-full pr-12"
                     size="lg"
                     type={showCurrentPassword ? "text" : "password"}
                     placeholder="Enter Current Password"
@@ -452,7 +458,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowCurrentPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -470,7 +476,7 @@ export const ViewerSettingsHeader = () => {
                 )}
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background rounded-full pr-12"
                     placeholder="Enter New Password"
                     type={showNewPassword ? "text" : "password"}
                     size="lg"
@@ -478,7 +484,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowNewPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -498,7 +504,7 @@ export const ViewerSettingsHeader = () => {
                 {/* Password strength indicator using new password value */}
                 {changePwWatch("newpassword") && (
                   <Box className="mt-2">
-                    <div className="text-xs text-gray-600 mb-2">
+                    <div className="text-xs text-muted-foreground mb-2">
                       Password Strength:
                     </div>
                     <div className="flex gap-1">
@@ -510,12 +516,12 @@ export const ViewerSettingsHeader = () => {
                               changePwWatch("newpassword") ?? ""
                             ) >= level
                               ? "bg-green-500"
-                              : "bg-gray-200"
+                              : "bg-muted"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {getPasswordStrengthText(
                         changePwWatch("newpassword") ?? ""
                       )}
@@ -524,7 +530,7 @@ export const ViewerSettingsHeader = () => {
                 )}
                 <Box className="relative">
                   <Input
-                    className="bg-white rounded-full pr-12"
+                    className="bg-background rounded-full pr-12"
                     placeholder="Confirm New Password"
                     type={showConfirmPassword ? "text" : "password"}
                     size="lg"
@@ -532,7 +538,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -562,7 +568,7 @@ export const ViewerSettingsHeader = () => {
             </Stack>
 
             {/* NOTIFICATIONS + 2FA SECTION */}
-            <Stack className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3">
+            <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3">
               <h1 className="text-xl font-semibold">
                 Notification Preferences
               </h1>
@@ -586,12 +592,12 @@ export const ViewerSettingsHeader = () => {
                   />
                 </Flex>
                 {/* Two-Factor Authentication Section */}
-                <Flex className="items-center justify-between w-full py-4 border-t border-gray-200">
+                <Flex className="items-center justify-between w-full py-4 border-t border-border">
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-700 mb-1">
+                    <h3 className="text-sm font-medium text-foreground mb-1">
                       Two-Factor Authentication
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {local2FAStatus
                         ? "Your account is protected with two-factor authentication"
                         : "Add an extra layer of security to your account"}

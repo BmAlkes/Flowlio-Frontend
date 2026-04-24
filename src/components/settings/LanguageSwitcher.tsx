@@ -49,21 +49,21 @@ export const LanguageSwitcher = () => {
     languages.find((lang) => lang.code === i18n.language) || languages[0];
 
   return (
-    <Box className="w-full bg-white border-1 border-gray-200 p-8 rounded-xl max-md:px-3 flex-1 flex">
+    <Box className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3 flex-1 flex">
       <Stack className="gap-4">
         <div className="flex items-center gap-3">
-          <Globe className="w-6 h-6 text-gray-700" />
+          <Globe className="w-6 h-6 text-muted-foreground" />
           <h1 className="text-xl font-medium">
             {t("settings.languageSettings")}
           </h1>
         </div>
 
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-muted-foreground mb-2">
           {t("settings.selectLanguage")}
         </p>
 
         <Select value={i18n.language} onValueChange={handleLanguageChange}>
-          <SelectTrigger className="w-full max-w-md rounded-full bg-white border-gray-200">
+          <SelectTrigger className="w-full max-w-md rounded-full bg-background border-border">
             <SelectValue>
               <div className="flex items-center gap-2">
                 <span className="text-xl">{currentLanguage.flag}</span>
@@ -83,9 +83,9 @@ export const LanguageSwitcher = () => {
           </SelectContent>
         </Select>
 
-        <Box className="bg-blue-50 border border-blue-200 p-4 rounded-md mt-4">
-          <p className="text-sm text-blue-800">
-            <strong>💡 {t("common.tip")}:</strong>{" "}
+        <Box className="bg-blue-900/20 border border-blue-700 p-4 rounded-md mt-4">
+          <p className="text-sm text-blue-500">
+            <strong>💡 {t("settings.tip")}:</strong>{" "}
             {t("settings.languageChanged")}
           </p>
         </Box>

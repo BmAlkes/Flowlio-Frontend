@@ -36,7 +36,7 @@ export const FormWrapper: FC<FormWrapperProps> = ({
         <h1 className="text-2xl font-semibold text-start w-[28rem] max-sm:w-full">
           {label}
         </h1>
-        <h2 className="text-gray-500 text-[0.90rem] leading-tight text-start max-w-[21rem]">
+        <h2 className="text-muted-foreground text-[0.90rem] leading-tight text-start max-w-[21rem]">
           {description}
         </h2>
       </Stack>

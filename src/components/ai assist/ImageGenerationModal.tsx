@@ -58,12 +58,12 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Box className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+      <Box className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <Flex className="justify-between items-center p-4 border-b border-gray-200">
+        <Flex className="justify-between items-center p-4 border-b border-border">
           <Flex className="items-center gap-2">
             <ImageIcon className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               Generate Image with AI
             </h2>
           </Flex>
@@ -71,7 +71,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
             variant="ghost"
             size="sm"
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-muted-foreground hover:text-muted-foreground"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -81,7 +81,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
         <div className="p-4 space-y-4">
           {/* Input Section */}
           <Stack className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Describe the image you want to generate:
             </label>
             <div className="space-y-2">
@@ -93,7 +93,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
                 className="w-full"
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Press Enter to generate, Shift+Enter for new line
               </p>
             </div>
@@ -119,10 +119,10 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
           {/* Generated Image Section */}
           {generatedImage && (
             <Stack className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-foreground">
                 Generated Image:
               </label>
-              <Box className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <Box className="border border-border rounded-lg p-4 bg-muted/50">
                 <img
                   src={generatedImage}
                   alt="Generated image"
@@ -173,7 +173,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
         </div>
 
         {/* Footer */}
-        <Flex className="justify-end gap-2 p-4 border-t border-gray-200">
+        <Flex className="justify-end gap-2 p-4 border-t border-border">
           <Button variant="outline" onClick={handleClose}>
             Close
           </Button>

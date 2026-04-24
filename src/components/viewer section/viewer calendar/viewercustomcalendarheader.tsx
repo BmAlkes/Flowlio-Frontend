@@ -23,10 +23,12 @@ import { EventDetailsPopup } from "@/components/custom calender/eventdetailspopu
 import { DayView } from "@/components/custom calender/DayView";
 import { MonthView } from "@/components/custom calender/MonthView";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const hours = Array.from({ length: 24 }, (_, i) => i + 1); // 1-24 (24 hours) to match Google Calendar
 
 export const ViewerCustomCalendarHeader = () => {
+  const { t } = useTranslation();
   const [currentWeek, setCurrentWeek] = useState(getStartOfWeek(new Date()));
 
   // Timezone hook - automatically detects and updates user timezone
@@ -163,7 +165,7 @@ export const ViewerCustomCalendarHeader = () => {
 
   return (
     <>
-      <Box className="mt-6 rounded-lg border border-gray-200">
+      <Box className="mt-6 rounded-lg border border-border">
         <Flex className="rounded-lg items-start overflow-hidden max-md:overflow-x-scroll gap-0">
           {/* Sidebar */}
           <CalendarSidebar
@@ -178,7 +180,7 @@ export const ViewerCustomCalendarHeader = () => {
           />
 
           {/* Main Calendar Area */}
-          <Box className="flex-1 bg-[#F8FAFC]" style={{ flex: 1 }}>
+          <Box className="flex-1 bg-background" style={{ flex: 1 }}>
             {/* Calendar Header */}
             <CalendarHeader
               viewMode={viewMode}
@@ -338,7 +340,7 @@ export const ViewerCustomCalendarHeader = () => {
               },
             });
           } else {
-            toast.error("No event ID found, cannot update event");
+            toast.error(t("eventModal.idError"));
           }
           setEditEvent(null);
           editEventModalProps.onOpenChange(false);

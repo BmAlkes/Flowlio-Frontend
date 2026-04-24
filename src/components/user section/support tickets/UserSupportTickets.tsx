@@ -83,10 +83,10 @@ export const UserSupportTickets: FC = () => {
     <PageWrapper className="mt-6">
       <Center className="justify-between px-4 py-6 max-sm:flex-col max-sm:items-start gap-2">
         <Stack className="gap-1">
-          <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+          <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
             My Support Tickets
           </h1>
-          <h1 className={`max-sm:text-sm max-w-[600px] text-gray-500`}>
+          <h1 className={`max-sm:text-sm max-w-[600px] text-muted-foreground`}>
             Create and track your support requests. Your organization will be
             notified automatically.
           </h1>
@@ -95,9 +95,9 @@ export const UserSupportTickets: FC = () => {
         <Button
           onClick={() => modalProps.onOpenChange(true)}
           variant="outline"
-          className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+          className="bg-black text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
         >
-          <CirclePlus className="fill-white text-black size-5" />
+          <CirclePlus className="size-5 text-white" />
           Create New Ticket
         </Button>
       </Center>
@@ -129,7 +129,7 @@ export const UserSupportTickets: FC = () => {
         <h2 className="text-lg font-normal mb-4">Create Support Ticket</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Box className="bg-white/80 gap-4 grid grid-cols-1">
+            <Box className="bg-card/80 gap-4 grid grid-cols-1">
               <FormField
                 control={form.control}
                 name="subject"
@@ -139,7 +139,7 @@ export const UserSupportTickets: FC = () => {
                     <FormControl className="w-full h-12">
                       <input
                         {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 px-4 placeholder:text-gray-500"
+                        className="bg-muted border border-border rounded-full w-full h-12 px-4 placeholder:text-muted-foreground"
                         placeholder="Enter ticket subject"
                       />
                     </FormControl>
@@ -157,7 +157,7 @@ export const UserSupportTickets: FC = () => {
                     <FormControl className="w-full">
                       <textarea
                         {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-lg w-full p-4 min-h-[50px] resize-none placeholder:text-gray-500"
+                        className="bg-muted border border-border rounded-lg w-full p-4 min-h-[50px] resize-none placeholder:text-muted-foreground"
                         placeholder="Describe the issue in detail..."
                       />
                     </FormControl>
@@ -179,7 +179,7 @@ export const UserSupportTickets: FC = () => {
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-gray-100"
                         >
                           <SelectValue placeholder="Select Priority" />
                         </SelectTrigger>
@@ -205,7 +205,7 @@ export const UserSupportTickets: FC = () => {
                     <FormControl className="w-full h-12">
                       <input
                         {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 px-4 placeholder:text-gray-500"
+                        className="bg-muted border border-border rounded-full w-full h-12 px-4 placeholder:text-muted-foreground"
                         placeholder="Enter client name (optional)"
                       />
                     </FormControl>
@@ -217,7 +217,7 @@ export const UserSupportTickets: FC = () => {
               <Flex className="justify-end">
                 <Button
                   variant="outline"
-                  className="bg-[#1797b9]/30 hover:bg-[#1797b9]/80 hover:text-white text-black border border-gray-200 font-normal rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+                  className="bg-[#1797b9]/30 hover:bg-[#1797b9]/80 hover:text-white text-foreground border border-border font-normal rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
                   type="button"
                   onClick={() => modalProps.onOpenChange(false)}
                 >
@@ -225,7 +225,7 @@ export const UserSupportTickets: FC = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+                  className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
                   type="submit"
                   disabled={createSupportTicketMutation.isPending}
                 >

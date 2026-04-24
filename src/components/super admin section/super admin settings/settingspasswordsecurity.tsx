@@ -17,6 +17,7 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { useState } from "react";
 import { useUpdateSuperAdminPassword } from "@/hooks/useupdatesuperadminpassword";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export const formSchema = z
   .object({
@@ -49,6 +50,7 @@ export const formSchema = z
   });
 
 export const SettingsPasswordSecurity = () => {
+  const { t } = useTranslation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,13 +86,13 @@ export const SettingsPasswordSecurity = () => {
   }
 
   return (
-    <Stack className="w-full bg-white border border-gray-400/50  p-8 rounded-md max-md:px-3">
+    <Stack className="w-full bg-card border border-border/80 p-8 rounded-md max-md:px-3">
       <Stack>
-        <h1 className="text-2xl font-semibold">Password & Security</h1>
-        <h1>Manage your passwords, login preferences and recovery methods.</h1>
+        <h1 className="text-2xl font-semibold mb-1">{t("settings.passwordTitle", "Password & Security")}</h1>
+        <p className="text-muted-foreground">{t("settings.passwordDesc", "Manage your passwords, login preferences and recovery methods.")}</p>
       </Stack>
 
-      <Box className=" bg-gray-100/80 border border-gray-400/50 mt-4 min-h-6 w-2xl p-4 rounded-md max-md:w-full max-md:text-xs">
+      <Box className="bg-muted/30 border border-border/80 mt-6 min-h-6 w-2xl p-6 rounded-lg max-md:w-full max-md:text-xs">
         Your password must be at least 8 characters and include:
         <ul className="list-disc list-inside mt-2 space-y-1">
           <li>At least one uppercase letter (A-Z)</li>
@@ -108,11 +110,11 @@ export const SettingsPasswordSecurity = () => {
               name="currentpassword"
               render={({ field }) => (
                 <FormItem className="w-md max-sm:w-full">
-                  <FormLabel>Current Password</FormLabel>
+                  <FormLabel>{t("settings.currentPassword", "Current Password")}</FormLabel>
                   <FormControl>
                     <Box className="relative">
                       <Input
-                        className="bg-whitepr-10"
+                        className="bg-cardpr-10"
                         size="lg"
                         type={showCurrentPassword ? "text" : "password"}
                         placeholder="Enter Current Password"
@@ -123,7 +125,7 @@ export const SettingsPasswordSecurity = () => {
                         onClick={() =>
                           setShowCurrentPassword(!showCurrentPassword)
                         }
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer z-10"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showCurrentPassword ? (
                           <IoEyeOff size={20} />
@@ -143,11 +145,11 @@ export const SettingsPasswordSecurity = () => {
               name="newpassword"
               render={({ field }) => (
                 <FormItem className="w-md max-sm:w-full">
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel>{t("settings.newPassword", "New Password")}</FormLabel>
                   <FormControl>
                     <Box className="relative">
                       <Input
-                        className="bg-white pr-10"
+                        className="bg-card pr-10"
                         placeholder="Enter New Password"
                         type={showNewPassword ? "text" : "password"}
                         size="lg"
@@ -156,7 +158,7 @@ export const SettingsPasswordSecurity = () => {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer z-10"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showNewPassword ? (
                           <IoEyeOff size={20} />
@@ -175,11 +177,11 @@ export const SettingsPasswordSecurity = () => {
               name="confirmpassword"
               render={({ field }) => (
                 <FormItem className="w-md max-sm:w-full">
-                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormLabel>{t("settings.confirmPassword", "Confirm New Password")}</FormLabel>
                   <FormControl>
                     <Box className="relative">
                       <Input
-                        className="bg-white pr-10"
+                        className="bg-card pr-10"
                         placeholder="Enter Confirm New Password"
                         type={showConfirmPassword ? "text" : "password"}
                         size="lg"
@@ -190,7 +192,7 @@ export const SettingsPasswordSecurity = () => {
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer z-10"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showConfirmPassword ? (
                           <IoEyeOff size={20} />
@@ -206,11 +208,11 @@ export const SettingsPasswordSecurity = () => {
             />
           </Stack>
           <Button
-            className="flex ml-auto mt-6 w-34 h-10 rounded-full bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-gray-200 cursor-pointer"
+            className="flex ml-auto mt-6 w-34 h-10 rounded-full bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-border cursor-pointer"
             type="submit"
             disabled={updatePasswordMutation.isPending}
           >
-            {updatePasswordMutation.isPending ? "Updating..." : "Save Changes"}
+            {updatePasswordMutation.isPending ? t("common.saving", "Updating...") : t("settings.saveChanges", "Save Changes")}
           </Button>
         </form>
       </Form>

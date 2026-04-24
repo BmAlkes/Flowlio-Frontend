@@ -7,7 +7,7 @@ export interface Invoice {
   clientname: string;
   amount: string;
   status: string;
-  datepaid?: string;
+  datepaid?: string | null;
   createdAt: string;
   pdfUrl?: string;
   pdfFileName?: string;
@@ -28,7 +28,7 @@ const fetchInvoices = async (): Promise<FetchInvoicesResponse> => {
   } catch (error: any) {
     console.error("Error fetching invoices:", error);
     throw new Error(
-      error.response?.data?.message || "Failed to fetch invoices"
+      error.response?.data?.message || "Failed to fetch invoices",
     );
   }
 };

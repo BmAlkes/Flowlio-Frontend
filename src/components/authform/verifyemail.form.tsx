@@ -104,7 +104,7 @@ export const VerifyEmailForm: FC = () => {
                     <Input
                       size="lg"
                       placeholder="Email"
-                      className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm"
+                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
                       {...field}
                     />
                   </FormControl>

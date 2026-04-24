@@ -7,8 +7,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const SettingsNotification = () => {
+  const { t } = useTranslation();
   const { data: userData } = useUser();
   const queryClient = useQueryClient();
   const [loadingStates, setLoadingStates] = useState<{
@@ -87,36 +89,35 @@ export const SettingsNotification = () => {
   const notifications = [
     {
       key: "userSubscribeNotifications" as const,
-      label: "User Subscription",
-      description: "Get notified when users subscribe to plans",
+      label: t("settings.alerts.userSub", "User Subscription"),
+      description: t("settings.alerts.userSubDesc", "Get notified when users subscribe to plans"),
       enabled: notificationPrefs.userSubscribeNotifications ?? true,
     },
     {
       key: "newCompanyNotifications" as const,
-      label: "New Company Registration",
-      description: "Get notified when new companies register",
+      label: t("settings.alerts.newCompany", "New Company Registration"),
+      description: t("settings.alerts.newCompanyDesc", "Get notified when new companies register"),
       enabled: notificationPrefs.newCompanyNotifications ?? true,
     },
     {
       key: "projectCompletionNotifications" as const,
-      label: "Project Completion",
-      description: "Get notified when projects are completed",
+      label: t("settings.alerts.projectEnd", "Project Completion"),
+      description: t("settings.alerts.projectEndDesc", "Get notified when projects are completed"),
       enabled: notificationPrefs.projectCompletionNotifications ?? true,
     },
     {
       key: "newUserSignupNotifications" as const,
-      label: "New User Registration",
-      description: "Get notified when new users sign up",
+      label: t("settings.alerts.newUser", "New User Registration"),
+      description: t("settings.alerts.newUserDesc", "Get notified when new users sign up"),
       enabled: notificationPrefs.newUserSignupNotifications ?? true,
     },
   ];
 
   return (
     <Box>
-      <h1 className="text-xl font-semibold">Notification Preferences</h1>
+      <h1 className="text-xl font-semibold">{t("settings.notificationsTitle", "Notification Preferences")}</h1>
       <h4 className="max-md:text-sm">
-        Customize alerts for user registrations, subscriptions, company
-        registrations, and project completions to suit your needs.
+        {t("settings.notificationsDesc", "Customize alerts for user registrations, subscriptions, company registrations, and project completions to suit your needs.")}
       </h4>
 
       <Stack className="gap-6 mt-8">
@@ -129,7 +130,7 @@ export const SettingsNotification = () => {
               <h1 className="text-lg max-md:text-sm font-medium text-start">
                 {notification.label}
               </h1>
-              <p className="text-sm text-gray-600 max-md:text-xs">
+              <p className="text-sm text-muted-foreground max-md:text-xs">
                 {notification.description}
               </p>
             </Flex>

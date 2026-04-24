@@ -53,11 +53,14 @@ export interface GetTasksResponse {
   data: Task[];
 }
 
-export const useFetchTasks = (params?: {
-  projectId?: string;
-  status?: string;
-  assignedTo?: string;
-}) => {
+export const useFetchTasks = (
+  params?: {
+    projectId?: string;
+    status?: string;
+    assignedTo?: string;
+  },
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ["tasks", params],
     queryFn: async (): Promise<GetTasksResponse> => {
@@ -74,6 +77,7 @@ export const useFetchTasks = (params?: {
       const response = await axios.get(url);
       return response.data;
     },
+    enabled: options?.enabled ?? true,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });

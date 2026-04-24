@@ -46,7 +46,7 @@ export const CompactLanguageSwitcher = () => {
   return (
     <div className="flex items-center gap-2">
       <Select value={i18n.language} onValueChange={handleLanguageChange}>
-        <SelectTrigger className="w-[110px] h-8 rounded-full bg-white border-gray-200 text-sm">
+        <SelectTrigger className="w-[110px] h-8 rounded-full bg-card border-border text-sm">
           <SelectValue>
             <div className="flex items-center gap-1.5">
               <span className="text-base">{currentLanguage.flag}</span>

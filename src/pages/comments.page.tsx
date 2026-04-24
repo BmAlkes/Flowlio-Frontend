@@ -64,7 +64,7 @@ export type Data = {
 export const columns = (): ColumnDef<Data>[] => [
   {
     accessorKey: "name",
-    header: () => <Box className="text-black pl-5">Name</Box>,
+    header: () => <Box className="text-foreground pl-5">Name</Box>,
     cell: ({ row }) => (
       <UserProfile
         avatarClassName="size-12"
@@ -77,7 +77,7 @@ export const columns = (): ColumnDef<Data>[] => [
 
   {
     accessorKey: "comment",
-    header: () => <Box className="text-center text-black">Comment</Box>,
+    header: () => <Box className="text-center text-foreground">Comment</Box>,
     cell: ({ row }) => {
       return (
         <Center>
@@ -95,7 +95,7 @@ export const columns = (): ColumnDef<Data>[] => [
   },
   {
     accessorKey: "task",
-    header: () => <Box className="text-center text-black">Task</Box>,
+    header: () => <Box className="text-center text-foreground">Task</Box>,
     cell: ({ row }) => (
       <Box className="lowercase text-center">{row.original.task}</Box>
     ),
@@ -103,7 +103,7 @@ export const columns = (): ColumnDef<Data>[] => [
 
   {
     accessorKey: "actions",
-    header: () => <Box className="text-center text-black">Actions</Box>,
+    header: () => <Box className="text-center text-foreground">Actions</Box>,
     cell: () => {
       return (
         <Center className="space-x-2">
@@ -291,7 +291,7 @@ export const CommentsPage = () => {
             <h1 className="text-3xl font-medium capitalize">
               Comments Management
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-muted-foreground mt-1">
               Track and manage comments efficiently across your project.
             </p>
           </Box>
@@ -309,7 +309,7 @@ export const CommentsPage = () => {
       <Box className="w-full mt-4">
         <Flex className="justify-between py-4 max-md:flex-col items-start">
           <Flex className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search..."
@@ -319,7 +319,7 @@ export const CommentsPage = () => {
               onChange={(event) =>
                 table.getColumn("company")?.setFilterValue(event.target.value)
               }
-              className="pl-10 bg-white"
+              className="pl-10 bg-background border-border"
             />
           </Flex>
 

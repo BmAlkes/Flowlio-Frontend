@@ -65,17 +65,17 @@ const UnsubscribePage = () => {
   };
 
   return (
-    <Center className="min-h-screen bg-gray-50 p-4">
-      <Box className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+    <Center className="min-h-screen bg-background p-4">
+      <Box className="max-w-md w-full bg-card rounded-lg border border-border shadow-lg p-8">
         <Stack className="gap-6 items-center text-center">
           {unsubscribeMutation.isPending ? (
             <>
               <Loader2 className="h-16 w-16 text-[#1797B9] animate-spin" />
               <Box>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                <h1 className="text-2xl font-semibold text-foreground mb-2">
                   Unsubscribing...
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Please wait while we process your request.
                 </p>
               </Box>
@@ -84,10 +84,10 @@ const UnsubscribePage = () => {
             <>
               <XCircle className="h-16 w-16 text-red-500" />
               <Box>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                <h1 className="text-2xl font-semibold text-foreground mb-2">
                   Unsubscribe Failed
                 </h1>
-                <p className="text-gray-600 mb-4">{error}</p>
+                <p className="text-muted-foreground mb-4">{error}</p>
                 {email && (
                   <button
                     onClick={handleUnsubscribe}
@@ -104,7 +104,7 @@ const UnsubscribePage = () => {
                 <Info className="h-20 w-20 text-blue-600" />
               </div>
               <Box className="w-full">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                <h1 className="text-3xl font-bold text-foreground mb-4">
                   Already Unsubscribed
                 </h1>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
@@ -117,15 +117,15 @@ const UnsubscribePage = () => {
                   </p>
                 </div>
                 {email && (
-                  <div className="bg-gray-50 rounded-lg p-3 mt-4">
-                    <p className="text-sm font-medium text-gray-700">
+                  <div className="bg-muted rounded-lg p-3 mt-4">
+                    <p className="text-sm font-medium text-foreground">
                       Email address:
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">{email}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{email}</p>
                   </div>
                 )}
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-500">
+                <div className="mt-6 pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
                     If you'd like to receive our newsletter again, you can
                     subscribe from our website.
                   </p>
@@ -138,7 +138,7 @@ const UnsubscribePage = () => {
                 <CheckCircle2 className="h-20 w-20 text-green-600" />
               </div>
               <Box className="w-full">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                <h1 className="text-3xl font-bold text-foreground mb-4">
                   ✓ Successfully Unsubscribed!
                 </h1>
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
@@ -150,15 +150,15 @@ const UnsubscribePage = () => {
                   </p>
                 </div>
                 {email && (
-                  <div className="bg-gray-50 rounded-lg p-3 mt-4">
-                    <p className="text-sm font-medium text-gray-700">
+                  <div className="bg-muted rounded-lg p-3 mt-4">
+                    <p className="text-sm font-medium text-foreground">
                       Unsubscribed email:
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">{email}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{email}</p>
                   </div>
                 )}
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-500">
+                <div className="mt-6 pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
                     If you change your mind, you can subscribe again anytime
                     from our website.
                   </p>
@@ -169,10 +169,10 @@ const UnsubscribePage = () => {
             <>
               <Loader2 className="h-16 w-16 text-[#1797B9] animate-spin" />
               <Box>
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                <h1 className="text-2xl font-semibold text-foreground mb-2">
                   Processing...
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Please wait while we process your unsubscribe request.
                 </p>
               </Box>

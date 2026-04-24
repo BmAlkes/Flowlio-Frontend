@@ -38,17 +38,17 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
     <Link to={"/dashboard/task-management"}>
       <Box
         className={cn(
-          "bg-white/50 border border-gray-200 rounded-xl p-3",
+          "bg-card/50 border border-border rounded-xl p-3",
           className
         )}
         {...props}
       >
-        <Stack className="bg-[#EAEFFA] p-4 rounded-md gap-6">
+        <Stack className="bg-muted p-4 rounded-md gap-6">
           <Flex className="justify-between flex-wrap">
-            <Box className="bg-black p-2 rounded-full">
-              <PanelLeftOpen className="text-white size-4" />
+            <Box className="bg-foreground p-2 rounded-full">
+              <PanelLeftOpen className="text-background size-4" />
             </Box>
-            <p className="text-sm bg-white rounded-full py-1 px-2.5">
+            <p className="text-sm bg-background border border-border rounded-full py-1 px-2.5">
               {createdAt}
             </p>
           </Flex>
@@ -57,7 +57,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
             {taskName.substring(0, 26).concat("...")}
           </h1>
           <Flex>
-            <p className="text-sm text-gray-500">{t("dashboard.createdBy")}</p>
+            <p className="text-sm text-muted-foreground">{t("dashboard.createdBy")}</p>
             <p className="capitalize text-sm">{createdBy}</p>
           </Flex>
         </Stack>
@@ -76,7 +76,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
               <TooltipProvider key={key}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Avatar className="relative hover:z-1 border-2 border-white size-10">
+                    <Avatar className="relative hover:z-1 border-2 border-background size-10">
                       <AvatarImage src={src} alt={userName} />
                       <AvatarFallback>{userName}</AvatarFallback>
                     </Avatar>
@@ -92,7 +92,7 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
 
         <Progress value={progress} className="w-full min-h-0.5 mt-6" />
         <Flex className="justify-between mb-2">
-          <h5 className="text-gray-500 text-sm">{t("dashboard.progress")}</h5>
+          <h5 className="text-muted-foreground text-sm">{t("dashboard.progress")}</h5>
           <p className="text-sm">{progress}%</p>
         </Flex>
       </Box>

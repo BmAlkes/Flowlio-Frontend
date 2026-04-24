@@ -117,7 +117,7 @@ export const DemoPasswordChangeModal: React.FC<
           <DialogTitle className="text-xl font-semibold">
             Set Your New Password
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             As a demo account user, please set a new password for your account.
             This is required for security purposes.
           </p>
@@ -142,7 +142,7 @@ export const DemoPasswordChangeModal: React.FC<
               <button
                 type="button"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showCurrentPassword ? (
@@ -172,13 +172,13 @@ export const DemoPasswordChangeModal: React.FC<
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showNewPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
               </button>
             </Box>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Password must be at least 8 characters, contain one uppercase
               letter, and one special character
             </p>
@@ -202,7 +202,7 @@ export const DemoPasswordChangeModal: React.FC<
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showConfirmPassword ? (
@@ -222,7 +222,7 @@ export const DemoPasswordChangeModal: React.FC<
             >
               {isLoading ? (
                 <span className="inline-flex items-center">
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Changing Password...
                 </span>
               ) : (
@@ -230,8 +230,8 @@ export const DemoPasswordChangeModal: React.FC<
               )}
             </Button>
           </Box>
-        </form>
-      </DialogContent>
+        </form> 
+      </DialogContent> 
     </Dialog>
   );
 };

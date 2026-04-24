@@ -179,17 +179,17 @@ export const CreateUserMembers = () => {
   return (
     <PageWrapper className="mt-6 p-6 relative">
       <Box
-        className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-gray-200 rounded-full hover:p-2 "
+        className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2 "
         onClick={() => navigate(-1)}
       >
         <IoArrowBack />
-        <p className="text-black">Back</p>
+        <p className="text-foreground">Back</p>
       </Box>
 
       <Center className="justify-between mt-4">
         <Stack className="gap-0">
-          <h1 className="text-black text-xl font-medium">Add Members</h1>
-          <h1 className="text-gray-500">
+          <h1 className="text-foreground text-xl font-medium">Add Members</h1>
+          <h1 className="text-muted-foreground">
             Fill in the details to create a new user member
           </h1>
         </Stack>
@@ -228,7 +228,7 @@ export const CreateUserMembers = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
           <Button
             variant="outline"
-            className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer mb-6 absolute top-15 right-5 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-black text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer mb-6 absolute top-15 right-5 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
             disabled={createUserMember.isPending || limitReached}
           >
@@ -238,10 +238,10 @@ export const CreateUserMembers = () => {
               ? "Limit Reached"
               : "Save Member"}
           </Button>
-          <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-6 grid grid-cols-1">
+          <Box className="bg-card/80 rounded-xl border border-border p-6 gap-6 grid grid-cols-1">
             <Stack className="gap-0">
-              <h1 className="text-gray-500">Step 1</h1>
-              <h1 className="text-black text-xl font-medium">
+              <h1 className="text-muted-foreground">Step 1</h1>
+              <h1 className="text-foreground text-xl font-medium">
                 Personal Information
               </h1>
             </Stack>
@@ -251,7 +251,7 @@ export const CreateUserMembers = () => {
               <p className="text-md mb-2 font-normal">
                 Profile Picture (Optional)
               </p>
-              <Center className="flex-col border-dashed border-2 border-gray-300 bg-gray-100/50 rounded-lg min-h-44 w-48 max-md:w-full">
+              <Center className="flex-col border-dashed border-2 border-border bg-gray-100/50 rounded-lg min-h-44 w-48 max-md:w-full">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -266,10 +266,10 @@ export const CreateUserMembers = () => {
                       className="size-14 opacity-50"
                     />
                     <Stack className="text-center gap-0 mt-4">
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         Profile picture upload
                       </p>
-                      <p className="text-gray-500 text-sm">Click to upload</p>
+                      <p className="text-muted-foreground text-sm">Click to upload</p>
                     </Stack>
                   </>
                 )}
@@ -313,7 +313,7 @@ export const CreateUserMembers = () => {
               )}
 
               {/* Help text */}
-              <p className="text-gray-500 text-xs mt-2">
+              <p className="text-muted-foreground text-xs mt-2">
                 Supported formats: PNG, JPG, JPEG, GIF, WebP, SVG, BMP • Max
                 size: 5MB
               </p>
@@ -328,7 +328,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>First Name:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="xl"
                         type="text"
                         placeholder="Enter First Name"
@@ -348,7 +348,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>Last Name:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-md placeholder:text-gray-400"
+                        className="bg-card rounded-md placeholder:text-muted-foreground"
                         size="xl"
                         type="text"
                         placeholder="Enter Last Name"
@@ -368,7 +368,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>Email Address:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="xl"
                         type="email"
                         placeholder="Enter Email Address"
@@ -391,9 +391,9 @@ export const CreateUserMembers = () => {
                         country={"us"}
                         placeholder="Phone Number:"
                         enableSearch={true}
-                        inputClass="mt-2 w-full h-14 bg-white border border-gray-300 rounded-full px-4 text-black focus:ring-0 focus:outline-none"
-                        buttonClass="border-r h-12 border-gray-300 bg-transparent"
-                        dropdownClass="bg-white border border-gray-300"
+                        inputClass="mt-2 w-full h-14 bg-card border border-border rounded-full px-4 text-foreground focus:ring-0 focus:outline-none"
+                        buttonClass="border-r h-12 border-border bg-transparent"
+                        dropdownClass="bg-card border border-border"
                         {...field}
                       />
                     </FormControl>
@@ -410,7 +410,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>Company Name:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="xl"
                         type="text"
                         placeholder="Enter Company Name"
@@ -424,10 +424,10 @@ export const CreateUserMembers = () => {
             </Box>
           </Box>
 
-          <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-6 grid grid-cols-1 mt-4">
+          <Box className="bg-card/80 rounded-xl border border-border p-6 gap-6 grid grid-cols-1 mt-4">
             <Stack className="gap-0">
-              <h1 className="text-gray-500">Step 2</h1>
-              <h1 className="text-black text-xl font-medium">
+              <h1 className="text-muted-foreground">Step 2</h1>
+              <h1 className="text-foreground text-xl font-medium">
                 Role & Permissions
               </h1>
             </Stack>
@@ -446,7 +446,7 @@ export const CreateUserMembers = () => {
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-gray-100"
                         >
                           <SelectValue placeholder="Select Role" />
                         </SelectTrigger>
@@ -474,7 +474,7 @@ export const CreateUserMembers = () => {
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-gray-100"
                         >
                           <SelectValue placeholder="Select Permission" />
                         </SelectTrigger>
@@ -491,10 +491,10 @@ export const CreateUserMembers = () => {
             </Box>
           </Box>
 
-          <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-6 grid grid-cols-1 mt-4">
+          <Box className="bg-card/80 rounded-xl border border-border p-6 gap-6 grid grid-cols-1 mt-4">
             <Stack className="gap-0">
-              <h1 className="text-gray-500">Step 3</h1>
-              <h1 className="text-black text-xl font-medium">Set Credential</h1>
+              <h1 className="text-muted-foreground">Step 3</h1>
+              <h1 className="text-foreground text-xl font-medium">Set Credential</h1>
             </Stack>
 
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1 mt-4">
@@ -506,7 +506,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>Password:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="xl"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter Password"
@@ -535,7 +535,7 @@ export const CreateUserMembers = () => {
                     <FormLabel>Confirm Password:</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="xl"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Enter Confirm Password"

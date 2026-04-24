@@ -11,13 +11,15 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@/providers/user.provider";
 import { CompactLanguageSwitcher } from "../../common/CompactLanguageSwitcher";
 
+import { ModeToggle } from "@/components/mode-toggle";
+
 export const HorizontalNavbar = () => {
   const { pathname } = useLocation();
   const { data: user } = useUser();
   return (
     <Box
       className={cn(
-        "pt-5 items-center grid max-md:grid-cols-[auto_auto_1fr_auto_auto_auto] grid-cols-[1fr_auto_auto_auto_auto_auto] gap-2",
+        "pt-5 items-center grid max-md:grid-cols-[auto_auto_1fr_auto_auto_auto_auto] grid-cols-[1fr_auto_auto_auto_auto_auto_auto] gap-2",
         pathname !== "/dashboard" && "gap-1",
         pathname === "/superadmin" && "gap-1",
         pathname === "/viewer" && "gap-1.5"
@@ -46,6 +48,7 @@ export const HorizontalNavbar = () => {
         <QuickActions />
       )}
 
+      <ModeToggle />
       <NotificationsDropdown className="max-lg:ml-auto" />
       {/* <FaqDropdown className="max-md:hidden" /> */}
     </Box>

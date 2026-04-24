@@ -22,7 +22,7 @@ export const Hero = () => {
           className="size-36"
           onClick={() => navigate("https://www.dotvizion.com")}
         />
-        <Box className="text-[14px] text-gray-600 font-normal pb-2">
+        <Box className="text-[14px] text-muted-foreground font-normal pb-2">
           work platform
         </Box>
       </Center>
@@ -34,20 +34,20 @@ export const Hero = () => {
             <span className="text-[#F98618] font-semibold"> Better,</span> Track
             Faster, Grow Stronger
           </Box>
-          <Box className="w-xl max-sm:w-full mt-4 font-normal text-gray-700 text-[16px] max-sm:text-[16px] leading-relaxed">
+          <Box className="w-xl max-sm:w-full mt-4 font-normal text-foreground text-[16px] max-sm:text-[16px] leading-relaxed">
             Flowlio is a comprehensive work management and productivity platform
             designed to help individuals, teams, and organizations streamline
             their workflow processes, manage tasks and projects, track time, and
             synchronize with Google Calendar.
           </Box>
-          <Box className="w-xl max-sm:w-full mt-3 font-normal text-gray-600 text-[15px] leading-relaxed">
+          <Box className="w-xl max-sm:w-full mt-3 font-normal text-muted-foreground text-[15px] leading-relaxed">
             Our platform enables you to create and manage tasks, organize
             projects, track work hours with precision, and seamlessly sync
             calendar events with Google Calendar through bidirectional
             synchronization. Flowlio also provides AI-enhanced insights to
             optimize your workflow efficiency and boost team performance.
           </Box>
-          {/* <Box className="w-xl max-sm:w-full mt-3 font-normal text-gray-600 text-[15px] leading-relaxed">
+          {/* <Box className="w-xl max-sm:w-full mt-3 font-normal text-muted-foreground text-[15px] leading-relaxed">
             Flowlio helps individuals and teams manage tasks, schedule
             deadlines, collaborate on projects, track time, and sync events with
             Google Calendar to stay organized and productive — all from one
@@ -62,11 +62,11 @@ export const Hero = () => {
           </Button>
 
           {/* <Flex className="mt-4 max-sm:flex-col">
-            <Box className="text-[16px] text-gray-600 font-light">
+            <Box className="text-[16px] text-muted-foreground font-light">
               No credit card needed
             </Box>
             <img src="/home/star.svg" alt="star" className="size-4" />
-            <Box className="text-[16px] text-gray-600 font-light">
+            <Box className="text-[16px] text-muted-foreground font-light">
               Unlimited time on free plan
             </Box>
           </Flex> */}

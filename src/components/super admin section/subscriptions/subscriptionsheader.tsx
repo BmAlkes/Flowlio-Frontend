@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { PlanFeature } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFetchPlans } from "@/hooks/usefetchplans";
+import { useTranslation } from "react-i18next";
+import { CardSkeleton } from "@/components/skeletons";
 
 const PLAN_LIST = [
   { key: "basic", label: "Basic" },
@@ -82,7 +84,9 @@ const initialPlanState: PlanState = {
 };
 
 export const SubscriptionsHeader = () => {
-  const { data: plansResponse, isLoading, error } = useFetchPlans();
+  const { t } = useTranslation();
+  const { data: plansResponse, isLoading, isFetching, error } = useFetchPlans();
+  const loading = isLoading || isFetching;
   const fetchedPlans = plansResponse?.data || [];
 
   const [plans, setPlans] = useState<PlansState>({
@@ -800,17 +804,15 @@ export const SubscriptionsHeader = () => {
   };
 
   // Show loading state
-  if (isLoading) {
+  if (loading && fetchedPlans.length === 0) {
     return (
-      <PageWrapper className="mt-6 px-4 py-6">
-        <Stack className="gap-1">
-          <h1 className="text-black text-2xl font-medium max-md:text-lg">
-            Subscription Management
-          </h1>
-          <h1 className="text-gray-500 max-md:text-sm">
-            Loading subscription plans...
+      <PageWrapper className="mt-6 px-4 py-8">
+        <Stack className="gap-1 mb-8">
+          <h1 className="text-foreground text-2xl font-medium max-md:text-lg">
+            {t("superadmin.subscriptions.title", "Subscription Management")}
           </h1>
         </Stack>
+        <CardSkeleton count={3} className="h-96" />
       </PageWrapper>
     );
   }
@@ -820,11 +822,11 @@ export const SubscriptionsHeader = () => {
     return (
       <PageWrapper className="mt-6 px-4 py-6">
         <Stack className="gap-1">
-          <h1 className="text-black text-2xl font-medium max-md:text-lg">
-            Subscription Management
+          <h1 className="text-foreground text-2xl font-medium max-md:text-lg">
+            {t("superadmin.subscriptions.title", "Subscription Management")}
           </h1>
           <h1 className="text-red-500 max-md:text-sm">
-            Error loading subscription plans: {error.message}
+            {t("common.error", "Error loading subscription plans:")} {error.message}
           </h1>
         </Stack>
       </PageWrapper>
@@ -834,22 +836,21 @@ export const SubscriptionsHeader = () => {
   return (
     <PageWrapper className="mt-6 px-4 py-6">
       <Stack className="gap-1 ">
-        <h1 className="text-black text-2xl font-medium max-md:text-lg">
-          Subscription Management
+        <h1 className="text-foreground text-2xl font-medium max-md:text-lg">
+          {t("superadmin.subscriptions.title", "Subscription Management")}
         </h1>
-        <h1 className="text-gray-500 max-md:text-sm">
-          View and manage all subscription plans and active company
-          subscriptions.
+        <h1 className="text-muted-foreground max-md:text-sm">
+          {t("superadmin.subscriptions.subtitle", "View and manage all subscription plans and active company subscriptions.")}
         </h1>
       </Stack>
       <Flex className="flex-wrap items-start gap-6 mt-6 max-lg:flex-col flex-1">
         {PLAN_LIST.map((plan) => (
           <Stack
             key={plan.key}
-            className="w-[350px] max-md:w-full max-md:flex-1 min-h-[400px] bg-white rounded-md border border-gray-200 flex-1 overflow-hidden gap-0"
+            className="w-[350px] max-md:w-full max-md:flex-1 min-h-[400px] bg-card rounded-md border border-border flex-1 overflow-hidden gap-0"
           >
-            <Flex className="items-center justify-between bg-[#F3F5F5] border-b border-gray-200 p-3">
-              <h1 className="text-black text-xl font-medium">{plan.label}</h1>
+            <Flex className="items-center justify-between bg-muted border-b border-border p-3">
+              <h1 className="text-foreground text-xl font-medium">{plan.label}</h1>
               <button
                 type="button"
                 onClick={() =>
@@ -858,7 +859,7 @@ export const SubscriptionsHeader = () => {
                     planKey: plan.key as PlanKey,
                   })
                 }
-                className="p-2 hover:bg-gray-200 rounded-full transition-all duration-200 cursor-pointer hover:rotate-45"
+                className="p-2 hover:bg-muted rounded-full transition-all duration-200 cursor-pointer hover:rotate-45"
                 aria-label="Configure plan access"
                 title="Configure plan access settings"
               >
@@ -868,14 +869,14 @@ export const SubscriptionsHeader = () => {
             <Stack className="mt-2 p-3 flex-1">
               <label htmlFor="name" className="mb-1">
                 Custom Plan Name
-                <span className="text-xs text-gray-500 ml-2">
+                <span className="text-xs text-muted-foreground ml-2">
                   (Optional - This will be displayed on pricing page if set)
                 </span>
               </label>
               <Input
                 type="text"
                 placeholder="Enter your custom display name (e.g., Basic, Pro Plan, etc.)"
-                className="bg-white h-12 border border-gray-200 placeholder:text-gray-400 shadow-none"
+                className="bg-card border-border h-12 border border-border placeholder:text-muted-foreground shadow-none"
                 value={plans[plan.key as PlanKey].customPlanName || ""}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -892,7 +893,7 @@ export const SubscriptionsHeader = () => {
               <Input
                 type="text"
                 placeholder="Enter Subheading"
-                className="bg-white h-12 border border-gray-200 placeholder:text-gray-400 shadow-none"
+                className="bg-card border-border h-12 border border-border placeholder:text-muted-foreground shadow-none"
                 value={plans[plan.key as PlanKey].subheading}
                 onChange={(e) =>
                   handleInputChange(
@@ -907,13 +908,13 @@ export const SubscriptionsHeader = () => {
                 Set Price
               </label>
               <Flex className="relative items-center h-16">
-                <span className="absolute left-3 text-gray-400 font-outfit font-semibold text-2xl flex items-center h-full ">
+                <span className="absolute left-3 text-muted-foreground font-outfit font-semibold text-2xl flex items-center h-full ">
                   $
                 </span>
                 <Input
                   type="number"
                   placeholder="00.00"
-                  className={`bg-white h-full border border-gray-200 placeholder:text-gray-400 shadow-none placeholder:text-2xl pl-8 focus:text-black text-2xl text-start flex items-center`}
+                  className={`bg-background h-full border border-border placeholder:text-muted-foreground shadow-none placeholder:text-2xl pl-8 focus:text-foreground text-2xl text-start flex items-center`}
                   value={plans[plan.key as PlanKey].price}
                   onChange={(e) =>
                     handleInputChange(
@@ -935,7 +936,7 @@ export const SubscriptionsHeader = () => {
                 <Input
                   type="number"
                   placeholder="e.g., 7, 30, 365"
-                  className="bg-white h-10 border border-gray-200 placeholder:text-gray-400 shadow-none flex-1"
+                  className="bg-card border-border h-10 border border-border placeholder:text-muted-foreground shadow-none flex-1"
                   value={plans[plan.key as PlanKey].durationValue}
                   onChange={(e) =>
                     handleInputChange(
@@ -964,7 +965,7 @@ export const SubscriptionsHeader = () => {
                   }
                   required
                 >
-                  <SelectTrigger className="w-[140px] h-12 border border-gray-200">
+                  <SelectTrigger className="w-[140px] h-12 border border-border">
                     <SelectValue placeholder="Select type *" />
                   </SelectTrigger>
                   <SelectContent>
@@ -976,14 +977,14 @@ export const SubscriptionsHeader = () => {
               </Flex>
               <label htmlFor="trialDays" className="mt-3">
                 Trial Days
-                <span className="text-xs text-gray-500 ml-2">
+                <span className="text-xs text-muted-foreground ml-2">
                   (0 = No Trial, Any number = Trial days)
                 </span>
               </label>
               <Input
                 type="number"
                 placeholder="e.g., 7, 14, 0"
-                className="bg-white h-12 border border-gray-200 placeholder:text-gray-400 shadow-none"
+                className="bg-card border-border h-12 border border-border placeholder:text-muted-foreground shadow-none"
                 value={plans[plan.key as PlanKey].trialDays}
                 onChange={(e) =>
                   handleInputChange(
@@ -1002,7 +1003,7 @@ export const SubscriptionsHeader = () => {
                     (feature: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2 group">
                         <FaCheckCircle className=" fill-[#1797B9]" />
-                        <span className="flex-1 text-gray-700 text-base">
+                        <span className="flex-1 text-muted-foreground text-base">
                           {feature}
                         </span>
                         <button
@@ -1032,7 +1033,7 @@ export const SubscriptionsHeader = () => {
                         <Input
                           type="text"
                           placeholder="Enter Package Feature"
-                          className="flex-1 border-none bg-white shadow-none placeholder:text-gray-400 "
+                          className="flex-1 border-none bg-card border-border shadow-none placeholder:text-muted-foreground "
                           value={plans[plan.key as PlanKey].newFeature}
                           onChange={(e) =>
                             handleInputChange(

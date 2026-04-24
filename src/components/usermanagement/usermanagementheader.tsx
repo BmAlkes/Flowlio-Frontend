@@ -6,16 +6,21 @@ import { Button } from "../ui/button";
 import { CirclePlus } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
+import { useTranslation } from "react-i18next";
 
 export const UserManagementHeader = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   // const { data: userData } = useUser();
   const {
     data: userMembersData,
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useGetCurrentOrgUserMembers();
+
+  const loading = isLoading || isFetching;
 
   const userMembers = userMembersData?.data?.userMembers || [];
 
@@ -23,7 +28,7 @@ export const UserManagementHeader = () => {
     <PageWrapper className="mt-6">
       {/* Debug Info - Remove this in production */}
       {/* {process.env.NODE_ENV === "development" && (
-        <div className="mb-4 p-4 bg-gray-100 rounded-lg text-sm">
+        <div className="mb-4 p-4 bg-muted rounded-lg text-sm">
           <h3 className="font-semibold mb-2">🔍 Debug Info:</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -47,11 +52,11 @@ export const UserManagementHeader = () => {
 
       <Center className="justify-between px-4 py-6 max-sm:flex-col max-sm:items-start gap-2">
         <Stack className="gap-1">
-          <h1 className="text-black text-3xl max-sm:text-xl font-medium">
-            User Management
+          <h1 className="text-foreground text-3xl max-sm:text-xl font-medium">
+            {t("appSidebar.userManagement")}
           </h1>
-          <h1 className={`max-sm:text-sm max-w-[600px] text-gray-500`}>
-            Control access, roles, and permissions across your organization.
+          <h1 className={`max-sm:text-sm max-w-[600px] text-muted-foreground`}>
+            {t("userManagement.subtitle")}
             {/* {userMembersData?.data?.organizationId && (
               <span className="block mt-1 text-blue-600 font-medium">
                 Organization ID: {userMembersData.data.organizationId}
@@ -62,20 +67,20 @@ export const UserManagementHeader = () => {
 
         <Button
           variant="outline"
-          className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer w-44"
+          className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer w-44"
           onClick={() =>
             navigate("/dashboard/user-management/add-user-members")
           }
         >
-          <CirclePlus className="fill-white text-black size-5" />
-          Add Members
+          <CirclePlus className="text-white size-5" />
+          {t("userManagement.addMembers")}
         </Button>
       </Center>
 
       <UserManagementTable
         userMembers={userMembers}
         error={error}
-        isLoading={isLoading}
+        isLoading={loading}
         refetch={refetch}
       />
     </PageWrapper>

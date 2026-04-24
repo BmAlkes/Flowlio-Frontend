@@ -26,7 +26,7 @@ export const LazyWrapper = ({
 
 // Utility function to create lazy components with consistent naming
 export const createLazyComponent = (
-  importFn: () => Promise<{ default: ComponentType<any> }>
+  importFn: () => Promise<{ default: ComponentType<any> }>,
 ) => {
   return lazy(importFn);
 };

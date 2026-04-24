@@ -190,14 +190,14 @@ export const ReusableTable = <TData,>({
         {enableGlobalFilter && (
           <Flex className="justify-between max-sm:items-start flex-col lg:flex-row items-center w-full gap-4">
             <Flex className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-muted-foreground font-light" />
               <Input
                 type="search"
                 placeholder={t("horizontalnavbar.search")}
                 value={globalFilter}
                 onChange={(event) => setGlobalFilter(event.target.value)}
                 className={cn(
-                  "w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-white h-10  placeholder:text-black  placeholder:text-[15px] border border-gray-100  focus:outline-none active:border-gray-200 focus:ring-0 focus:ring-offset-0",
+                  "w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-background h-10 placeholder:text-muted-foreground placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0",
                   searchClassName
                 )}
               />
@@ -214,7 +214,7 @@ export const ReusableTable = <TData,>({
                     variant="ghost"
                     aria-haspopup="dialog"
                     className={cn(
-                      "cursor-pointer bg-white border border-gray-200 h-10 text-black shadow-none",
+                      "cursor-pointer bg-background border border-border h-10 text-foreground shadow-none",
                       filterClassName
                     )}
                   >
@@ -247,7 +247,7 @@ export const ReusableTable = <TData,>({
 
       <Box
         className={cn(
-          "rounded-md border overflow-hidden",
+          "rounded-md border overflow-x-auto",
           enableCompanyDetailsTable
             ? "rounded-t-none border-none"
             : "rounded-md",
@@ -257,7 +257,7 @@ export const ReusableTable = <TData,>({
         )}
       >
         <Table>
-          <TableHeader className="bg-[#F3F5F5] rounded-md">
+          <TableHeader className="bg-muted/50 rounded-md">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -277,21 +277,42 @@ export const ReusableTable = <TData,>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const SortableRowWrapper = meta?.SortableRowWrapper;
+                const isSortingActive = meta?.isSortingActive;
+
+                
+                const rowContent = row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </TableCell>
+                ));
+
+                if (SortableRowWrapper && meta?.sortableContext) {
+                  return (
+                    <SortableRowWrapper
+                      key={row.id}
+                      id={(row.original as any).id}
+                      isSortingActive={isSortingActive}
+                      showDragHandle={false}
+                    >
+                      {rowContent}
+                    </SortableRowWrapper>
+                  );
+                }
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {rowContent}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
@@ -309,7 +330,7 @@ export const ReusableTable = <TData,>({
       {/* Pagination Controls */}
       {pagination && (
         <Flex className="items-center justify-between mt-4 px-2">
-          <Box className="text-sm text-gray-600">
+          <Box className="text-sm text-muted-foreground">
             {(() => {
               const pageIndex = pagination.pageIndex ?? 0;
               const pageSize = pagination.pageSize ?? 10;
@@ -335,7 +356,7 @@ export const ReusableTable = <TData,>({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Box className="text-sm text-gray-600">
+            <Box className="text-sm text-muted-foreground">
               Page {pagination.pageIndex + 1} of {pagination.pageCount ?? 1}
             </Box>
             <Button

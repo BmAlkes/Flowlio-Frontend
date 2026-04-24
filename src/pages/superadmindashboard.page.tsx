@@ -16,8 +16,10 @@ import { useFetchAllData } from "@/hooks/useFetchAllData";
 import { useFetchTotalInvoices } from "@/hooks/useFetchTotalInvoices";
 import { getTotalCounts } from "@/utils/chartDataProcessor";
 import { useFetchSuperadminOverview } from "@/hooks/useFetchSuperadminOverview";
+import { useTranslation } from "react-i18next";
 // import { useUser } from "@/providers/user.provider";
 // import { Badge } from "@/components/ui/badge";
+import { CardSkeleton, ChartSkeleton, SkeletonWrapper } from "@/components/skeletons";
 
 // Feature overview colors
 const FEATURE_COLORS = {
@@ -27,9 +29,12 @@ const FEATURE_COLORS = {
 } as const;
 
 const SuperAdminDashboardPage = () => {
-  const { data: allDataResponse } = useFetchAllData();
-  const { data: totalInvoicesResponse } = useFetchTotalInvoices();
-  const { data: overviewResponse } = useFetchSuperadminOverview();
+  const { t } = useTranslation();
+  const { data: allDataResponse, isLoading: isLoadingAll, isFetching: isFetchingAll } = useFetchAllData();
+  const { data: totalInvoicesResponse, isLoading: isLoadingInvoices } = useFetchTotalInvoices();
+  const { data: overviewResponse, isLoading: isLoadingOverview } = useFetchSuperadminOverview();
+
+  const isAnyLoading = isLoadingAll || isLoadingInvoices || isLoadingOverview || isFetchingAll;
 
   // Use the new all-data approach for consistent counts
   const { totalCompanies, totalProjects } = allDataResponse?.data
@@ -74,29 +79,29 @@ const SuperAdminDashboardPage = () => {
   const stats: Stat[] = [
     {
       link: "/superadmin/companies",
-      title: "Total Companies",
-      description: "Companies currently on platform",
+      title: t("superadminDashboard.totalCompanies"),
+      description: t("superadminDashboard.companiesDesc"),
       icon: img1,
       count: String(totalCompanies),
     },
     {
       link: "/superadmin", // No specific projects route, stays on dashboard
-      title: "Total Projects",
-      description: "All projects created by companies",
+      title: t("superadminDashboard.totalProjects"),
+      description: t("superadminDashboard.projectsDesc"),
       icon: img2,
       count: String(liveProjects),
     },
     {
       link: "/superadmin/subscriptions",
-      title: "Active Subscriptions",
-      description: "Companies on active paid plans",
+      title: t("superadminDashboard.activeSubscriptions"),
+      description: t("superadminDashboard.subscriptionsDesc"),
       icon: img3,
       count: String(activeSubscriptions),
     },
     {
       link: "/superadmin", // No specific invoices route, stays on dashboard
-      title: "Total Invoices",
-      description: "Invoices created via platform",
+      title: t("superadminDashboard.totalInvoices"),
+      description: t("superadminDashboard.invoicesDesc"),
       icon: img4,
       count: String(totalInvoices),
     },
@@ -124,27 +129,40 @@ const SuperAdminDashboardPage = () => {
   ];
 
   return (
-    <Stack className="pt-5 gap-3 px-2">
-      <Stats
-        stats={stats}
-        classNameDescription="text-[13px] leading-4"
-        isSuperAdmin={true}
-      />
-      <Flex className="max-[950px]:flex-col items-start gap-3">
-        <Stack className="w-full">
-          <SuperAdminBarChartComponent />
+    <SkeletonWrapper
+      isLoading={isAnyLoading}
+      skeleton={
+        <Stack className="pt-5 gap-3 px-2">
+          <CardSkeleton count={4} />
+          <Flex className="max-[950px]:flex-col items-start gap-3">
+            <ChartSkeleton height={280} className="flex-1" />
+            <ChartSkeleton height={280} className="w-64 flex-shrink-0" withLegend />
+          </Flex>
         </Stack>
+      }
+    >
+      <Stack className="pt-5 gap-3 px-2">
+        <Stats
+          stats={stats}
+          classNameDescription="text-[13px] leading-4"
+          isSuperAdmin={true}
+        />
+        <Flex className="max-[950px]:flex-col items-start gap-3">
+          <Stack className="w-full">
+            <SuperAdminBarChartComponent />
+          </Stack>
 
-        <Stack className="max-[950px]:w-full items-start">
-          <ProjectStatusPieChart
-            data={featureOverviewData}
-            title="Feature Overview"
-          />
-        </Stack>
-      </Flex>
+          <Stack className="max-[950px]:w-full items-start">
+            <ProjectStatusPieChart
+              data={featureOverviewData}
+              title={t("superadminDashboard.featureOverview")}
+            />
+          </Stack>
+        </Flex>
 
-      <SuperAdminTable />
-    </Stack>
+        <SuperAdminTable />
+      </Stack>
+    </SkeletonWrapper>
   );
 };
 

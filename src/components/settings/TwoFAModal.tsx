@@ -13,7 +13,7 @@ import { Stack } from "@/components/ui/stack";
 import { Center } from "@/components/ui/center";
 import { Flex } from "@/components/ui/flex";
 import { Switch } from "@/components/ui/switch";
-import { Mail, Shield, CheckCircle } from "lucide-react";
+import { Mail, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -291,17 +291,17 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
           // OTP Verification Form
           <Box className="space-y-6">
             <Stack className="gap-4 text-center">
-              <Center className="mx-auto w-16 h-16 bg-blue-100 rounded-full">
-                <Mail className="w-8 h-8 text-blue-600" />
+              <Center className="mx-auto w-16 h-16 bg-primary/10 rounded-full">
+                <Mail className="w-8 h-8 text-primary" />
               </Center>
               <Stack className="gap-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {t("settings.verifyYourEmail")}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("settings.verifyYourEmailDesc")}
                 </p>
-                <p className="font-semibold text-gray-900">{userEmail}</p>
+                <p className="font-semibold text-foreground">{userEmail}</p>
               </Stack>
             </Stack>
 
@@ -310,7 +310,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   {t("settings.enterVerificationCode")}
                 </label>
                 <Input
@@ -335,7 +335,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                   variant="ghost"
                   onClick={handleResend}
                   disabled={!canResend || isLoading}
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-primary hover:text-primary/80"
                 >
                   {canResend
                     ? t("settings.resendCode")
@@ -357,14 +357,20 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 >
                   {t("settings.cancel")}
                 </Button>
-                <Button
+                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex-1"
+                  variant="default"
                   disabled={isLoading || form.watch("otp").length !== 6}
                 >
-                  {isLoading
-                    ? t("settings.verifying")
-                    : t("settings.verifyAndEnable")}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("settings.verifying")}
+                    </>
+                  ) : (
+                    t("settings.verifyAndEnable")
+                  )}
                 </Button>
               </Flex>
             </form>
@@ -373,14 +379,14 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
           // Password Verification Form for Enabling 2FA
           <Box className="space-y-6">
             <Stack className="gap-4 text-center">
-              <Center className="mx-auto w-16 h-16 bg-blue-100 rounded-full">
-                <Shield className="w-8 h-8 text-blue-600" />
+              <Center className="mx-auto w-16 h-16 bg-primary/10 rounded-full">
+                <Shield className="w-8 h-8 text-primary" />
               </Center>
               <Stack className="gap-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {t("settings.enableTwoFactorAuthentication")}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("settings.enableTwoFactorAuthenticationDesc")}
                 </p>
               </Stack>
@@ -393,7 +399,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   {t("settings.password")}
                 </label>
                 <Input
@@ -422,14 +428,20 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 >
                   {t("settings.cancel")}
                 </Button>
-                <Button
+                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
+                  className="flex-1 cursor-pointer"
+                  variant="default"
                   disabled={isLoading}
                 >
-                  {isLoading
-                    ? t("settings.verifying")
-                    : t("settings.verifyAndContinue")}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("settings.verifying")}
+                    </>
+                  ) : (
+                    t("settings.verifyAndContinue")
+                  )}
                 </Button>
               </Flex>
             </form>
@@ -442,13 +454,13 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </Center>
               <Stack className="gap-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {t("settings.success")}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("settings.twoFactorAuthenticationEnabledDesc")}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {t("settings.twoFactorAuthenticationEnabledDesc2")}
                 </p>
               </Stack>
@@ -462,10 +474,10 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 <Shield className="w-8 h-8 text-red-600" />
               </Center>
               <Stack className="gap-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {t("settings.disableTwoFactorAuthentication")}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {t("settings.disableTwoFactorAuthenticationDesc")}
                 </p>
               </Stack>
@@ -476,7 +488,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-foreground">
                   {t("settings.enterYourPassword")}
                 </label>
                 <Input
@@ -526,16 +538,16 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 {isEnabled ? (
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 ) : (
-                  <Shield className="w-8 h-8 text-gray-600" />
+                  <Shield className="w-8 h-8 text-muted-foreground" />
                 )}
               </Center>
               <Stack className="gap-2">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-foreground">
                   {isEnabled
                     ? t("settings.twoFactorAuthenticationEnabled")
                     : t("settings.twoFactorAuthenticationDisabled")}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {isEnabled
                     ? t("settings.twoFactorAuthenticationEnabledDesc")
                     : t("settings.twoFactorAuthenticationDisabledDesc")}

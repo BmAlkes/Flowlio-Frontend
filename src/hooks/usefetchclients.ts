@@ -13,6 +13,7 @@ interface Client {
   status: string;
   createdAt: string;
   updatedAt: string;
+  position: number;
 }
 
 interface ClientsResponse {

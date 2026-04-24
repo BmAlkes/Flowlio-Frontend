@@ -149,15 +149,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#fee2e2",
     color: "#991b1b",
   },
+  statusDraft: {
+    backgroundColor: "#f3f4f6",
+    color: "#4b5563",
+  },
 });
 
 interface Invoice {
   id: string;
   invoiceNumber?: string;
   clientname?: string;
-  amount?: number;
+  amount?: number | string;
   dueDate?: string;
-  datepaid?: string;
+  datepaid?: string | null;
   description?: string;
   status?: string;
 }
@@ -168,14 +172,18 @@ interface InvoicePDFProps {
 }
 
 const getStatusClass = (invoice: Invoice): string => {
-  if (invoice.datepaid) return "statusPaid";
+  const status = invoice.status?.toLowerCase();
+  if (status === "paid" || invoice.datepaid) return "statusPaid";
+  if (status === "draft") return "statusDraft";
   if (invoice.dueDate && new Date(invoice.dueDate) < new Date())
     return "statusOverdue";
   return "statusPending";
 };
 
 const getStatusText = (invoice: Invoice): string => {
-  if (invoice.datepaid) return "Paid";
+  const status = invoice.status?.toLowerCase();
+  if (status === "paid" || invoice.datepaid) return "Paid";
+  if (status === "draft") return "Draft";
   if (invoice.dueDate && new Date(invoice.dueDate) < new Date())
     return "Overdue";
   return "Pending";
@@ -184,7 +192,10 @@ const getStatusText = (invoice: Invoice): string => {
 export const InvoicePDF: React.FC<InvoicePDFProps> = ({ invoices }) => {
   const currentDate = new Date().toLocaleDateString();
   const totalAmount = invoices.reduce(
-    (sum, invoice) => sum + (invoice.amount || 0),
+    (sum, invoice) => {
+      const amount = typeof invoice.amount === 'string' ? parseFloat(invoice.amount) : (invoice.amount || 0);
+      return sum + amount;
+    },
     0
   );
 
@@ -240,7 +251,11 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ invoices }) => {
                 {invoice.clientname || "N/A"}
               </Text>
               <Text style={styles.tableCellRight}>
-                ${invoice.amount?.toFixed(2) || "0.00"}
+                $
+                {(typeof invoice.amount === "string"
+                  ? parseFloat(invoice.amount)
+                  : (invoice.amount as number) || 0
+                ).toFixed(2)}
               </Text>
               <Text style={styles.tableCell}>
                 {invoice.dueDate

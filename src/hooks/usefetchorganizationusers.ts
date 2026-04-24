@@ -52,11 +52,12 @@ export const useFetchOrganizationUsers = (options?: { enabled?: boolean }) => {
     queryKey: ["organization-users"],
     queryFn: async () => {
       const response = await axios.get<ApiResponse<OrganizationUsersResponse>>(
-        "/organizations/current-org-user-members"
+        "/organizations/current-org-user-members",
       );
       return response.data;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnMount: true, // Always refetch when component mounts
     ...options,
   });
 };

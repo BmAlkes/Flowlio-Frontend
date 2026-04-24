@@ -115,7 +115,7 @@ export const TeamMember = () => {
             {teamMembers.map((member, index) => (
               <Flex
                 key={member.name}
-                className={`flex-col text-center bg-white p-3 rounded-lg ${
+                className={`flex-col text-center bg-card p-3 rounded-lg ${
                   index === 1 && "-mt-14 shadow-2xl shadow-black/40 "
                 }`}
               >
@@ -157,7 +157,7 @@ export const TeamMember = () => {
                         className="w-full flex-shrink-0 px-2"
                       >
                         <Flex
-                          className={`flex-col w-[16rem] h-[18rem] text-center bg-white p-3 rounded-lg ${
+                          className={`flex-col w-[16rem] h-[18rem] text-center bg-card p-3 rounded-lg ${
                             index === 1 && "-mt-0 shadow-2xl shadow-black/40"
                           }`}
                           style={{
@@ -185,8 +185,8 @@ export const TeamMember = () => {
                       className={cn(
                         "size-2 rounded-full transition-all duration-300",
                         currentIndex === index
-                          ? "bg-white scale-125"
-                          : "bg-white/40 hover:bg-white/60"
+                          ? "bg-card scale-125"
+                          : "bg-card/40 hover:bg-card/60"
                       )}
                     />
                   ))}

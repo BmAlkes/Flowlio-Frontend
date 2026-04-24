@@ -53,7 +53,7 @@ export const ProjectSelector: React.FC<{
     >
       <SelectTrigger
         className={cn(
-          "rounded-full min-h-10 border border-gray-200",
+          "rounded-full min-h-10 border border-border",
           selectTriggerClassname
         )}
       >

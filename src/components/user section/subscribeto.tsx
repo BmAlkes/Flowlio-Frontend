@@ -56,7 +56,7 @@ export const SubscribeTo = () => {
                 placeholder="Enter your email"
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={newsletterMutation.isPending}
-                className="bg-white border-none outline-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none shadow-none rounded-full pr-24 placeholder:text-gray-400 w-full max-sm:text-sm disabled:opacity-70"
+                className="bg-card border-none outline-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none shadow-none rounded-full pr-24 placeholder:text-muted-foreground w-full max-sm:text-sm disabled:opacity-70"
                 style={{
                   boxShadow: "none !important",
                   outline: "none !important",
@@ -88,8 +88,8 @@ export const SubscribeTo = () => {
         </Box>
 
         <Box className="w-5xl max-md:w-full mt-4 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
-          <Box className="text-sm text-gray-700 leading-relaxed">
-            <strong className="text-gray-900">Data Usage Transparency:</strong>{" "}
+          <Box className="text-sm text-foreground leading-relaxed">
+            <strong className="text-foreground">Data Usage Transparency:</strong>{" "}
             Flowlio integrates with Google Calendar to sync your calendar events
             bidirectionally. We request access to your Google Calendar data
             (events, dates, times) solely to provide calendar synchronization

@@ -9,11 +9,15 @@ import { CircleCheck, FileText, Download, Trash2 } from "lucide-react";
 import { useFetchInvoices, Invoice } from "@/hooks/usefetchinvoices";
 import { useDeleteInvoice } from "@/hooks/usedeleteinvoice";
 import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
+import { useUpdateInvoiceStatus } from "@/hooks/useupdateinvoicestatus";
 import { useCallback } from "react";
+import { toast } from "sonner";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 // Actions component to properly use hooks
 const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
   const deleteInvoiceMutation = useDeleteInvoice();
+  const updateStatusMutation = useUpdateInvoiceStatus();
   const { generatePDF } = useGenerateInvoicePDF();
 
   const handleDelete = () => {
@@ -22,14 +26,19 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
     }
   };
 
+  const handleUpdateStatus = (status: string) => {
+    updateStatusMutation.mutate(
+      { id: invoice.id, status },
+      {
+        onSuccess: () => toast.success(`Invoice marked as ${status}`),
+        onError: () => toast.error(`Failed to update invoice status`),
+      }
+    );
+  };
+
   const handleDownloadPDF = () => {
-    if (invoice.pdfUrl) {
-      // Open existing PDF
-      window.open(invoice.pdfUrl, "_blank");
-    } else {
-      // Generate new PDF
-      generatePDF({ invoices: [invoice], exportType: "selected" });
-    }
+    // Generate new PDF from frontend to ensure data accuracy
+    generatePDF({ invoices: [invoice], exportType: "selected" });
   };
 
   return (
@@ -46,6 +55,27 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
         )}
         {invoice.pdfUrl ? "Download" : "Generate PDF"}
       </Button>
+
+      {invoice.status.toLowerCase() !== "paid" && (
+        <Button
+          onClick={() => handleUpdateStatus("paid")}
+          className="bg-green-500 border-none hover:bg-green-600 cursor-pointer rounded-full space-x-2 text-white"
+          disabled={updateStatusMutation.isPending}
+        >
+          <CircleCheck className="size-4" />
+          Mark as Paid
+        </Button>
+      )}
+
+      {invoice.status.toLowerCase() === "paid" && (
+        <Button
+          onClick={() => handleUpdateStatus("draft")}
+          className="bg-yellow-500 border-none hover:bg-yellow-600 cursor-pointer rounded-full space-x-2 text-white"
+          disabled={updateStatusMutation.isPending}
+        >
+          Mark as Draft
+        </Button>
+      )}
 
       <Button
         onClick={handleDelete}
@@ -73,7 +103,7 @@ export const columns: ColumnDef<Data>[] = [
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
-        <Box className="text-center text-black">Invoice Number</Box>
+        <Box className="text-center text-foreground">Invoice Number</Box>
       </Flex>
     ),
     cell: ({ row }) => (
@@ -94,21 +124,21 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "clientname",
-    header: () => <Box className="text-black">Client Name</Box>,
+    header: () => <Box className="text-foreground">Client Name</Box>,
     cell: ({ row }) => (
       <Box className="capitalize p-1">{row.original.clientname}</Box>
     ),
   },
   {
     accessorKey: "amount",
-    header: () => <Box className="text-center text-black">Amount</Box>,
+    header: () => <Box className="text-center text-foreground">Amount</Box>,
     cell: ({ row }) => {
       return <Box className="text-center">$ {row.original.amount}</Box>;
     },
   },
   {
     accessorKey: "dueDate",
-    header: () => <Box className="text-black text-center">Due Date</Box>,
+    header: () => <Box className="text-foreground text-center">Due Date</Box>,
     cell: ({ row }) => (
       <Box className="captialize text-center">
         {row.original.dueDate
@@ -124,7 +154,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "status",
-    header: () => <Box className="text-center text-black">Status</Box>,
+    header: () => <Box className="text-center text-foreground">Status</Box>,
     cell: ({ row }) => {
       const status = row.original.status.toLowerCase();
       const isPaid = status === "paid";
@@ -132,7 +162,7 @@ export const columns: ColumnDef<Data>[] = [
       return (
         <Center className="text-center space-x-2">
           <CircleCheck
-            className={`size-5 ${isPaid ? "text-green-500" : "text-gray-400"}`}
+            className={`size-5 ${isPaid ? "text-green-500" : "text-muted-foreground"}`}
           />
           <Box className="text-center text-[15px] capitalize">
             {row.original.status}
@@ -144,7 +174,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "actions",
-    header: () => <Box className="text-center text-black">Actions</Box>,
+    header: () => <Box className="text-center text-foreground">Actions</Box>,
     cell: ({ row }) => <InvoiceActions invoice={row.original} />,
   },
 ];
@@ -161,7 +191,9 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
   const orgInvoices = useFetchInvoices();
   const invoicesData = orgInvoices.data;
   const isLoading = orgInvoices.isLoading;
+  const isFetching = orgInvoices.isFetching;
   const error = orgInvoices.error;
+  const loading = isLoading || isFetching;
 
   // Memoize the callback to prevent infinite loops
   const handleTableStateChange = useCallback(
@@ -181,24 +213,19 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
         onTableStateChange(newTableState);
       }
     },
-    [invoicesData?.data, onTableStateChange]
+    [invoicesData?.data, onTableStateChange],
   );
 
-  if (isLoading) {
-    return (
-      <Center className="py-8">
-        <Box className="text-gray-500">Loading invoices...</Box>
-      </Center>
-    );
+  if (loading) {
+    return <TableSkeleton rows={6} columns={5} withActions />;
   }
 
   if (error) {
     return (
-      <Center className="py-8">
-        <Box className="text-red-500">
-          Error loading invoices: {error.message}
-        </Box>
-      </Center>
+      <ErrorState
+        title="Error loading invoices"
+        message={error.message}
+      />
     );
   }
 

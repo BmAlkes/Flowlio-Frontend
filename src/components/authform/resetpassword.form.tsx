@@ -159,7 +159,7 @@ export const ResetPasswordForm: FC = () => {
                       size="lg"
                       type="password"
                       placeholder="Password"
-                      className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm"
+                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
                       {...field}
                     />
                   </FormControl>
@@ -180,7 +180,7 @@ export const ResetPasswordForm: FC = () => {
                       size="lg"
                       type="password"
                       placeholder="Re-type Password"
-                      className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm"
+                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
                       {...field}
                     />
                   </FormControl>

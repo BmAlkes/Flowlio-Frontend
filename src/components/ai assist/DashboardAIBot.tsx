@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Box } from "../ui/box";
+import botGif from "/dashboard/botgif.gif";
 import { Button } from "../ui/button";
 import { Flex } from "../ui/flex";
 import { Stack } from "../ui/stack";
@@ -81,12 +82,12 @@ export const DashboardAIBot = () => {
     {
       id: "create-client",
       title: "Create Client",
-      description: "Create clients from natural language input",
+      description: "Create clients (requires Name, Email, Password)",
       icon: <UserPlus className="w-5 h-5" />,
       action: () => {
         setActiveOption("create-client");
         addBotMessage(
-          "Great! Let me help you create a client. Please describe the client details:"
+          "Great! Let me help you create a client. Please describe the client details (Name, Email, and Password are required):"
         );
       },
       available: true,
@@ -163,7 +164,7 @@ export const DashboardAIBot = () => {
                 className={`p-3 rounded-lg border cursor-pointer transition-all ${
                   option.available
                     ? "border-blue-300 bg-blue-50 hover:bg-blue-100 hover:border-blue-400"
-                    : "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                    : "border-border bg-muted/50 opacity-60 cursor-not-allowed"
                 }`}
               >
                 <Flex className="items-center gap-3">
@@ -171,7 +172,7 @@ export const DashboardAIBot = () => {
                     className={`p-2 rounded-lg ${
                       option.available
                         ? "bg-blue-200 text-blue-700"
-                        : "bg-gray-200 text-gray-400"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {option.icon}
@@ -187,7 +188,7 @@ export const DashboardAIBot = () => {
                         </span>
                       )}
                     </Flex>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-muted-foreground">
                       {option.description}
                     </p>
                   </Stack>
@@ -252,7 +253,7 @@ export const DashboardAIBot = () => {
             className={`p-3 rounded-lg border cursor-pointer transition-all ${
               option.available
                 ? "border-blue-300 bg-blue-50 hover:bg-blue-100 hover:border-blue-400"
-                : "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                : "border-border bg-muted/50 opacity-60 cursor-not-allowed"
             }`}
           >
             <Flex className="items-center gap-3">
@@ -260,7 +261,7 @@ export const DashboardAIBot = () => {
                 className={`p-2 rounded-lg ${
                   option.available
                     ? "bg-blue-200 text-blue-700"
-                    : "bg-gray-200 text-gray-400"
+                    : "bg-muted text-muted-foreground"
                 }`}
               >
                 {option.icon}
@@ -276,7 +277,7 @@ export const DashboardAIBot = () => {
                     </span>
                   )}
                 </Flex>
-                <p className="text-xs text-gray-600">{option.description}</p>
+                <p className="text-xs text-muted-foreground">{option.description}</p>
               </Stack>
             </Flex>
           </Box>
@@ -321,55 +322,55 @@ export const DashboardAIBot = () => {
               <h4 className="font-semibold text-blue-900 mb-2">
                 📊 Executive Summary
               </h4>
-              <p className="text-gray-700 whitespace-pre-wrap">
+              <p className="text-foreground whitespace-pre-wrap">
                 {summaryData.summary}
               </p>
             </Box>
 
             {/* Metrics */}
-            <Box className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-2">
+            <Box className="bg-muted/50 p-3 rounded-lg border border-border">
+              <h4 className="font-semibold text-foreground mb-2">
                 📈 Key Metrics
               </h4>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-gray-600">Total Projects:</span>
+                  <span className="text-muted-foreground">Total Projects:</span>
                   <span className="font-semibold ml-2">
                     {summaryData.metrics.totalProjects}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Active Projects:</span>
+                  <span className="text-muted-foreground">Active Projects:</span>
                   <span className="font-semibold ml-2">
                     {summaryData.metrics.activeProjects}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Total Tasks:</span>
+                  <span className="text-muted-foreground">Total Tasks:</span>
                   <span className="font-semibold ml-2">
                     {summaryData.metrics.totalTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Completed:</span>
+                  <span className="text-muted-foreground">Completed:</span>
                   <span className="font-semibold ml-2 text-green-600">
                     {summaryData.metrics.completedTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">In Progress:</span>
+                  <span className="text-muted-foreground">In Progress:</span>
                   <span className="font-semibold ml-2 text-blue-600">
                     {summaryData.metrics.inProgressTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Total Hours:</span>
+                  <span className="text-muted-foreground">Total Hours:</span>
                   <span className="font-semibold ml-2">
                     {summaryData.metrics.totalHours.toFixed(1)}h
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Billable Hours:</span>
+                  <span className="text-muted-foreground">Billable Hours:</span>
                   <span className="font-semibold ml-2 text-green-600">
                     {summaryData.metrics.billableHours.toFixed(1)}h
                   </span>
@@ -383,7 +384,7 @@ export const DashboardAIBot = () => {
                 <h4 className="font-semibold text-yellow-900 mb-2">
                   ✨ Key Highlights
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                <ul className="list-disc list-inside space-y-1 text-foreground">
                   {summaryData.highlights.map(
                     (highlight: string, idx: number) => (
                       <li key={idx}>{highlight}</li>
@@ -415,20 +416,20 @@ export const DashboardAIBot = () => {
                       ) => (
                         <Box
                           key={idx}
-                          className="bg-white p-2 rounded border border-purple-100"
+                          className="bg-card p-2 rounded border border-purple-100"
                         >
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-semibold text-sm">
                               {project.projectName}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-muted-foreground">
                               {project.projectNumber}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-600 mb-1">
+                          <p className="text-xs text-muted-foreground mb-1">
                             {project.summary}
                           </p>
-                          <div className="flex gap-3 text-xs text-gray-500">
+                          <div className="flex gap-3 text-xs text-muted-foreground">
                             <span>Progress: {project.progress}%</span>
                             <span>Completed: {project.tasksCompleted}</span>
                             <span>Hours: {project.hoursSpent.toFixed(1)}h</span>
@@ -447,7 +448,7 @@ export const DashboardAIBot = () => {
                   <h4 className="font-semibold text-green-900 mb-2">
                     💡 Recommendations
                   </h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <ul className="list-disc list-inside space-y-1 text-foreground">
                     {summaryData.recommendations.map(
                       (rec: string, idx: number) => (
                         <li key={idx}>{rec}</li>
@@ -458,7 +459,7 @@ export const DashboardAIBot = () => {
               )}
 
             {/* Period */}
-            <Box className="text-xs text-gray-500 text-center pt-2 border-t">
+            <Box className="text-xs text-muted-foreground text-center pt-2 border-t">
               Period: {new Date(summaryData.period.start).toLocaleDateString()}{" "}
               - {new Date(summaryData.period.end).toLocaleDateString()}
             </Box>
@@ -581,6 +582,7 @@ export const DashboardAIBot = () => {
 {
   "name": "client name",
   "email": "email@example.com",
+  "password": "secure password or null",
   "phone": "phone number or null",
   "businessIndustry": "industry or null",
   "address": "address or null"
@@ -627,6 +629,7 @@ Description: ${userInput}`,
   const handleClientGenerated = async (clientData: {
     name: string;
     email: string;
+    password?: string;
     phone?: string;
     businessIndustry?: string;
     address?: string;
@@ -638,12 +641,18 @@ Description: ${userInput}`,
       return;
     }
 
+    // Generate a secure random password if none provided
+    const generatedPassword = clientData.password || 
+      Math.random().toString(36).slice(-10) + 
+      Math.random().toString(36).toUpperCase().slice(-2) + "!";
+
     addBotMessage("⏳ Creating client... Please wait.");
 
     try {
       const result = await createClient.mutateAsync({
         name: clientData.name,
         email: clientData.email,
+        password: generatedPassword,
         phone: clientData.phone,
         businessIndustry: clientData.businessIndustry,
         address: clientData.address,
@@ -652,11 +661,11 @@ Description: ${userInput}`,
       addBotMessage(
         `✅ Client Created Successfully!\n\n👤 Name: ${
           result.data.name
-        }\n📧 Email: ${result.data.email}\n${
+        }\n📧 Email: ${result.data.email}\n🔑 Temporary Password: ${generatedPassword}\n${
           result.data.phone ? `📞 Phone: ${result.data.phone}\n` : ""
         }Status: ${
           result.data.status
-        }\n\nYour client has been added to the system.`
+        }\n\nYour client has been added to the system and can now access their portal.`
       );
 
       // Reset after success
@@ -699,37 +708,37 @@ Description: ${userInput}`,
               </h4>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-gray-600">Total Projects:</span>
+                  <span className="text-muted-foreground">Total Projects:</span>
                   <span className="font-semibold ml-2">
                     {insights.summary.totalProjects}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Total Tasks:</span>
+                  <span className="text-muted-foreground">Total Tasks:</span>
                   <span className="font-semibold ml-2">
                     {insights.summary.totalTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Completed:</span>
+                  <span className="text-muted-foreground">Completed:</span>
                   <span className="font-semibold ml-2 text-green-600">
                     {insights.summary.completedTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">In Progress:</span>
+                  <span className="text-muted-foreground">In Progress:</span>
                   <span className="font-semibold ml-2 text-blue-600">
                     {insights.summary.inProgressTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Overdue Tasks:</span>
+                  <span className="text-muted-foreground">Overdue Tasks:</span>
                   <span className="font-semibold ml-2 text-red-600">
                     {insights.summary.overdueTasks}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Hours Tracked:</span>
+                  <span className="text-muted-foreground">Hours Tracked:</span>
                   <span className="font-semibold ml-2">
                     {insights.summary.totalHoursTrackedFormatted ||
                       `${Math.floor(
@@ -753,7 +762,7 @@ Description: ${userInput}`,
                     .map((project) => (
                       <Box
                         key={project.projectId}
-                        className="bg-white p-2 rounded border border-red-100"
+                        className="bg-card p-2 rounded border border-red-100"
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-semibold text-sm">
@@ -763,7 +772,7 @@ Description: ${userInput}`,
                             Risk: {project.riskScore}%
                           </span>
                         </div>
-                        <div className="text-xs text-gray-600 space-y-0.5">
+                        <div className="text-xs text-muted-foreground space-y-0.5">
                           <div>Progress: {project.progress}%</div>
                           <div>Overdue Tasks: {project.overdueTasks}</div>
                           {project.reasons.length > 0 && (
@@ -785,7 +794,7 @@ Description: ${userInput}`,
                   🔥 Urgent Tasks (
                   {insights.priorityInsights.urgentTasks.length})
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-xs text-gray-700">
+                <ul className="list-disc list-inside space-y-1 text-xs text-foreground">
                   {insights.priorityInsights.urgentTasks
                     .slice(0, 5)
                     .map((task) => {
@@ -809,7 +818,7 @@ Description: ${userInput}`,
                   ❌ Overdue Tasks (
                   {insights.priorityInsights.overdueTasks.length})
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-xs text-gray-700">
+                <ul className="list-disc list-inside space-y-1 text-xs text-foreground">
                   {insights.priorityInsights.overdueTasks
                     .slice(0, 5)
                     .map((task) => (
@@ -828,7 +837,7 @@ Description: ${userInput}`,
                 <h4 className="font-semibold text-green-900 mb-2">
                   💡 Recommendations
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-xs text-gray-700">
+                <ul className="list-disc list-inside space-y-1 text-xs text-foreground">
                   {insights.priorityInsights.recommendations.map((rec, idx) => (
                     <li key={idx}>{rec}</li>
                   ))}
@@ -843,25 +852,25 @@ Description: ${userInput}`,
               </h4>
               <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                 <div>
-                  <span className="text-gray-600">On Track:</span>
+                  <span className="text-muted-foreground">On Track:</span>
                   <span className="font-semibold ml-2 text-green-600">
                     {insights.timelinePredictions.projectsOnTrack}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">At Risk:</span>
+                  <span className="text-muted-foreground">At Risk:</span>
                   <span className="font-semibold ml-2 text-orange-600">
                     {insights.timelinePredictions.projectsAtRisk}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Delayed:</span>
+                  <span className="text-muted-foreground">Delayed:</span>
                   <span className="font-semibold ml-2 text-red-600">
                     {insights.timelinePredictions.projectsDelayed}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Avg Completion:</span>
+                  <span className="text-muted-foreground">Avg Completion:</span>
                   <span className="font-semibold ml-2">
                     {insights.timelinePredictions.averageCompletionTime} days
                   </span>
@@ -874,7 +883,7 @@ Description: ${userInput}`,
                   <p className="text-xs font-semibold text-purple-800 mb-1">
                     Projects At Risk:
                   </p>
-                  <ul className="list-disc list-inside space-y-0.5 text-xs text-gray-700">
+                  <ul className="list-disc list-inside space-y-0.5 text-xs text-foreground">
                     {insights.delayPredictions.projectsAtRisk.map((project) => (
                       <li key={project.projectId}>
                         {project.projectName}
@@ -1062,10 +1071,10 @@ Description: ${userInput}`,
           setIsOpen(true);
           setIsMinimized(false);
         }}
-        className="w-20 h-20 fixed bottom-16 right-3 z-10 cursor-pointer bg-transparent"
+        className="w-20 h-20 fixed bottom-12 right-0 z-50 cursor-pointer bg-transparent"
       >
         <img
-          src="/dashboard/botgif.gif"
+          src={botGif}
           alt="AI Bot"
           className="rounded-full bg-transparent"
         />
@@ -1075,16 +1084,16 @@ Description: ${userInput}`,
 
   return (
     <Box
-      className={`fixed right-6 z-50 bg-white rounded-2xl shadow-2xl border border-gray-200 transition-all duration-300 ${
+      className={`fixed right-6 z-50 bg-background rounded-2xl shadow-2xl border border-border transition-all duration-300 ${
         isMinimized ? "w-80 h-10 bottom-4" : "w-96 h-[600px] bottom-0"
       } flex flex-col`}
     >
       {/* Header */}
-      <Flex className="items-center justify-between p-2 border-b border-gray-200 bg-gradient-to-r from-[#1797B9] to-[#78cbe2] rounded-t-2xl">
+      <Flex className="items-center justify-between p-2 border-b border-border bg-gradient-to-r from-[#1797B9] to-[#78cbe2] rounded-t-2xl">
         <Flex className="items-center gap-3">
           <Box className="relative">
             <img
-              src="/dashboard/botgif.gif"
+              src={botGif}
               alt="AI Bot"
               className="w-10 h-10 rounded-full border-2 border-white"
             />
@@ -1100,7 +1109,7 @@ Description: ${userInput}`,
             variant="ghost"
             size="sm"
             onClick={() => setIsMinimized(!isMinimized)}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            className="text-white hover:bg-card/20 h-8 w-8 p-0"
           >
             <Minimize2 className="w-4 h-4" />
           </Button>
@@ -1112,7 +1121,7 @@ Description: ${userInput}`,
               setActiveOption(null);
               setMessages([]);
             }}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            className="text-white hover:bg-card/20 h-8 w-8 p-0"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -1122,7 +1131,7 @@ Description: ${userInput}`,
       {!isMinimized && (
         <>
           {/* Messages Area */}
-          <Box className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <Box className="flex-1 overflow-y-auto p-4 bg-muted/50">
             <Stack className="gap-3">
               {messages.map((message) => (
                 <Flex
@@ -1135,7 +1144,7 @@ Description: ${userInput}`,
                     className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                       message.type === "user"
                         ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-white text-gray-800 border border-gray-200 rounded-bl-sm shadow-sm"
+                        : "bg-background text-gray-800 border border-border rounded-bl-sm shadow-sm"
                     }`}
                   >
                     {typeof message.content === "string" ? (
@@ -1150,7 +1159,7 @@ Description: ${userInput}`,
                         className={`text-xs mt-1 ${
                           message.type === "user"
                             ? "text-blue-100"
-                            : "text-gray-400"
+                            : "text-muted-foreground"
                         }`}
                       >
                         {message.timestamp.toLocaleTimeString([], {
@@ -1168,7 +1177,7 @@ Description: ${userInput}`,
 
           {/* Input Area */}
           {activeOption === "task-creator" ? (
-            <Box className="p-4 border-t border-gray-200 bg-white">
+            <Box className="p-4 border-t border-border bg-card">
               <AITaskCreator
                 onTaskGenerated={handleTaskGenerated}
                 onClose={() => {
@@ -1181,8 +1190,8 @@ Description: ${userInput}`,
               />
             </Box>
           ) : activeOption === "create-client" ? (
-            <Box className="p-4 border-t border-gray-200 bg-white">
-              <Box className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+            <Box className="p-4 border-t border-border bg-card">
+              <Box className="bg-gradient-to-br from-blue-500/5 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
                 <Flex className="items-center gap-2 mb-3">
                   <Sparkles className="w-5 h-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-800">
@@ -1191,7 +1200,7 @@ Description: ${userInput}`,
                 </Flex>
                 <Stack className="gap-3">
                   <Box>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-foreground mb-2 block">
                       Describe the client in natural language:
                     </label>
                     <Textarea
@@ -1204,12 +1213,12 @@ Description: ${userInput}`,
                         }
                       }}
                       placeholder="e.g., 'Create a client named John Doe, email john@example.com, phone 123-456-7890, works in Technology industry'"
-                      className="min-h-[100px] bg-white border-gray-300 focus:border-blue-400 focus:ring-blue-400"
+                      className="min-h-[100px] bg-card border-border focus:border-blue-400 focus:ring-blue-400"
                       disabled={createClient.isPending}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Press{" "}
-                      <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">
+                      <kbd className="px-1 py-0.5 bg-muted rounded text-xs">
                         Ctrl + Enter
                       </kbd>{" "}
                       to generate
@@ -1248,8 +1257,8 @@ Description: ${userInput}`,
                       </Button>
                     </Flex>
                   )}
-                  <Box className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                    <p className="text-xs text-gray-600">
+                  <Box className="bg-card/60 rounded-lg p-3 border border-blue-200">
+                    <p className="text-xs text-muted-foreground">
                       <strong>💡 Tips:</strong> Include client name, email,
                       phone, industry, and address for better results.
                     </p>
@@ -1258,8 +1267,8 @@ Description: ${userInput}`,
               </Box>
             </Box>
           ) : activeOption === "create-project" ? (
-            <Box className="p-4 border-t border-gray-200 bg-white">
-              <Box className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+            <Box className="p-4 border-t border-border bg-card">
+              <Box className="bg-gradient-to-br from-blue-500/5 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
                 <Flex className="items-center gap-2 mb-3">
                   <Sparkles className="w-5 h-5 text-blue-600" />
                   <h3 className="text-lg font-semibold text-gray-800">
@@ -1268,7 +1277,7 @@ Description: ${userInput}`,
                 </Flex>
                 <Stack className="gap-3">
                   <Box>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    <label className="text-sm font-medium text-foreground mb-2 block">
                       Describe the project in natural language:
                     </label>
                     <Textarea
@@ -1281,12 +1290,12 @@ Description: ${userInput}`,
                         }
                       }}
                       placeholder="e.g., 'Create a project called Website Redesign, project number PRJ-001, start date 2024-01-15, end date 2024-03-15, description: Complete redesign of company website'"
-                      className="min-h-[100px] bg-white border-gray-300 focus:border-blue-400 focus:ring-blue-400"
+                      className="min-h-[100px] bg-card border-border focus:border-blue-400 focus:ring-blue-400"
                       disabled={createProject.isPending}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Press{" "}
-                      <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">
+                      <kbd className="px-1 py-0.5 bg-muted rounded text-xs">
                         Ctrl + Enter
                       </kbd>{" "}
                       to generate
@@ -1325,8 +1334,8 @@ Description: ${userInput}`,
                       </Button>
                     </Flex>
                   )}
-                  <Box className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                    <p className="text-xs text-gray-600">
+                  <Box className="bg-card/60 rounded-lg p-3 border border-blue-200">
+                    <p className="text-xs text-muted-foreground">
                       <strong>💡 Tips:</strong> Include project name, number,
                       dates, description, and address for better results.
                     </p>
@@ -1335,7 +1344,7 @@ Description: ${userInput}`,
               </Box>
             </Box>
           ) : (
-            <Box className="p-4 border-t border-gray-200 bg-white">
+            <Box className="p-4 border-t border-border bg-card">
               <Flex className="gap-2">
                 <Textarea
                   value={userInput}
@@ -1347,7 +1356,7 @@ Description: ${userInput}`,
                     }
                   }}
                   placeholder="Type your message..."
-                  className="min-h-[60px] max-h-[120px] resize-none bg-gray-50 border-gray-300 focus:border-blue-400 focus:ring-blue-400"
+                  className="min-h-[60px] max-h-[120px] resize-none bg-muted/50 border-border focus:border-blue-400 focus:ring-blue-400"
                   rows={2}
                 />
                 <Button
@@ -1358,7 +1367,7 @@ Description: ${userInput}`,
                   <Send className="w-5 h-5" />
                 </Button>
               </Flex>
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-xs text-muted-foreground mt-2 text-center">
                 Press Enter to send, Shift+Enter for new line
               </p>
             </Box>

@@ -9,8 +9,9 @@ import {
   formatHour,
   platformColors,
   CustomEvent,
-  daysShort,
+  getDaysShort,
 } from "./calendarUtils";
+import { useTranslation } from "react-i18next";
 import GoogleMeetIcon from "/dashboard/google-meet.svg";
 import WhatsappIcon from "/dashboard/whatsapp-icon.svg";
 import OutlookIcon from "/dashboard/google-drive.svg";
@@ -43,7 +44,6 @@ export const WeekView: React.FC<WeekViewProps> = ({
   weekEvents,
   hours,
   hoveredEventId,
-  //   hoveredGridTime,
   gridContainerRef,
   setHoveredEventId,
   setHoveredGridTime,
@@ -53,19 +53,22 @@ export const WeekView: React.FC<WeekViewProps> = ({
   editEventModalProps,
   hidePopupTimeout,
 }) => {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+  const daysShort = getDaysShort(currentLanguage);
   return (
     <>
       {/* Date Row */}
-      <Box className="grid grid-cols-[80px_repeat(7,1fr)] bg-[#F8FAFC] border-b border-[#E5E7EB] mt-6">
+      <Box className="grid grid-cols-[80px_repeat(7,1fr)] bg-background border-b border-border mt-6">
         <Box></Box>
         {weekDates.map((d, i) => (
           <Center
             key={i}
             className={cn(
-              "gap-1 text-center text-sm font-normal text-[#323334] rounded-lg w-17 h-8 m-auto mb-3",
+              "gap-1 text-center text-sm font-normal text-foreground rounded-lg w-17 h-8 m-auto mb-3",
               d.toDateString() === new Date().toDateString() &&
-                "text-white bg-[#1797B9]",
-              d.getDay() === 0 && "bg-[#FFE5E5] text-[#D32F2F]"
+                "text-primary-foreground bg-primary",
+              d.getDay() === 0 && "bg-destructive/10 text-destructive"
             )}
             style={{
               padding: "12px 0 8px 0",
@@ -85,8 +88,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
       >
         {hours.map((hour) => (
           <React.Fragment key={hour}>
-            <Box className="text-center p-0 bg-white font-normal text-[#888] text-sm flex items-start justify-center">
-              {formatHour(hour)}
+            <Box className="text-center p-0 bg-card font-normal text-muted-foreground text-sm flex items-start justify-center">
+              {formatHour(hour, currentLanguage)}
             </Box>
             {weekDates.map((_, dayIdx) => {
               const event = weekEvents.find(
@@ -100,7 +103,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
               return (
                 <Box
-                  className="text-center p-0 border border-gray-200 min-h-[79px] min-w-[86px] relative bg-white"
+                  className="text-center p-0 border border-border min-h-[79px] min-w-[86px] relative bg-card"
                   key={dayIdx}
                   style={{
                     border: "0.5px solid #eee",
@@ -223,8 +226,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
                       {/* Event time */}
                       <span className={cn("text-xs text-black/80")}>
-                        {formatHour(event.startHour)} -{" "}
-                        {formatHour(event.endHour)}
+                        {formatHour(event.startHour, currentLanguage)} -{" "}
+                        {formatHour(event.endHour, currentLanguage)}
                       </span>
 
                       {/* Edit icon on hover */}
@@ -238,7 +241,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                             setEditEvent(event);
                             editEventModalProps.onOpenChange(true);
                           }}
-                          title="Edit"
+                          title={t("common.edit")}
                         >
                           <Pencil />
                         </Button>

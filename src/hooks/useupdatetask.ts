@@ -28,6 +28,7 @@ export interface UpdateTaskRequest {
   parentId?: string;
   startAfter?: string | null;
   finishBefore?: string | null;
+  visibility?: "public" | "private";
 }
 
 export interface UpdateTaskResponse {
@@ -87,6 +88,9 @@ export const useUpdateTask = () => {
         queryKey: ["organization-weekly-hours-tracked"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["organization-active-projects"],
       });
 
@@ -142,6 +146,9 @@ export const useUpdateTaskStatus = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["organization-weekly-hours-tracked"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
       });
       queryClient.invalidateQueries({
         queryKey: ["organization-active-projects"],

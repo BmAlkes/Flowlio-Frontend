@@ -62,7 +62,7 @@ export const CalendarPopOver = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="border border-gray-100 max-md:ml-auto"
+          className="border border-border max-md:ml-auto"
         >
           <CalendarArrowDown className="text-[#1797B9]" />
           {getDateRangeText()}

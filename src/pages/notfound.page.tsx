@@ -21,7 +21,7 @@ export const NotFound = () => {
             Page Not Found
           </h1>
 
-          <p className="text-gray-500 mb-2 mt-1">
+          <p className="text-muted-foreground mb-2 mt-1">
             Looks like you've ventured into the unknown digital realm.
           </p>
 

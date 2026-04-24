@@ -32,13 +32,13 @@ export const NotificationMessage: React.FC<NotificationMessageProps> = ({
       case "message":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-gray-800";
     }
   };
 
   return (
     <Box
-      className={`p-4 border rounded-lg ${!isRead ? "bg-blue-50" : "bg-white"}`}
+      className={`p-4 border rounded-lg ${!isRead ? "bg-blue-50" : "bg-card"}`}
     >
       <Flex className="justify-between items-start gap-4">
         <Box className="flex-1">
@@ -50,12 +50,12 @@ export const NotificationMessage: React.FC<NotificationMessageProps> = ({
           <h3 className="text-lg font-medium mb-1">{title}</h3>
 
           {sender && (
-            <p className="text-sm text-gray-600 mb-1">From: {sender}</p>
+            <p className="text-sm text-muted-foreground mb-1">From: {sender}</p>
           )}
 
-          <p className="text-gray-600 mb-2">{message}</p>
+          <p className="text-muted-foreground mb-2">{message}</p>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {format(timestamp, "MMM dd, yyyy HH:mm")}
           </p>
         </Box>
@@ -64,14 +64,14 @@ export const NotificationMessage: React.FC<NotificationMessageProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-600 hover:text-blue-600"
+            className="text-muted-foreground hover:text-blue-600"
           >
             <CheckSquare className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="text-gray-600 hover:text-red-600"
+            className="text-muted-foreground hover:text-red-600"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

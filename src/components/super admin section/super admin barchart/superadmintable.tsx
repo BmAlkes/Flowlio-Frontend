@@ -26,7 +26,7 @@ const getColumns = (
 ): ColumnDef<Data>[] => [
   {
     accessorKey: "companyname",
-    header: () => <Box className="text-black py-3 px-3">Company Name</Box>,
+    header: () => <Box className="text-foreground py-3 px-3">Company Name</Box>,
     cell: ({ row }) => (
       <Box className="capitalize py-3 px-3 max-sm:w-full">
         {row.original.companyname.length > 28
@@ -37,7 +37,7 @@ const getColumns = (
   },
   {
     accessorKey: "email",
-    header: () => <Box className="text-black text-start">Email</Box>,
+    header: () => <Box className="text-foreground text-start">Email</Box>,
     cell: ({ row }) => (
       <Box className="captialize text-start">{row.original.email}</Box>
     ),
@@ -45,7 +45,7 @@ const getColumns = (
   {
     accessorKey: "registrationDate",
     header: () => (
-      <Box className="text-black text-start">Registration Date</Box>
+      <Box className="text-foreground text-start">Registration Date</Box>
     ),
     cell: ({ row }) => (
       <Box className="captialize text-start">
@@ -59,7 +59,7 @@ const getColumns = (
   },
   {
     accessorKey: "country",
-    header: () => <Box className="text-black text-center">Country</Box>,
+    header: () => <Box className="text-foreground text-center">Country</Box>,
     cell: ({ row }) => (
       <Box className="captialize text-center">{row.original.country}</Box>
     ),
@@ -67,7 +67,7 @@ const getColumns = (
 
   {
     accessorKey: "plan",
-    header: () => <Box className="text-center text-black">Plan</Box>,
+    header: () => <Box className="text-center text-foreground">Plan</Box>,
     cell: ({ row }) => {
       return <Box className="text-center">{row.original.plan}</Box>;
     },
@@ -75,7 +75,7 @@ const getColumns = (
 
   {
     accessorKey: "actions",
-    header: () => <Box className="text-center text-black">Actions</Box>,
+    header: () => <Box className="text-center text-foreground">Actions</Box>,
     cell: ({ row }) => {
       return (
         <Center className="space-x-2">
@@ -91,7 +91,7 @@ const getColumns = (
               navigate(`/superadmin/companies/details/${slug}`);
             }}
           >
-            <IoEye className="size-6 fill-white" />
+            <IoEye className="size-5 text-white" />
           </Button>
         </Center>
       );
@@ -145,12 +145,12 @@ export const SuperAdminTable = () => {
       <PageWrapper>
         <Center className="justify-between p-4">
           <Stack className="gap-1">
-            <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+            <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
               Recently Registered Companies
             </h1>
           </Stack>
         </Center>
-        <Box className="min-h-[180px] flex items-center justify-center text-gray-600">
+        <Box className="min-h-[180px] flex items-center justify-center text-muted-foreground">
           Loading...
         </Box>
       </PageWrapper>
@@ -162,7 +162,7 @@ export const SuperAdminTable = () => {
       <PageWrapper>
         <Center className="justify-between p-4">
           <Stack className="gap-1">
-            <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+            <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
               Recently Registered Companies
             </h1>
           </Stack>
@@ -178,7 +178,7 @@ export const SuperAdminTable = () => {
     <PageWrapper>
       <Center className="justify-between p-4">
         <Stack className="gap-1">
-          <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+          <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
             Recently Registered Companies
           </h1>
         </Stack>

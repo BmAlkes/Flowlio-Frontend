@@ -17,6 +17,8 @@ import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { useState } from "react";
 import { DeleteOrganizationModal } from "./DeleteOrganizationModal";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 // Define the actual data structure from the API (userOrganizations with nested organization)
 export type OrganizationData = {
@@ -61,6 +63,7 @@ export type OrganizationData = {
 };
 
 export const CompaniesTable = () => {
+  const { t } = useTranslation();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState<{
     id: string;
@@ -70,8 +73,11 @@ export const CompaniesTable = () => {
   const {
     data: allOrganizationsResponse,
     isLoading,
+    isFetching,
     error,
   } = useFetchAllOrganizations();
+
+  const loading = isLoading || isFetching;
 
   // The API returns userOrganizations array directly
   const transformedData: OrganizationData[] =
@@ -91,11 +97,11 @@ export const CompaniesTable = () => {
   };
 
   const getColumns = (
-    navigate: ReturnType<typeof useNavigate>
+    navigate: ReturnType<typeof useNavigate>,
   ): ColumnDef<any>[] => [
     {
       id: "select",
-      header: () => <Box className="text-center text-black">ID</Box>,
+      header: () => <Box className="text-center text-foreground">ID</Box>,
       cell: ({ row }) => (
         <Box className="text-center">#{row.original.id.slice(0, 8)}</Box>
       ),
@@ -104,17 +110,17 @@ export const CompaniesTable = () => {
 
     {
       accessorKey: "name",
-      header: () => <Box className="text-black py-3 px-3">Company Name</Box>,
+      header: () => <Box className="text-foreground py-3 px-3">{t("superadmin.companies.table.companyName")}</Box>,
       cell: ({ row }) => (
         <Box className="capitalize py-3 px-3 max-sm:w-full">
-          {row.original.name || "N/A"}
+          {row.original.name || t("common.unknown")}
         </Box>
       ),
     },
 
     {
       accessorKey: "registeredEmail",
-      header: () => <Box className="text-black text-start">Email</Box>,
+      header: () => <Box className="text-foreground text-start">{t("superadmin.companies.table.email")}</Box>,
       cell: ({ row }) => {
         const userOrganizations = row.original.userOrganizations as
           | Array<{
@@ -136,7 +142,7 @@ export const CompaniesTable = () => {
     {
       accessorKey: "createdAt",
       header: () => (
-        <Box className="text-black text-center">Registration On</Box>
+        <Box className="text-foreground text-center">{t("table.addedOn")}</Box>
       ),
       cell: ({ row }) => (
         <Box className="captialize text-center">
@@ -151,7 +157,7 @@ export const CompaniesTable = () => {
 
     {
       accessorKey: "subscriptionPlan.name",
-      header: () => <Box className="text-center text-black">Subscription</Box>,
+      header: () => <Box className="text-center text-foreground">{t("superadmin.companies.table.plan")}</Box>,
       cell: ({ row }) => {
         return (
           <Box className="text-center">
@@ -163,7 +169,7 @@ export const CompaniesTable = () => {
 
     {
       accessorKey: "subscriptionStatus",
-      header: () => <Box className="text-center text-black">Status</Box>,
+      header: () => <Box className="text-center text-foreground">{t("superadmin.companies.table.status")}</Box>,
       cell: ({ row }) => {
         // Check if user has pending payment (status is pending or undefined)
         const userOrganizations = row.original.userOrganizations as
@@ -179,7 +185,7 @@ export const CompaniesTable = () => {
 
         // Find the owner user
         const ownerUser = userOrganizations?.find(
-          (uo) => uo.role === "owner"
+          (uo) => uo.role === "owner",
         )?.user;
         const userStatus = ownerUser?.status;
 
@@ -209,7 +215,7 @@ export const CompaniesTable = () => {
           return (
             <Center>
               <Flex className="rounded-md capitalize w-28 h-10 gap-2 border items-center justify-center text-white bg-red-600 border-none">
-                <Flex className="w-2 h-2 rounded-full bg-white" />
+                <Flex className="w-2 h-2 rounded-full bg-card" />
                 <Box>Unsub</Box>
               </Flex>
             </Center>
@@ -245,29 +251,29 @@ export const CompaniesTable = () => {
         const status = isActive
           ? "active"
           : hasPendingPayment
-          ? "non active"
-          : orgSubscriptionStatus?.toLowerCase() || "non active";
+            ? "non active"
+            : orgSubscriptionStatus?.toLowerCase() || "non active";
 
         const statusStyles: Record<string, { text: string; dot: string }> = {
           active: {
             text: "text-white bg-[#00A400] border-none rounded-full",
-            dot: "bg-white",
+            dot: "bg-card",
           },
           inActive: {
             text: "text-white bg-[#F98618] border-none rounded-full",
-            dot: "bg-white",
+            dot: "bg-card",
           },
           "non active": {
             text: "text-white bg-[#F98618] border-none rounded-full",
-            dot: "bg-white",
+            dot: "bg-card",
           },
           expired: {
             text: "text-white bg-red-500 border-none rounded-full",
-            dot: "bg-white",
+            dot: "bg-card",
           },
           cancelled: {
-            text: "text-white bg-gray-500 border-none rounded-full",
-            dot: "bg-white",
+            text: "text-white bg-muted/500 border-none rounded-full",
+            dot: "bg-card",
           },
         };
 
@@ -289,7 +295,7 @@ export const CompaniesTable = () => {
 
     {
       accessorKey: "actions",
-      header: () => <Box className="text-center text-black">Actions</Box>,
+      header: () => <Box className="text-center text-foreground">{t("superadmin.companies.table.actions")}</Box>,
       cell: ({ row }) => {
         // Check if this is a pending user without organization (virtual organization)
         const isPendingUser = row.original.id?.startsWith("pending_");
@@ -305,7 +311,7 @@ export const CompaniesTable = () => {
                         // For pending users, show a message or handle differently
                         // They don't have a real organization to view details for
                         toast.info(
-                          "This user hasn't completed payment yet. No organization details available."
+                          "This user hasn't completed payment yet. No organization details available.",
                         );
                         return;
                       }
@@ -314,9 +320,9 @@ export const CompaniesTable = () => {
                       navigate(`/superadmin/companies/details/${slug}`);
                     }}
                     variant="outline"
-                    className="bg-black border-none w-10 h-9 hover:bg-black cursor-pointer rounded-md "
+                    className="bg-foreground hover:bg-foreground/90 border-none w-10 h-9 cursor-pointer rounded-md "
                   >
-                    <Eye className="fill-white size-7 " />
+                    <Eye className="text-background size-7 " />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
@@ -337,7 +343,7 @@ export const CompaniesTable = () => {
                     variant="outline"
                     className="bg-[#A50403] border-none w-9 h-9 hover:bg-[#A50403]/80 cursor-pointer rounded-md "
                   >
-                    <FaRegTrashAlt className="text-white fill-white size-4 " />
+                    <FaRegTrashAlt className="size-4 text-white" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
@@ -355,23 +361,21 @@ export const CompaniesTable = () => {
 
   const navigate = useNavigate();
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading organizations...</p>
-        </div>
+      <Box className="px-4 py-4 min-h-[400px]">
+        <TableSkeleton rows={10} columns={6} withActions />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">Error loading organizations</p>
-        </div>
+      <Box className="flex items-center justify-center p-12">
+        <ErrorState
+          title={t("common.error")}
+          message={error.message || t("common.errorDescription", "Error loading organizations.")}
+        />
       </Box>
     );
   }

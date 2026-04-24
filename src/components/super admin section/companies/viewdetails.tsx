@@ -14,6 +14,7 @@ import { useGetCompanyDetails } from "@/hooks/useGetCompanyDetails";
 import { useMemo, useState } from "react";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { DeleteOrganizationModal } from "./DeleteOrganizationModal";
+import { DetailsPageSkeleton } from "@/components/skeletons";
 
 export const ViewDetails = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export const ViewDetails = () => {
 
     // Use the actual slug field from the database instead of generating from name
     const organization = organizationsResponse.data.find(
-      (org: any) => org.slug === slug
+      (org: any) => org.slug === slug,
     );
 
     return organization?.id || null;
@@ -46,57 +47,50 @@ export const ViewDetails = () => {
 
   if (!organizationId) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Finding company...</p>
-        </div>
-      </Box>
+      <PageWrapper className="mt-6 px-4 sm:px-6">
+        <DetailsPageSkeleton withSidebar withTabs={false} />
+      </PageWrapper>
     );
   }
 
   if (isLoading) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading company details...</p>
-        </div>
-      </Box>
+      <PageWrapper className="mt-6 px-4 sm:px-6">
+        <DetailsPageSkeleton withSidebar withTabs={false} />
+      </PageWrapper>
     );
   }
 
   if (error || !companyDetails) {
     return (
-      <Box className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">Error loading company details</p>
+      <PageWrapper className="mt-6 px-4 sm:px-6">
+        <div className="flex flex-col items-center justify-center min-h-64 gap-4">
+          <p className="text-destructive-foreground">Error loading company details</p>
           <Button
             onClick={() => navigate("/superadmin/companies")}
-            className="mt-4"
           >
             Back to Companies
           </Button>
         </div>
-      </Box>
+      </PageWrapper>
     );
   }
 
   return (
     <PageWrapper className="mt-6 px-4 sm:px-6">
       <Box
-        className="flex items-center gap-2 w-fit cursor-pointer transition-all duration-300 hover:bg-gray-200 rounded-full hover:p-2 mt-4"
+        className="flex items-center gap-2 w-fit cursor-pointer transition-all duration-300 hover:bg-muted rounded-full hover:p-2 mt-4"
         onClick={() => navigate(-1)}
       >
         <IoArrowBack />
-        <p className="text-black">Back</p>
+        <p className="text-foreground">Back</p>
       </Box>
 
-      <h1 className="text-black text-xl font-medium mt-2">Company Details</h1>
+      <h1 className="text-foreground text-xl font-medium mt-2">Company Details</h1>
 
       <Flex className="gap-3 items-start flex-col lg:flex-row w-full mt-4">
         {/* Company Info Card */}
-        <ComponentWrapper className="bg-white w-full lg:w-72 xl:w-72 border border-gray-200 shadow-none flex flex-col min-h-[600px] lg:min-h-screen ">
+        <ComponentWrapper className="bg-card w-full lg:w-72 xl:w-72 border border-border shadow-none flex flex-col min-h-[600px] lg:min-h-screen ">
           <Box className="flex-1">
             <h1 className="p-4 pb-2 text-lg font-medium">Company Info</h1>
             <Stack className="justify-center items-center mt-4">
@@ -106,11 +100,11 @@ export const ViewDetails = () => {
                   companyDetails.owner?.image
                     ? companyDetails.owner.image
                     : companyDetails.organization.settings?.demo === true &&
-                      companyDetails.users.length > 0 &&
-                      companyDetails.users[0].user.image
-                    ? companyDetails.users[0].user.image
-                    : companyDetails.organization.logo ||
-                      "/super admin/viewdetailsimg.png"
+                        companyDetails.users.length > 0 &&
+                        companyDetails.users[0].user.image
+                      ? companyDetails.users[0].user.image
+                      : companyDetails.organization.logo ||
+                        "/super admin/viewdetailsimg.png"
                 }
                 alt="company"
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
@@ -118,11 +112,11 @@ export const ViewDetails = () => {
               <h1 className="text-lg font-semibold mt-2">
                 {companyDetails.organization.name}
               </h1>
-              <p className="text-gray-600 text-sm uppercase">
+              <p className="text-muted-foreground text-sm uppercase">
                 ID : {companyDetails.organization.id.slice(0, 6)}
               </p>
               <Flex
-                className={`capitalize w-28 h-12 gap-2 border justify-center items-center text-green-600 bg-white border-${
+                className={`capitalize w-28 h-12 gap-2 border justify-center items-center text-green-600 bg-card border-${
                   companyDetails.organization.status === "active"
                     ? "[#00A400]"
                     : "[#FF0000]"
@@ -148,20 +142,20 @@ export const ViewDetails = () => {
                 </Center>
               </Flex>
             </Stack>
-            <hr className="border border-gray-200 mt-6" />
+            <hr className="border border-border mt-6" />
             <Stack className="mt-6 px-4 gap-6 ml-6">
               {companyDetails.owner?.email && (
                 <Flex className="gap-3 items-center">
-                  <Mail className="font-light size-4 text-gray-500" />
-                  <h1 className="text-gray-600 text-sm break-all">
+                  <Mail className="font-light size-4 text-muted-foreground" />
+                  <h1 className="text-muted-foreground text-sm break-all">
                     Owner: {companyDetails.owner.email}
                   </h1>
                 </Flex>
               )}
               {/* Show phone - for demo orgs, use first user's phone (they update it in settings) */}
               <Flex className="gap-3 items-center">
-                <Phone className="font-light size-4 text-gray-500" />
-                <h1 className="text-gray-600 text-sm">
+                <Phone className="font-light size-4 text-muted-foreground" />
+                <h1 className="text-muted-foreground text-sm">
                   {companyDetails.organization.settings?.demo === true
                     ? companyDetails.users.length > 0 &&
                       companyDetails.users[0].user.phone
@@ -176,16 +170,16 @@ export const ViewDetails = () => {
                 companyDetails.users.length > 0 &&
                 companyDetails.users[0].user.email ? (
                   <Flex className="gap-3 items-center">
-                    <Mail className="font-light size-4 text-gray-500" />
-                    <h1 className="text-gray-600 text-sm break-all">
+                    <Mail className="font-light size-4 text-muted-foreground" />
+                    <h1 className="text-muted-foreground text-sm break-all">
                       {companyDetails.users[0].user.email}
                     </h1>
                   </Flex>
                 ) : (
                   companyDetails.owner?.email && (
                     <Flex className="gap-3 items-center">
-                      <Mail className="font-light size-4 text-gray-500" />
-                      <h1 className="text-gray-600 text-sm break-all">
+                      <Mail className="font-light size-4 text-muted-foreground" />
+                      <h1 className="text-muted-foreground text-sm break-all">
                         Email: {companyDetails.owner.email}
                       </h1>
                     </Flex>
@@ -193,8 +187,8 @@ export const ViewDetails = () => {
                 )
               ) : (
                 <Flex className="gap-3 items-center">
-                  <Mail className="font-light size-4 text-gray-500" />
-                  <h1 className="text-gray-600 text-sm break-all">
+                  <Mail className="font-light size-4 text-muted-foreground" />
+                  <h1 className="text-muted-foreground text-sm break-all">
                     {companyDetails.organization.email || "No email address"}
                   </h1>
                 </Flex>
@@ -202,8 +196,8 @@ export const ViewDetails = () => {
 
               {/* Show address - for demo orgs, use first user's address (they update it in settings) */}
               <Flex className="gap-3 items-center">
-                <MapPin className="font-light size-4 text-gray-500" />
-                <h1 className="text-gray-600 text-sm">
+                <MapPin className="font-light size-4 text-muted-foreground" />
+                <h1 className="text-muted-foreground text-sm">
                   {companyDetails.organization.settings?.demo === true
                     ? companyDetails.users.length > 0 &&
                       companyDetails.users[0].user.address
@@ -231,7 +225,7 @@ export const ViewDetails = () => {
             {/* Cancellation Details (Unsub Details) */}
             {companyDetails.subscription?.cancelAtPeriodEnd && (
               <Box className="mt-6 px-4">
-                <hr className="border border-gray-200 mb-4" />
+                <hr className="border border-border mb-4" />
                 <Stack className="gap-2">
                   <Flex className="items-center gap-2">
                     <Box className="w-2 h-2 rounded-full bg-red-600" />
@@ -240,10 +234,10 @@ export const ViewDetails = () => {
                     </h1>
                   </Flex>
                   {companyDetails.subscription?.cancelledAt && (
-                    <Box className="text-xs text-gray-600">
+                    <Box className="text-xs text-muted-foreground">
                       Cancelled on:{" "}
                       {new Date(
-                        companyDetails.subscription.cancelledAt
+                        companyDetails.subscription.cancelledAt,
                       ).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -252,10 +246,10 @@ export const ViewDetails = () => {
                     </Box>
                   )}
                   {companyDetails.subscription?.currentPeriodEnd && (
-                    <Box className="text-xs text-gray-600">
+                    <Box className="text-xs text-muted-foreground">
                       Access until:{" "}
                       {new Date(
-                        companyDetails.subscription.currentPeriodEnd
+                        companyDetails.subscription.currentPeriodEnd,
                       ).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -282,7 +276,7 @@ export const ViewDetails = () => {
           {/* Top Cards Row */}
           <Flex className="flex-1 flex-col lg:flex-row w-full gap-3">
             {/* Company Stats Card */}
-            <ComponentWrapper className="w-full lg:flex-1 bg-white px-4 py-4 border border-gray-200 shadow-none h-44 max-sm:h-full">
+            <ComponentWrapper className="w-full lg:flex-1 bg-card px-4 py-4 border border-border shadow-none h-44 max-sm:h-full">
               <h1 className="font-medium text-lg mb-4">Company Stats</h1>
 
               <Flex className="justify-center items-center gap-3 flex-col sm:flex-row">
@@ -317,16 +311,16 @@ export const ViewDetails = () => {
             </ComponentWrapper>
 
             {/* Subscription Plan Card */}
-            <ComponentWrapper className="w-full lg:w-74 bg-white px-4 py-4 border border-gray-200 shadow-none min-h-44">
+            <ComponentWrapper className="w-full lg:w-74 bg-card px-4 py-4 border border-border shadow-none min-h-44">
               <Flex className="justify-between items-center mb-6">
                 <h1 className="font-medium text-lg">Subscription Plan</h1>
                 <Flex
-                  className={`capitalize w-18 h-7 gap-2 border justify-center items-center text-green-600 bg-white border-${
+                  className={`capitalize w-18 h-7 gap-2 border justify-center items-center text-green-600 bg-card border-${
                     companyDetails.subscription?.cancelAtPeriodEnd
                       ? "red-600"
                       : companyDetails.subscription?.status === "active"
-                      ? "[#00A400]"
-                      : "[#FF0000]"
+                        ? "[#00A400]"
+                        : "[#FF0000]"
                   } rounded-full`}
                 >
                   <Center className="gap-2">
@@ -335,8 +329,8 @@ export const ViewDetails = () => {
                         companyDetails.subscription?.cancelAtPeriodEnd
                           ? "red-600"
                           : companyDetails.subscription?.status === "active"
-                          ? "[#00A400]"
-                          : "[#FF0000]"
+                            ? "[#00A400]"
+                            : "[#FF0000]"
                       }`}
                     />
                     <h1
@@ -344,8 +338,8 @@ export const ViewDetails = () => {
                         companyDetails.subscription?.cancelAtPeriodEnd
                           ? "red-600"
                           : companyDetails.subscription?.status === "active"
-                          ? "[#00A400]"
-                          : "[#FF0000]"
+                            ? "[#00A400]"
+                            : "[#FF0000]"
                       } text-xs`}
                     >
                       {companyDetails.subscription?.cancelAtPeriodEnd
@@ -370,7 +364,7 @@ export const ViewDetails = () => {
                   <h2 className="font-bold text-4xl sm:text-5xl lg:text-5xl">
                     ${companyDetails.subscription?.plan?.price || 0}
                   </h2>
-                  <span className="text-gray-600 text-sm">/mo</span>
+                  <span className="text-muted-foreground text-sm">/mo</span>
                 </Flex>
               </Center>
             </ComponentWrapper>
@@ -391,7 +385,7 @@ export const ViewDetails = () => {
             )}
 
           {/* ViewTable Component */}
-          <ComponentWrapper className="w-full bg-white border border-gray-200 shadow-none">
+          <ComponentWrapper className="w-full bg-card border border-border shadow-none">
             <ViewTable users={companyDetails.users} />
           </ComponentWrapper>
         </Flex>

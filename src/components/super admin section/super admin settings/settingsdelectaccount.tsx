@@ -13,7 +13,7 @@ import { Stack } from "@/components/ui/stack";
 
 export const SettingsDelectAccount = () => {
   return (
-    <Flex className="max-sm:flex-col gap-6 justify-between w-full bg-white border border-gray-400/50  p-8 rounded-md max-md:px-3">
+    <Flex className="max-sm:flex-col gap-6 justify-between w-full bg-card border border-gray-400/50  p-8 rounded-md max-md:px-3">
       <Stack>
         <h1 className="text-2xl font-semibold">Delect your account</h1>
         <p className="max-sm:text-sm">

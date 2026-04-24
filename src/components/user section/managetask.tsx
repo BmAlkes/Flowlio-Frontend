@@ -17,7 +17,7 @@ export const ManageTask = () => {
 
         <Flex className="justify-center w-full mx-auto gap-4 items-center max-sm:flex-col relative z-30">
           <Center className="items-start gap-6 w-md max-sm:w-full p-2 flex-col text-5xl font-[100] max-sm:text-2xl text-white  ">
-            <h1 className="text-black max-sm:text-center">
+            <h1 className="text-foreground max-sm:text-center">
               Manage All Your Team’s
               <span className="text-[#F98618] font-semibold ">
                 {" "}
@@ -25,7 +25,7 @@ export const ManageTask = () => {
               </span>
               More Efficiently
             </h1>
-            <p className="text-black font-light text-sm drop-shadow-3xl">
+            <p className="text-foreground font-light text-sm drop-shadow-3xl">
               Start building and developing your team by starting to manage your
               team work system. And create a comfortable and easy collaboration
               atmosphere.
@@ -53,16 +53,16 @@ export const ManageTask = () => {
             className="size-120 z-40 max-sm:size-90"
           />
           <Center className="items-start gap-6 w-md max-sm:w-full p-2 flex-col text-5xl font-[100] max-sm:text-2xl text-white  ">
-            <h1 className="text-black max-sm:text-center">
+            <h1 className="text-foreground max-sm:text-center">
               How Important It Is For You To Stay
               <span className="text-[#F98618] font-semibold "> Flexible</span>
             </h1>
-            <p className="text-black font-light text-sm drop-shadow-3xl">
+            <p className="text-foreground font-light text-sm drop-shadow-3xl">
               Define doesn’t just fill up your entire calendar and present you
               from being available. Instead define will dynamically shift events
               from free to busy on it notices.
             </p>
-            <p className="text-black font-light text-sm drop-shadow-3xl">
+            <p className="text-foreground font-light text-sm drop-shadow-3xl">
               Define doesn’t just fill up your entire calendar and present you
               from being available instead define will dynamically shift events.
             </p>

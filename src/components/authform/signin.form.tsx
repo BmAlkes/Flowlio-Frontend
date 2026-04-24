@@ -1344,7 +1344,7 @@ export const SignInForm: FC = () => {
                       size="lg"
                       placeholder="Enter email here"
                       {...field}
-                      className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm"
+                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
                     />
                   </FormControl>
                   <FormMessage />
@@ -1363,13 +1363,13 @@ export const SignInForm: FC = () => {
                         size="lg"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter Password"
-                        className="bg-white rounded-full border border-gray-100 placeholder:text-gray-400 focus:border-gray-400 placeholder:text-sm"
+                        className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
                         {...field}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       >
                         {showPassword ? (
                           <IoEyeOff size={20} />
@@ -1385,7 +1385,7 @@ export const SignInForm: FC = () => {
             />
 
             <Flex className="justify-between mb-8 gap-0">
-              <Anchor to="/auth/signup" className="text-sm text-black">
+              <Anchor to="/auth/signup" className="text-sm text-foreground">
                 Don't have an account?
               </Anchor>
               <Anchor

@@ -49,6 +49,19 @@ export interface ViewerSupportTicket {
   };
 }
 
+export interface SupportTicketMessage {
+  id: string;
+  ticketId: string;
+  senderId: string;
+  senderRole: string;
+  senderName: string;
+  message: string;
+  createdAt: string;
+  sender?: {
+    image: string | null;
+  };
+}
+
 export interface CreateViewerSupportTicketRequest {
   subject: string;
   description: string;
@@ -177,6 +190,52 @@ export const useDeleteViewerSupportTicket = () => {
       toast.error(
         error.response?.data?.message ||
           "Failed to delete viewer support ticket"
+      );
+    },
+  });
+};
+
+export const useSupportTicketMessages = (ticketId: string) => {
+  return useQuery<ApiResponse<SupportTicketMessage[]>, ErrorWithMessage>({
+    queryKey: ["support-ticket-messages", ticketId],
+    queryFn: async () => {
+      const response = await axios.get<ApiResponse<SupportTicketMessage[]>>(
+        `/viewer/support-tickets/${ticketId}/messages`
+      );
+      return response.data;
+    },
+    enabled: !!ticketId,
+    refetchInterval: 3000, // Poll every 3 seconds for real-time experience
+  });
+};
+
+export const useCreateSupportTicketMessage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ApiResponse<SupportTicketMessage>,
+    ErrorWithMessage,
+    { ticketId: string; message: string }
+  >({
+    mutationFn: async ({ ticketId, message }) => {
+      const response = await axios.post<ApiResponse<SupportTicketMessage>>(
+        `/viewer/support-tickets/${ticketId}/messages`,
+        { message }
+      );
+      return response.data;
+    },
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["support-ticket-messages", ticketId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["viewer-support-tickets"],
+      });
+      toast.success("Reply sent successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || "Failed to send reply"
       );
     },
   });

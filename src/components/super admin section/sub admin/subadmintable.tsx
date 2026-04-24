@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import { useDeleteSubAdmin } from "@/hooks/usedeletesubadmin";
 import { useUpdateSubAdminPermission } from "@/hooks/useupdatesubadminpermission";
 import { Flex } from "@/components/ui/flex";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 export type SubAdminData = {
   id: string;
@@ -36,8 +38,18 @@ export type SubAdminData = {
 };
 
 export const SubAdminTable = () => {
-  const { fetchNextPage, hasNextPage, isLoading, error, data, refetch } =
-    useFetchSubAdmins();
+  const { t } = useTranslation();
+  const {
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetching,
+    error,
+    data,
+    refetch,
+  } = useFetchSubAdmins();
+
+  const loading = isLoading || isFetching;
 
   const { mutate: deleteSubAdmin } = useDeleteSubAdmin();
   const { mutate: updateSubAdminPermission, isPending: isUpdatingPermission } =
@@ -112,7 +124,7 @@ export const SubAdminTable = () => {
   const tableColumns: ColumnDef<SubAdminData>[] = [
     {
       accessorKey: "logo",
-      header: () => <Box className="text-black font-semibold p-3">Logo</Box>,
+      header: () => <Box className="text-foreground font-semibold p-3">Logo</Box>,
       cell: ({ row }) => (
         <Box className="p-3">
           {row.original.image ? (
@@ -122,8 +134,8 @@ export const SubAdminTable = () => {
               className="w-10 h-10 rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300">
-              <span className="text-[8px] text-gray-500 text-center px-1 leading-tight">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center border border-border">
+              <span className="text-[8px] text-muted-foreground text-center px-1 leading-tight">
                 Null
               </span>
             </div>
@@ -133,7 +145,7 @@ export const SubAdminTable = () => {
     },
     {
       accessorKey: "name",
-      header: () => <Box className="text-black font-semibold p-3">Name</Box>,
+      header: () => <Box className="text-foreground font-semibold p-3">{t("superadmin.subAdmins.table.name")}</Box>,
       cell: ({ row }) => (
         <Box className="p-3">
           <div className="font-medium capitalize">
@@ -145,25 +157,25 @@ export const SubAdminTable = () => {
     {
       accessorKey: "email",
       header: () => (
-        <Box className="text-black font-semibold text-center">Email</Box>
+        <Box className="text-foreground font-semibold text-center">{t("superadmin.subAdmins.table.email")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="text-center">{row.original.email || "N/A"}</Box>
+        <Box className="text-center">{row.original.email || t("common.unknown")}</Box>
       ),
     },
     {
       accessorKey: "contactNumber",
       header: () => (
-        <Box className="text-black font-semibold text-center">Contact</Box>
+        <Box className="text-foreground font-semibold text-center">{t("settings.phone")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="text-center">{row.original.contactNumber || "N/A"}</Box>
+        <Box className="text-center">{row.original.contactNumber || t("common.notSet")}</Box>
       ),
     },
     {
       accessorKey: "permission",
       header: () => (
-        <Box className="text-black font-semibold text-center">Permission</Box>
+        <Box className="text-foreground font-semibold text-center">{t("superadmin.subAdmins.table.type")}</Box>
       ),
       cell: ({ row }) => {
         return (
@@ -175,15 +187,15 @@ export const SubAdminTable = () => {
               }
               disabled={isUpdatingPermission}
             >
-              <SelectTrigger className="border rounded-md p-2 text-center bg-white w-32">
+              <SelectTrigger className="border rounded-md p-2 text-center bg-card w-32">
                 <SelectValue
                   placeholder="Select"
                   defaultValue={row.original.permission}
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Deactivated">Deactivated</SelectItem>
+                <SelectItem value="Active">{t("userManagement.memberStatus.active")}</SelectItem>
+                <SelectItem value="Deactivated">{t("userManagement.memberStatus.inactive")}</SelectItem>
               </SelectContent>
             </Select>
           </Center>
@@ -193,10 +205,10 @@ export const SubAdminTable = () => {
     {
       accessorKey: "createdAt",
       header: () => (
-        <Box className="text-black font-semibold text-center">Created</Box>
+        <Box className="text-foreground font-semibold text-center">{t("superadmin.subAdmins.table.addedOn")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="text-center text-sm text-gray-600">
+        <Box className="text-center text-sm text-muted-foreground">
           {new Date(row.original.createdAt).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
@@ -208,7 +220,7 @@ export const SubAdminTable = () => {
     {
       accessorKey: "actions",
       header: () => (
-        <Box className="text-center text-black font-semibold">Actions</Box>
+        <Box className="text-center text-foreground font-semibold">{t("superadmin.subAdmins.table.actions")}</Box>
       ),
       cell: ({ row }) => {
         return (
@@ -221,12 +233,12 @@ export const SubAdminTable = () => {
                     variant="outline"
                     className="bg-[#A50403] border-none w-30 h-10 hover:bg-[#A50403]/80 cursor-pointer rounded-md text-white hover:text-white"
                   >
-                    <FaRegTrashAlt className="text-white fill-white size-4 " />
-                    Delete
+                    <FaRegTrashAlt className="size-4 text-white" />
+                    {t("common.delete")}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Delete Sub Admin</p>
+                  <p>{t("common.delete")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -235,6 +247,25 @@ export const SubAdminTable = () => {
       },
     },
   ];
+
+  if (loading && transformedData.length === 0) {
+    return (
+      <Box className="px-4 py-4">
+        <TableSkeleton rows={5} columns={7} withAvatar withActions />
+      </Box>
+    );
+  }
+
+  if (error && transformedData.length === 0) {
+    return (
+      <Center className="py-10">
+        <ErrorState
+          title={t("common.error")}
+          message={error.message || t("common.errorDescription", "Failed to fetch sub admins")}
+        />
+      </Center>
+    );
+  }
 
   return (
     <>
@@ -252,7 +283,7 @@ export const SubAdminTable = () => {
             variant="outline"
             disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "Load More"}
+            {isLoading ? t("common.loading") : t("common.next")}
           </Button>
         </Flex>
       )}

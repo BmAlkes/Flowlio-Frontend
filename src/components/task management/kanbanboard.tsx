@@ -10,6 +10,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { GripVertical, MessageCircleMore } from "lucide-react";
 import { format } from "date-fns";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
+import { useTranslation } from "react-i18next";
 
 // Task type
 export type Task = {
@@ -36,6 +37,14 @@ export type Task = {
   parentTitle?: string;
   startAfter?: string | null;
   finishBefore?: string | null;
+  projectCustomFields?: Record<string, any>;
+};
+
+export type CustomFieldDefinition = {
+  id: string;
+  name: string;
+  type: string;
+  options?: Array<{ label: string; color: string }>;
 };
 
 export const initialTasks: Task[] = [];
@@ -66,14 +75,26 @@ const STATUS_COLUMNS: StatusType[] = [
   "Completed",
 ];
 
+const KANBAN_STATUS_I18N_KEY: Record<StatusType, string> = {
+  "To Do": "taskManagement.statusColumns.toDo",
+  "In Progress": "taskManagement.statusColumns.inProgress",
+  Delay: "taskManagement.statusColumns.delay",
+  Changes: "taskManagement.statusColumns.changes",
+  Updated: "taskManagement.statusColumns.updated",
+  Completed: "taskManagement.statusColumns.completed",
+};
+
 // Draggable Task Card
 function DraggableTask({
   task,
   onTaskClick,
+  projectCustomFieldsDefinitions,
 }: {
   task: Task;
   onTaskClick?: (task: Task) => void;
+  projectCustomFieldsDefinitions?: CustomFieldDefinition[];
 }) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: task.id,
@@ -101,8 +122,8 @@ function DraggableTask({
     <Box className="relative">
       <Box
         className={cn(
-          "bg-[#F6F6F6] rounded-lg border border-gray-200 p-4  min-w-[240px] mb-3 mx-2 transition-all duration-200",
-          "hover:shadow-md hover:border-gray-300 cursor-pointer",
+          "bg-muted/50 rounded-lg border border-border p-4  min-w-[240px] mb-3 mx-2 transition-all duration-200",
+          "hover:shadow-md hover:border-border cursor-pointer",
           isDragging && "opacity-50 shadow-lg scale-105"
         )}
         style={{
@@ -122,11 +143,11 @@ function DraggableTask({
           <Flex className="w-full justify-between items-center">
             {/* Drag handle */}
             <Flex
-              className="font-semibold text-gray-800 text-md leading-tight cursor-grab"
+              className="font-semibold text-foreground text-md leading-tight cursor-grab"
               {...attributes}
               {...listeners}
             >
-              <GripVertical className="text-gray-400 size-4" />
+              <GripVertical className="text-muted-foreground size-4" />
 
               {task.title}
             </Flex>
@@ -147,7 +168,7 @@ function DraggableTask({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="mb-2">
-                  <p>View Comments</p>
+                  <p>{t("taskManagement.viewComments")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -159,34 +180,66 @@ function DraggableTask({
               userSelect: "none",
             }}
           >
-            <Flex className="text-gray-600">
+            <Flex className="text-muted-foreground">
               <Flex className="gap-1 text-sm font-normal">
                 <img
                   src="/dashboard/analytics.svg"
                   className="size-4"
                   alt="calendericon"
                 />
-                Project:
+                {t("taskManagement.projectLabel")}
               </Flex>
 
-              <span className="font-nromal text-black text-sm ml-4">
+              <span className="font-normal text-foreground text-sm ml-4">
                 {task.project}
               </span>
             </Flex>
 
-            <Flex className="mt-1 text-gray-600">
+            <Flex className="mt-1 text-muted-foreground">
               <Flex className="gap-1 text-sm">
                 <img
                   src="/dashboard/calendericonfordraging.svg"
                   className="size-4"
                   alt="calendericon"
                 />
-                Deadline:
+                {t("taskManagement.deadlineLabel")}
               </Flex>
               <Box className="text-red-500 text-xs font-medium rounded ml-2">
                 {task.dueDate}
               </Box>
             </Flex>
+
+            {/* Custom Field Colors */}
+            {task.projectCustomFields && 
+             projectCustomFieldsDefinitions && 
+             projectCustomFieldsDefinitions.length > 0 && (
+              <Flex className="mt-2 gap-1.5 flex-wrap">
+                {projectCustomFieldsDefinitions.map((field) => {
+                  if (field.type !== "select") return null;
+                  const value = task.projectCustomFields?.[field.id];
+                  if (!value) return null;
+                  
+                  const option = field.options?.find(opt => opt.label === value);
+                  if (!option) return null;
+
+                  return (
+                    <TooltipProvider key={field.id}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div 
+                            className="w-3 h-3 rounded-full border border-white shadow-sm" 
+                            style={{ backgroundColor: option.color }}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="text-[10px] px-2 py-1">
+                          {field.name}: {value}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
+              </Flex>
+            )}
           </Flex>
         </Flex>
       </Box>
@@ -197,23 +250,25 @@ function DraggableTask({
             onClick={() => setShowComments(false)}
             className="bg-blue-500 text-white px-4 py-2 rounded-full cursor-pointer self-end m-2"
           >
-            Close Comments
+            {t("taskManagement.closeComments")}
           </Button>
-          <Box className="flex-1 flex flex-col gap-2 max-h-70 overflow-y-auto bg-gray-50 p-2 rounded">
+          <Box className="flex-1 flex flex-col gap-2 max-h-70 overflow-y-auto bg-muted p-2 rounded">
             {displayComments && displayComments.length > 0 ? (
               displayComments.map((comment) => (
                 <Box
                   key={comment.id}
-                  className="bg-white p-2 rounded shadow text-sm"
+                  className="bg-card p-2 rounded shadow text-sm"
                 >
                   <Box>{comment.text}</Box>
-                  <Box className="text-xs text-gray-400 mt-1">
+                  <Box className="text-xs text-muted-foreground mt-1">
                     {format(comment.timestamp, "MMM d, yyyy hh:mm a")}
                   </Box>
                 </Box>
               ))
             ) : (
-              <Box className="text-gray-400 text-center">No comments yet.</Box>
+              <Box className="text-muted-foreground text-center">
+                {t("taskManagement.noCommentsYet")}
+              </Box>
             )}
           </Box>
         </Box>
@@ -230,12 +285,13 @@ function DroppableColumn({
   status: StatusType;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
     <Flex
       className={cn(
-        "flex-col flex-1 min-w-[280px] bg-white rounded-xl border-1 border-gray-200",
+        "flex-col flex-1 min-w-[280px] bg-card rounded-xl border-1 border-border",
         "overflow-hidden max-h-[700px] transition-all duration-200",
         isOver && "border-dashed border-blue-400 bg-blue-50/30"
       )}
@@ -245,7 +301,7 @@ function DroppableColumn({
         className="text-base font-semibold text-white w-full px-4 py-3 flex items-center justify-between"
         style={{ backgroundColor: STATUS_COLORS[status] }}
       >
-        <span>{status}</span>
+        <span>{t(KANBAN_STATUS_I18N_KEY[status])}</span>
         <span className="text-xs opacity-80">
           {React.Children.count(children)}
         </span>
@@ -261,6 +317,7 @@ interface KanbanBoardProps {
   filteredTasks: Task[];
   onStatusUpdate?: (taskId: string, status: string) => void;
   onTaskClick?: (task: Task) => void;
+  projectCustomFieldsData?: CustomFieldDefinition[];
 }
 
 export default function KanbanBoard({
@@ -269,7 +326,9 @@ export default function KanbanBoard({
   filteredTasks,
   onStatusUpdate,
   onTaskClick,
+  projectCustomFieldsData,
 }: KanbanBoardProps) {
+  const { t } = useTranslation();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const handleDragEnd = (event: any) => {
@@ -314,7 +373,7 @@ export default function KanbanBoard({
 
   return (
     <Box className="w-full">
-      <Flex className="w-full items-start gap-4 min-h-[600px] overflow-x-auto mt-5 p-0 bg-gray-100/50 rounded-lg">
+      <Flex className="w-full items-start gap-4 min-h-[600px] overflow-x-auto mt-5 p-0 bg-muted/20 rounded-lg">
         <DndContext
           collisionDetection={closestCenter}
           onDragStart={(event) => {
@@ -333,19 +392,20 @@ export default function KanbanBoard({
                     key={task.id}
                     task={task}
                     onTaskClick={onTaskClick}
+                    projectCustomFieldsDefinitions={projectCustomFieldsData}
                   />
                 ))}
             </DroppableColumn>
           ))}
           <DragOverlay>
             {activeTask ? (
-              <Box className="bg-white rounded-lg border-2 border-blue-400 p-4 min-w-[240px] shadow-xl">
+              <Box className="bg-card rounded-lg border-2 border-blue-400 p-4 min-w-[240px] shadow-xl">
                 <Flex className="flex-col w-full items-start gap-2">
-                  <Box className="font-semibold text-gray-800 text-sm leading-tight">
+                  <Box className="font-semibold text-foreground text-sm leading-tight">
                     {activeTask.title}
                   </Box>
-                  <Box className="text-gray-600 text-xs">
-                    Project:{" "}
+                  <Box className="text-muted-foreground text-sm">
+                    {t("taskManagement.dragOverlayProject")}{" "}
                     <span className="font-medium">{activeTask.project}</span>
                   </Box>
                 </Flex>

@@ -25,9 +25,8 @@ export const useFetchViewerProjects = () => {
   return useQuery<ApiResponse<ViewerProject[]>>({
     queryKey: ["viewer-projects"],
     queryFn: async () => {
-      const response = await axios.get<ApiResponse<ViewerProject[]>>(
-        "/viewer/projects"
-      );
+      const response =
+        await axios.get<ApiResponse<ViewerProject[]>>("/viewer/projects");
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -51,11 +51,11 @@ export const RoleBasedRedirect: FC<RoleBasedRedirectProps> = ({
   // Show loading while determining redirect path
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-muted/50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Redirecting...</p>
-          <p className="text-gray-500 text-sm mt-2">
+          <p className="text-muted-foreground text-lg">Redirecting...</p>
+          <p className="text-muted-foreground text-sm mt-2">
             Please wait while we redirect you to your dashboard
           </p>
         </div>

@@ -12,8 +12,11 @@ import {
 import { useState } from "react";
 import { DeleteUserModal } from "./DeleteUserModal";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
+import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 export const UsersTable = () => {
+  const { t } = useTranslation();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{
     id: string;
@@ -24,8 +27,11 @@ export const UsersTable = () => {
   const {
     data: usersResponse,
     isLoading,
+    isFetching,
     error,
   } = useFetchAllUsers({ page, limit: 20 });
+
+  const loading = isLoading || isFetching;
 
   const users = usersResponse?.data?.users || [];
   const pagination = usersResponse?.data?.pagination;
@@ -47,7 +53,7 @@ export const UsersTable = () => {
   const getColumns = (): ColumnDef<UserWithOrganizations>[] => [
     {
       id: "select",
-      header: () => <Box className="text-center text-black">ID</Box>,
+      header: () => <Box className="text-center text-foreground">ID</Box>,
       cell: ({ row }) => (
         <Box className="text-center">#{row.original.id.slice(0, 8)}</Box>
       ),
@@ -56,7 +62,7 @@ export const UsersTable = () => {
     },
     {
       accessorKey: "name",
-      header: () => <Box className="text-black">Name</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.name", "Name")}</Box>,
       cell: ({ row }) => (
         <Flex className="items-center gap-2">
           {row.original.image ? (
@@ -66,35 +72,35 @@ export const UsersTable = () => {
               className="w-8 h-8 rounded-full"
             />
           ) : (
-            <Box className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
+            <Box className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold">
               {row.original.name?.charAt(0).toUpperCase() || "U"}
             </Box>
           )}
-          <Box className="font-medium">{row.original.name}</Box>
+          <Box className="font-medium text-foreground">{row.original.name}</Box>
         </Flex>
       ),
       size: 200,
     },
     {
       accessorKey: "email",
-      header: () => <Box className="text-black">Email</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.email", "Email")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-gray-700">{row.original.email}</Box>
+        <Box className="text-muted-foreground">{row.original.email}</Box>
       ),
       size: 250,
     },
     {
       accessorKey: "role",
-      header: () => <Box className="text-black">Role</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.role", "Role")}</Box>,
       cell: ({ row }) => (
         <Flex className="gap-2 items-center">
           {row.original.isSuperAdmin ? (
-            <Badge className="bg-purple-100 text-purple-800">Super Admin</Badge>
+            <Badge className="bg-purple-100 text-purple-800">{t("superadminSettings.superAdmin", "Super Admin")}</Badge>
           ) : row.original.subadminId ? (
-            <Badge className="bg-blue-100 text-blue-800">Sub Admin</Badge>
+            <Badge className="bg-blue-100 text-blue-800">{t("superadminSettings.subAdmin", "Sub Admin")}</Badge>
           ) : (
-            <Badge className="bg-gray-100 text-gray-800">
-              {row.original.role || "User"}
+            <Badge className="bg-muted text-gray-800">
+              {row.original.role ? t(`userManagement.roles.${row.original.role.toLowerCase()}`, row.original.role) : t("superadminSettings.user", "User")}
             </Badge>
           )}
         </Flex>
@@ -103,18 +109,17 @@ export const UsersTable = () => {
     },
     {
       accessorKey: "organizations",
-      header: () => <Box className="text-black">Organizations</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.company", "Organizations")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-gray-700">
-          {row.original.organizationCount || 0} organization
-          {row.original.organizationCount !== 1 ? "s" : ""}
+        <Box className="text-muted-foreground">
+          {row.original.organizationCount || 0} {t("appSidebar.companies", "Organizations")}
         </Box>
       ),
       size: 150,
     },
     {
       accessorKey: "emailVerified",
-      header: () => <Box className="text-black">Status</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.status", "Status")}</Box>,
       cell: ({ row }) => (
         <Badge
           className={
@@ -123,16 +128,16 @@ export const UsersTable = () => {
               : "bg-yellow-100 text-yellow-800"
           }
         >
-          {row.original.emailVerified ? "Verified" : "Unverified"}
+          {row.original.emailVerified ? t("common.verified", "Verified") : t("common.unverified", "Unverified")}
         </Badge>
       ),
       size: 120,
     },
     {
       accessorKey: "createdAt",
-      header: () => <Box className="text-black">Created At</Box>,
+      header: () => <Box className="text-foreground">{t("superadmin.users.table.addedOn", "Created At")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-gray-600 text-sm">
+        <Box className="text-muted-foreground text-sm">
           {new Date(row.original.createdAt).toLocaleDateString()}
         </Box>
       ),
@@ -140,7 +145,7 @@ export const UsersTable = () => {
     },
     {
       accessorKey: "actions",
-      header: () => <Box className="text-center text-black">Actions</Box>,
+      header: () => <Box className="text-center text-foreground">{t("superadmin.users.table.actions", "Actions")}</Box>,
       cell: ({ row }) => (
         <Center>
           <Button
@@ -156,20 +161,21 @@ export const UsersTable = () => {
     },
   ];
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <Center className="py-10">
-        <Box>Loading users...</Box>
-      </Center>
+      <Box className="px-4 py-4">
+        <TableSkeleton rows={10} columns={7} withAvatar withActions />
+      </Box>
     );
   }
 
   if (error) {
     return (
       <Center className="py-10">
-        <Box className="text-red-500">
-          Error loading users. Please try again.
-        </Box>
+        <ErrorState
+          title={t("common.error")}
+          message={t("common.errorDescription", "Error loading users. Please try again.")}
+        />
       </Center>
     );
   }

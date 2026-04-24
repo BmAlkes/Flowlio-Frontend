@@ -1,9 +1,8 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { PageWrapper } from "@/components/common/pagewrapper";
-import { Center } from "@/components/ui/center";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
-import { CirclePlus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
@@ -37,8 +36,10 @@ import {
   type CreateUniversalSupportTicketRequest,
 } from "@/hooks/useUniversalSupportTickets";
 import { toast } from "sonner";
-import { useState } from "react";
 import { useUser } from "@/providers/user.provider";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -62,8 +63,9 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
   const [assignmentType, setAssignmentType] = useState<
     "organization" | "user" | "none"
   >("none");
-
   const { data: user } = useUser();
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,16 +80,16 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
     },
   });
 
+  const { data, isLoading, isFetching, error, refetch } =
+    useUniversalSupportTickets({
+      page,
+      limit,
+    });
+
   const createSupportTicketMutation = useCreateUniversalSupportTicket();
-  const modalProps = useGeneralModalDisclosure();
-  const [page, setPage] = useState(1);
-  const limit = 20;
-  const { data, isLoading, error, refetch } = useUniversalSupportTickets({
-    page,
-    limit,
-  });
   const { mutate: deleteSupportTicket } = useDeleteUniversalSupportTicket();
   const { data: assignmentOptions } = useAssignmentOptions();
+  const createModalProps = useGeneralModalDisclosure();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -96,148 +98,161 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
         description: values.description,
         priority: values.priority,
         client: values.client,
-        assignedToUser: values.assignedTo, // Map assignedTo to assignedToUser
+        assignedToUser: values.assignedTo,
         assignedToOrganization: values.assignedToOrganization,
       };
 
       await createSupportTicketMutation.mutateAsync(ticketData);
       form.reset();
       setAssignmentType("none");
-      modalProps.onOpenChange(false);
+      createModalProps.onOpenChange(false);
       refetch();
+      toast.success("Support ticket created successfully");
     } catch (error) {
-      console.error("Error creating ticket:", error);
       toast.error("Failed to create support ticket");
     }
   }
 
-  // Determine if user can assign to organizations (superadmin only)
   const canAssignToOrganizations = user?.user.role === "superadmin";
-
-  // Determine if user can assign to specific users
   const canAssignToUsers =
     user?.user.role === "superadmin" || user?.user.role === "subadmin";
 
   return (
-    <PageWrapper className="mt-6">
-      <Center className="justify-between px-4 py-6 max-sm:flex-col max-sm:items-start gap-2">
-        <Stack className="gap-1">
-          <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+    <PageWrapper className="mt-6 pb-24">
+      {/* Header Section */}
+      <Flex className="justify-between items-end mb-10 border-b border-border pb-8 px-4">
+        <Stack className="gap-2">
+          <Badge className="w-fit mt-3 bg-blue-100 text-blue-600 border-none px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-1">
+            Administration
+          </Badge>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
             {title}
           </h1>
-          <h1 className={`max-sm:text-sm max-w-[600px] text-gray-500`}>
+          <p className="text-muted-foreground text-sm max-w-xl">
             {description}
-          </h1>
+          </p>
         </Stack>
 
         <Button
-          onClick={() => modalProps.onOpenChange(true)}
-          variant="outline"
-          className="bg-black text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-8 h-14 font-black shadow-xl shadow-blue-500/30 flex items-center gap-3 transition-transform active:scale-95"
+          onClick={() => createModalProps.onOpenChange(true)}
         >
-          <CirclePlus className="fill-white text-black size-5" />
+          <Plus className="size-5" />
           Create New Ticket
         </Button>
-      </Center>
+      </Flex>
 
-      <SupportTicketTable
-        data={data?.data?.tickets || []}
-        isLoading={isLoading}
-        error={error}
-        refetch={refetch}
-        pagination={data?.data?.pagination}
-        onPageChange={setPage}
-        deleteSupportTicket={(id) =>
-          deleteSupportTicket(
-            { id },
-            {
-              onSuccess: () => {
-                toast.success("Support Ticket deleted successfully");
+      {/* Main Table Content */}
+      <Box className="px-4">
+        <SupportTicketTable
+          data={data?.data?.tickets || []}
+          isLoading={isLoading}
+          isFetching={isFetching}
+          error={error}
+          refetch={refetch}
+          pagination={data?.data?.pagination}
+          onPageChange={setPage}
+          deleteSupportTicket={(id) =>
+            deleteSupportTicket(
+              { id },
+              {
+                onSuccess: () => {
+                  toast.success("Support Ticket deleted successfully");
+                  refetch();
+                },
+                onError: (error: any) => {
+                  toast.error(
+                    error.response?.data?.message ||
+                      "Failed to delete support ticket",
+                  );
+                },
               },
-              onError: (error) => {
-                toast.error(
-                  error.response?.data?.message ||
-                    "Failed to delete support ticket"
-                );
-              },
-            }
-          )
-        }
-      />
+            )
+          }
+        />
+      </Box>
 
+      {/* Creation Flow Modal */}
       <GeneralModal
-        {...modalProps}
-        contentProps={{
-          className:
-            "max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]",
-        }}
+        {...createModalProps}
+        contentProps={{ className: "max-w-2xl rounded-[2.5rem] p-6" }}
       >
-        <h2 className="text-lg font-normal mb-4">Create Support Ticket</h2>
+        <Stack className="gap-1 mb-5 border-b border-border pb-4">
+          <Badge className="w-fit bg-blue-100 text-blue-600 border-none px-3 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase">
+            Admin Flow
+          </Badge>
+          <h2 className="text-3xl font-black text-foreground tracking-tight">
+            Create Support Ticket
+          </h2>
+        </Stack>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Box className="bg-white/80 gap-4 grid grid-cols-1">
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject</FormLabel>
-                    <FormControl className="w-full h-12">
-                      <input
-                        {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 px-4 placeholder:text-gray-500"
-                        placeholder="Enter ticket subject"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    Subject
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      className="h-12 rounded-2xl border-border bg-muted/20 focus:bg-white focus:ring-blue-500 transition-all font-medium"
+                      placeholder="Brief summary of the request"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl className="w-full">
-                      <textarea
-                        {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-lg w-full p-4 min-h-[50px] resize-none placeholder:text-gray-500"
-                        placeholder="Describe the issue in detail..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    Description
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="min-h-[110px] rounded-3xl border-border bg-muted/20 focus:bg-white focus:ring-blue-500 transition-all p-4 font-medium leading-relaxed"
+                      placeholder="Detailed description..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                      Priority
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <FormControl className="w-full h-12">
-                        <SelectTrigger
-                          size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
-                        >
-                          <SelectValue placeholder="Select Priority" />
+                      <FormControl>
+                        <SelectTrigger className="h-12 rounded-2xl border-border">
+                          <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="w-full">
-                        <SelectItem value="urgent">Urgent</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
+                      <SelectContent>
                         <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -247,152 +262,138 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
                 name="client"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Client (Optional)</FormLabel>
-                    <FormControl className="w-full h-12">
-                      <input
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                      Client (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="h-12 rounded-2xl border-border"
+                        placeholder="External client name"
                         {...field}
-                        className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 px-4 placeholder:text-gray-500"
-                        placeholder="Enter client name (optional)"
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
 
-              {/* Assignment Type Selection - Only show if user has assignment permissions */}
-              {(canAssignToOrganizations || canAssignToUsers) && (
-                <FormItem>
-                  <FormLabel>Assignment Type</FormLabel>
-                  <Select
-                    value={assignmentType}
-                    onValueChange={(
-                      value: "organization" | "user" | "none"
-                    ) => {
-                      setAssignmentType(value);
-                      form.setValue("assignedToOrganization", "");
-                      form.setValue("assignedToUser", "");
-                      form.setValue("assignedTo", "");
-                    }}
-                  >
-                    <FormControl className="w-full h-12">
-                      <SelectTrigger
-                        size="lg"
-                        className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
-                      >
-                        <SelectValue placeholder="Select Assignment Type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="w-full">
-                      <SelectItem value="none">No Assignment</SelectItem>
-                      {canAssignToOrganizations && (
-                        <SelectItem value="organization">
-                          Assign to Organization
-                        </SelectItem>
-                      )}
-                      {canAssignToUsers && (
-                        <SelectItem value="user">
-                          Assign to Specific User
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-
-              {/* Organization Assignment - Only for superadmin */}
-              {assignmentType === "organization" &&
-                canAssignToOrganizations && (
-                  <FormField
-                    control={form.control}
-                    name="assignedToOrganization"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Organization</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl className="w-full h-12">
-                            <SelectTrigger
-                              size="lg"
-                              className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
-                            >
-                              <SelectValue placeholder="Select Organization" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="w-full">
-                            {assignmentOptions?.data?.organizations?.map(
-                              (org) => (
-                                <SelectItem key={org.id} value={org.id}>
-                                  {org.name}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+            {(canAssignToOrganizations || canAssignToUsers) && (
+              <FormItem>
+                <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                  Assignment Type
+                </FormLabel>
+                <Select
+                  value={assignmentType}
+                  onValueChange={(value: "organization" | "user" | "none") => {
+                    setAssignmentType(value);
+                    form.setValue("assignedToOrganization", "");
+                    form.setValue("assignedToUser", "");
+                    form.setValue("assignedTo", "");
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-12 rounded-2xl border-border bg-blue-50/30 border-blue-100">
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">No Assignment</SelectItem>
+                    {canAssignToOrganizations && (
+                      <SelectItem value="organization">
+                        Organization Wide
+                      </SelectItem>
                     )}
-                  />
+                    {canAssignToUsers && (
+                      <SelectItem value="user">Specific Recipient</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+
+            {assignmentType === "organization" && (
+              <FormField
+                control={form.control}
+                name="assignedToOrganization"
+                render={({ field }) => (
+                  <FormItem className="animate-in fade-in slide-in-from-top-2">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                      Select Organization
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-12 rounded-2xl border-border">
+                          <SelectValue placeholder="Organization name" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assignmentOptions?.data?.organizations?.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>
+                            {org.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
                 )}
+              />
+            )}
 
-              {/* User Assignment - For superadmin and subadmin */}
-              {assignmentType === "user" && canAssignToUsers && (
-                <FormField
-                  control={form.control}
-                  name="assignedTo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Select User</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl className="w-full h-12">
-                          <SelectTrigger
-                            size="lg"
-                            className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
-                          >
-                            <SelectValue placeholder="Select User" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="w-full">
-                          {assignmentOptions?.data?.users?.map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.name} ({user.email}) - {user.role} -{" "}
-                              {user.organization?.name || "No Organization"}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+            {assignmentType === "user" && (
+              <FormField
+                control={form.control}
+                name="assignedTo"
+                render={({ field }) => (
+                  <FormItem className="animate-in fade-in slide-in-from-top-2">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                      Select Recipient
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-12 rounded-2xl border-border">
+                          <SelectValue placeholder="Recipient name" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assignmentOptions?.data?.users?.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name} ({u.role})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            )}
 
-              <Flex className="justify-end">
-                <Button
-                  variant="outline"
-                  className="bg-[#1797b9]/30 hover:bg-[#1797b9]/80 hover:text-white text-black border border-gray-200 font-normal rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
-                  type="button"
-                  onClick={() => modalProps.onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
-                  type="submit"
-                  disabled={createSupportTicketMutation.isPending}
-                >
-                  {createSupportTicketMutation.isPending
-                    ? "Creating..."
-                    : "Create Ticket"}
-                </Button>
-              </Flex>
-            </Box>
+            <Flex className="justify-end gap-3 pt-4 border-t border-border mt-6">
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-2xl px-8 h-12 font-bold text-muted-foreground"
+                onClick={() => createModalProps.onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-12 h-12 font-black shadow-xl shadow-blue-500/20 transition-all active:scale-95"
+                disabled={createSupportTicketMutation.isPending}
+              >
+                {createSupportTicketMutation.isPending ? (
+                  <Loader2 className="animate-spin size-5" />
+                ) : (
+                  "Launch Ticket"
+                )}
+              </Button>
+            </Flex>
           </form>
         </Form>
       </GeneralModal>

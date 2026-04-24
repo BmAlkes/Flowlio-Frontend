@@ -38,8 +38,13 @@ import { useFetchProjects } from "@/hooks/usefetchprojects";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { CreateTaskRequest } from "@/hooks/usecreatetask";
 import { toast } from "sonner";
-import { useFetchTaskById, useFetchTasksByAssignee } from "@/hooks/usefetchtasks";
+import {
+  useFetchTaskById,
+  useFetchTasksByAssignee,
+} from "@/hooks/usefetchtasks";
 // import { AITaskCreator } from "./AITaskCreator";
+import { Switch } from "../ui/switch";
+import { Lock, Globe, Loader2 } from "lucide-react";
 
 interface CreateTaskProps {
   taskId?: string; // If provided, component works in edit mode
@@ -63,6 +68,7 @@ const formSchema = z
     parentId: z.string().optional(),
     startAfter: z.string().optional(),
     finishBefore: z.string().optional(),
+    visibility: z.enum(["public", "private"]).default("private"),
   })
   .refine(
     (data) =>
@@ -72,7 +78,7 @@ const formSchema = z
     {
       message: "End date must be on or after start date.",
       path: ["endDate"],
-    }
+    },
   )
   .refine(
     (data) =>
@@ -82,7 +88,7 @@ const formSchema = z
     {
       message: "Start After and Finish Before cannot be the same task.",
       path: ["finishBefore"],
-    }
+    },
   )
   .refine(
     (data) =>
@@ -92,7 +98,7 @@ const formSchema = z
     {
       message: "Start After and Finish Before cannot be the same task.",
       path: ["startAfter"],
-    }
+    },
   );
 
 export const CreateTask = ({
@@ -140,6 +146,7 @@ export const CreateTask = ({
       parentId: parentId || "",
       startAfter: "",
       finishBefore: "",
+      visibility: "private",
     },
   });
 
@@ -208,6 +215,7 @@ export const CreateTask = ({
         form.setValue("endDate", new Date(task.endDate));
       }
       form.setValue("parentId", task.parentId || "");
+      form.setValue("visibility", (task as any).visibility || "private");
     }
   }, [isEditMode, taskData, form]);
 
@@ -245,6 +253,7 @@ export const CreateTask = ({
       parentId: task.parentId || "",
       startAfter: safeStartAfter,
       finishBefore: safeFinishBefore,
+      visibility: (task as any).visibility || "private",
     });
   }, [
     isEditMode,
@@ -302,7 +311,7 @@ export const CreateTask = ({
             result.length /
             1024 /
             1024
-          ).toFixed(2)}MB`
+          ).toFixed(2)}MB`,
         );
         resolve(result);
       };
@@ -318,7 +327,7 @@ export const CreateTask = ({
       // Check file size before processing
       if (uploadedFile && uploadedFile.size > 10 * 1024 * 1024) {
         toast.error(
-          "File size must be less than 10MB. Please choose a smaller file."
+          "File size must be less than 10MB. Please choose a smaller file.",
         );
         return;
       }
@@ -348,6 +357,7 @@ export const CreateTask = ({
           attachments: attachmentData ? [attachmentData] : undefined,
           startAfter: values.startAfter || null,
           finishBefore: values.finishBefore || null,
+          visibility: values.visibility,
         };
 
         updateTask.mutate(
@@ -367,7 +377,7 @@ export const CreateTask = ({
               toast.error("Task update failed");
               console.log("Task update failed", error);
             },
-          }
+          },
         );
       } else {
         // Create new task
@@ -382,6 +392,7 @@ export const CreateTask = ({
           parentId: values.parentId || undefined,
           startAfter: values.startAfter || null,
           finishBefore: values.finishBefore || null,
+          visibility: values.visibility,
         };
         console.log("Task data", taskData);
 
@@ -435,25 +446,25 @@ export const CreateTask = ({
     <>
       {!isModal && (
         <Box
-          className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-gray-200 rounded-full hover:p-2"
+          className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2"
           onClick={() => navigate(-1)}
         >
           <IoArrowBack />
-          <p className="text-black">Back</p>
+          <p className="text-foreground">Back</p>
         </Box>
       )}
 
       <Center className="justify-between mt-4 max-sm:flex-col max-sm:items-start gap-2 relative">
         <Stack className="gap-0">
-          <h1 className="text-black text-xl font-medium">
+          <h1 className="text-foreground text-xl font-medium">
             {isEditMode ? "Edit Task" : parentId ? "New Subtask" : "New Task"}
           </h1>
-          <h1 className="text-gray-500">
+          <h1 className="text-muted-foreground">
             {isEditMode
               ? "Update task details and keep your team aligned."
               : parentId
-              ? "Create a subtask to break down your main objective."
-              : "Create and assign tasks to keep your team aligned and productive."}
+                ? "Create a subtask to break down your main objective."
+                : "Create and assign tasks to keep your team aligned and productive."}
           </h1>
         </Stack>
       </Center>
@@ -462,27 +473,73 @@ export const CreateTask = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
           <Button
             type="submit"
-            variant="outline"
-            className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-18 right-2 max-md:top-6"
+            variant="default"
+            className="rounded-full px-6 py-5 flex items-center gap-2 absolute top-18 right-2 max-md:top-6"
             disabled={isEditMode ? updateTask.isPending : createTask.isPending}
           >
-            {isEditMode
-              ? updateTask.isPending
-                ? "Updating..."
-                : "Update Task"
-              : createTask.isPending
-              ? "Creating..."
-              : parentId
-              ? "Save Subtask"
-              : "Save Task"}
+            {isEditMode ? (
+              updateTask.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Task"
+              )
+            ) : createTask.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : parentId ? (
+              "Save Subtask"
+            ) : (
+              "Save Task"
+            )}
           </Button>
+
+          <Box className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center gap-4 mb-4 mt-12">
+            <FormField
+              control={form.control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between gap-4 space-y-0 w-full">
+                  <Box className="flex flex-col gap-0.5">
+                    <FormLabel className="text-base font-semibold flex items-center gap-2">
+                      {field.value === "private" ? (
+                        <Lock className="w-4 h-4 text-orange-500" />
+                      ) : (
+                        <Globe className="w-4 h-4 text-blue-500" />
+                      )}
+                      {field.value === "private"
+                        ? "Private Task"
+                        : "Public Task"}
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      {field.value === "private"
+                        ? "Only the assignee and creator can see this task."
+                        : "Anyone in your organization can view this task."}
+                    </p>
+                  </Box>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === "public"}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked ? "public" : "private")
+                      }
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </Box>
 
           {(isModal || isEditMode) && onClose && (
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="bg-white text-black border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-18 right-40 max-md:top-20 max-md:right-2"
+              className="bg-background text-foreground border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer absolute top-18 right-40 max-md:top-20 max-md:right-2"
             >
               Cancel
             </Button>
@@ -516,7 +573,7 @@ export const CreateTask = ({
             }}
           /> */}
 
-          <Box className="bg-white/80 rounded-xl border border-gray-200 p-6 gap-4 grid grid-cols-1">
+          <Box className="bg-card/80 rounded-xl border border-border p-6 gap-4 grid grid-cols-1">
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
               <Stack className="flex-1 w-full gap-6">
                 <FormField
@@ -530,7 +587,7 @@ export const CreateTask = ({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          className="bg-white rounded-full placeholder:text-gray-400"
+                          className="bg-background rounded-full placeholder:text-muted-foreground"
                           size="lg"
                           type="text"
                           placeholder="Enter Task Title"
@@ -559,7 +616,7 @@ export const CreateTask = ({
                         <FormControl className="w-full h-12">
                           <SelectTrigger
                             size="lg"
-                            className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                            className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-muted-foreground"
                           >
                             <SelectValue placeholder="Select Project" />
                           </SelectTrigger>
@@ -584,24 +641,24 @@ export const CreateTask = ({
               <Box className="grid grid-cols-1 flex-1 w-full gap-4">
                 {!filePreview ? (
                   <Center
-                    className="flex-col border-2 border-[#62A1C0] border-dashed border-spacing-2 bg-[#f5fdfe] rounded-lg min-h-50 w-full cursor-pointer"
+                    className="flex-col border-2 border-primary border-dashed bg-muted/30 rounded-lg min-h-50 w-full cursor-pointer transition-colors hover:bg-muted/50"
                     onClick={open}
                   >
                     <img
                       src="/dashboard/upload.svg"
                       alt="upload-icon"
-                      className="size-12"
+                      className="size-12 brightness-0 dark:invert"
                     />
-                    <p className="text-gray-800 text-lg font-medium underline">
+                    <p className="text-foreground text-lg font-medium underline">
                       Click to upload file
                     </p>
-                    <p className="text-gray-600 text-sm font-medium">
+                    <p className="text-muted-foreground text-sm font-medium">
                       PDF, Images (PNG, JPG, WebP)
                     </p>
                     <input {...getInputProps()} />
                   </Center>
                 ) : (
-                  <Box className="border-2 border-[#62A1C0] rounded-lg p-4 relative">
+                  <Box className="border-2 border-primary rounded-lg p-4 relative w-50 h-50">
                     <Stack className="gap-2">
                       <Box className="flex ml-auto w-full absolute top-0 right-0 p-2 z-10">
                         <Button
@@ -619,10 +676,10 @@ export const CreateTask = ({
 
                       {/* File info header */}
                       <Box className="mt-6 mb-2">
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-foreground">
                           {uploadedFile?.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {uploadedFile?.size
                             ? (uploadedFile.size / 1024 / 1024).toFixed(2)
                             : "0"}{" "}
@@ -632,7 +689,7 @@ export const CreateTask = ({
 
                       {/* Preview based on file type */}
                       {fileType?.startsWith("image/") ? (
-                        <Box className="w-full h-[200px] border border-gray-200 rounded-lg overflow-hidden">
+                        <Box className="w-full h-[200px] border border-border rounded-lg overflow-hidden">
                           <img
                             src={filePreview}
                             alt="File preview"
@@ -643,7 +700,7 @@ export const CreateTask = ({
                           />
                         </Box>
                       ) : fileType === "application/pdf" ? (
-                        <Box className="w-full h-[200px] border border-gray-200 rounded-lg overflow-hidden">
+                        <Box className="w-full h-[200px] border border-border rounded-lg overflow-hidden">
                           <iframe
                             src={`${filePreview}#toolbar=0&navpanes=0&scrollbar=0`}
                             className="w-full h-full"
@@ -654,17 +711,17 @@ export const CreateTask = ({
                           />
                         </Box>
                       ) : (
-                        <Box className="w-full h-[200px] border border-gray-200 rounded-lg bg-gray-50 flex flex-col items-center justify-center">
+                        <Box className="w-full h-[200px] border border-border rounded-lg bg-muted/50 flex flex-col items-center justify-center">
                           <Box className="text-center">
                             <img
                               src="/dashboard/file-icon.svg"
                               alt="File"
                               className="size-16 mx-auto mb-2 opacity-60"
                             />
-                            <p className="text-sm text-gray-600 font-medium">
+                            <p className="text-sm text-muted-foreground font-medium">
                               File Attached
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                               Preview not available for this file type
                             </p>
                           </Box>
@@ -691,10 +748,10 @@ export const CreateTask = ({
                             variant={"outline"}
                             className={cn(
                               "justify-start text-left font-normal rounded-full",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
-                            <CalendarIcon className="size-5" fill="#62A1C0" />
+                            <CalendarIcon className="size-5 text-primary" />
                             {field.value ? (
                               format(field.value, "PPP")
                             ) : (
@@ -732,7 +789,7 @@ export const CreateTask = ({
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-muted-foreground"
                         >
                           <SelectValue placeholder="Select Team Member" />
                         </SelectTrigger>
@@ -744,7 +801,8 @@ export const CreateTask = ({
                             value={userMember.user?.id || userMember.id}
                             disabled={!userMember.user?.id}
                           >
-                            {userMember.firstname} {userMember.lastname} (
+                            {userMember.user?.name ||
+                              `${userMember.firstname} ${userMember.lastname}`.trim()} (
                             {userMember.email})
                             {!userMember.user?.id && " (No user account)"}
                           </SelectItem>
@@ -765,7 +823,12 @@ export const CreateTask = ({
                   <FormItem>
                     <FormLabel>Start After</FormLabel>
                     <Select
-                      value={field.value && dependencyOptions.some((t) => t.id === field.value) ? field.value : undefined}
+                      value={
+                        field.value &&
+                        dependencyOptions.some((t) => t.id === field.value)
+                          ? field.value
+                          : undefined
+                      }
                       onValueChange={(value) => {
                         field.onChange(value);
                         form.trigger(["startAfter", "finishBefore"]);
@@ -778,7 +841,7 @@ export const CreateTask = ({
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100 disabled:opacity-60"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-muted-foreground disabled:opacity-60"
                         >
                           <SelectValue placeholder="Select task (optional)" />
                         </SelectTrigger>
@@ -802,7 +865,12 @@ export const CreateTask = ({
                   <FormItem>
                     <FormLabel>Finish Before</FormLabel>
                     <Select
-                      value={field.value && dependencyOptions.some((t) => t.id === field.value) ? field.value : undefined}
+                      value={
+                        field.value &&
+                        dependencyOptions.some((t) => t.id === field.value)
+                          ? field.value
+                          : undefined
+                      }
                       onValueChange={(value) => {
                         field.onChange(value);
                         form.trigger(["startAfter", "finishBefore"]);
@@ -815,7 +883,7 @@ export const CreateTask = ({
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100 disabled:opacity-60"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-muted-foreground disabled:opacity-60"
                         >
                           <SelectValue placeholder="Select task (optional)" />
                         </SelectTrigger>
@@ -849,10 +917,10 @@ export const CreateTask = ({
                             variant={"outline"}
                             className={cn(
                               "justify-start text-left font-normal rounded-full",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
-                            <CalendarIcon className="size-5" fill="#62A1C0" />
+                            <CalendarIcon className="size-5 text-primary" />
                             {field.value ? (
                               format(field.value, "PPP")
                             ) : (
@@ -889,7 +957,7 @@ export const CreateTask = ({
                     <FormLabel>Task Description:</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="bg-white rounded-md placeholder:text-gray-400 h-32"
+                        className="bg-card rounded-md placeholder:text-muted-foreground h-32"
                         placeholder="Enter Task Description"
                         rows={6}
                         cols={18}
@@ -917,7 +985,7 @@ export const CreateTask = ({
           onClick={onClose}
         />
         {/* Modal Content */}
-        <Box className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        <Box className="relative bg-background rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
           <Box className="p-6 relative max-h-[90vh] overflow-y-auto">
             {content}
           </Box>

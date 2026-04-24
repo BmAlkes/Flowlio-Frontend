@@ -13,6 +13,7 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { MyTaskTable } from "./mytasktable";
+import { useTranslation } from "react-i18next";
 import { useFetchViewerTasks, ViewerTask } from "@/hooks/useFetchViewerTasks";
 import { format } from "date-fns";
 
@@ -24,37 +25,46 @@ type Task = {
   comments?: string;
   endDate: string;
   status:
-    | "To Do"
-    | "In Progress"
-    | "Completed"
-    | "Updated"
-    | "Delay"
-    | "Changes";
+    | "todo"
+    | "in_progress"
+    | "completed"
+    | "updated"
+    | "delay"
+    | "changes";
   creatorName?: string;
   creatorEmail?: string;
+  description?: string;
+  attachments?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    size: number;
+    type: string;
+  }>;
 };
 
 // Map backend status to frontend status
 const mapStatusToDisplay = (status: string): Task["status"] => {
   switch (status) {
     case "todo":
-      return "To Do";
+      return "todo";
     case "in_progress":
-      return "In Progress";
+      return "in_progress";
     case "completed":
-      return "Completed";
+      return "completed";
     case "updated":
-      return "Updated";
+      return "updated";
     case "delay":
-      return "Delay";
+      return "delay";
     case "changes":
-      return "Changes";
+      return "changes";
     default:
-      return "To Do";
+      return "todo";
   }
 };
 
 export const MyTaskHeader = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [selectedProject, setSelectedProject] = useState<string>("all");
@@ -74,12 +84,14 @@ export const MyTaskHeader = () => {
       title: task.title,
       project: task.projectName,
       comments: task.description,
+      description: task.description,
       endDate: task.endDate
         ? format(new Date(task.endDate), "MMM dd, yyyy")
         : "",
       status: mapStatusToDisplay(task.status),
       creatorName: task.creatorName,
       creatorEmail: task.creatorEmail,
+      attachments: task.attachments || [],
     }));
   };
 
@@ -103,12 +115,11 @@ export const MyTaskHeader = () => {
       <Stack className="gap-4 py-2">
         <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
           <Stack className="gap-1">
-            <h1 className="text-black text-2xl max-sm:text-xl font-medium">
-              My Tasks
+            <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
+              {t("tasks.myTasks")}
             </h1>
             <h1 className={`max-sm:text-sm text-[#616572]`}>
-              Track and manage your assigned tasks with real-time progress and
-              time logging. Drag and drop tasks to update their status.
+              {t("tasks.myTasksDesc")}
             </h1>
           </Stack>
         </Center>
@@ -118,10 +129,10 @@ export const MyTaskHeader = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
             <Input
               type="search"
-              placeholder="Search My Tasks"
+              placeholder={t("tasks.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-white h-10  placeholder:text-gray-700  placeholder:text-[15px] border border-gray-100 focus:outline-none active:border-gray-200 focus:ring-0 focus:ring-offset-0 rounded-full"
+              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-card h-10  placeholder:text-foreground  placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0 rounded-full"
             />
           </Flex>
 
@@ -132,10 +143,10 @@ export const MyTaskHeader = () => {
                   variant="ghost"
                   aria-haspopup="dialog"
                   className={cn(
-                    "ml-auto cursor-pointer bg-white border border-gray-200 rounded-full h-10 w-40 text-black shadow-none flex p-3 gap-8"
+                    "ml-auto cursor-pointer bg-card border border-border rounded-full h-10 w-40 text-foreground shadow-none flex p-3 gap-8"
                   )}
                 >
-                  {selectedProject === "all" ? "All Projects" : selectedProject}
+                  {selectedProject === "all" ? t("tasks.allProjects") : selectedProject}
                   <ChevronDown />
                 </Button>
               </DropdownMenuTrigger>
@@ -144,7 +155,7 @@ export const MyTaskHeader = () => {
                   checked={selectedProject === "all"}
                   onCheckedChange={() => setSelectedProject("all")}
                 >
-                  All Projects
+                  {t("tasks.allProjects")}
                 </DropdownMenuCheckboxItem>
                 {uniqueProjects.map((projectName) => (
                   <DropdownMenuCheckboxItem
@@ -160,21 +171,21 @@ export const MyTaskHeader = () => {
 
             <Button
               className={cn(
-                "bg-white text-white border border-gray-200 rounded-lg px-4 py-5 gap-2 cursor-pointer hover:bg-gray-100",
+                "bg-background text-white border border-border rounded-lg px-4 py-5 gap-2 cursor-pointer hover:bg-muted",
                 view === "table" && "bg-blue-50 border-blue-300"
               )}
               onClick={() => setView("table")}
             >
-              <List className="text-black size-5" />
+              <List className="text-foreground size-5" />
             </Button>
             <Button
               className={cn(
-                "bg-white text-white border border-gray-200 rounded-lg px-4 py-5 gap-2 cursor-pointer hover:bg-gray-100",
+                "bg-background text-white border border-border rounded-lg px-4 py-5 gap-2 cursor-pointer hover:bg-muted",
                 view === "kanban" && "bg-blue-50 border-blue-300"
               )}
               onClick={() => setView("kanban")}
             >
-              <Grip className="text-black size-4.5" />
+              <Grip className="text-foreground size-4.5" />
             </Button>
           </Flex>
         </Flex>

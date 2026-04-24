@@ -54,7 +54,7 @@ export const QuickActions = () => {
               <Button
                 size="icon"
                 className={cn(
-                  "h-10 w-10 rounded-full bg-[#1797B9] hover:bg-white/90 hover:text-gray-500 text-white shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  "h-10 w-10 rounded-full bg-[#1797B9] hover:bg-card/90 hover:text-muted-foreground text-white shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
                 )}
                 aria-label="Quick Actions"
               >

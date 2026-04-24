@@ -99,6 +99,8 @@ export type ViewerChartPoint = {
   total?: number;
 };
 
+import { useTranslation } from "react-i18next";
+
 export const ViewerBarChartComponent: FC<
   BoxProps & {
     data?: ViewerChartPoint[];
@@ -114,6 +116,8 @@ export const ViewerBarChartComponent: FC<
   onResetDateRange,
   ...props
 }) => {
+  const { t } = useTranslation();
+
   const chartData = (
     data && data.length > 0
       ? data.map((d) => ({
@@ -127,7 +131,7 @@ export const ViewerBarChartComponent: FC<
       <Flex className="max-lg:flex-col items-center justify-between">
         <Flex className="justify-between max-md:justify-start max-lg:w-full">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-          <h1 className="text-lg font-medium">Performance</h1>
+          <h1 className="text-lg font-medium">{t("viewerChart.performance")}</h1>
         </Flex>
         <Flex className="gap-4">
           <ViewerChartGuides className="gap-4 pt-1 max-md:mr-auto" />
@@ -163,6 +167,7 @@ export const ViewerBarChartComponent: FC<
             }}
             interval={0}
             padding={{ left: 15, right: 15 }}
+            tickFormatter={(value) => t(`viewerChart.months.${value}`)}
           />
           <YAxis
             axisLine={true}
@@ -170,7 +175,7 @@ export const ViewerBarChartComponent: FC<
             tick={{ fontSize: 12 }}
             tickCount={7}
             label={{
-              value: "Task",
+              value: t("viewerChart.task"),
               angle: -90,
               position: "insideLeft",
               offset: 10,
@@ -185,9 +190,11 @@ export const ViewerBarChartComponent: FC<
           <Tooltip
             content={({ label, payload }) => {
               if (!payload || !payload.length) return null;
-              const fullMonth = monthFullNames[label] || label;
+              const fullMonthKey = monthFullNames[label] === "May" ? "MayFull" : monthFullNames[label] || label;
+              const fullMonth = t(`viewerChart.months.${fullMonthKey}`);
+
               return (
-                <Box className="rounded-lg border border-gray-200 bg-white p-2 text-[14px] font-normal text-gray-600 capitalize shadow-sm w-[140px] text-shadow-sm font-outfit">
+                <Box className="rounded-lg border border-border bg-card p-2 text-[14px] font-normal text-muted-foreground capitalize shadow-sm w-[140px] text-shadow-sm font-outfit">
                   <div style={{ fontWeight: 700, marginBottom: 4 }}>
                     {fullMonth}
                   </div>
@@ -207,9 +214,9 @@ export const ViewerBarChartComponent: FC<
                       >
                         <span style={{ color: "#000", fontWeight: 400 }}>
                           {
-                            dayFullNames[
+                            t(`viewerChart.days.${dayFullNames[
                               entry.name as keyof typeof dayFullNames
-                            ]
+                            ]}`)
                           }
                         </span>
                         <span style={{ color: entry.color, fontWeight: 500 }}>
@@ -226,7 +233,7 @@ export const ViewerBarChartComponent: FC<
                         fontWeight: 600,
                       }}
                     >
-                      Total:{" "}
+                      {t("viewerChart.total")}:{" "}
                       <span style={{ color: "#2FBBE0" }}>
                         {payload.find((entry) => entry.name === "total")?.value}
                       </span>

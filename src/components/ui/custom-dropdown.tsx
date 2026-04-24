@@ -61,7 +61,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       {isOpen && (
         <Box
           className={cn(
-            "absolute top-full mt-1 z-50 bg-white border border-gray-200 rounded-md shadow-lg min-w-[200px]",
+            "absolute top-full mt-1 z-50 bg-card border border-border rounded-md shadow-lg min-w-[200px]",
             getAlignmentClasses(),
             className
           )}
@@ -89,7 +89,7 @@ export const CustomDropdownItem: React.FC<CustomDropdownItemProps> = ({
   return (
     <Flex
       className={cn(
-        "px-3 py-2 text-sm cursor-pointer hover:bg-gray-100",
+        "px-3 py-2 text-sm cursor-pointer hover:bg-muted",
         checked && "bg-blue-50 text-blue-700",
         className
       )}
@@ -97,11 +97,11 @@ export const CustomDropdownItem: React.FC<CustomDropdownItemProps> = ({
     >
       {checked && (
         <Center className="w-4 h-4 border-2 border-blue-500 bg-blue-500 rounded-full">
-          <Box className="w-2 h-2 bg-white rounded-sm"></Box>
+          <Box className="w-2 h-2 bg-background rounded-sm"></Box>
         </Center>
       )}
       {!checked && (
-        <Box className="w-4 h-4 border-2 border-gray-300 rounded-full"></Box>
+        <Box className="w-4 h-4 border-2 border-border rounded-full"></Box>
       )}
       {children}
     </Flex>

@@ -78,10 +78,10 @@ const PaymentLinksHeader: FC = () => {
     <PageWrapper className="mt-6">
       <Center className="justify-between px-4 py-6 max-sm:flex-col max-sm:items-start gap-2">
         <Stack className="gap-1">
-          <h1 className="text-black text-2xl max-sm:text-xl font-medium">
+          <h1 className="text-foreground text-2xl max-sm:text-xl font-medium">
             Payment Links
           </h1>
-          <h1 className={`max-sm:text-sm max-w-[600px] text-gray-500`}>
+          <h1 className={`max-sm:text-sm max-w-[600px] text-muted-foreground`}>
             Simplify Transactions with Instant Payment Links
           </h1>
         </Stack>
@@ -89,9 +89,9 @@ const PaymentLinksHeader: FC = () => {
         <Button
           onClick={() => modalProps.onOpenChange(true)}
           variant="outline"
-          className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+          className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
         >
-          <CirclePlus className="fill-white text-black size-5" />
+          <CirclePlus className="size-5 text-white" />
           Create Links
         </Button>
       </Center>
@@ -102,7 +102,7 @@ const PaymentLinksHeader: FC = () => {
         <h2 className="text-lg font-normal mb-4">Create Payment Link</h2>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Box className="bg-white/80 gap-4 grid grid-cols-1">
+            <Box className="bg-card/80 gap-4 grid grid-cols-1">
               <FormField
                 control={form.control}
                 name="clientId"
@@ -116,7 +116,7 @@ const PaymentLinksHeader: FC = () => {
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-gray-100"
                         >
                           <SelectValue placeholder="Select Client" />
                         </SelectTrigger>
@@ -147,7 +147,7 @@ const PaymentLinksHeader: FC = () => {
                       <FormControl className="w-full h-12">
                         <SelectTrigger
                           size="lg"
-                          className="bg-gray-100 border border-gray-200 rounded-full w-full h-12 placeholder:text-gray-100"
+                          className="bg-muted border border-border rounded-full w-full h-12 placeholder:text-gray-100"
                         >
                           <SelectValue placeholder="Select Project" />
                         </SelectTrigger>
@@ -173,7 +173,7 @@ const PaymentLinksHeader: FC = () => {
                     <FormLabel>Amount</FormLabel>
                     <FormControl>
                       <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
                         size="lg"
                         type="number"
                         step="0.01"
@@ -197,7 +197,7 @@ const PaymentLinksHeader: FC = () => {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="bg-white rounded-xl placeholder:text-gray-400 h-32"
+                        className="bg-card rounded-xl placeholder:text-muted-foreground h-32"
                         rows={4}
                         cols={50}
                         placeholder="Briefly describe the purpose of this payment link"
@@ -211,7 +211,7 @@ const PaymentLinksHeader: FC = () => {
 
               <Button
                 variant="outline"
-                className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+                className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
                 type="submit"
                 disabled={createPaymentLinkMutation.isPending}
               >

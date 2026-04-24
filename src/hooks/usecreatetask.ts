@@ -20,6 +20,7 @@ export interface CreateTaskRequest {
   parentId?: string;
   startAfter?: string | null;
   finishBefore?: string | null;
+  visibility?: "public" | "private";
 }
 
 export interface CreateTaskResponse {
@@ -52,7 +53,7 @@ export const useCreateTask = () => {
 
   return useMutation({
     mutationFn: async (
-      data: CreateTaskRequest
+      data: CreateTaskRequest,
     ): Promise<CreateTaskResponse> => {
       const response = await axios.post("/tasks/create", data);
       return response.data;
@@ -74,6 +75,9 @@ export const useCreateTask = () => {
         queryKey: ["organization-weekly-hours-tracked"],
       });
       queryClient.invalidateQueries({
+        queryKey: ["team-productivity"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["organization-active-projects"],
       });
 
@@ -88,9 +92,6 @@ export const useCreateTask = () => {
       const errorMessage =
         error.response?.data?.message || "Failed to create task";
       toast.error(errorMessage);
-      
     },
   });
 };
-
-

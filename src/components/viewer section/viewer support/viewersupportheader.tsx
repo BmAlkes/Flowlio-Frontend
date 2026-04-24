@@ -1,18 +1,12 @@
-import { ComponentWrapper } from "@/components/common/componentwrapper";
+import { ComponentWrapper } from "../../common/componentwrapper";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
-import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Stack } from "@/components/ui/stack";
+import { Button } from "../../ui/button";
+import { Stack } from "../../ui/stack";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
-} from "@/components/common/generalmodal";
+} from "../../common/generalmodal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
@@ -20,305 +14,411 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Form } from "@/components/ui/form"; // or "@/components/ui/form"
+} from "../../ui/form";
+import { Form } from "../../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Input } from "@/components/ui/input";
-import { useViewerSupportTickets } from "@/hooks/useViewerSupportTickets";
-import { useUser } from "@/providers/user.provider";
-import { useEffect } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "../../ui/input";
+import { Textarea } from "../../ui/textarea";
+import {
+  useUniversalSupportTickets,
+  getPriorityColor,
+  getStatusColor,
+  useCreateUniversalSupportTicket,
+  type CreateUniversalSupportTicketRequest,
+  type UniversalSupportTicket,
+} from "@/hooks/useUniversalSupportTickets";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   useDeleteAllNotifications,
   useNotifications,
   useMarkNotificationAsRead,
 } from "@/hooks/useNotifications";
-import { useNavigate } from "react-router";
-import { toast } from "sonner";
+import { ColumnDef } from "@tanstack/react-table";
+import { ReusableTable } from "@/components/reusable/reusabletable";
+import { Center } from "@/components/ui/center";
+import { format, formatDistanceToNow } from "date-fns";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { MessageCircle, Hash, Plus, Loader2, Calendar, Search, Filter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { SupportChatModal } from "../../support/supportchatmodal";
 
 const formSchema = z.object({
-  clientname: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  description: z.string().min(2, {
-    message: "Must be proper description",
-  }),
+  subject: z.string().min(1, "Subject is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  priority: z.enum(["high", "medium", "low", "urgent"]),
 });
 
 export const ViewerSupportHeader = () => {
-  const { data: user } = useUser();
-  const { data: ticketsData, isLoading, error } = useViewerSupportTickets();
-  const clearAllNotificationsMutation = useDeleteAllNotifications();
-  const { data: notificationsData } = useNotifications({ limit: 10 });
-  const markAsReadMutation = useMarkNotificationAsRead();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"all" | "open" | "closed">("all");
+  const [selectedTicket, setSelectedTicket] = useState<UniversalSupportTicket | null>(null);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
-  // Debug logging for viewer tickets
-  useEffect(() => {}, [ticketsData, isLoading, error, user]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientname: "",
+      subject: "",
       description: "",
+      priority: "medium",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const {
+    data: ticketsData,
+    isLoading: ticketsLoading,
+    refetch,
+  } = useUniversalSupportTickets();
+
+  const createTicketMutation = useCreateUniversalSupportTicket();
+  const createModalProps = useGeneralModalDisclosure();
+  const clearAllNotificationsMutation = useDeleteAllNotifications();
+  const { data: notificationsData } = useNotifications({ limit: 10 });
+  const markAsReadMutation = useMarkNotificationAsRead();
+
+  // Deep linking for notifications
+  useEffect(() => {
+    const ticketId = searchParams.get("ticketId");
+    if (ticketId && ticketsData?.data?.tickets) {
+      const targetTicket = ticketsData.data.tickets.find(t => t.id === ticketId);
+      if (targetTicket) {
+        setSelectedTicket(targetTicket);
+        setIsChatModalOpen(true);
+      }
+    }
+  }, [searchParams, ticketsData]);
+
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.read) markAsReadMutation.mutate(notification.id);
+    const ticketId = notification.data?.ticketId;
+    if (ticketId) navigate(`/viewer/viewer-support?ticketId=${ticketId}`);
+  };
+
+  const getTableColumns = (): ColumnDef<UniversalSupportTicket>[] => [
+    {
+      accessorKey: "ticketNumber",
+      header: () => <Box className="text-foreground font-semibold px-2">Ticket ID</Box>,
+      cell: ({ row }) => (
+        <Flex className="items-center gap-2 px-2">
+          <Hash className="size-3 text-blue-500" />
+          <span className="font-bold text-blue-600">#{row.original.ticketNumber}</span>
+        </Flex>
+      ),
+    },
+    {
+      accessorKey: "subject",
+      header: () => <Box className="text-foreground font-semibold">Requirement</Box>,
+      cell: ({ row }) => (
+        <p className="text-sm font-semibold text-foreground truncate max-w-[200px] capitalize">
+          {row.original.subject}
+        </p>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: () => <Box className="text-center text-foreground font-semibold">Status</Box>,
+      cell: ({ row }) => (
+        <Center>
+          <Badge variant="outline" className={`capitalize rounded-full px-3 py-1 border-none shadow-sm ${getStatusColor(row.original.status)}`}>
+            {row.original.status}
+          </Badge>
+        </Center>
+      ),
+    },
+    {
+      accessorKey: "priority",
+      header: () => <Box className="text-center text-foreground font-semibold">Level</Box>,
+      cell: ({ row }) => (
+        <Center>
+          <Badge variant="outline" className={`capitalize rounded-full px-3 py-1 border-none shadow-sm ${getPriorityColor(row.original.priority)}`}>
+            {row.original.priority}
+          </Badge>
+        </Center>
+      ),
+    },
+    {
+      accessorKey: "createdon",
+      header: () => <Box className="text-foreground font-semibold text-center">Submitted</Box>,
+      cell: ({ row }) => (
+        <Box className="text-xs text-muted-foreground text-center flex flex-col items-center">
+          <span className="font-medium text-foreground/80">{format(new Date(row.original.createdon), "MMM dd, yyyy")}</span>
+          <span className="text-[10px] opacity-70">{formatDistanceToNow(new Date(row.original.createdon), { addSuffix: true })}</span>
+        </Box>
+      ),
+    },
+    {
+      id: "actions",
+      header: () => <Box className="text-foreground font-semibold text-center">Interaction</Box>,
+      cell: ({ row }) => (
+        <Center>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-10 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 shadow-sm border border-transparent hover:border-blue-100 dark:hover:border-blue-500/30 transition-all"
+                  onClick={() => {
+                    setSelectedTicket(row.original);
+                    setIsChatModalOpen(true);
+                  }}
+                >
+                  <MessageCircle className="size-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Start Conversation</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Center>
+      ),
+    },
+  ];
+
+  const filteredTickets = ticketsData?.data?.tickets?.filter(t => {
+    if (activeTab === "open") return t.status === "open" || t.status === "in_progress";
+    if (activeTab === "closed") return t.status === "closed" || t.status === "resolved";
+    return true;
+  }) || [];
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const ticketData: CreateUniversalSupportTicketRequest = {
+        subject: values.subject,
+        description: values.description,
+        priority: values.priority,
+      };
+      await createTicketMutation.mutateAsync(ticketData);
+      form.reset();
+      createModalProps.onOpenChange(false);
+      refetch();
+      toast.success("Support ticket created. We'll get back to you soon!");
+    } catch (error) {
+      toast.error("Failed to create ticket. Please try again.");
+    }
   }
-  const modalProps = useGeneralModalDisclosure();
 
   return (
-    <ComponentWrapper className="mt-6 p-5 shadow-none">
-      <Flex className="justify-between max-md:flex-col max-md:items-start">
-        <Box>
-          <h1 className="text-2xl font-medium capitalize">
-            Support & Create Your Ticket
+    <ComponentWrapper className="mt-10 p-8 shadow-none pb-24">
+      {/* Header Section */}
+      <Flex className="justify-between items-end mb-10 border-b border-border pb-8">
+        <Stack className="gap-2">
+          <Badge className="w-fit bg-blue-100 text-blue-600 hover:bg-blue-100/80 border-none px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-1">
+            Support Center
+          </Badge>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+            How can we <span className="text-blue-600">help you?</span>
           </h1>
-          <p className="text-gray-500 mt-1 max-md:text-sm">
-            Need assistance? Create support ticket and our teams will get back
-            to you promptly.
+          <p className="text-muted-foreground text-sm max-w-lg">
+            Track your requests, communicate with our team, and get the assistance you need to keep moving forward.
           </p>
-        </Box>
-      </Flex>
-
-      <Flex className="justify-between max-md:flex-col max-md:items-start rounded-none bg-transparent border-b-2 border-gray-200 py-8 mt-10">
-        <Box>
-          <h1 className="text-md font-medium capitalize">Your Tickets</h1>
-          <p className="text-gray-500 mt-0 max-md:text-sm">
-            {ticketsData?.data?.tickets?.length === 0
-              ? "You have no tickets assigned to you yet!"
-              : `You have ${
-                  ticketsData?.data?.tickets?.length || 0
-                } ticket(s) assigned to you`}
-          </p>
-        </Box>
-
-        {/* Hide create button for viewers - they can only view assigned tickets */}
-        {user?.user.role !== "viewer" && (
-          <Button
-            variant="outline"
-            className="bg-black text-white border border-gray-200  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer h-11"
-            onClick={() => modalProps.onOpenChange(true)}
-          >
-            Create Ticket
-          </Button>
-        )}
-      </Flex>
-
-      <Flex className="justify-between max-md:flex-col max-md:items-start bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mt-5">
-        <Box className="flex-1">
-          <Flex className="items-center gap-3 mb-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <h1 className="text-lg font-semibold text-gray-800">
-              Your Ticket Notifications
-            </h1>
-          </Flex>
-          <Flex className="justify-between items-center">
-            <p className="text-gray-600 text-sm">
-              {notificationsData?.data?.notifications?.filter(
-                (n: any) => !n.read
-              )?.length || 0}{" "}
-              unread notifications
-              {notificationsData?.data?.notifications?.filter(
-                (n: any) => !n.read
-              )?.length === 0 && " - You're all caught up!"}
-            </p>
-            {notificationsData?.data?.notifications &&
-              notificationsData.data.notifications.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 ml-4"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to clear all notifications?"
-                      )
-                    ) {
-                      clearAllNotificationsMutation.mutate(undefined, {
-                        onSuccess: () => {
-                          toast.success("All notifications cleared");
-                        },
-                        onError: () => {
-                          toast.error("Failed to clear notifications");
-                        },
-                      });
-                    }
-                  }}
-                  disabled={clearAllNotificationsMutation.isPending}
-                >
-                  {clearAllNotificationsMutation.isPending
-                    ? "Clearing..."
-                    : "Clear All Notifications"}
-                </Button>
-              )}
-          </Flex>
-
-          {/* Notification List */}
-          {notificationsData?.data?.notifications &&
-            notificationsData.data.notifications.length > 0 && (
-              <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-                {notificationsData.data.notifications
-                  .sort((a: any, b: any) => {
-                    // Sort unread notifications first, then by date
-                    if (a.read !== b.read) {
-                      return a.read ? 1 : -1;
-                    }
-                    return (
-                      new Date(b.createdAt).getTime() -
-                      new Date(a.createdAt).getTime()
-                    );
-                  })
-                  .map((notification: any) => (
-                    <div
-                      key={notification.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors"
-                      onClick={() => {
-                        // Mark as read if not already read
-                        if (!notification.read) {
-                          markAsReadMutation.mutate(notification.id);
-                        }
-
-                        // Navigate to support tickets page for support ticket notifications
-                        if (notification.type.includes("support_ticket")) {
-                          navigate("/dashboard/viewer-support");
-                        }
-                      }}
-                    >
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          notification.read ? "bg-gray-400" : "bg-blue-500"
-                        }`}
-                      ></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-gray-600 truncate">
-                          {notification.message}
-                        </p>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(notification.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-
-          {(!notificationsData?.data?.notifications ||
-            notificationsData.data.notifications.length === 0) && (
-            <p className="text-gray-500 text-sm mt-2">
-              No notifications to show
-            </p>
-          )}
-        </Box>
-      </Flex>
-
-      <Flex className="flex-col items-start bg-transparent w-full mt-5">
-        <Box>
-          <h1 className="text-lg font-medium capitalize">Recent Tickets</h1>
-        </Box>
-
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          defaultValue="item-0"
+        </Stack>
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-8 h-14 font-bold shadow-xl shadow-blue-500/30 flex items-center gap-3 transition-transform active:scale-95"
+          onClick={() => createModalProps.onOpenChange(true)}
         >
-          {ticketsData?.data?.tickets?.length === 0 ? (
-            <Box className="bg-blue-50 border border-blue-200 rounded-md p-6 text-center">
-              <p className="text-blue-800 text-lg font-medium mb-2">
-                No tickets assigned to you yet
-              </p>
-              <p className="text-blue-600 text-sm">
-                When team members create support tickets and assign them to you,
-                they will appear here.
-              </p>
-            </Box>
-          ) : (
-            ticketsData?.data?.tickets?.map((ticket, index) => (
-              <AccordionItem key={ticket.id} value={`item-${index}`}>
-                <AccordionTrigger className="cursor-pointer">
-                  <Stack>
-                    <h1 className="font-normal hover:underline text-[18px] cursor-pointer">
-                      {ticket.subject}
-                    </h1>
-                    <p className="text-[#797979] text-sm font-normal">
-                      Posted on{" "}
-                      {new Date(ticket.createdon).toLocaleDateString()}
-                    </p>
-                  </Stack>
-                </AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance capitalize">
-                  <p>{ticket.description}</p>
-                  <p className="text-sm text-gray-600">
-                    Priority: {ticket.priority} | Status: {ticket.status}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            ))
-          )}
-        </Accordion>
+          <Plus className="size-5" />
+          Raise New Ticket
+        </Button>
       </Flex>
 
-      <GeneralModal {...modalProps}>
-        <h2 className="text-lg font-normal mb-4">Create Ticket</h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <Box className="bg-white/80 gap-4 grid grid-cols-1">
-              <FormField
-                control={form.control}
-                name="clientname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-white rounded-full placeholder:text-gray-400"
-                        size="lg"
-                        type="text"
-                        placeholder="Enter your name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={4}
-                        className="bg-white rounded-md placeholder:text-gray-400"
-                        maxLength={100}
-                        placeholder="Enter your description"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      {/* Grid Layout for Notifications and Table */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Notifications */}
+        <div className="lg:col-span-3 space-y-6">
+          <Box className="bg-gradient-to-br from-white to-blue-50/30 dark:from-muted/20 dark:to-muted/5 p-6 rounded-[2rem] border border-blue-100 dark:border-border/50 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-blue-200/40 transition-colors"></div>
+            
+            <Flex className="justify-between items-center mb-6 relative">
+              <Flex className="items-center gap-3">
+                <div className="size-3 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                <h3 className="font-bold text-foreground">Updates</h3>
+              </Flex>
+              {notificationsData?.data?.notifications?.length ? (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-[10px] h-6 px-2 text-red-500 hover:bg-red-50 font-bold uppercase tracking-tighter"
+                  onClick={() => clearAllNotificationsMutation.mutate()}
+                >
+                  Clear
+                </Button>
+              ) : null}
+            </Flex>
 
-              <Button
-                variant="outline"
-                className="bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-gray-200 rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
-                type="submit"
-              >
-                Create
-              </Button>
+            <Box className="space-y-3 relative">
+              {notificationsData?.data?.notifications?.length ? (
+                notificationsData.data.notifications.map((n: any) => (
+                  <div
+                    key={n.id}
+                    className={`p-3 rounded-2xl cursor-pointer transition-all border ${n.read ? "bg-white/50 dark:bg-muted/10 border-transparent text-foreground/70" : "bg-white dark:bg-muted/20 border-blue-100 dark:border-blue-500/20 shadow-sm hover:border-blue-400 dark:hover:border-blue-500"}`}
+                    onClick={() => handleNotificationClick(n)}
+                  >
+                    <p className={`text-xs ${n.read ? "text-foreground/60" : "font-bold text-foreground"}`}>{n.title}</p>
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">{n.message}</p>
+                  </div>
+                ))
+              ) : (
+                <Center className="py-8 text-muted-foreground italic text-xs">No updates at the moment</Center>
+              )}
             </Box>
+          </Box>
+        </div>
+
+        {/* Right Column: Dynamic Table */}
+        <div className="lg:col-span-9">
+          <Box className="bg-white dark:bg-muted/10 p-7 rounded-[2.5rem] border border-border shadow-sm">
+            <Flex className="justify-between items-center mb-8">
+              <Flex className="gap-2 bg-muted/30 p-1 rounded-2xl border border-border/50">
+                <Button
+                  variant={activeTab === "all" ? "default" : "ghost"}
+                  size="sm"
+                  className={`rounded-xl px-6 h-10 ${activeTab === "all" ? "bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow-sm font-bold border border-blue-100 dark:border-blue-500/30" : "text-muted-foreground font-medium hover:bg-muted"}`}
+                  onClick={() => setActiveTab("all")}
+                >
+                  All History
+                </Button>
+                <Button
+                  variant={activeTab === "open" ? "default" : "ghost"}
+                  size="sm"
+                  className={`rounded-xl px-6 h-10 ${activeTab === "open" ? "bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow-sm font-bold border border-blue-100 dark:border-blue-500/30" : "text-muted-foreground font-medium hover:bg-muted"}`}
+                  onClick={() => setActiveTab("open")}
+                >
+                  Active
+                </Button>
+                <Button
+                  variant={activeTab === "closed" ? "default" : "ghost"}
+                  size="sm"
+                  className={`rounded-xl px-6 h-10 ${activeTab === "closed" ? "bg-white dark:bg-blue-600 text-blue-600 dark:text-white shadow-sm font-bold border border-blue-100 dark:border-blue-500/30" : "text-muted-foreground font-medium hover:bg-muted"}`}
+                  onClick={() => setActiveTab("closed")}
+                >
+                  Resolved
+                </Button>
+              </Flex>
+              
+              <Flex className="gap-2">
+                <Button variant="outline" size="icon" className="rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50"><Search className="size-4"/></Button>
+                <Button variant="outline" size="icon" className="rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50"><Filter className="size-4"/></Button>
+              </Flex>
+            </Flex>
+
+            {ticketsLoading ? (
+              <Center className="h-80 flex-col gap-4 opacity-70">
+                <div className="relative">
+                  <div className="size-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="size-5 text-blue-500 animate-pulse" />
+                  </div>
+                </div>
+                <p className="font-bold text-blue-600/60 tracking-widest text-[10px] uppercase">Retrieving Records</p>
+              </Center>
+            ) : filteredTickets.length === 0 ? (
+              <Center className="h-80 flex-col gap-3 text-muted-foreground">
+                <div className="bg-muted/40 p-4 rounded-full mb-2"><Hash className="size-8 opacity-20"/></div>
+                <p className="font-medium">No records found for this category</p>
+              </Center>
+            ) : (
+              <ReusableTable columns={getTableColumns()} data={filteredTickets} />
+            )}
+          </Box>
+        </div>
+      </div>
+
+      {/* Modern Interaction Modal */}
+      <SupportChatModal 
+        isOpen={isChatModalOpen} 
+        ticket={selectedTicket} 
+        onClose={() => {
+          setIsChatModalOpen(false);
+          setSelectedTicket(null);
+        }} 
+      />
+
+      {/* Creation Flow Modal */}
+      <GeneralModal open={createModalProps.open} onOpenChange={createModalProps.onOpenChange} contentProps={{ className: "max-w-2xl rounded-[2.5rem] p-6 border-none shadow-2xl" }}>
+        <Stack className="gap-1 mb-4 border-b border-border pb-4">
+          <Badge className="w-fit bg-orange-100 text-orange-600 border-none px-3 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase">New Submission</Badge>
+          <h2 className="text-3xl font-black text-foreground tracking-tight">Technical Assistance</h2>
+          <p className="text-muted-foreground text-sm">Please provide a clear subject and detailed description of your request.</p>
+        </Stack>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                    <Calendar className="size-3"/> Topic / Summary
+                  </FormLabel>
+                  <FormControl>
+                    <Input className="h-12 rounded-2xl border-border bg-muted/20 focus:bg-white focus:ring-blue-500 transition-all font-medium" placeholder="E.g. Access problem with module X" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                    <Hash className="size-3"/> Full Description
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-[120px] rounded-3xl border-border bg-muted/20 focus:bg-white focus:ring-blue-500 transition-all p-4 font-medium leading-relaxed" placeholder="Tell us more about the issue or request..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                    Urgency Level
+                  </FormLabel>
+                  <Flex className="gap-2 p-1 bg-muted/30 rounded-2xl border border-border/50">
+                    {["low", "medium", "high", "urgent"].map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === level ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                        onClick={() => field.onChange(level)}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </Flex>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Flex className="justify-end gap-3 pt-6 border-t border-border mt-10">
+              <Button type="button" variant="ghost" className="rounded-2xl px-8 h-14 font-bold text-muted-foreground" onClick={() => createModalProps.onOpenChange(false)}>Discard</Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-12 h-14 font-black shadow-xl shadow-blue-500/20 transition-all active:scale-95" disabled={createTicketMutation.isPending}>
+                {createTicketMutation.isPending ? <Loader2 className="animate-spin size-5"/> : "Submit Request"}
+              </Button>
+            </Flex>
           </form>
         </Form>
       </GeneralModal>
     </ComponentWrapper>
   );
 };
+
+

@@ -105,9 +105,9 @@ export const GoogleCalendarIntegration: React.FC<
             className="p-1 h-6 w-6 cursor-pointer"
           >
             {isExpanded ? (
-              <ChevronUp className="size-4 cursor-pointer text-gray-500 transition-transform duration-300" />
+              <ChevronUp className="size-4 cursor-pointer text-muted-foreground transition-transform duration-300" />
             ) : (
-              <ChevronDown className="size-4 cursor-pointer text-gray-500 transition-transform duration-300" />
+              <ChevronDown className="size-4 cursor-pointer text-muted-foreground transition-transform duration-300" />
             )}
           </Button>
         </Flex>
@@ -224,7 +224,7 @@ export const GoogleCalendarIntegration: React.FC<
 
               {googleCalendars.length > 0 && (
                 <Flex className="flex-col gap-1 w-full mt-2">
-                  <span className="text-xs text-gray-500 font-medium">
+                  <span className="text-xs text-muted-foreground font-medium">
                     Available Calendars:
                   </span>
                   {googleCalendars
@@ -232,14 +232,14 @@ export const GoogleCalendarIntegration: React.FC<
                     .map((calendar: any, index: number) => (
                       <Center
                         key={index}
-                        className="gap-2 text-xs text-gray-600"
+                        className="gap-2 text-xs text-muted-foreground"
                       >
                         <Box className="w-2 h-2 bg-blue-500 rounded-full" />
                         <span className="truncate">{calendar.summary}</span>
                       </Center>
                     ))}
                   {googleCalendars.length > 3 && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       +{googleCalendars.length - 3} more
                     </span>
                   )}

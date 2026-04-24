@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatHour, platformColors, CustomEvent } from "./calendarUtils";
+import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import GoogleMeetIcon from "/dashboard/google-meet.svg";
 import WhatsappIcon from "/dashboard/whatsapp-icon.svg";
 import OutlookIcon from "/dashboard/google-drive.svg";
@@ -41,24 +44,28 @@ export const DayView: React.FC<DayViewProps> = ({
   editEventModalProps,
   hidePopupTimeout,
 }) => {
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+  const currentLocale = currentLanguage === "es" ? es : enUS;
+
   return (
     <>
       {/* Date Row */}
-      <Box className="grid grid-cols-[80px_1fr] bg-[#F8FAFC] border-b border-[#E5E7EB] mt-6">
+      <Box className="grid grid-cols-[80px_1fr] bg-background border-b border-border mt-6">
         <Box></Box>
         <Center
           className={cn(
-            "gap-1 text-center text-sm font-normal text-[#323334] rounded-lg w-17 h-8 m-auto mb-3",
+            "gap-1 text-center text-sm font-normal text-foreground rounded-lg w-17 h-8 m-auto mb-3",
             currentDate.toDateString() === new Date().toDateString() &&
-              "text-white bg-[#1797B9]",
-            currentDate.getDay() === 0 && "bg-[#FFE5E5] text-[#D32F2F]"
+              "text-primary-foreground bg-primary",
+            currentDate.getDay() === 0 && "bg-destructive/10 text-destructive"
           )}
           style={{
             padding: "12px 0 8px 0",
           }}
         >
           <Box>
-            {currentDate.toLocaleDateString("en-US", { weekday: "short" })}
+            {format(currentDate, "EEE", { locale: currentLocale })}
           </Box>
           <Box>{currentDate.getDate()}</Box>
         </Center>
@@ -72,11 +79,11 @@ export const DayView: React.FC<DayViewProps> = ({
       >
         {hours.map((hour) => (
           <React.Fragment key={hour}>
-            <Box className="text-center p-3 bg-white font-normal text-[#888] text-sm flex items-center justify-center">
-              {formatHour(hour)}
+            <Box className="text-center p-3 bg-card font-normal text-muted-foreground text-sm flex items-center justify-center">
+              {formatHour(hour, currentLanguage)}
             </Box>
             <Box
-              className="text-center p-0 border border-gray-200 min-h-[79px] min-w-[86px] relative bg-white"
+              className="text-center p-0 border border-border min-h-[79px] min-w-[86px] relative bg-card"
               style={{
                 border: "0.5px solid #eee",
               }}
@@ -200,8 +207,8 @@ export const DayView: React.FC<DayViewProps> = ({
 
                       {/* Event time */}
                       <span className={cn("text-xs text-black/80")}>
-                        {formatHour(event.startHour)} -{" "}
-                        {formatHour(event.endHour)}
+                        {formatHour(event.startHour, currentLanguage)} -{" "}
+                        {formatHour(event.endHour, currentLanguage)}
                       </span>
 
                       {/* Edit icon on hover */}
@@ -215,7 +222,7 @@ export const DayView: React.FC<DayViewProps> = ({
                             setEditEvent(event);
                             editEventModalProps.onOpenChange(true);
                           }}
-                          title="Edit"
+                          title={t("common.edit")}
                         >
                           <Pencil />
                         </Button>

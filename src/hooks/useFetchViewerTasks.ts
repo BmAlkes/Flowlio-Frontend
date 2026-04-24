@@ -28,15 +28,22 @@ export interface ViewerTask {
   creatorId: string;
   creatorName: string;
   creatorEmail: string;
+  // Attachments
+  attachments?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    size: number;
+    type: string;
+  }>;
 }
 
 export const useFetchViewerTasks = () => {
   return useQuery<ApiResponse<ViewerTask[]>>({
     queryKey: ["viewer-tasks"],
     queryFn: async () => {
-      const response = await axios.get<ApiResponse<ViewerTask[]>>(
-        "/viewer/tasks"
-      );
+      const response =
+        await axios.get<ApiResponse<ViewerTask[]>>("/viewer/tasks");
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
