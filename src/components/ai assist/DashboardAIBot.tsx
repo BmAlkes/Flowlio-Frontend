@@ -1071,7 +1071,7 @@ Description: ${userInput}`,
           setIsOpen(true);
           setIsMinimized(false);
         }}
-        className="w-20 h-20 fixed bottom-12 right-0 z-50 cursor-pointer bg-transparent"
+        className="w-20 h-20 fixed bottom-16 right-2 z-10 cursor-pointer bg-transparent"
       >
         <img
           src={botGif}
