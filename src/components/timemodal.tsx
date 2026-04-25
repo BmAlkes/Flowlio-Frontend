@@ -116,17 +116,19 @@ export default function TimeModal() {
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        className="
-          fixed bottom-6 right-6 z-50 size-14 rounded-full p-0
-          bg-[#0f172a] border border-white/10 shadow-[0_20px_60px_rgba(15,23,42,0.35)]
-          hover:bg-[#111827] hover:scale-105 transition-all duration-300
-        "
-        aria-label="Open timer"
-      >
-        <img src="/dashboard/clock.svg" className="size-7" alt="clock" />
-      </Button>
+     <Button
+  onClick={() => setOpen(true)}
+  className="
+    fixed bottom-6 right-6 z-50 size-14 rounded-full
+    bg-[#0f172a]/95 backdrop-blur-xl
+    border border-white/10
+    shadow-[0_20px_60px_rgba(0,0,0,0.35)]
+    hover:scale-105 hover:bg-[#111827]
+    transition-all duration-300
+  "
+>
+  <Clock3 className="size-6 text-white" strokeWidth={2.2} />
+</Button>
 
       {open && (
         <Stack className="fixed bottom-6 right-6 z-50 items-end pointer-events-none">
