@@ -1,7 +1,6 @@
 import { Stack } from "@/components/ui/stack";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
-import { Center } from "@/components/ui/center";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
@@ -73,7 +72,7 @@ const ActiveTableTimer = ({ startTime }: { startTime: string }) => {
   };
 
   return (
-    <span className="text-lg font-mono font-bold text-green-600">
+    <span className="text-sm font-mono font-semibold tabular-nums text-foreground">
       {formatTime(elapsed)}
     </span>
   );
@@ -400,11 +399,12 @@ const TimeTrackingPage = () => {
               ? "active"
               : row.original.status;
           return normalized === "active" ? (
-            <span className="px-2 py-1 mx-auto block bg-green-100 text-green-800 text-xs font-medium rounded-full w-20 text-center capitalize">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 mx-auto text-xs font-medium rounded-full border border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               {t("timeTracking.active")}
             </span>
           ) : (
-            <span className="px-2 py-1 mx-auto block bg-muted text-gray-800 text-xs font-medium rounded-full w-20 text-center capitalize">
+            <span className="inline-flex items-center px-2.5 py-1 mx-auto text-xs font-medium rounded-full border border-border bg-muted text-muted-foreground">
               {t("timeTracking.completed")}
             </span>
           );
@@ -479,23 +479,18 @@ const TimeTrackingPage = () => {
   }, [appliedProject, appliedTask, appliedStatus]);
 
   return (
-    <Stack className="pt-5 gap-6 px-2">
-      {/* Header */}
-      <Box className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <Flex className="items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t("timeTracking.title")}</h1>
-            <p className="text-muted-foreground mt-1">
-              {t("timeTracking.subtitle")}
-            </p>
-          </div>
-          <Center className="w-16 h-16 bg-blue-100 rounded-full">
-            <Clock className="w-8 h-8 text-blue-600" />
-          </Center>
-        </Flex>
-      </Box>
- 
-      {/* Stats Cards */}
+    <Stack className="pt-6 gap-6 px-2">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          {t("timeTracking.title")}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {t("timeTracking.subtitle")}
+        </p>
+      </div>
+
+      {/* Stats */}
       <Flex className="gap-4">
         {loading && !weeklyHours ? (
           <>
@@ -504,90 +499,79 @@ const TimeTrackingPage = () => {
           </>
         ) : (
           <>
-            <Box className="flex-1 bg-card rounded-xl p-6 shadow-sm border border-border">
-              <Flex className="items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {t("timeTracking.weeklyHours")}
-                  </h3>
-                  <p className="text-3xl font-bold text-blue-600 mt-2">
-                    {formatHours(weeklyHours?.data?.weeklyHours || 0)}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">{t("timeTracking.thisWeek")}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-blue-600" />
+            <Box className="flex-1 bg-card border border-border rounded-xl p-5">
+              <Flex className="items-center gap-2 mb-3">
+                <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  {t("timeTracking.weeklyHours")}
+                </p>
               </Flex>
+              <p className="text-3xl font-bold tabular-nums text-foreground">
+                {formatHours(weeklyHours?.data?.weeklyHours || 0)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1.5">{t("timeTracking.thisWeek")}</p>
             </Box>
- 
-            <Box className="flex-1 bg-card rounded-xl p-6 shadow-sm border border-border">
-              <Flex className="items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {t("timeTracking.activeTracking")}
-                  </h3>
-                  <p className="text-3xl font-bold text-green-600 mt-2">
-                    {isTracking ? t("timeTracking.yes") : t("timeTracking.no")}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {isTracking ? t("timeTracking.currentlyTracking") : t("timeTracking.notTracking")}
-                  </p>
-                </div>
-                <Play className="w-8 h-8 text-green-600" />
+
+            <Box className="flex-1 bg-card border border-border rounded-xl p-5">
+              <Flex className="items-center gap-2 mb-3">
+                <Play className="w-4 h-4 text-muted-foreground" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  {t("timeTracking.activeTracking")}
+                </p>
               </Flex>
+              <Flex className="items-center gap-2">
+                {isTracking && (
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+                )}
+                <p className="text-3xl font-bold tabular-nums text-foreground">
+                  {isTracking ? t("timeTracking.yes") : t("timeTracking.no")}
+                </p>
+              </Flex>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {isTracking ? t("timeTracking.currentlyTracking") : t("timeTracking.notTracking")}
+              </p>
             </Box>
           </>
         )}
       </Flex>
 
-      {/* Time Tracking Controls */}
-      <Box className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-6">
+      {/* Tracking Controls */}
+      <Box className="bg-card rounded-xl border border-border p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-5">
           {t("timeTracking.quickTimeTracking")}
-        </h2>
+        </p>
 
-        {/* Show active tracking info with real-time timer */}
+        {/* Active tracking banner */}
         {isTracking && activeTimeEntry && (
-          <Box className="bg-green-50 border-2 border-green-300 rounded-lg p-6 mb-6">
-            <Flex className="items-center justify-between flex-wrap gap-4">
-              <div className="flex-1 min-w-[300px]">
+          <Box className="rounded-lg border border-border bg-muted/40 p-5 mb-5">
+            <Flex className="items-start justify-between gap-6 flex-wrap">
+              <div>
                 <Flex className="items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <h3 className="font-bold text-green-800 text-lg">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-green-600">
                     {t("timeTracking.currentlyTrackingHeader")}
-                  </h3>
-                </Flex>
-                <Stack className="gap-2">
-                  <p className="text-green-700">
-                    <strong>{t("timeTracking.task")}:</strong> {activeTimeEntry.taskTitle}
-                  </p>
-                  <p className="text-green-700">
-                    <strong>{t("timeTracking.project")}:</strong> {activeTimeEntry.projectName}
-                  </p>
-                  <p className="text-green-700">
-                    <strong>{t("timeTracking.startedAt")}:</strong>{" "}
-                    {format(new Date(activeTimeEntry.startTime), "PPpp")}
-                  </p>
-                  <p className="text-green-700 text-sm">
-                    {t("timeTracking.started")}{" "}
-                    {formatDistanceToNow(new Date(activeTimeEntry.startTime))}{" "}
-                    {t("timeTracking.ago")}
-                  </p>
-                </Stack>
-              </div>
-              <div className="flex flex-col items-center gap-4">
-                <Box className="bg-card border-2 border-green-400 rounded-lg p-4 text-center min-w-[200px]">
-                  <p className="text-sm text-muted-foreground mb-2">{t("timeTracking.elapsedTime")}</p>
-                  <span className="text-4xl font-mono font-bold text-green-600">
-                    {formatTime(elapsedTime)}
                   </span>
-                  <p className="text-xs text-muted-foreground mt-2">{t("timeTracking.running")}</p>
-                </Box>
+                </Flex>
+                <p className="font-semibold text-foreground">{activeTimeEntry.taskTitle}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{activeTimeEntry.projectName}</p>
+                <p className="text-xs text-muted-foreground mt-3">
+                  {t("timeTracking.started")}{" "}
+                  {formatDistanceToNow(new Date(activeTimeEntry.startTime))}{" "}
+                  {t("timeTracking.ago")}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-4">
+                <p className="text-4xl font-mono font-bold tracking-tighter tabular-nums text-foreground">
+                  {formatTime(elapsedTime)}
+                </p>
                 <Button
                   onClick={handleStop}
                   disabled={endTaskMutation.isPending}
-                  className="bg-red-500 hover:bg-red-600 text-white px-6 cursor-pointer"
+                  variant="destructive"
+                  size="sm"
+                  className="cursor-pointer"
                 >
-                  <Square className="w-4 h-4 mr-2" />
+                  <Square className="w-3.5 h-3.5 mr-1.5" />
                   {endTaskMutation.isPending ? t("timeTracking.stopping") : t("timeTracking.stopTracking")}
                 </Button>
               </div>
@@ -595,10 +579,10 @@ const TimeTrackingPage = () => {
           </Box>
         )}
 
-        {/* Project and Task Selection */}
-        <Flex className="gap-4 mb-6">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-foreground mb-2">
+        {/* Selects + Start */}
+        <Flex className="gap-4 flex-wrap items-end">
+          <div className="flex-1 min-w-[180px]">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
               Project
             </label>
             <Select
@@ -620,8 +604,8 @@ const TimeTrackingPage = () => {
             </Select>
           </div>
 
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-foreground mb-2">
+          <div className="flex-1 min-w-[180px]">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
               Task
             </label>
             <Select
@@ -641,31 +625,30 @@ const TimeTrackingPage = () => {
               </SelectContent>
             </Select>
           </div>
-        </Flex>
 
-        {/* Start Button */}
-        {!isTracking && (
-          <Button
-            onClick={handleStart}
-            disabled={!selectedTask || startTaskMutation.isPending}
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-3"
-          >
-            <Play className="w-5 h-5 mr-2" />
-            {startTaskMutation.isPending ? t("timeTracking.starting") : t("timeTracking.startTracking")}
-          </Button>
-        )}
+          {!isTracking && (
+            <Button
+              onClick={handleStart}
+              disabled={!selectedTask || startTaskMutation.isPending}
+              className="cursor-pointer"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              {startTaskMutation.isPending ? t("timeTracking.starting") : t("timeTracking.startTracking")}
+            </Button>
+          )}
+        </Flex>
       </Box>
 
-      {/* Time Entries History */}
-      <Box className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-6">
+      {/* History */}
+      <Box className="bg-card rounded-xl border border-border p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-5">
           {t("timeTracking.history")}
-        </h2>
+        </p>
 
         {/* Filters */}
-        <Flex className="gap-4 mb-4 flex-wrap">
-          <div className="min-w-[220px]">
-            <label className="block text-sm font-medium text-foreground mb-2">
+        <Flex className="gap-3 mb-5 flex-wrap items-end">
+          <div className="min-w-[180px]">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
               Project
             </label>
             <Select
@@ -690,14 +673,11 @@ const TimeTrackingPage = () => {
             </Select>
           </div>
 
-          <div className="min-w-[220px]">
-            <label className="block text-sm font-medium text-foreground mb-2">
+          <div className="min-w-[180px]">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
               Task
             </label>
-            <Select
-              value={historyTask}
-              onValueChange={(v) => setHistoryTask(v)}
-            >
+            <Select value={historyTask} onValueChange={(v) => setHistoryTask(v)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("timeTracking.allTasks")} />
               </SelectTrigger>
@@ -712,8 +692,8 @@ const TimeTrackingPage = () => {
             </Select>
           </div>
 
-          <div className="min-w-[180px]">
-            <label className="block text-sm font-medium text-foreground mb-2">
+          <div className="min-w-[140px]">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
               {t("timeTracking.status")}
             </label>
             <Select
@@ -731,108 +711,103 @@ const TimeTrackingPage = () => {
             </Select>
           </div>
 
-          <div className="self-end ml-auto">
-            <Flex className="gap-2">
-              <Button
-                variant="outline"
-                className="cursor-pointer"
-                onClick={() => {
-                  setHistoryProject("all");
-                  setHistoryTask("all_tasks");
-                  setHistoryStatus("all");
-                }}
-              >
-                {t("timeTracking.clear")}
-              </Button>
-              <Button
-                className="cursor-pointer"
-                onClick={() => {
-                  setAppliedProject(historyProject);
-                  setAppliedTask(historyTask);
-                  setAppliedStatus(historyStatus as any);
-                }}
-              >
-                {t("timeTracking.applyFilter")}
-              </Button>
-            </Flex>
-          </div>
+          <Flex className="gap-2 ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="cursor-pointer text-muted-foreground"
+              onClick={() => {
+                setHistoryProject("all");
+                setHistoryTask("all_tasks");
+                setHistoryStatus("all");
+              }}
+            >
+              {t("timeTracking.clear")}
+            </Button>
+            <Button
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => {
+                setAppliedProject(historyProject);
+                setAppliedTask(historyTask);
+                setAppliedStatus(historyStatus as any);
+              }}
+            >
+              {t("timeTracking.applyFilter")}
+            </Button>
+          </Flex>
         </Flex>
 
-        <Box className="">
-          {loading && !allTimeEntries ? (
-            <TableSkeleton rows={5} />
-          ) : hasError ? (
-            <ErrorState
-              title="Failed to load time entries"
-              message="We encountered an issue fetching your history. Please try again."
-              onRetry={() => {
-                refetchAll();
-                refetchActive();
-              }}
-            />
-          ) : (() => {
-            const filteredEntries = (
-              (allTimeEntries?.data as any[]) || []
-            ).filter((row: any) => {
-              const matchProject =
-                appliedProject === "all" ||
-                String(row.projectId) === String(appliedProject);
-              const matchTask =
-                appliedTask === "all_tasks" ||
-                String(row.taskId) === String(appliedTask);
-              const normalizedStatus =
-                row.status === "in_progress" ? "active" : row.status;
-              const matchStatus =
-                appliedStatus === "all" ||
-                appliedStatus === "" ||
-                String(normalizedStatus) === String(appliedStatus);
-              return matchProject && matchTask && matchStatus;
-            });
+        {loading && !allTimeEntries ? (
+          <TableSkeleton rows={5} />
+        ) : hasError ? (
+          <ErrorState
+            title="Failed to load time entries"
+            message="We encountered an issue fetching your history. Please try again."
+            onRetry={() => {
+              refetchAll();
+              refetchActive();
+            }}
+          />
+        ) : (() => {
+          const filteredEntries = (
+            (allTimeEntries?.data as any[]) || []
+          ).filter((row: any) => {
+            const matchProject =
+              appliedProject === "all" ||
+              String(row.projectId) === String(appliedProject);
+            const matchTask =
+              appliedTask === "all_tasks" ||
+              String(row.taskId) === String(appliedTask);
+            const normalizedStatus =
+              row.status === "in_progress" ? "active" : row.status;
+            const matchStatus =
+              appliedStatus === "all" ||
+              appliedStatus === "" ||
+              String(normalizedStatus) === String(appliedStatus);
+            return matchProject && matchTask && matchStatus;
+          });
 
-            if (filteredEntries.length > 0) {
-              return (
-                <div className="w-full overflow-x-auto">
-                  <ReusableTable
-                    key={`${appliedProject}|${appliedTask}|${appliedStatus}`}
-                    data={filteredEntries as any[]}
-                    columns={columns as any}
-                    enableGlobalFilter={true}
-                    searchClassName="rounded-full"
-                    filterClassName="rounded-full"
-                    enablePaymentLinksCalender={false}
-                    defaultColumnFilters={tableColumnFilters as any}
-                    externalColumnFilters={tableColumnFilters as any}
-                  />
-                </div>
-              );
-            }
-
-            // Empty state with messaging tailored to filters
-            const hasAnyFilter =
-              appliedProject !== "all" ||
-              appliedTask !== "all_tasks" ||
-              (appliedStatus !== "all" && appliedStatus !== "");
-
-            let message = "No time entries found";
-            if (hasAnyFilter) {
-              if (appliedStatus === "active")
-                message = "No active time entries";
-              else if (appliedStatus === "completed")
-                message = "No completed time entries";
-              else message = "No entries available for the selected filters";
-            }
-
+          if (filteredEntries.length > 0) {
             return (
-              <div className="text-center py-8">
-                <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">{message}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Start tracking time to see your entries here
-                </p>
+              <div className="w-full overflow-x-auto">
+                <ReusableTable
+                  key={`${appliedProject}|${appliedTask}|${appliedStatus}`}
+                  data={filteredEntries as any[]}
+                  columns={columns as any}
+                  enableGlobalFilter={true}
+                  searchClassName="rounded-full"
+                  filterClassName="rounded-full"
+                  enablePaymentLinksCalender={false}
+                  defaultColumnFilters={tableColumnFilters as any}
+                  externalColumnFilters={tableColumnFilters as any}
+                />
               </div>
             );
-          })()}
-        </Box>
+          }
+
+          const hasAnyFilter =
+            appliedProject !== "all" ||
+            appliedTask !== "all_tasks" ||
+            (appliedStatus !== "all" && appliedStatus !== "");
+
+          let message = "No time entries found";
+          if (hasAnyFilter) {
+            if (appliedStatus === "active") message = "No active time entries";
+            else if (appliedStatus === "completed") message = "No completed time entries";
+            else message = "No entries available for the selected filters";
+          }
+
+          return (
+            <div className="flex flex-col items-center py-12 gap-2">
+              <Clock className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-sm font-medium text-muted-foreground">{message}</p>
+              <p className="text-xs text-muted-foreground/60">
+                Start tracking time to see your entries here
+              </p>
+            </div>
+          );
+        })()}
       </Box>
     </Stack>
   );
