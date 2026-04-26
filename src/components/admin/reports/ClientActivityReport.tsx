@@ -26,7 +26,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Briefcase, Clock, FileDown, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exportClientActivityCSV, exportClientActivityPDF } from "@/utils/reportExport";
+import {
+  exportClientActivityCSV,
+  exportClientActivityPDF,
+} from "@/utils/reportExport";
 
 const PROJECT_COLORS: Record<string, string> = {
   active: "#3b82f6",
@@ -46,7 +49,14 @@ const STATUS_BADGE_COLORS: Record<string, string> = {
   "Inactive Client": "bg-slate-100 text-slate-600",
 };
 
-const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#94a3b8"];
+const PIE_COLORS = [
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#94a3b8",
+];
 
 const ClientActivityReport: React.FC = () => {
   const { data, isLoading, error } = useFetchClientActivity();
@@ -80,8 +90,21 @@ const ClientActivityReport: React.FC = () => {
 
   // Summary stats
   const totalClients = clientStats.length;
-  const totalProjects = clientStats.reduce((sum, c) => sum + c.projects.total, 0);
-  const totalHours = clientStats.reduce((sum, c) => sum + c.hoursTracked, 0).toFixed(1);
+  const totalProjects = clientStats.reduce(
+    (sum, c) => sum + c.projects.total,
+    0,
+  );
+  // Aggregate using totalMinutes from new timeTracked object
+  const grandTotalMinutes = clientStats.reduce(
+    (sum, c) => sum + (c.timeTracked?.totalMinutes ?? c.hoursTracked * 60 ?? 0),
+    0
+  );
+  const grandHours = Math.floor(grandTotalMinutes / 60);
+  const grandMins = Math.round(grandTotalMinutes % 60);
+  const totalTimeLabel =
+    grandHours > 0
+      ? `${grandHours}h ${grandMins}m`
+      : `${grandMins}m`;
 
   // Chart data for top 8 clients by projects
   const topClientChartData = clientStats.slice(0, 8).map((c) => ({
@@ -144,8 +167,10 @@ const ClientActivityReport: React.FC = () => {
               <Clock className="w-6 h-6 text-purple-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Hours Tracked</p>
-              <p className="text-2xl font-bold">{totalHours} hrs</p>
+              <p className="text-sm text-muted-foreground">
+                Total Time Tracked
+              </p>
+              <p className="text-2xl font-bold">{totalTimeLabel}</p>
             </div>
           </CardContent>
         </Card>
@@ -166,8 +191,16 @@ const ClientActivityReport: React.FC = () => {
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topClientChartData} layout="vertical" margin={{ left: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.3} />
+                <BarChart
+                  data={topClientChartData}
+                  layout="vertical"
+                  margin={{ left: 10 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    horizontal={false}
+                    opacity={0.3}
+                  />
                   <XAxis type="number" axisLine={false} tickLine={false} />
                   <YAxis
                     dataKey="name"
@@ -190,7 +223,12 @@ const ClientActivityReport: React.FC = () => {
                   <Bar dataKey="Active" stackId="a" fill="#3b82f6" />
                   <Bar dataKey="Completed" stackId="a" fill="#10b981" />
                   <Bar dataKey="Delayed" stackId="a" fill="#ef4444" />
-                  <Bar dataKey="Pending" stackId="a" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                  <Bar
+                    dataKey="Pending"
+                    stackId="a"
+                    fill="#f59e0b"
+                    radius={[0, 4, 4, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -227,7 +265,10 @@ const ClientActivityReport: React.FC = () => {
                     {projectStatusSummary.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={PROJECT_COLORS[entry.status] ?? PIE_COLORS[index % PIE_COLORS.length]}
+                        fill={
+                          PROJECT_COLORS[entry.status] ??
+                          PIE_COLORS[index % PIE_COLORS.length]
+                        }
                       />
                     ))}
                   </Pie>
@@ -251,7 +292,9 @@ const ClientActivityReport: React.FC = () => {
       {/* Detailed Client Table */}
       <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Client Activity Details</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Client Activity Details
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border border-border overflow-hidden">
@@ -271,7 +314,10 @@ const ClientActivityReport: React.FC = () => {
               <TableBody>
                 {clientStats.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-8 text-muted-foreground"
+                    >
                       No client data found.
                     </TableCell>
                   </TableRow>
@@ -280,22 +326,32 @@ const ClientActivityReport: React.FC = () => {
                     <TableRow key={item.client.id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={item.client.image || ""} />
-                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                              {item.client.name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="relative">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={item.client.image || ""} />
+                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                {item.client.name.substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            {(item.client as any).isOnline && (
+                              <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background" title="Online" />
+                            )}
+                          </div>
                           <div>
-                            <p className="font-medium leading-none">{item.client.name}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{item.client.email}</p>
+                            <p className="font-medium leading-none">
+                              {item.client.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {item.client.email}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            STATUS_BADGE_COLORS[item.client.status] ?? "bg-slate-100 text-slate-600"
+                            STATUS_BADGE_COLORS[item.client.status] ??
+                            "bg-slate-100 text-slate-600"
                           }`}
                         >
                           {item.client.status}
@@ -319,7 +375,20 @@ const ClientActivityReport: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        {item.hoursTracked} hrs
+                        {(() => {
+                          const tt = item.timeTracked;
+                          if (tt) {
+                            if (tt.hours > 0) return `${tt.hours}h ${tt.minutes}m`;
+                            if (tt.minutes > 0) return `${tt.minutes}m`;
+                            return '< 1m';
+                          }
+                          // fallback for old data
+                          const h = Math.floor(item.hoursTracked);
+                          const m = Math.round((item.hoursTracked - h) * 60);
+                          if (h > 0) return `${h}h ${m}m`;
+                          if (m > 0) return `${m}m`;
+                          return '—';
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))

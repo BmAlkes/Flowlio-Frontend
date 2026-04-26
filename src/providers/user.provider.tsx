@@ -17,6 +17,7 @@ import { backendURL } from "@/configs/axios.config";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearLastVisitedPage } from "@/utils/sessionPersistence.util";
+import { usePortalActivityTracker } from "@/hooks/usePortalActivityTracker";
 
 const { ac, roles } = permissions;
 
@@ -95,6 +96,11 @@ interface BeterAuthProviderProps extends PropsWithChildren {
 }
 
 const UserAuthContext = createContext<ContextData>({} as any);
+
+const PortalActivityTracker = () => {
+  usePortalActivityTracker();
+  return null;
+};
 
 /**
  * UserProvider supplies authentication and user session context to the application.
@@ -189,8 +195,13 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
             subadminId: userProfileData.data.subadminId,
             isSuperAdmin: userProfileData.data.isSuperAdmin,
             isOrganizationManager: userProfileData.data.isOrganizationManager,
-            clientId: userProfileData.data.clientId || userProfileData.data.clientProfile?.id,
-            organizationId: userProfileData.data.organizationId || userProfileData.data.clientProfile?.organizationId || (authData.user as any).organizationId,
+            clientId:
+              userProfileData.data.clientId ||
+              userProfileData.data.clientProfile?.id,
+            organizationId:
+              userProfileData.data.organizationId ||
+              userProfileData.data.clientProfile?.organizationId ||
+              (authData.user as any).organizationId,
           },
         };
         setData(enhancedData as unknown as Data);
@@ -248,6 +259,7 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
         subadminId: data?.user?.subadminId || "",
       }}
     >
+      <PortalActivityTracker />
       {children}
     </UserAuthContext.Provider>
   );
@@ -263,6 +275,7 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
  *   if (isLoading) return <div>Loading...</div>;
  *   if (data?.user) return <div>Hello, {data.user.name}!</div>;
  *
+ * @returns {ContextData}
  */
 export const useUser = () => {
   const context = useContext(UserAuthContext);
