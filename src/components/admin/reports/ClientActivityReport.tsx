@@ -96,7 +96,7 @@ const ClientActivityReport: React.FC = () => {
   );
   // Aggregate using totalMinutes from new timeTracked object
   const grandTotalMinutes = clientStats.reduce(
-    (sum, c) => sum + (c.timeTracked?.totalMinutes ?? c.hoursTracked * 60 ?? 0),
+    (sum, c) => sum + (c.timeTracked?.totalMinutes ?? c.hoursTracked * 60),
     0
   );
   const grandHours = Math.floor(grandTotalMinutes / 60);

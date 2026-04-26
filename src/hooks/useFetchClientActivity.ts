@@ -9,7 +9,14 @@ export interface ClientProjectCounts {
   total: number;
 }
 
+export interface TimeTracked {
+  totalMinutes: number;
+  hours: number;
+  minutes: number;
+}
+
 export interface ClientActivityItem {
+  timeTracked?: TimeTracked;
   client: {
     id: string;
     name: string;
