@@ -25,7 +25,7 @@ import {
   GeneralModal,
   useGeneralModalDisclosure,
 } from "../common/generalmodal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "../ui/input";
 import { Stack } from "../ui/stack";
 import { useNavigate } from "react-router";
@@ -67,6 +67,8 @@ import { TableSkeleton, ErrorState } from "@/components/skeletons";
 // Use the Project interface from the hook
 export type Data = Project & { customFields?: Record<string, any> };
 
+const PAGE_SIZE = 10;
+
 export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
   const { t } = useTranslation();
   const { data: userData } = useUser();
@@ -80,6 +82,9 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
   const isFetching = orgProjects.isFetching || orgUsers.isFetching;
   const error = orgProjects.error;
   const loading = isLoading || isFetching;
+
+  // Client-side pagination state
+  const [pageIndex, setPageIndex] = useState(0);
 
   const queryClient = useQueryClient();
 
@@ -272,6 +277,19 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
     }
     return true;
   });
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPageIndex(0);
+  }, [filters]);
+
+  // Pagination calculations
+  const total = filteredData.length;
+  const pageCount = Math.ceil(total / PAGE_SIZE);
+  const paginatedData = useMemo(
+    () => filteredData.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE),
+    [filteredData, pageIndex],
+  );
 
   const columns: ColumnDef<Data>[] = [
     {
@@ -701,12 +719,18 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
       ) : (
         <>
           <ReusableTable
-            data={filteredData}
+            data={paginatedData}
             columns={columns}
-            // searchInput={false}
             enablePaymentLinksCalender={true}
             onRowClick={(row) => {
               console.log("Row clicked:", row.original);
+            }}
+            pagination={{
+              pageIndex,
+              pageSize: PAGE_SIZE,
+              pageCount,
+              total,
+              onPageChange: (newPage) => setPageIndex(newPage),
             }}
           />
         </>

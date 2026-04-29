@@ -54,6 +54,7 @@ const formSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   priority: z.enum(["high", "medium", "low", "urgent"]),
+  destination: z.enum(["internal", "platform"]),
 });
 
 export const ViewerSupportHeader = () => {
@@ -69,6 +70,7 @@ export const ViewerSupportHeader = () => {
       subject: "",
       description: "",
       priority: "medium",
+      destination: "platform",
     },
   });
 
@@ -194,6 +196,7 @@ export const ViewerSupportHeader = () => {
         subject: values.subject,
         description: values.description,
         priority: values.priority,
+        destination: values.destination,
       };
       await createTicketMutation.mutateAsync(ticketData);
       form.reset();
@@ -362,6 +365,35 @@ export const ViewerSupportHeader = () => {
                   <FormControl>
                     <Input className="h-12 rounded-2xl border-border bg-muted/20 focus:bg-white focus:ring-blue-500 transition-all font-medium" placeholder="E.g. Access problem with module X" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="destination"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                    <Search className="size-3"/> Route To
+                  </FormLabel>
+                  <Flex className="gap-2 p-1 bg-muted/30 rounded-2xl border border-border/50">
+                    <button
+                      type="button"
+                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === "platform" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                      onClick={() => field.onChange("platform")}
+                    >
+                      Platform Support
+                    </button>
+                    <button
+                      type="button"
+                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === "internal" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                      onClick={() => field.onChange("internal")}
+                    >
+                      Internal Support
+                    </button>
+                  </Flex>
                   <FormMessage />
                 </FormItem>
               )}

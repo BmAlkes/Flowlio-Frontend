@@ -16,6 +16,7 @@ import { ComponentWrapper } from "@/components/common/componentwrapper";
 import { ViewerCalendarPopOver } from "./viewercalendarpopover";
 import type { DateRange } from "react-day-picker";
 import { ViewerChartGuides } from "./viewerchartguides";
+import { BarChart2 } from "lucide-react";
 
 const defaultChartData = [
   { month: "Jan", Mon: 5, Tue: 4, Wed: 4, Thurs: 3, Fri: 5, Sat: 4 },
@@ -107,6 +108,7 @@ export const ViewerBarChartComponent: FC<
     dateRange?: DateRange;
     onApplyDateRange?: (range: DateRange) => void;
     onResetDateRange?: () => void;
+    isLoading?: boolean;
   }
 > = ({
   className,
@@ -114,34 +116,96 @@ export const ViewerBarChartComponent: FC<
   dateRange,
   onApplyDateRange,
   onResetDateRange,
+  isLoading = false,
   ...props
 }) => {
   const { t } = useTranslation();
 
+  // Detect whether incoming data has any non-zero activity
+  const hasActivity =
+    data &&
+    data.length > 0 &&
+    data.some(
+      (d) => d.Mon + d.Tue + d.Wed + d.Thurs + d.Fri + d.Sat > 0
+    );
+
   const chartData = (
-    data && data.length > 0
-      ? data.map((d) => ({
+    hasActivity
+      ? data!.map((d) => ({
           ...d,
           total: d.total ?? d.Mon + d.Tue + d.Wed + d.Thurs + d.Fri + d.Sat,
         }))
       : defaultChartData
   ) as ChartDatum[];
+
+  // Header section reused in all render branches
+  const header = (
+    <Flex className="max-lg:flex-col items-center justify-between">
+      <Flex className="justify-between max-md:justify-start max-lg:w-full">
+        <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
+        <h1 className="text-lg font-medium">{t("viewerChart.performance")}</h1>
+      </Flex>
+      <Flex className="gap-4">
+        <ViewerChartGuides className="gap-4 pt-1 max-md:mr-auto" />
+      </Flex>
+      <ViewerCalendarPopOver
+        selected={dateRange}
+        onApply={(r) => onApplyDateRange && onApplyDateRange(r)}
+        onReset={() => onResetDateRange && onResetDateRange()}
+      />
+    </Flex>
+  );
+
+
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <ComponentWrapper className={cn("p-4", className)} {...props}>
+        {header}
+        <Flex className="items-center justify-center h-[21.8rem]">
+          <Box className="flex flex-col items-center gap-3 text-muted-foreground">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm">
+              {t("viewerChart.loading", {
+                defaultValue: "Loading performance data...",
+              })}
+            </p>
+          </Box>
+        </Flex>
+      </ComponentWrapper>
+    );
+  }
+
+  // Empty state — no activity yet
+  if (!hasActivity) {
+    return (
+      <ComponentWrapper className={cn("p-4", className)} {...props}>
+        {header}
+        <Flex className="flex-col items-center justify-center h-[21.8rem] gap-4">
+          <BarChart2
+            className="w-12 h-12 text-muted-foreground/40"
+            strokeWidth={1.5}
+          />
+          <Box className="text-center">
+            <p className="text-base font-medium text-muted-foreground">
+              {t("viewerChart.noData", { defaultValue: "No activity yet" })}
+            </p>
+            <p className="text-sm text-muted-foreground/60 mt-1">
+              {t("viewerChart.noDataDesc", {
+                defaultValue:
+                  "Start tracking time on tasks to see your performance here.",
+              })}
+            </p>
+          </Box>
+        </Flex>
+      </ComponentWrapper>
+    );
+  }
+
   return (
     <ComponentWrapper className={cn("p-4", className)} {...props}>
-      <Flex className="max-lg:flex-col items-center justify-between">
-        <Flex className="justify-between max-md:justify-start max-lg:w-full">
-          <img src="/dashboard/stat.svg" alt="stat" className="size-5" />
-          <h1 className="text-lg font-medium">{t("viewerChart.performance")}</h1>
-        </Flex>
-        <Flex className="gap-4">
-          <ViewerChartGuides className="gap-4 pt-1 max-md:mr-auto" />
-        </Flex>
-        <ViewerCalendarPopOver
-          selected={dateRange}
-          onApply={(r) => onApplyDateRange && onApplyDateRange(r)}
-          onReset={() => onResetDateRange && onResetDateRange()}
-        />
-      </Flex>
+      {header}
 
       <ChartContainer className="mt-5 w-full h-[21.8rem] " config={{}}>
         <ComposedChart data={chartData}>
@@ -190,7 +254,10 @@ export const ViewerBarChartComponent: FC<
           <Tooltip
             content={({ label, payload }) => {
               if (!payload || !payload.length) return null;
-              const fullMonthKey = monthFullNames[label] === "May" ? "MayFull" : monthFullNames[label] || label;
+              const fullMonthKey =
+                monthFullNames[label] === "May"
+                  ? "MayFull"
+                  : monthFullNames[label] || label;
               const fullMonth = t(`viewerChart.months.${fullMonthKey}`);
 
               return (
@@ -213,11 +280,13 @@ export const ViewerBarChartComponent: FC<
                         }}
                       >
                         <span style={{ color: "#000", fontWeight: 400 }}>
-                          {
-                            t(`viewerChart.days.${dayFullNames[
-                              entry.name as keyof typeof dayFullNames
-                            ]}`)
-                          }
+                          {t(
+                            `viewerChart.days.${
+                              dayFullNames[
+                                entry.name as keyof typeof dayFullNames
+                              ]
+                            }`
+                          )}
                         </span>
                         <span style={{ color: entry.color, fontWeight: 500 }}>
                           {entry.value}
@@ -275,3 +344,4 @@ export const ViewerBarChartComponent: FC<
     </ComponentWrapper>
   );
 };
+

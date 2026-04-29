@@ -53,6 +53,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return <AlertCircle className="h-4 w-4" />;
       case "organization":
         return <Users className="h-4 w-4" />;
+      case "client_interaction":
+        return <InboxIcon className="h-4 w-4" />;
       default:
         return <InboxIcon className="h-4 w-4" />;
     }
@@ -70,6 +72,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-orange-500";
       case "organization":
         return "bg-purple-500";
+      case "client_interaction":
+        return "bg-cyan-500";
       default:
         return "bg-muted/500";
     }
@@ -97,6 +101,16 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         navigate(`/viewer/viewer-support?ticketId=${ticketId}`);
       } else {
         navigate(`/dashboard/support?ticketId=${ticketId}`);
+      }
+      return;
+    }
+
+    const clientId = notification.data?.clientId;
+    if (clientId && notification.type === "client_interaction") {
+      if (userRole === "client") {
+        navigate("/clients/activity");
+      } else {
+        navigate(`/dashboard/client-management?clientId=${clientId}`);
       }
       return;
     }

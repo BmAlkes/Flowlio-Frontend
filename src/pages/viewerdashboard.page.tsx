@@ -23,7 +23,7 @@ const ViewerDashboardPage = () => {
   const { data: tasksResponse, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useFetchViewerTasks();
   const { data: projectsResponse, isLoading: isLoadingProjects, isFetching: isFetchingProjects } = useFetchViewerProjects();
   const { data: activeTimeEntries } = useActiveTimeEntries();
-  const { data: allTimeEntries } = useAllTimeEntries();
+  const { data: allTimeEntries, isLoading: isLoadingTimeEntries } = useAllTimeEntries();
   const [dateRange, setDateRange] = useState<DateRange | null>(null);
 
   const isAnyLoading = isLoadingTasks || isLoadingProjects || isFetchingTasks || isFetchingProjects;
@@ -254,6 +254,7 @@ const ViewerDashboardPage = () => {
           <ViewerBarChartComponent
             data={chartData}
             dateRange={dateRange || undefined}
+            isLoading={isLoadingTimeEntries}
             onApplyDateRange={(r) => {
               if (!r?.from || !r?.to) return;
               // Normalize order and snap to full days

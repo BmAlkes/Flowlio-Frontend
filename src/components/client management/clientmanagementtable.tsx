@@ -98,10 +98,15 @@ export type Data = {
   position?: number; // Order field for drag-and-drop
 };
 
+const PAGE_SIZE = 10;
+
 export const ClientManagementTable = () => {
   const { t } = useTranslation();
   const props = useGeneralModalDisclosure();
   const [selectedClient, setSelectedClient] = useState<Data | null>(null);
+
+  // Client-side pagination state
+  const [pageIndex, setPageIndex] = useState(0);
 
   // const [grantAccessClient, setGrantAccessClient] = useState<Data | null>(null);
   const navigate = useNavigate();
@@ -701,6 +706,14 @@ export const ClientManagementTable = () => {
     );
   }
 
+  // Pagination calculations (must be after early returns)
+  const total = tableData.length;
+  const pageCount = Math.ceil(total / PAGE_SIZE);
+  const paginatedData = tableData.slice(
+    pageIndex * PAGE_SIZE,
+    (pageIndex + 1) * PAGE_SIZE,
+  );
+
   return (
     <>
       {/* {grantAccessClient && (
@@ -716,7 +729,7 @@ export const ClientManagementTable = () => {
         />
       )} */}
       <DraggableTable
-        data={tableData}
+        data={paginatedData}
         columns={columns}
         enablePaymentLinksCalender={true}
         onReorderComplete={handleReorderComplete}
@@ -724,6 +737,13 @@ export const ClientManagementTable = () => {
         onDragEnd={() => {}}
         isReorderingDisabled={isUpdatingPositions}
         dragHandleCell={true}
+        pagination={{
+          pageIndex,
+          pageSize: PAGE_SIZE,
+          pageCount,
+          total,
+          onPageChange: (newPage) => setPageIndex(newPage),
+        }}
       />
 
       {/* Edit Client Modal */}

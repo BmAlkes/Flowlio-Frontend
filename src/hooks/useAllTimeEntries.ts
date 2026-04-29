@@ -47,5 +47,10 @@ export const useAllTimeEntries = () => {
         throw error;
       }
     },
+    staleTime: 0,           // always consider data stale
+    gcTime: 0,              // no garbage collection delay
+    refetchOnMount: true,   // re-fetch when component mounts
+    refetchOnWindowFocus: true, // re-fetch when user returns to tab
   });
 };
+

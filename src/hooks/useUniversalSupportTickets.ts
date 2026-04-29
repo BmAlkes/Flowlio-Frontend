@@ -70,6 +70,7 @@ export interface CreateUniversalSupportTicketRequest {
   assignedTo?: string;
   assignedToOrganization?: string; // Organization ID
   assignedToUser?: string; // Specific user ID within organization
+  destination?: "internal" | "platform";
 }
 
 export interface UpdateUniversalSupportTicketRequest {
@@ -142,7 +143,7 @@ export const useCreateUniversalSupportTicket = () => {
     mutationFn: async (data) => {
       const response = await axios.post<ApiResponse<UniversalSupportTicket>>(
         "/support-tickets",
-        data
+        data,
       );
       return response.data;
     },
@@ -154,7 +155,7 @@ export const useCreateUniversalSupportTicket = () => {
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to create support ticket"
+        error.response?.data?.message || "Failed to create support ticket",
       );
     },
   });
@@ -171,7 +172,7 @@ export const useUpdateUniversalSupportTicket = () => {
     mutationFn: async ({ id, data }) => {
       const response = await axios.put<ApiResponse<UniversalSupportTicket>>(
         `/support-tickets/${id}`,
-        data
+        data,
       );
       return response.data;
     },
@@ -183,7 +184,7 @@ export const useUpdateUniversalSupportTicket = () => {
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to update support ticket"
+        error.response?.data?.message || "Failed to update support ticket",
       );
     },
   });
@@ -195,7 +196,7 @@ export const useDeleteUniversalSupportTicket = () => {
   return useMutation<ApiResponse<void>, ErrorWithMessage, { id: string }>({
     mutationFn: async ({ id }) => {
       const response = await axios.delete<ApiResponse<void>>(
-        `/support-tickets/${id}`
+        `/support-tickets/${id}`,
       );
       return response.data;
     },
@@ -207,7 +208,7 @@ export const useDeleteUniversalSupportTicket = () => {
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to delete support ticket"
+        error.response?.data?.message || "Failed to delete support ticket",
       );
     },
   });
@@ -218,7 +219,7 @@ export const useAssignmentOptions = () => {
     queryKey: ["assignment-options"],
     queryFn: async () => {
       const response = await axios.get<ApiResponse<AssignmentOptions>>(
-        "/support-tickets/assignment-options"
+        "/support-tickets/assignment-options",
       );
       console.log("Assignment options response:", response.data);
       return response.data;
@@ -232,7 +233,7 @@ export const useSupportTicketMessages = (ticketId: string) => {
     queryKey: ["universal-support-ticket-messages", ticketId],
     queryFn: async () => {
       const response = await axios.get<ApiResponse<SupportTicketMessage[]>>(
-        `/support-tickets/${ticketId}/messages`
+        `/support-tickets/${ticketId}/messages`,
       );
       return response.data;
     },
@@ -252,7 +253,7 @@ export const useCreateSupportTicketMessage = () => {
     mutationFn: async ({ ticketId, message }) => {
       const response = await axios.post<ApiResponse<SupportTicketMessage>>(
         `/support-tickets/${ticketId}/messages`,
-        { message }
+        { message },
       );
       return response.data;
     },
@@ -265,9 +266,7 @@ export const useCreateSupportTicketMessage = () => {
       });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Failed to send reply"
-      );
+      toast.error(error.response?.data?.message || "Failed to send reply");
     },
   });
 };
@@ -278,7 +277,7 @@ export const useClearSupportTicketMessages = () => {
   return useMutation<ApiResponse<void>, ErrorWithMessage, string>({
     mutationFn: async (ticketId) => {
       const response = await axios.delete<ApiResponse<void>>(
-        `/support-tickets/${ticketId}/messages`
+        `/support-tickets/${ticketId}/messages`,
       );
       return response.data;
     },
@@ -290,7 +289,7 @@ export const useClearSupportTicketMessages = () => {
     },
     onError: (error) => {
       toast.error(
-        error.response?.data?.message || "Failed to clear chat history"
+        error.response?.data?.message || "Failed to clear chat history",
       );
     },
   });
