@@ -174,11 +174,9 @@ export const ViewerTable = () => {
         return (
           <Center>
             <Flex
-              className={`rounded-sm capitalize w-22 h-9 gap-2 border items-center ${statusStyles[status].text}`}
+              className={`rounded-full px-4 min-w-[100px] w-fit h-9 gap-2 border items-center ${statusStyles[status].text}`}
             >
-              <Flex className="mx-auto">
-                <span>{status}</span>
-              </Flex>
+              <span className="mx-auto truncate whitespace-nowrap">{status}</span>
             </Flex>
           </Center>
         );

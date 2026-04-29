@@ -31,6 +31,7 @@ export const HorizontalNavbar = () => {
         avatarClassName="size-12"
         src={user?.user.image || "https://github.com/shadcn.png"}
         description={user?.user.email}
+        position={user?.user.position || undefined}
       />
       {(pathname === "/viewer" || pathname === "/dashboard") && (
         <>

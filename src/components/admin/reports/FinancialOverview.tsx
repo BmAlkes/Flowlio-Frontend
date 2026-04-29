@@ -154,26 +154,38 @@ const FinancialOverview: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[350px] flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryBreakdown}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="amount"
-                  nameKey="category"
-                  label={({ category, amount }) => `${category}: $${amount}`}
-                >
-                  {categoryBreakdown.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {categoryBreakdown.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryBreakdown}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="amount"
+                    nameKey="category"
+                    label={({ category, amount }) => `${category.charAt(0).toUpperCase() + category.slice(1)}: $${amount.toLocaleString()}`}
+                  >
+                    {categoryBreakdown.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Amount"]}
+                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Legend verticalAlign="bottom" height={36}/>
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground space-y-2">
+                <PieChartIcon className="w-12 h-12 opacity-20" />
+                <p>No expenses logged yet</p>
+                <p className="text-xs">Log expenses in your projects to see the breakdown</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

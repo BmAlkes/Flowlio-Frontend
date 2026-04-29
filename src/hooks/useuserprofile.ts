@@ -20,6 +20,7 @@ interface UserProfile {
   /** True when user is an organization manager; returned by backend */
   isOrganizationManager?: boolean;
   role: string;
+  position: string | null;
   subadminId: string | null;
   status?: string | null; // User status: "pending" | "active"
   selectedPlanId?: string | null; // Selected plan ID for pending payment

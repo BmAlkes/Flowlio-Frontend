@@ -11,6 +11,7 @@ interface UserMember {
   lastname: string;
   email: string;
   phonenumber: string;
+  position: string;
   userrole: string;
   companyname: string;
   setpermission: string;

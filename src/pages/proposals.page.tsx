@@ -9,9 +9,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import { useState } from "react";
-import { Download, CheckCircle2, XCircle, Clock, FileText, Users } from "lucide-react";
+import { Download, CheckCircle2, XCircle, Clock, FileText, Users, Upload, Sparkles } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { ProposalPDF, type ProposalData } from "@/components/ai assist/ProposalPDF";
+import { ProposalGeneratorModal } from "@/components/ai assist/ProposalGeneratorModal";
+import { ProposalUploadModal } from "@/components/proposals/ProposalUploadModal";
 import {
   Tooltip,
   TooltipContent,
@@ -25,7 +27,11 @@ interface Proposal {
   clientName: string;
   companyName: string;
   status: "pending" | "approved" | "rejected";
-  proposalData: ProposalData;
+  proposalData: ProposalData & {
+    isManual?: boolean;
+    fileUrl?: string;
+    fileName?: string;
+  };
   createdAt: string;
   approvedAt?: string;
   rejectedAt?: string;
@@ -51,6 +57,8 @@ const statusConfig = {
 
 const OrgProposalsPage = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["org-proposals"],
@@ -69,6 +77,11 @@ const OrgProposalsPage = () => {
   const rejected = proposals.filter((p) => p.status === "rejected").length;
 
   const handleDownload = async (proposal: Proposal) => {
+    if (proposal.proposalData?.isManual && proposal.proposalData?.fileUrl) {
+      window.open(proposal.proposalData.fileUrl, "_blank");
+      return;
+    }
+    
     setDownloadingId(proposal.id);
     try {
       const pdfData: ProposalData = {
@@ -183,17 +196,37 @@ const OrgProposalsPage = () => {
 
   return (
     <PageWrapper className="mt-6">
-      <Stack className="gap-1 p-6 mb-6">
-        <Box className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-[#0c89af]/10">
-            <FileText className="w-5 h-5 text-[#0c89af]" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Proposals</h1>
-            <p className="text-muted-foreground text-sm">
-              Track all AI-generated proposals sent to clients.
-            </p>
-          </div>
+      <Stack className="gap-1 p-6 mb-2">
+        <Box className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <Box className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-[#0c89af]/10">
+              <FileText className="w-5 h-5 text-[#0c89af]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground">Proposals</h1>
+              <p className="text-muted-foreground text-sm">
+                Track and manage proposals sent to clients.
+              </p>
+            </div>
+          </Box>
+          
+          <Box className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="gap-2 rounded-full border-[#0c89af] text-[#0c89af] hover:bg-[#0c89af]/5"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Proposal
+            </Button>
+            <Button
+              onClick={() => setIsProposalModalOpen(true)}
+              className="gap-2 rounded-full bg-[#0c89af] hover:bg-[#0a7a9e] text-white"
+            >
+              <Sparkles className="w-4 h-4" />
+              AI Generator
+            </Button>
+          </Box>
         </Box>
       </Stack>
 
@@ -226,7 +259,7 @@ const OrgProposalsPage = () => {
           </p>
         </Box>
       ) : (
-        <Box className="rounded-xl border border-border overflow-hidden mx-6">
+        <Box className="rounded-xl border border-border overflow-hidden mx-6 mb-10 pt-4 bg-card">
           <ReusableTable
             data={proposals}
             columns={columns}
@@ -235,6 +268,16 @@ const OrgProposalsPage = () => {
           />
         </Box>
       )}
+
+      <ProposalGeneratorModal
+        isOpen={isProposalModalOpen}
+        onClose={() => setIsProposalModalOpen(false)}
+      />
+      
+      <ProposalUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+      />
     </PageWrapper>
   );
 };

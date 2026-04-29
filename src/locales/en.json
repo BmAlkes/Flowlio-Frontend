@@ -374,8 +374,8 @@
     "uploadFailed": "Failed to upload new version",
     "untitled": "Untitled Project",
     "statusValue": {
-      "completed": "Completed",
-      "ongoing": "Ongoing",
+      "completed": "Complete",
+      "ongoing": "In Progress",
       "pending": "Pending",
       "delayed": "Delayed"
     },
@@ -518,7 +518,7 @@
     "statusValue": {
       "todo": "To Do",
       "in_progress": "In Progress",
-      "completed": "Completed",
+      "completed": "Complete",
       "updated": "Updated",
       "delay": "Delay",
       "changes": "Changes"
@@ -570,6 +570,7 @@
     "role": "Role",
     "addedOn": "Added On",
     "status": "Status",
+    "position": "Position",
     "vat": "VAT",
     "address": "Address",
     "social": "Social",
@@ -649,7 +650,7 @@
       "In Negotiation": "In Negotiation",
       "Contract Signed": "Contract Signed",
       "Project In Progress": "Project In Progress",
-      "Completed": "Completed",
+      "Completed": "Complete",
       "Inactive Client": "Inactive Client"
     },
     "viewModal": {
@@ -662,7 +663,7 @@
       "statusLabel": "Status:",
       "completionLabel": "Completion:",
       "downloadContract": "Download Contract",
-      "completed": "Completed"
+      "completed": "Complete"
     }
   },
   "taskManagement": {
@@ -683,7 +684,7 @@
       "delay": "Delay",
       "changes": "Changes",
       "updated": "Updated",
-      "completed": "Completed"
+      "completed": "Complete"
     },
     "projectLabel": "Project:",
     "deadlineLabel": "Deadline:",
@@ -724,7 +725,7 @@
     "clear": "Clear",
     "applyFilter": "Apply Filter",
     "active": "Active",
-    "completed": "Completed",
+    "completed": "Complete",
     "startTime": "Start Time",
     "endTime": "End Time",
     "duration": "Duration",

@@ -553,10 +553,15 @@ export const ProjectView = () => {
                             u.user?.id === project.assignedTo ||
                             u.id === project.assignedTo,
                         );
+                        const name = assignee?.user?.name || project.assignedProject || t("common.unassigned");
+                        const position = assignee?.position;
                         return (
-                          assignee?.user?.name ||
-                          project.assignedProject ||
-                          t("common.unassigned")
+                          <Box>
+                            <Box className="font-semibold text-foreground">{name}</Box>
+                            {position && (
+                              <Box className="text-xs text-muted-foreground font-normal">{position}</Box>
+                            )}
+                          </Box>
                         );
                       })()}
                     </p>

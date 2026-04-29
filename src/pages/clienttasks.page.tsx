@@ -76,11 +76,7 @@ const ClientTasksPage = () => {
       accessorKey: "status",
       header: () => <Box className="text-center text-foreground">{t("projects.status")}</Box>,
       cell: ({ row }) => {
-        const status = row.original.status as
-          | "pending"
-          | "completed"
-          | "ongoing"
-          | "delayed";
+        const status = row.original.status?.toLowerCase() || "pending";
         const statusStyles: Record<string, { text: string; dot: string }> = {
           completed: {
             text: "text-white bg-[#00A400] border-none rounded-full",
@@ -94,26 +90,56 @@ const ClientTasksPage = () => {
             text: "text-white bg-[#005FA4] border-none rounded-full",
             dot: "bg-white",
           },
+          "in progress": {
+            text: "text-white bg-[#005FA4] border-none rounded-full",
+            dot: "bg-white",
+          },
+          in_progress: {
+            text: "text-white bg-[#005FA4] border-none rounded-full",
+            dot: "bg-white",
+          },
           delayed: {
             text: "text-white bg-[#EF5350] border-none rounded-full",
+            dot: "bg-white",
+          },
+          delay: {
+            text: "text-white bg-[#EF5350] border-none rounded-full",
+            dot: "bg-white",
+          },
+          todo: {
+            text: "text-white bg-[#5B60FE] border-none rounded-full",
+            dot: "bg-white",
+          },
+          updated: {
+            text: "text-white bg-[#A94DCD] border-none rounded-full",
+            dot: "bg-white",
+          },
+          changes: {
+            text: "text-white bg-[#4DCDC9] border-none rounded-full",
             dot: "bg-white",
           },
         };
 
         const currentStyle = statusStyles[status] || {
-          text: "text-white bg-muted/500 border-none rounded-full",
+          text: "text-white bg-slate-500 border-none rounded-full",
           dot: "bg-white",
         };
 
         return (
           <Center>
             <Box
-              className={`flex rounded-md capitalize w-32 h-10 gap-2 border justify-center items-center ${currentStyle.text}`}
+              className={`flex rounded-full px-3 py-1 min-w-[100px] w-fit h-8 gap-2 justify-center items-center ${currentStyle.text}`}
             >
               <Flex
-                className={`w-2 h-2 items-start rounded-full ${currentStyle.dot}`}
+                className={`w-2 h-2 shrink-0 rounded-full ${currentStyle.dot}`}
               />
-              <span>{t(`dashboard.${status}`) || t("common.unknown")}</span>
+              <span className="truncate text-xs font-medium whitespace-nowrap">
+                {t([
+                  `projects.statusValue.${status}`,
+                  `tasks.statusValue.${status.replace(" ", "_")}`,
+                  status,
+                ])}
+              </span>
             </Box>
           </Center>
         );

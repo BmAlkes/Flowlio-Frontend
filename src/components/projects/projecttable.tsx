@@ -467,16 +467,13 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
         <Box className="text-center text-foreground">{t("projects.status")}</Box>
       ),
       cell: ({ row }) => {
-        const status = row.original.status as
+        const status = (row.original.status?.toLowerCase() || "pending") as
           | "pending"
           | "completed"
           | "ongoing"
           | "delayed";
 
-        const statusStyles: Record<
-          typeof status,
-          { text: string; dot: string }
-        > = {
+        const statusStyles: Record<string, { text: string; dot: string }> = {
           completed: {
             text: "text-white bg-[#00A400] border-none rounded-full",
             dot: "bg-white",
@@ -495,22 +492,16 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
           },
         };
 
-        // Default style if status is not found
-        const defaultStyle = {
-          text: "text-white bg-muted/500 border-none rounded-full",
+        const currentStyle = statusStyles[status] || {
+          text: "text-white bg-slate-500 border-none rounded-full",
           dot: "bg-white",
         };
 
-        const currentStyle = statusStyles[status] || defaultStyle;
-
-        const statusOptions: Array<{
-          value: typeof status;
-          label: string;
-        }> = [
-          { value: "pending", label: "Pending" },
-          { value: "ongoing", label: "Ongoing" },
-          { value: "delayed", label: "Delayed" },
-          { value: "completed", label: "Completed" },
+        const statusOptions = [
+          { value: "pending", label: t("projects.statusValue.pending") },
+          { value: "ongoing", label: t("projects.statusValue.ongoing") },
+          { value: "delayed", label: t("projects.statusValue.delayed") },
+          { value: "completed", label: t("projects.statusValue.completed") },
         ];
 
         return (
@@ -523,21 +514,26 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
               disabled={isUpdatingStatus}
             >
               <SelectTrigger
-                className={`rounded-md capitalize w-32 h-10 gap-2 border justify-center items-center ${currentStyle.text} cursor-pointer hover:opacity-90`}
+                className={`rounded-full capitalize min-w-[120px] w-fit px-4 h-10 gap-2 border justify-center items-center ${currentStyle.text} cursor-pointer hover:opacity-90`}
               >
                 <SelectValue>
                   <Center className="gap-2">
                     <Flex
-                      className={`w-2 h-2 items-start rounded-full ${currentStyle.dot}`}
+                      className={`w-2 h-2 shrink-0 rounded-full ${currentStyle.dot}`}
                     />
-                    <span>{status || "Unknown"}</span>
+                    <span className="truncate whitespace-nowrap">
+                      {t(`projects.statusValue.${status}`) || status}
+                    </span>
                   </Center>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {statusOptions.map((option) => {
                   const optionStyle =
-                    statusStyles[option.value] || defaultStyle;
+                    statusStyles[option.value] || {
+                      text: "text-white bg-slate-500 border-none rounded-full",
+                      dot: "bg-white",
+                    };
                   return (
                     <SelectItem
                       key={option.value}

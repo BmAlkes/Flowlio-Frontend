@@ -57,6 +57,9 @@ const formSchema = z
     setpermission: z.string().min(2, {
       message: "Must be proper permission",
     }),
+    position: z.string().min(2, {
+      message: "Must be proper position",
+    }),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmpassword: z
       .string()
@@ -78,6 +81,7 @@ export const CreateUserMembers = () => {
       companyname: "Test Company",
       userrole: "",
       setpermission: "",
+      position: "",
       password: "Test@123",
       confirmpassword: "Test@123",
     },
@@ -111,6 +115,7 @@ export const CreateUserMembers = () => {
       formData.append("companyname", values.companyname);
       formData.append("userrole", values.userrole);
       formData.append("setpermission", values.setpermission);
+      formData.append("position", values.position);
       formData.append("password", values.password);
 
       // Add profile image if uploaded
@@ -417,6 +422,38 @@ export const CreateUserMembers = () => {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Position / Job Title:</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl className="w-full h-12">
+                        <SelectTrigger
+                          size="lg"
+                          className="bg-background border border-border rounded-full w-full h-14 placeholder:text-muted-foreground"
+                        >
+                          <SelectValue placeholder="Select Position" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="w-full">
+                        <SelectItem value="Account Manager">Account Manager</SelectItem>
+                        <SelectItem value="Developer">Developer</SelectItem>
+                        <SelectItem value="Financial Manager">Financial Manager</SelectItem>
+                        <SelectItem value="Designer">Designer</SelectItem>
+                        <SelectItem value="Sales Representative">Sales Representative</SelectItem>
+                        <SelectItem value="Project Manager">Project Manager</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

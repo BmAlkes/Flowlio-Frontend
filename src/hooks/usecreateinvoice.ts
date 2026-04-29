@@ -28,7 +28,7 @@ interface CreateInvoiceResponse {
 }
 
 const createInvoice = async (
-  data: CreateInvoiceData
+  data: CreateInvoiceData,
 ): Promise<CreateInvoiceResponse> => {
   try {
     const response = await axios.post("/invoices", data);
@@ -36,7 +36,7 @@ const createInvoice = async (
   } catch (error: any) {
     console.error("Error creating invoice:", error);
     throw new Error(
-      error.response?.data?.message || "Failed to create invoice"
+      error.response?.data?.message || "Failed to create invoice",
     );
   }
 };

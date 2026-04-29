@@ -12,6 +12,7 @@ export interface UserProfileProps extends FlexProps {
   description?: string;
   label?: string;
   src?: string;
+  position?: string;
 }
 
 export const UserProfile = forwardRef<HTMLSpanElement, UserProfileProps>(
@@ -24,6 +25,7 @@ export const UserProfile = forwardRef<HTMLSpanElement, UserProfileProps>(
       description,
       label,
       src,
+      position,
       ...props
     },
     ref
@@ -44,6 +46,9 @@ export const UserProfile = forwardRef<HTMLSpanElement, UserProfileProps>(
           <p className={cn("font-medium capitalize", labelClassName)}>
             {label}
           </p>
+          {position && (
+            <p className="text-xs text-muted-foreground">{position}</p>
+          )}
           <p className={cn("text-sm", descriptionClassName)}>{description}</p>
         </Stack>
       </Flex>

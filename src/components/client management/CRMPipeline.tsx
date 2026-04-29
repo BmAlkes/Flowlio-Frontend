@@ -157,7 +157,7 @@ export const CRMPipeline = () => {
     : null;
 
   return (
-    <Box className="h-full overflow-x-auto pb-4">
+    <Box className="h-full overflow-x-auto pb-8 pt-2 custom-scrollbar">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -165,13 +165,16 @@ export const CRMPipeline = () => {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <Flex className="gap-4 min-w-max h-full items-start px-2">
+        <Flex className="gap-6 min-w-max h-full items-start px-4 pb-4">
           {Object.keys(columns).map((id) => (
             <PipelineColumn id={id} key={id} title={id} items={columns[id]} />
           ))}
         </Flex>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={{
+          duration: 250,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+        }}>
           {activeId && activeClient ? (
             <LeadCard lead={activeClient} isOverlay />
           ) : null}

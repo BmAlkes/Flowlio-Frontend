@@ -66,6 +66,7 @@ type Data = {
     } | null;
     /** For role "client": the client record id used for client-scoped API calls */
     clientId?: string | null;
+    position?: string | null;
   };
   session: SessionObject["session"];
 };

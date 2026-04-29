@@ -23,25 +23,30 @@ import { GeneralModal } from "../common/generalmodal";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-const formSchema = z.object({
-  clientId: z.string().min(1, "Client is required"),
-  amount: z.number().min(0.01, "Amount must be greater than 0"),
-  description: z.string().optional(),
-  dueDate: z.string().optional(),
-  isRecurring: z.boolean().default(false),
-  templateName: z.string().optional(),
-  frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-}).refine(data => {
-  if (data.isRecurring) {
-    return !!data.templateName && !!data.frequency && !!data.startDate;
-  }
-  return true;
-}, {
-  message: "Required fields for recurring invoice are missing",
-  path: ["templateName"]
-});
+const formSchema = z
+  .object({
+    clientId: z.string().min(1, "Client is required"),
+    amount: z.number().min(0.01, "Amount must be greater than 0"),
+    description: z.string().optional(),
+    dueDate: z.string().optional(),
+    isRecurring: z.boolean().default(false),
+    templateName: z.string().optional(),
+    frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isRecurring) {
+        return !!data.templateName && !!data.frequency && !!data.startDate;
+      }
+      return true;
+    },
+    {
+      message: "Required fields for recurring invoice are missing",
+      path: ["templateName"],
+    },
+  );
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -89,7 +94,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
       setValue("endDate", "");
     } else {
       // Set default start date to today if recurring is turned on
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       setValue("startDate", today);
     }
   }, [isRecurring, setValue]);
@@ -115,20 +120,23 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
     try {
       if (data.isRecurring) {
         // Handle Recurring Template Creation
-        createRecurringMutation.mutate({
-          templateName: data.templateName!,
-          clientId: data.clientId,
-          amount: data.amount,
-          description: data.description,
-          frequency: data.frequency!,
-          startDate: data.startDate!,
-          endDate: data.endDate || undefined,
-        }, {
-          onSuccess: () => {
-            reset();
-            onClose();
-          }
-        });
+        createRecurringMutation.mutate(
+          {
+            templateName: data.templateName!,
+            clientId: data.clientId,
+            amount: data.amount,
+            description: data.description,
+            frequency: data.frequency!,
+            startDate: data.startDate!,
+            endDate: data.endDate || undefined,
+          },
+          {
+            onSuccess: () => {
+              reset();
+              onClose();
+            },
+          },
+        );
         return;
       }
 
@@ -158,22 +166,25 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
                 setPdfFile(null);
                 onClose();
               },
-            }
+            },
           );
         };
         reader.readAsDataURL(pdfFile);
       } else {
-        createInvoiceMutation.mutate({
-          clientId: data.clientId,
-          amount: data.amount,
-          description: data.description,
-          dueDate: data.dueDate,
-        }, {
-          onSuccess: () => {
-            reset();
-            onClose();
+        createInvoiceMutation.mutate(
+          {
+            clientId: data.clientId,
+            amount: data.amount,
+            description: data.description,
+            dueDate: data.dueDate,
           },
-        });
+          {
+            onSuccess: () => {
+              reset();
+              onClose();
+            },
+          },
+        );
       }
     } catch (error) {
       console.error("Error creating invoice:", error);
@@ -186,7 +197,8 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
     onClose();
   };
 
-  const isPending = createInvoiceMutation.isPending || createRecurringMutation.isPending;
+  const isPending =
+    createInvoiceMutation.isPending || createRecurringMutation.isPending;
 
   return (
     <GeneralModal
@@ -197,10 +209,14 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Flex className="items-center justify-between bg-muted/50 p-4 rounded-lg border border-border">
           <Box className="space-y-0.5">
-            <Label className="text-sm font-semibold text-foreground">Make Recurring</Label>
-            <p className="text-xs text-muted-foreground">Automatically generate invoices at intervals</p>
+            <Label className="text-sm font-semibold text-foreground">
+              Make Recurring
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Automatically generate invoices at intervals
+            </p>
           </Box>
-          <Switch 
+          <Switch
             checked={isRecurring}
             onCheckedChange={(checked) => setValue("isRecurring", checked)}
           />
@@ -209,19 +225,25 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
         {isRecurring && (
           <Box className="space-y-4 p-4 border border-primary/20 bg-primary/5 rounded-lg animate-in fade-in slide-in-from-top-2">
             <Box className="w-full">
-              <label className="text-sm font-medium text-foreground">Template Name *</label>
-              <Input 
+              <label className="text-sm font-medium text-foreground">
+                Template Name *
+              </label>
+              <Input
                 placeholder="e.g. Monthly Maintenance Fee"
                 {...register("templateName")}
               />
               {errors.templateName && (
-                <p className="text-red-500 text-sm mt-1">{errors.templateName.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.templateName.message}
+                </p>
               )}
             </Box>
 
             <Flex className="gap-4 max-sm:flex-col">
               <Box className="flex-1">
-                <label className="text-sm font-medium text-foreground">Frequency *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Frequency *
+                </label>
                 <Select
                   value={watch("frequency")}
                   onValueChange={(value) => setValue("frequency", value as any)}
@@ -238,10 +260,14 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
                 </Select>
               </Box>
               <Box className="flex-1">
-                <label className="text-sm font-medium text-foreground">Start Date *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Start Date *
+                </label>
                 <Input type="date" {...register("startDate")} />
                 {errors.startDate && (
-                  <p className="text-red-500 text-sm mt-1">{errors.startDate.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.startDate.message}
+                  </p>
                 )}
               </Box>
             </Flex>
@@ -249,7 +275,9 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
         )}
         {/* Client Selection */}
         <Box className="w-full">
-          <label className="text-sm font-medium text-foreground">Client *</label>
+          <label className="text-sm font-medium text-foreground">
+            Client *
+          </label>
           <Select
             value={watch("clientId")}
             onValueChange={(value) => setValue("clientId", value)}
@@ -381,11 +409,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={isPending}
-            variant="default"
-          >
+          <Button type="submit" disabled={isPending} variant="default">
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -286,11 +286,11 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
           <Center>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full w-34 h-10 justify-between items-center">
-                  <h1 className="text-[14px] px-4 capitalize">
+                <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full min-w-[140px] w-fit h-10 justify-between items-center overflow-hidden">
+                  <h1 className="text-[14px] pl-4 pr-2 capitalize truncate whitespace-nowrap">
                     {t(`tasks.statusValue.${normalizedStatus}`)}
                   </h1>
-                  <Center className="bg-[#3e3e3f] rounded-tr-full rounded-br-full h-10 w-10">
+                  <Center className="bg-[#3e3e3f] rounded-tr-full rounded-br-full h-10 w-10 shrink-0">
                     <ChevronDown className="size-4" />
                   </Center>
                 </Center>

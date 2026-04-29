@@ -25,7 +25,10 @@ interface Proposal {
   clientName: string;
   companyName: string;
   status: "pending" | "approved" | "rejected";
-  proposalData: ProposalData;
+  proposalData: ProposalData & {
+    isManual?: boolean;
+    fileUrl?: string;
+  };
   createdAt: string;
   approvedAt?: string;
   rejectedAt?: string;
@@ -82,6 +85,11 @@ const ClientProposalsPage = () => {
   });
 
   const handleDownload = async (proposal: Proposal) => {
+    if (proposal.proposalData?.isManual && proposal.proposalData?.fileUrl) {
+      window.open(proposal.proposalData.fileUrl, "_blank");
+      return;
+    }
+    
     setDownloadingId(proposal.id);
     try {
       const pdfData: ProposalData = {

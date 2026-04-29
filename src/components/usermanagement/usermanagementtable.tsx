@@ -52,6 +52,7 @@ export type Data = {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  position: string;
   lastLoginAt: string | null;
   loginAttempts: number;
   lockedUntil: string | null;
@@ -225,6 +226,19 @@ export const UserManagementTable = ({
         <Flex className="items-start justify-start gap-2 w-26 max-lg:w-full">
           <Box className="text-sm">{row.original.email}</Box>
         </Flex>
+      ),
+    },
+    {
+      accessorKey: "position",
+      header: () => (
+        <Box className="text-foreground text-center font-medium">
+          {t("table.position")}
+        </Box>
+      ),
+      cell: ({ row }) => (
+        <Box className="capitalize text-center text-sm">
+          {row.original.position || "-"}
+        </Box>
       ),
     },
     {
