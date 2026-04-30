@@ -194,9 +194,9 @@ export const UserManagementTable = ({
   const columns: ColumnDef<Data>[] = [
     {
       accessorKey: "firstname",
-      header: () => <Box className="text-foreground pl-4">{t("table.name")}</Box>,
+      header: () => <Box className="text-foreground pl-4 min-w-[180px]">{t("table.name")}</Box>,
       cell: ({ row }) => (
-        <Flex className="capitalize pl-4 w-30 max-sm:w-full">
+        <Flex className="capitalize pl-4 min-w-[180px]">
           <Avatar className="size-8">
             <AvatarImage
               src={row.original.user?.image || "https://github.com/shadcn.png"}
@@ -218,12 +218,12 @@ export const UserManagementTable = ({
     {
       accessorKey: "email",
       header: () => (
-        <Box className="text-foreground text-start w-26 max-lg:w-full font-medium">
+        <Box className="text-foreground text-start min-w-[250px] font-medium">
           {t("table.email")}
         </Box>
       ),
       cell: ({ row }) => (
-        <Flex className="items-start justify-start gap-2 w-26 max-lg:w-full">
+        <Flex className="items-start justify-start gap-2 min-w-[250px]">
           <Box className="text-sm">{row.original.email}</Box>
         </Flex>
       ),
@@ -231,12 +231,12 @@ export const UserManagementTable = ({
     {
       accessorKey: "position",
       header: () => (
-        <Box className="text-foreground text-center font-medium">
+        <Box className="text-foreground text-start min-w-[150px] font-medium">
           {t("table.position")}
         </Box>
       ),
       cell: ({ row }) => (
-        <Box className="capitalize text-center text-sm">
+        <Box className="capitalize text-start text-sm min-w-[150px]">
           {row.original.position || "-"}
         </Box>
       ),
@@ -244,27 +244,27 @@ export const UserManagementTable = ({
     {
       accessorKey: "companyname",
       header: () => (
-        <Box className="text-foreground text-center">{t("table.company")}</Box>
+        <Box className="text-foreground text-start min-w-[150px]">{t("table.company")}</Box>
       ),
       cell: ({ row }) => (
-        <Box className="capitalize text-center">{row.original.companyname}</Box>
+        <Box className="capitalize text-start min-w-[150px]">{row.original.companyname}</Box>
       ),
     },
     {
       accessorKey: "userrole",
       header: () => (
-        <Box className="text-center text-foreground">{t("table.role")}</Box>
+        <Box className="text-start text-foreground min-w-[120px]">{t("table.role")}</Box>
       ),
       cell: ({ row }) => (
-        <Center className="text-center capitalize">
+        <Box className="text-start capitalize min-w-[120px]">
           {translateMemberRole(row.original.userrole, t)}
-        </Center>
+        </Box>
       ),
     },
     {
       accessorKey: "createdAt",
       header: () => (
-        <Box className="text-center text-foreground">{t("table.addedOn")}</Box>
+        <Box className="text-center text-foreground min-w-[120px]">{t("table.addedOn")}</Box>
       ),
       cell: ({ row }) => {
         const createdAt = new Date(row.original.createdAt);
@@ -285,7 +285,7 @@ export const UserManagementTable = ({
     {
       accessorKey: "status",
       header: () => (
-        <Box className="text-center text-foreground">{t("table.status")}</Box>
+        <Box className="text-center text-foreground min-w-[150px]">{t("table.status")}</Box>
       ),
       cell: ({ row }) => {
         const isActive = row.original.isActive;
@@ -325,7 +325,7 @@ export const UserManagementTable = ({
     {
       accessorKey: "actions",
       header: () => (
-        <Box className="text-center text-foreground">{t("common.actions")}</Box>
+        <Box className="text-center text-foreground min-w-[150px]">{t("common.actions")}</Box>
       ),
       cell: ({ row }) => {
         const { id, isActive, email, firstname, lastname, userrole, user } =
