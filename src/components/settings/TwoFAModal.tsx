@@ -17,6 +17,7 @@ import { Mail, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { authClient } from "@/lib/auth-client";
 
 interface TwoFAModalProps {
   isEnabled: boolean;
@@ -120,7 +121,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
         setShowSuccessState(false);
       }
     }
-  }, [open, isEnabled]);
+  }, [open]);
 
   const form = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
@@ -188,6 +189,18 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   ) => {
     setIsLoading(true);
     try {
+      // First verify the password
+      const signInResult = await authClient.signIn.email({
+        email: userEmail,
+        password: values.password,
+      });
+
+      if (signInResult.error) {
+        throw new Error(
+          signInResult.error.message || t("settings.invalidPasswordDesc")
+        );
+      }
+
       // Call the onToggle prop directly, not the internal handleToggle
       await onToggle(true, values.password);
 
@@ -212,6 +225,18 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   ) => {
     setIsLoading(true);
     try {
+      // First verify the password
+      const signInResult = await authClient.signIn.email({
+        email: userEmail,
+        password: values.password,
+      });
+
+      if (signInResult.error) {
+        throw new Error(
+          signInResult.error.message || t("settings.invalidPasswordDesc")
+        );
+      }
+
       await onDisable2FA(values.password);
       toast.success(t("settings.twoFactorAuthenticationDisabled"));
       setShowPasswordForm(false);
@@ -355,7 +380,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                   disabled={isLoading}
                   className="flex-1"
                 >
-                  {t("settings.cancel")}
+                  {t("common.cancel")}
                 </Button>
                  <Button
                   type="submit"
@@ -426,7 +451,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                     enablePasswordForm.reset();
                   }}
                 >
-                  {t("settings.cancel")}
+                  {t("common.cancel")}
                 </Button>
                  <Button
                   type="submit"
@@ -455,7 +480,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               </Center>
               <Stack className="gap-2">
                 <h2 className="text-xl font-bold text-foreground">
-                  {t("settings.success")}
+                  {t("common.success")}
                 </h2>
                 <p className="text-muted-foreground">
                   {t("settings.twoFactorAuthenticationEnabledDesc")}
@@ -516,7 +541,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                   disabled={isLoading}
                   className="flex-1"
                 >
-                  {t("settings.cancel")}
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -562,7 +587,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 onClick={() => onClose()}
                 className="flex-1"
               >
-                {t("settings.close")}
+                {t("common.close")}
               </Button>
               {!isEnabled && (
                 <Button
