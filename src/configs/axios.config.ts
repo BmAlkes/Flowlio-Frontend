@@ -87,19 +87,15 @@ axios.interceptors.response.use(
       window.location.href = "/auth/signin?message=deactivated";
     }
 
-    // Handle unauthorized access (401) - session expired or invalid
-    // But only if it's not a logout request
+    // Handle unauthorized access (401) without aggressively clearing auth state.
+    // Some endpoints can return transient 401/403 responses that should not force logout.
     if (
       error.response?.status === 401 &&
       !error.config?.url?.includes("/auth/sign-out") &&
       !error.config?.url?.includes("/auth/signout")
     ) {
-      // Clear any stored auth data
-      localStorage.removeItem("auth-token");
-      localStorage.removeItem("user-session");
-
-      // Redirect to login
-      // window.location.href = "/auth/signin?message=session_expired";
+      // Intentionally no automatic local session clearing here.
+      // Let auth/session checks drive logout behavior explicitly.
     }
 
     return Promise.reject(error);

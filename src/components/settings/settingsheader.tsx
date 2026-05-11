@@ -21,6 +21,7 @@ import {
   useGenerateOTP,
   useDisable2FA,
   useEnable2FA,
+  useVerifyCurrentPassword,
 } from "@/hooks/useBetterAuthTwoFA";
 import { useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
@@ -123,6 +124,7 @@ export const SettingsHeader = () => {
   const generateOTPMutation = useGenerateOTP();
   const disable2FAMutation = useDisable2FA();
   const enable2FAMutation = useEnable2FA();
+  const verifyCurrentPasswordMutation = useVerifyCurrentPassword();
 
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
     undefined,
@@ -275,13 +277,12 @@ export const SettingsHeader = () => {
   const handleToggle2FA = async (enabled: boolean, password?: string) => {
     try {
       if (enabled) {
-        if (password) {
-          // Password provided - verify it and generate OTP
-          await generateOTPMutation.mutateAsync();
-        } else {
-          // Generate OTP when enabling 2FA
-          await generateOTPMutation.mutateAsync();
+        if (!password) {
+          throw new Error("Password is required");
         }
+
+        await verifyCurrentPasswordMutation.mutateAsync({ password });
+        await generateOTPMutation.mutateAsync();
       } else {
         // Disable 2FA directly
         await disable2FAMutation.mutateAsync({ password: password || "" });

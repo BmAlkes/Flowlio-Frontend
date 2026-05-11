@@ -17,6 +17,7 @@ import {
   useGenerateOTP,
   useDisable2FA,
   useEnable2FA,
+  useVerifyCurrentPassword,
 } from "@/hooks/useBetterAuthTwoFA";
 import { useUser } from "@/providers/user.provider";
 import {
@@ -48,6 +49,7 @@ export const ViewerSettingsHeader = () => {
   const generateOTPMutation = useGenerateOTP();
   const disable2FAMutation = useDisable2FA();
   const enable2FAMutation = useEnable2FA();
+  const verifyCurrentPasswordMutation = useVerifyCurrentPassword();
 
   // Add hooks
   const updateProfileMutation = useUpdateUserProfile();
@@ -244,6 +246,10 @@ export const ViewerSettingsHeader = () => {
   const handleToggle2FA = async (enabled: boolean, password?: string) => {
     try {
       if (enabled) {
+        if (!password) {
+          throw new Error("Password is required");
+        }
+        await verifyCurrentPasswordMutation.mutateAsync({ password });
         await generateOTPMutation.mutateAsync();
       } else {
         await disable2FAMutation.mutateAsync({ password: password || "" });

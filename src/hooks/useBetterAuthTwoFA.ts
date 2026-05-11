@@ -134,6 +134,33 @@ export const useGenerateOTP = () => {
   });
 };
 
+// Verify current password before sensitive auth actions (e.g. enabling 2FA)
+export const useVerifyCurrentPassword = () => {
+  return useMutation({
+    mutationFn: async ({ password }: { password: string }) => {
+      const response = await fetch(`${backendURL}/api/user/profile/verify-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to verify password");
+      }
+
+      return response.json();
+    },
+    onError: (error: any) => {
+      console.error("Failed to verify password:", error);
+      throw error;
+    },
+  });
+};
+
 // Verify OTP for 2FA using better-auth client
 export const useVerifyOTP = () => {
   const { data: user } = useUser();

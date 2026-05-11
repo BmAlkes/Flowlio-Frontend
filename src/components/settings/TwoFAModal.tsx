@@ -17,7 +17,6 @@ import { Mail, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { authClient } from "@/lib/auth-client";
 
 interface TwoFAModalProps {
   isEnabled: boolean;
@@ -189,19 +188,8 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   ) => {
     setIsLoading(true);
     try {
-      // First verify the password
-      const signInResult = await authClient.signIn.email({
-        email: userEmail,
-        password: values.password,
-      });
-
-      if (signInResult.error) {
-        throw new Error(
-          signInResult.error.message || t("settings.invalidPasswordDesc")
-        );
-      }
-
-      // Call the onToggle prop directly, not the internal handleToggle
+      // Call the onToggle prop directly, not the internal handleToggle.
+      // Avoid re-sign-in flows here to prevent session side effects.
       await onToggle(true, values.password);
 
       toast.success(t("settings.passwordVerifiedDesc"));
@@ -225,18 +213,6 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   ) => {
     setIsLoading(true);
     try {
-      // First verify the password
-      const signInResult = await authClient.signIn.email({
-        email: userEmail,
-        password: values.password,
-      });
-
-      if (signInResult.error) {
-        throw new Error(
-          signInResult.error.message || t("settings.invalidPasswordDesc")
-        );
-      }
-
       await onDisable2FA(values.password);
       toast.success(t("settings.twoFactorAuthenticationDisabled"));
       setShowPasswordForm(false);
@@ -244,7 +220,11 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
       passwordForm.reset();
     } catch (error) {
       console.error("Failed to disable 2FA:", error);
-      toast.error(t("settings.invalidPasswordDesc"));
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : t("settings.invalidPasswordDesc");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
