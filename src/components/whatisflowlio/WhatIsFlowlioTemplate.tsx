@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
   ArrowRight, Check, X, FolderKanban, CheckSquare, Users, Clock,
-  FileText, Sparkles, Globe, BarChart2, Zap, Star, Monitor, Laptop,
-  Building2, TrendingUp, DollarSign, BarChart3, Bot, Calendar,
+  FileText, Sparkles,  BarChart2, Zap, Star, Monitor, Laptop,
+  Building2, TrendingUp, DollarSign, BarChart3, Calendar,
 } from "lucide-react";
 import { Navbar } from "@/components/user section/navbar/navbar";
 import { Footer } from "@/components/footer/footer";
@@ -375,12 +375,6 @@ const LaptopMockup = () => (
   </div>
 );
 
-// ── WHO ICON MAP ──────────────────────────────────────────────────────────
-const WHO_ICONS: Record<string, React.ElementType> = {
-  purple: Monitor,
-  blue: Laptop,
-  orange: Building2,
-};
 
 // ── Main Template ─────────────────────────────────────────────────────────
 export const WhatIsFlowlioTemplate = ({ c }: { c: WIFContent }) => {

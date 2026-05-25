@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { FiTwitter, FiLinkedin, FiInstagram, FiMail, FiFacebook } from "react-icons/fi";
+import { FiLinkedin, FiInstagram, FiMail, FiFacebook } from "react-icons/fi";
 import Logo from "/logo/5000x5000-3.svg";
 
 const PRODUCT_LINKS = [
