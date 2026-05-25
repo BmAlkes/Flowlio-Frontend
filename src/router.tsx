@@ -74,6 +74,19 @@ const UserLayout = lazy(() =>
   })),
 );
 const HomePage = lazy(() => import("./pages/home.page"));
+const WhatIsFlowlioPage = lazy(
+  () => import("./pages/whatisflowlio.page"),
+);
+const ShowcasePage = lazy(() => import("./pages/showcase.page"));
+const WhatIsFlowlioENPage = lazy(
+  () => import("./pages/whatisflowlio-en.page"),
+);
+const WhatIsFlowlioPTPage = lazy(
+  () => import("./pages/whatisflowlio-pt.page"),
+);
+const WhatIsFlowlioHEPage = lazy(
+  () => import("./pages/whatisflowlio-he.page"),
+);
 const WorkFlowPage = lazy(() =>
   import("./pages/workflow.page").then((module) => ({
     default: module.WorkFlowPage,
@@ -234,6 +247,23 @@ const AppRoutes = () => {
     <Routes>
       {/* Public routes fixed the workflow route*/}
       <Route path="/" element={<LazyWrapper component={HomePage} />} />
+      <Route path="/showcase" element={<LazyWrapper component={ShowcasePage} />} />
+      <Route
+        path="/que-es-flowlio"
+        element={<LazyWrapper component={WhatIsFlowlioPage} />}
+      />
+      <Route
+        path="/what-is-flowlio"
+        element={<LazyWrapper component={WhatIsFlowlioENPage} />}
+      />
+      <Route
+        path="/o-que-e-flowlio"
+        element={<LazyWrapper component={WhatIsFlowlioPTPage} />}
+      />
+      <Route
+        path="/mah-ze-flowlio"
+        element={<LazyWrapper component={WhatIsFlowlioHEPage} />}
+      />
       <Route
         path="/pricing"
         element={<LazyWrapper component={PricingPage} />}

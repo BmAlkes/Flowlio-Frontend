@@ -5,6 +5,7 @@ import { Toaster } from "./components/ui/sonner";
 import { AppRouter } from "./router";
 import { UserProvider } from "./providers/user.provider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
+import { HelmetProvider } from "react-helmet-async";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -20,17 +21,19 @@ const client = new QueryClient({
 
 const App = () => {
   return (
-    <QueryClientProvider client={client}>
-      <UserProvider>
-        <NotificationsProvider>
-          <ErrorBoundary>
-            <AppRouter />
-          </ErrorBoundary>
-          <Toaster />
-          <ReactQueryDevtools />
-        </NotificationsProvider>
-      </UserProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={client}>
+        <UserProvider>
+          <NotificationsProvider>
+            <ErrorBoundary>
+              <AppRouter />
+            </ErrorBoundary>
+            <Toaster />
+            <ReactQueryDevtools />
+          </NotificationsProvider>
+        </UserProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 
