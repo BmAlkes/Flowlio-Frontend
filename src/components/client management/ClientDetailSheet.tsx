@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-} from "../ui/sheet";
+import { Sheet, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Select,
@@ -13,8 +10,13 @@ import {
 } from "../ui/select";
 import { ScrollArea } from "../ui/scroll-area";
 import { ClientTimeline } from "./ClientTimeline";
-import { useUpdateLeadStatus, useLeadInsights } from "@/hooks/useCRM";
-import { DollarSign, Building2, ChevronRight } from "lucide-react";
+import {
+  useUpdateLeadStatus,
+  useUpdateLeadTemperature,
+  useLeadInsights,
+  LeadTemperature,
+} from "@/hooks/useCRM";
+import { DollarSign, Building2, ChevronRight, RotateCcw } from "lucide-react";
 
 const STAGES = [
   "New Lead",
@@ -43,11 +45,37 @@ const STAGE_TEXT: Record<string, string> = {
   "Inactive Client": "text-rose-600 dark:text-rose-400",
 };
 
-const TEMP_STYLES: Record<string, string> = {
-  Hot: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-500/30",
-  Warm: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500/30",
-  Cold: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-500/30",
-};
+const TEMPERATURES: {
+  value: LeadTemperature;
+  label: string;
+  active: string;
+  badge: string;
+}[] = [
+  {
+    value: "Hot",
+    label: "Hot",
+    active: "bg-orange-50 border-orange-300 text-orange-700 dark:bg-orange-900/20 dark:border-orange-500/40 dark:text-orange-300",
+    badge: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-500/30",
+  },
+  {
+    value: "Warm",
+    label: "Warm",
+    active: "bg-amber-50 border-amber-300 text-amber-700 dark:bg-amber-900/20 dark:border-amber-500/40 dark:text-amber-300",
+    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500/30",
+  },
+  {
+    value: "Cold",
+    label: "Cold",
+    active: "bg-sky-50 border-sky-300 text-sky-700 dark:bg-sky-900/20 dark:border-sky-500/40 dark:text-sky-300",
+    badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-500/30",
+  },
+  {
+    value: "Close",
+    label: "Close",
+    active: "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-500/40 dark:text-emerald-300",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-500/30",
+  },
+];
 
 interface ClientDetailSheetProps {
   client: any | null;
@@ -57,7 +85,9 @@ interface ClientDetailSheetProps {
 
 export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetProps) => {
   const updateStatus = useUpdateLeadStatus();
+  const updateTemperature = useUpdateLeadTemperature();
   const { data: insights } = useLeadInsights(client?.id ?? "");
+
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
 
   useEffect(() => {
@@ -74,13 +104,19 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
     );
   };
 
+  const handleTemperatureChange = (temp: LeadTemperature | null) => {
+    if (!client) return;
+    updateTemperature.mutate({ clientId: client.id, temperature: temp });
+  };
+
   if (!client) return null;
 
-  const initials = client.name
-    ?.split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase() ?? "?";
+  const initials =
+    client.name
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase() ?? "?";
 
   const formatValue = (val: any) => {
     const n = Number(val);
@@ -93,14 +129,15 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
   };
 
   const formattedValue = formatValue(client.leadValue);
-  const temp = insights?.temperature;
   const activeIdx = STAGES.indexOf(currentStatus);
+  const currentTemp = insights?.temperature;
+  const tempConfig = TEMPERATURES.find((t) => t.value === currentTemp);
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent className="sm:max-w-[460px] w-[460px] p-0 flex flex-col gap-0 overflow-hidden">
 
-        {/* Header */}
+        {/* Client header */}
         <div className="px-6 pt-6 pb-5 border-b border-border/50">
           <div className="flex items-start gap-4">
             <Avatar className="h-12 w-12 rounded-xl shrink-0 ring-1 ring-border/40">
@@ -115,9 +152,12 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 <h2 className="font-semibold text-[15px] text-foreground leading-snug truncate">
                   {client.name}
                 </h2>
-                {temp && TEMP_STYLES[temp] && (
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${TEMP_STYLES[temp]}`}>
-                    {temp}
+                {currentTemp && tempConfig && (
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${tempConfig.badge}`}>
+                    {currentTemp}
+                    {insights?.isManualTemperature && (
+                      <span className="ml-1 opacity-60">·</span>
+                    )}
                   </span>
                 )}
               </div>
@@ -152,9 +192,50 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
             </div>
           </div>
 
-          {/* Stage Section */}
+          {/* Temperature */}
           <div className="mt-5">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">
+                Temperature
+                {insights?.isManualTemperature && (
+                  <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1 py-0.5 rounded">
+                    manual
+                  </span>
+                )}
+              </span>
+              {insights?.isManualTemperature && (
+                <button
+                  onClick={() => handleTemperatureChange(null)}
+                  disabled={updateTemperature.isPending}
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                >
+                  <RotateCcw className="h-2.5 w-2.5" />
+                  Reset to auto
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-1.5">
+              {TEMPERATURES.map((t) => (
+                <button
+                  key={t.value}
+                  onClick={() => handleTemperatureChange(t.value)}
+                  disabled={updateTemperature.isPending}
+                  className={`flex-1 h-7 text-[11px] font-semibold rounded-lg border transition-all disabled:opacity-60 ${
+                    currentTemp === t.value
+                      ? t.active
+                      : "bg-transparent border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Stage */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2.5">
               <span className="text-xs font-medium text-muted-foreground">Pipeline Stage</span>
               <Select
                 value={currentStatus}
@@ -182,7 +263,6 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               </Select>
             </div>
 
-            {/* Progress track — only for the 5 forward stages */}
             <div className="flex items-center gap-1">
               {STAGES.slice(0, 5).map((stage, idx) => {
                 const isActive = stage === currentStatus;
@@ -210,7 +290,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           </div>
         </div>
 
-        {/* Suggested action strip */}
+        {/* Suggested action */}
         {insights?.recommendedAction && (
           <div className="px-6 py-3 border-b border-border/50 bg-muted/30 flex items-center gap-3">
             <div className="flex-1 min-w-0">

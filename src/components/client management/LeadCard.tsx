@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DollarSign, Clock, TrendingUp, AlertCircle, GripVertical } from "lucide-react";
+import { DollarSign, Clock, TrendingUp, AlertCircle, GripVertical, Pin } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
 
@@ -12,6 +12,13 @@ interface LeadCardProps {
   isOverlay?: boolean;
   onCardClick?: () => void;
 }
+
+const TEMP_STYLES: Record<string, string> = {
+  Hot: "bg-orange-50 text-orange-600 border-orange-200/80 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/20",
+  Warm: "bg-amber-50 text-amber-600 border-amber-200/80 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-500/20",
+  Cold: "bg-sky-50 text-sky-600 border-sky-200/80 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-500/20",
+  Close: "bg-emerald-50 text-emerald-600 border-emerald-200/80 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20",
+};
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
   const { data: insights } = useLeadInsights(lead.id);
@@ -46,20 +53,12 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
     }).format(Number(val));
   };
 
-  const getTempStyles = (temp?: string) => {
-    switch (temp) {
-      case "Hot":
-        return "bg-orange-50 text-orange-600 border-orange-200/80 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/20";
-      case "Warm":
-        return "bg-amber-50 text-amber-600 border-amber-200/80 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-500/20";
-      default:
-        return "bg-sky-50 text-sky-600 border-sky-200/80 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-500/20";
-    }
-  };
-
   const showFollowUp =
     lead.lastInteractionAt &&
     differenceInDays(new Date(), new Date(lead.lastInteractionAt)) > 7;
+
+  const temp = insights?.temperature;
+  const tempStyle = temp ? TEMP_STYLES[temp] : null;
 
   return (
     <Box
@@ -76,7 +75,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       {...attributes}
       onClick={onCardClick}
     >
-      {/* Drag handle — only this triggers drag */}
+      {/* Drag handle */}
       <div
         {...listeners}
         onClick={(e) => e.stopPropagation()}
@@ -87,7 +86,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
 
       <div className="p-3.5">
         {/* Top row */}
-        <Flex className="items-start gap-2.5 mb-3 pr-5">
+        <Flex className="items-start gap-2.5 mb-3 pr-6">
           <Avatar className="h-8 w-8 rounded-lg shrink-0">
             <AvatarImage src={lead.image} />
             <AvatarFallback className="rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-bold">
@@ -102,10 +101,13 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               {lead.businessIndustry || "General"}
             </p>
           </Box>
-          {insights?.temperature && (
-            <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold shrink-0 ${getTempStyles(insights.temperature)}`}>
-              {insights.temperature.toUpperCase()}
-            </span>
+          {temp && tempStyle && (
+            <div className={`flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded border font-bold shrink-0 ${tempStyle}`}>
+              {insights?.isManualTemperature && (
+                <Pin className="h-2 w-2 shrink-0" />
+              )}
+              <span>{temp.toUpperCase()}</span>
+            </div>
           )}
         </Flex>
 
@@ -136,7 +138,6 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
             ) : (
               <div />
             )}
-
             {lead.lastInteractionAt ? (
               <Flex className="items-center gap-1 text-[9px] text-muted-foreground">
                 <Clock className="h-2.5 w-2.5 opacity-50" />
