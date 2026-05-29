@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Sheet, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -43,6 +44,13 @@ const STAGE_TEXT: Record<string, string> = {
   "Project In Progress": "text-violet-600 dark:text-violet-400",
   "Completed": "text-emerald-600 dark:text-emerald-400",
   "Inactive Client": "text-rose-600 dark:text-rose-400",
+};
+
+const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
+  Close: "Contract Signed",
+  Hot: "Project In Progress",
+  Warm: "In Negotiation",
+  Cold: "New Lead",
 };
 
 const TEMPERATURES: {
@@ -106,7 +114,24 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
   const handleTemperatureChange = (temp: LeadTemperature | null) => {
     if (!client) return;
-    updateTemperature.mutate({ clientId: client.id, temperature: temp });
+    updateTemperature.mutate(
+      { clientId: client.id, temperature: temp },
+      {
+        onSuccess: () => {
+          if (!temp) return;
+          const suggestedStage = TEMP_STAGE_SUGGESTION[temp];
+          if (suggestedStage && suggestedStage !== currentStatus) {
+            toast(`Temperature set to ${temp}`, {
+              description: `Move pipeline stage to "${suggestedStage}"?`,
+              action: {
+                label: "Move stage",
+                onClick: () => handleStatusChange(suggestedStage),
+              },
+            });
+          }
+        },
+      }
+    );
   };
 
   if (!client) return null;
