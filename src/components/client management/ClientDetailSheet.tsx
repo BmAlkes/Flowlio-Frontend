@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
 import { Sheet, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -17,7 +16,7 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, ChevronRight, RotateCcw } from "lucide-react";
+import { DollarSign, Building2, ChevronRight, RotateCcw, ArrowRight, X } from "lucide-react";
 
 const STAGES = [
   "New Lead",
@@ -97,6 +96,12 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
   const { data: insights } = useLeadInsights(client?.id ?? "");
 
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
+  const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentStatus(client?.status ?? "");
+    setStageSuggestion(null);
+  }, [client?.id]);
 
   useEffect(() => {
     setCurrentStatus(client?.status ?? "");
@@ -106,6 +111,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
     if (!client || newStatus === currentStatus) return;
     const prev = currentStatus;
     setCurrentStatus(newStatus);
+    setStageSuggestion(null);
     updateStatus.mutate(
       { clientId: client.id, newStatus, oldStatus: prev },
       { onError: () => setCurrentStatus(prev) }
@@ -118,16 +124,12 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
       { clientId: client.id, temperature: temp },
       {
         onSuccess: () => {
-          if (!temp) return;
-          const suggestedStage = TEMP_STAGE_SUGGESTION[temp];
-          if (suggestedStage && suggestedStage !== currentStatus) {
-            toast(`Temperature set to ${temp}`, {
-              description: `Move pipeline stage to "${suggestedStage}"?`,
-              action: {
-                label: "Move stage",
-                onClick: () => handleStatusChange(suggestedStage),
-              },
-            });
+          if (!temp) { setStageSuggestion(null); return; }
+          const suggested = TEMP_STAGE_SUGGESTION[temp];
+          if (suggested && suggested !== currentStatus) {
+            setStageSuggestion(suggested);
+          } else {
+            setStageSuggestion(null);
           }
         },
       }
@@ -256,6 +258,29 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 </button>
               ))}
             </div>
+
+            {/* Inline stage suggestion */}
+            {stageSuggestion && (
+              <div className="mt-2.5 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/60 dark:border-amber-500/20">
+                <ArrowRight className="h-3 w-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                <p className="text-xs text-amber-800 dark:text-amber-300 flex-1">
+                  Move stage to <span className="font-semibold">{stageSuggestion}</span>?
+                </p>
+                <button
+                  onClick={() => handleStatusChange(stageSuggestion)}
+                  disabled={updateStatus.isPending}
+                  className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors disabled:opacity-50 shrink-0"
+                >
+                  Move
+                </button>
+                <button
+                  onClick={() => setStageSuggestion(null)}
+                  className="text-amber-500/60 hover:text-amber-700 dark:hover:text-amber-300 transition-colors shrink-0"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Stage */}
