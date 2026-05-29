@@ -16,7 +16,7 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, ChevronRight, RotateCcw, ArrowRight, X } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp } from "lucide-react";
 
 const STAGES = [
   "New Lead",
@@ -55,31 +55,41 @@ const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
 const TEMPERATURES: {
   value: LeadTemperature;
   label: string;
-  active: string;
+  ring: string;
+  activeText: string;
+  activeBg: string;
   badge: string;
 }[] = [
   {
     value: "Hot",
     label: "Hot",
-    active: "bg-orange-50 border-orange-300 text-orange-700 dark:bg-orange-900/20 dark:border-orange-500/40 dark:text-orange-300",
+    ring: "ring-orange-400",
+    activeText: "text-orange-700 dark:text-orange-300",
+    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
     badge: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-500/30",
   },
   {
     value: "Warm",
     label: "Warm",
-    active: "bg-amber-50 border-amber-300 text-amber-700 dark:bg-amber-900/20 dark:border-amber-500/40 dark:text-amber-300",
+    ring: "ring-amber-400",
+    activeText: "text-amber-700 dark:text-amber-300",
+    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
     badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500/30",
   },
   {
     value: "Cold",
     label: "Cold",
-    active: "bg-sky-50 border-sky-300 text-sky-700 dark:bg-sky-900/20 dark:border-sky-500/40 dark:text-sky-300",
+    ring: "ring-sky-400",
+    activeText: "text-sky-700 dark:text-sky-300",
+    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
     badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-500/30",
   },
   {
     value: "Close",
     label: "Close",
-    active: "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-500/40 dark:text-emerald-300",
+    ring: "ring-emerald-400",
+    activeText: "text-emerald-700 dark:text-emerald-300",
+    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-500/30",
   },
 ];
@@ -126,11 +136,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
         onSuccess: () => {
           if (!temp) { setStageSuggestion(null); return; }
           const suggested = TEMP_STAGE_SUGGESTION[temp];
-          if (suggested && suggested !== currentStatus) {
-            setStageSuggestion(suggested);
-          } else {
-            setStageSuggestion(null);
-          }
+          setStageSuggestion(suggested && suggested !== currentStatus ? suggested : null);
         },
       }
     );
@@ -139,11 +145,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
   if (!client) return null;
 
   const initials =
-    client.name
-      ?.split(" ")
-      .map((n: string) => n[0])
-      .join("")
-      .toUpperCase() ?? "?";
+    client.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase() ?? "?";
 
   const formatValue = (val: any) => {
     const n = Number(val);
@@ -162,70 +164,72 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="sm:max-w-[460px] w-[460px] p-0 flex flex-col gap-0 overflow-hidden">
+      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden">
 
-        {/* Client header */}
-        <div className="px-6 pt-6 pb-5 border-b border-border/50">
-          <div className="flex items-start gap-4">
-            <Avatar className="h-12 w-12 rounded-xl shrink-0 ring-1 ring-border/40">
-              <AvatarImage src={client.image} />
-              <AvatarFallback className="rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold text-sm">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+        {/* Header */}
+        <div className="px-6 pt-7 pb-6 border-b border-border/40">
 
-            <div className="flex-1 min-w-0 pt-0.5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-semibold text-[15px] text-foreground leading-snug truncate">
+          {/* Client identity */}
+          <div className="flex items-start gap-4 mb-6">
+            <div className="relative shrink-0">
+              <Avatar className={`h-14 w-14 rounded-2xl ring-[2.5px] ring-offset-2 ring-offset-background ${tempConfig?.ring ?? "ring-border/40"}`}>
+                <AvatarImage src={client.image} />
+                <AvatarFallback className="rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold text-base">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <div className="flex-1 min-w-0 pt-1">
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="font-semibold text-base text-foreground leading-snug truncate">
                   {client.name}
                 </h2>
                 {currentTemp && tempConfig && (
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${tempConfig.badge}`}>
+                  <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${tempConfig.badge}`}>
                     {currentTemp}
-                    {insights?.isManualTemperature && (
-                      <span className="ml-1 opacity-60">·</span>
-                    )}
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5 mt-1">
-                <Building2 className="h-3 w-3 text-muted-foreground/60 shrink-0" />
-                <p className="text-xs text-muted-foreground truncate">
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <Building2 className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                <p className="text-[12px] text-muted-foreground truncate">
                   {client.businessIndustry || "No industry"}
                 </p>
               </div>
 
-              {(formattedValue || insights?.score !== undefined) && (
-                <div className="flex items-center gap-2.5 mt-2">
-                  {formattedValue && (
+              <div className="flex items-center gap-3 mt-2.5">
+                {formattedValue && (
+                  <div className="flex items-center gap-1">
+                    <DollarSign className="h-3 w-3 text-emerald-600" />
+                    <span className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400">
+                      {formattedValue}
+                    </span>
+                  </div>
+                )}
+                {insights?.score !== undefined && (
+                  <>
+                    {formattedValue && <span className="text-border">·</span>}
                     <div className="flex items-center gap-1">
-                      <DollarSign className="h-3 w-3 text-emerald-600" />
-                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                        {formattedValue}
+                      <TrendingUp className="h-3 w-3 text-indigo-500" />
+                      <span className="text-[12px] text-muted-foreground">
+                        {insights.score}% score
                       </span>
                     </div>
-                  )}
-                  {formattedValue && insights?.score !== undefined && (
-                    <span className="w-px h-3 bg-border/60" />
-                  )}
-                  {insights?.score !== undefined && (
-                    <span className="text-xs text-muted-foreground">
-                      {insights.score}% lead score
-                    </span>
-                  )}
-                </div>
-              )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Temperature */}
-          <div className="mt-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-muted-foreground">
+          {/* Temperature segmented control */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Temperature
                 {insights?.isManualTemperature && (
-                  <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wide bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1 py-0.5 rounded">
+                  <span className="ml-2 normal-case font-semibold text-[9px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
                     manual
                   </span>
                 )}
@@ -234,37 +238,40 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 <button
                   onClick={() => handleTemperatureChange(null)}
                   disabled={updateTemperature.isPending}
-                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
                 >
                   <RotateCcw className="h-2.5 w-2.5" />
-                  Reset to auto
+                  Auto
                 </button>
               )}
             </div>
 
-            <div className="flex gap-1.5">
-              {TEMPERATURES.map((t) => (
-                <button
-                  key={t.value}
-                  onClick={() => handleTemperatureChange(t.value)}
-                  disabled={updateTemperature.isPending}
-                  className={`flex-1 h-7 text-[11px] font-semibold rounded-lg border transition-all disabled:opacity-60 ${
-                    currentTemp === t.value
-                      ? t.active
-                      : "bg-transparent border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div className="grid grid-cols-4 gap-1 p-1 bg-muted/50 dark:bg-muted/20 rounded-xl">
+              {TEMPERATURES.map((t) => {
+                const isActive = currentTemp === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    onClick={() => handleTemperatureChange(t.value)}
+                    disabled={updateTemperature.isPending}
+                    className={`h-8 rounded-lg text-[12px] font-semibold transition-all duration-150 disabled:opacity-50 ${
+                      isActive
+                        ? `${t.activeBg} ${t.activeText}`
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Inline stage suggestion */}
             {stageSuggestion && (
-              <div className="mt-2.5 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/60 dark:border-amber-500/20">
+              <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/70 dark:border-amber-500/20">
                 <ArrowRight className="h-3 w-3 text-amber-600 dark:text-amber-400 shrink-0" />
-                <p className="text-xs text-amber-800 dark:text-amber-300 flex-1">
-                  Move stage to <span className="font-semibold">{stageSuggestion}</span>?
+                <p className="text-[12px] text-amber-800 dark:text-amber-300 flex-1">
+                  Move to <span className="font-semibold">{stageSuggestion}</span>?
                 </p>
                 <button
                   onClick={() => handleStatusChange(stageSuggestion)}
@@ -275,7 +282,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 </button>
                 <button
                   onClick={() => setStageSuggestion(null)}
-                  className="text-amber-500/60 hover:text-amber-700 dark:hover:text-amber-300 transition-colors shrink-0"
+                  className="text-amber-400 hover:text-amber-600 transition-colors shrink-0"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -283,26 +290,28 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
             )}
           </div>
 
-          {/* Stage */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-medium text-muted-foreground">Pipeline Stage</span>
+          {/* Pipeline stage */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Pipeline Stage
+              </span>
               <Select
                 value={currentStatus}
                 onValueChange={handleStatusChange}
                 disabled={updateStatus.isPending}
               >
-                <SelectTrigger size="sm" className="h-7 text-xs w-auto border-border/60 gap-2">
+                <SelectTrigger size="sm" className="h-7 text-[12px] w-auto border-border/50 gap-2 font-medium">
                   <div className="flex items-center gap-1.5">
                     <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${STAGE_COLORS[currentStatus] ?? "bg-gray-400"}`} />
-                    <span className={`font-medium ${STAGE_TEXT[currentStatus] ?? ""}`}>
+                    <span className={STAGE_TEXT[currentStatus] ?? ""}>
                       <SelectValue />
                     </span>
                   </div>
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((stage) => (
-                    <SelectItem key={stage} value={stage} className="text-xs">
+                    <SelectItem key={stage} value={stage} className="text-[12px]">
                       <div className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${STAGE_COLORS[stage]}`} />
                         {stage}
@@ -322,11 +331,11 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     key={stage}
                     onClick={() => handleStatusChange(stage)}
                     title={stage}
-                    className={`h-1 flex-1 rounded-full transition-all duration-300 focus:outline-none ${
+                    className={`h-1.5 flex-1 rounded-full transition-all duration-300 focus:outline-none ${
                       isActive
                         ? `${STAGE_COLORS[stage]} opacity-100`
                         : isPast
-                        ? `${STAGE_COLORS[stage]} opacity-40`
+                        ? `${STAGE_COLORS[stage]} opacity-35`
                         : "bg-gray-200 dark:bg-gray-700"
                     }`}
                   />
@@ -340,22 +349,27 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           </div>
         </div>
 
-        {/* Suggested action */}
+        {/* Suggested action strip */}
         {insights?.recommendedAction && (
-          <div className="px-6 py-3 border-b border-border/50 bg-muted/30 flex items-center gap-3">
+          <div className="px-6 py-3 border-b border-border/40 flex items-center gap-3 bg-muted/20">
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                Suggested action
+              <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-0.5">
+                AI Suggestion
               </p>
-              <p className="text-xs text-foreground/80 truncate">{insights.recommendedAction}</p>
+              <p className="text-[12px] text-foreground/75 truncate">{insights.recommendedAction}</p>
             </div>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
           </div>
         )}
 
-        {/* Timeline */}
+        {/* Activity */}
+        <div className="px-6 pt-4 pb-1 flex items-center justify-between shrink-0">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Activity
+          </span>
+        </div>
+
         <ScrollArea className="flex-1">
-          <div className="px-6 py-5">
+          <div className="px-6 pb-6">
             <ClientTimeline clientId={client.id} />
           </div>
         </ScrollArea>

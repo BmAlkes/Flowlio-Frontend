@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DollarSign, Clock, TrendingUp, AlertCircle, GripVertical, Pin } from "lucide-react";
+import { DollarSign, Clock, AlertCircle, GripVertical, Pin } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
 
@@ -13,11 +13,18 @@ interface LeadCardProps {
   onCardClick?: () => void;
 }
 
-const TEMP_STYLES: Record<string, string> = {
-  Hot: "bg-orange-50 text-orange-600 border-orange-200/80 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/20",
-  Warm: "bg-amber-50 text-amber-600 border-amber-200/80 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-500/20",
-  Cold: "bg-sky-50 text-sky-600 border-sky-200/80 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-500/20",
-  Close: "bg-emerald-50 text-emerald-600 border-emerald-200/80 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/20",
+const TEMP_BORDER: Record<string, string> = {
+  Hot: "border-l-orange-400",
+  Warm: "border-l-amber-400",
+  Cold: "border-l-sky-400",
+  Close: "border-l-emerald-500",
+};
+
+const TEMP_BADGE: Record<string, string> = {
+  Hot: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-900/20 dark:border-orange-500/20",
+  Warm: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-500/20",
+  Cold: "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-900/20 dark:border-sky-500/20",
+  Close: "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-900/20 dark:border-emerald-500/20",
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
@@ -34,18 +41,14 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.25 : 1,
+    opacity: isDragging ? 0.2 : 1,
   };
 
   const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+    name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
   const formatValue = (val: any) => {
-    if (!val) return "$0";
+    if (!val || Number(val) === 0) return null;
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -58,18 +61,20 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
     differenceInDays(new Date(), new Date(lead.lastInteractionAt)) > 7;
 
   const temp = insights?.temperature;
-  const tempStyle = temp ? TEMP_STYLES[temp] : null;
+  const formattedValue = formatValue(lead.leadValue);
+  const borderClass = temp ? TEMP_BORDER[temp] : "border-l-transparent";
 
   return (
     <Box
       ref={setNodeRef}
       style={style}
       className={`
-        relative bg-white dark:bg-gray-900 rounded-xl border border-border/60 shadow-xs
+        relative bg-white dark:bg-gray-900 rounded-xl border border-border/50
+        border-l-[3px] ${borderClass}
         group transition-all duration-150
         ${isOverlay
-          ? "shadow-2xl ring-2 ring-black/10 scale-[1.03] cursor-grabbing"
-          : "hover:shadow-sm hover:border-border cursor-pointer"
+          ? "shadow-2xl ring-1 ring-black/8 scale-[1.03] cursor-grabbing rotate-[0.5deg]"
+          : "hover:shadow-md hover:-translate-y-px cursor-pointer"
         }
       `}
       {...attributes}
@@ -79,72 +84,69 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       <div
         {...listeners}
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-2.5 right-2.5 p-1 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute top-3 right-3 p-1 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10"
       >
-        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30" />
       </div>
 
-      <div className="p-3.5">
-        {/* Top row */}
-        <Flex className="items-start gap-2.5 mb-3 pr-6">
-          <Avatar className="h-8 w-8 rounded-lg shrink-0">
+      <div className="p-3.5 pr-8">
+        {/* Top */}
+        <Flex className="items-start gap-3 mb-3">
+          <Avatar className="h-9 w-9 rounded-xl shrink-0">
             <AvatarImage src={lead.image} />
-            <AvatarFallback className="rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-bold">
+            <AvatarFallback className="rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold">
               {getInitials(lead.name || "UN")}
             </AvatarFallback>
           </Avatar>
-          <Box className="min-w-0 flex-1">
-            <h4 className="text-xs font-semibold text-foreground truncate leading-snug">
+          <div className="min-w-0 flex-1">
+            <h4 className="text-[13px] font-semibold text-foreground truncate leading-tight">
               {lead.name}
             </h4>
-            <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">
+            <p className="text-[11px] text-muted-foreground/60 truncate mt-0.5 leading-tight">
               {lead.businessIndustry || "General"}
             </p>
-          </Box>
-          {temp && tempStyle && (
-            <div className={`flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded border font-bold shrink-0 ${tempStyle}`}>
-              {insights?.isManualTemperature && (
-                <Pin className="h-2 w-2 shrink-0" />
-              )}
-              <span>{temp.toUpperCase()}</span>
-            </div>
-          )}
-        </Flex>
-
-        {/* Value + probability */}
-        <Flex className="items-center justify-between mb-3">
-          <Flex className="items-center gap-1">
-            <div className="p-1 rounded-md bg-emerald-50 dark:bg-emerald-900/20">
-              <DollarSign className="h-2.5 w-2.5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <span className="text-xs font-bold text-foreground">
-              {formatValue(lead.leadValue)}
-            </span>
-          </Flex>
-          <div className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground">
-            <TrendingUp className="h-2.5 w-2.5 text-indigo-400" />
-            <span>{lead.leadProbability || 0}%</span>
           </div>
         </Flex>
 
+        {/* Temperature + value row */}
+        <Flex className="items-center justify-between mb-3">
+          {temp && TEMP_BADGE[temp] ? (
+            <div className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-semibold ${TEMP_BADGE[temp]}`}>
+              {insights?.isManualTemperature && <Pin className="h-2 w-2 shrink-0" />}
+              <span>{temp}</span>
+            </div>
+          ) : (
+            <div />
+          )}
+
+          {formattedValue ? (
+            <div className="flex items-center gap-1">
+              <DollarSign className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-bold text-foreground">{formattedValue}</span>
+            </div>
+          ) : (
+            <span className="text-[11px] text-muted-foreground/40 font-medium">No value</span>
+          )}
+        </Flex>
+
         {/* Footer */}
-        <div className="pt-2.5 border-t border-border/40">
+        <div className="pt-2.5 border-t border-border/30">
           <Flex className="items-center justify-between">
             {showFollowUp ? (
-              <Flex className="items-center gap-1 text-[9px] font-bold text-rose-500">
+              <Flex className="items-center gap-1 text-[9px] font-bold text-rose-500 uppercase tracking-wide">
                 <AlertCircle className="h-2.5 w-2.5" />
-                <span>FOLLOW UP</span>
+                <span>Follow up</span>
               </Flex>
             ) : (
               <div />
             )}
             {lead.lastInteractionAt ? (
-              <Flex className="items-center gap-1 text-[9px] text-muted-foreground">
-                <Clock className="h-2.5 w-2.5 opacity-50" />
+              <Flex className="items-center gap-1 text-[10px] text-muted-foreground/50">
+                <Clock className="h-2.5 w-2.5" />
                 <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
               </Flex>
             ) : (
-              <span className="text-[9px] text-muted-foreground/50 italic">No contact yet</span>
+              <span className="text-[10px] text-muted-foreground/35 italic">No contact yet</span>
             )}
           </Flex>
         </div>
