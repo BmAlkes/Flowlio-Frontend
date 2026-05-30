@@ -27,6 +27,23 @@ export interface LeadInsights {
   recommendedAction: string;
 }
 
+// Patches a single client in all cached variants of ["clients", *]
+function patchClientInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  clientId: string,
+  patch: Record<string, any>
+) {
+  queryClient.setQueriesData({ queryKey: ["clients"] }, (old: any) => {
+    if (!old?.data) return old;
+    return {
+      ...old,
+      data: old.data.map((c: any) =>
+        c.id === clientId ? { ...c, ...patch } : c
+      ),
+    };
+  });
+}
+
 export const useUpdateLeadStatus = () => {
   const queryClient = useQueryClient();
 
@@ -101,6 +118,10 @@ export const useAddInteraction = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
+      // Optimistic: update lastInteractionAt immediately in the kanban cache
+      patchClientInCache(queryClient, variables.clientId, {
+        lastInteractionAt: new Date().toISOString(),
+      });
       queryClient.invalidateQueries({ queryKey: ["client-timeline", variables.clientId] });
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
@@ -119,12 +140,13 @@ export const useUpdateLeadValue = () => {
       });
       return response.data;
     },
-    onSuccess: (responseData, variables) => {
+    onSuccess: (_, variables) => {
+      // Optimistic: update leadValue immediately in the kanban cache
+      patchClientInCache(queryClient, variables.clientId, {
+        leadValue: variables.leadValue,
+      });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
-      if (responseData?.data) {
-        queryClient.setQueryData(["client", variables.clientId], responseData.data);
-      }
       toast.success("Value updated");
     },
     onError: (error: any) => {
