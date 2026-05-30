@@ -30,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
 import { DashboardSkeleton, SkeletonWrapper } from "@/components/skeletons";
+import { FollowUpWidget } from "@/components/admin/dashboard/FollowUpWidget";
 
 const DashboardPage = () => {
   const { t } = useTranslation();
@@ -152,6 +153,7 @@ const DashboardPage = () => {
             data={pieChartData}
             title={t("dashboard.projectStatus")}
           />
+          <FollowUpWidget />
           <RecentActivities className="w-full" />
         </Stack>
       </Flex>

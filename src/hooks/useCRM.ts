@@ -197,6 +197,24 @@ export const useDeleteInteraction = () => {
   });
 };
 
+export const usePendingFollowUps = () => {
+  return useQuery({
+    queryKey: ["pending-followups"],
+    queryFn: async () => {
+      const response = await axios.get("/leads/followups/pending");
+      return response.data.data as Array<{
+        id: string;
+        name: string;
+        businessIndustry?: string;
+        status: string;
+        followUpAt: string;
+        image?: string;
+      }>;
+    },
+    refetchInterval: 5 * 60 * 1000, // refresh every 5 min
+  });
+};
+
 export const useLeadInsights = (clientId: string) => {
   return useQuery({
     queryKey: ["lead-insights", clientId],
