@@ -6,8 +6,6 @@ import {
   useDeleteInteraction,
   useLeadInsights,
 } from "@/hooks/useCRM";
-import { Box } from "../ui/box";
-import { Flex } from "../ui/flex";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -20,9 +18,9 @@ import {
   Send,
   Loader2,
   ArrowRightLeft,
-  Lightbulb,
   Thermometer,
   Trash2,
+  Lightbulb,
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,6 +29,26 @@ interface ClientTimelineProps {
   clientId: string;
   mode?: "admin" | "client";
 }
+
+const TYPE_ICON: Record<string, React.ReactNode> = {
+  call: <Phone className="w-3 h-3" />,
+  email: <Mail className="w-3 h-3" />,
+  meeting: <Users className="w-3 h-3" />,
+  status_change: <ArrowRightLeft className="w-3 h-3" />,
+  temperature_change: <Thermometer className="w-3 h-3" />,
+  note: <MessageSquare className="w-3 h-3" />,
+};
+
+const TYPE_COLOR: Record<string, string> = {
+  call: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+  email: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  meeting: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+  status_change: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+  temperature_change: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+  note: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+};
+
+const LOG_TYPES = ["note", "call", "email", "meeting"] as const;
 
 export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps) => {
   const { t } = useTranslation();
@@ -41,6 +59,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
 
   const [content, setContent] = useState("");
   const [type, setType] = useState<string>("note");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
@@ -50,168 +69,170 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
     );
   };
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case "call": return <Phone className="w-3 h-3" />;
-      case "email": return <Mail className="w-3 h-3" />;
-      case "meeting": return <Users className="w-3 h-3" />;
-      case "status_change": return <ArrowRightLeft className="w-3 h-3" />;
-      case "temperature_change": return <Thermometer className="w-3 h-3" />;
-      default: return <MessageSquare className="w-3 h-3" />;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "call": return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
-      case "email": return "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
-      case "meeting": return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
-      case "status_change": return "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400";
-      case "temperature_change": return "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
-      default: return "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400";
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Flex className="py-10 justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
-      </Flex>
+  const handleDelete = (interactionId: string) => {
+    setDeletingId(interactionId);
+    deleteInteraction.mutate(
+      { interactionId, clientId },
+      { onSettled: () => setDeletingId(null) }
     );
-  }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSubmit();
+  };
+
+  const visibleTimeline = timeline?.filter(
+    (item) => mode === "admin" || !["status_change", "temperature_change"].includes(item.type)
+  );
 
   return (
-    <Box className="space-y-6">
-      {/* Lead Insights Banner */}
+    <div className="flex flex-col gap-4">
+
+      {/* AI Insight */}
       {mode === "admin" && insights && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-500/20 p-4 rounded-xl"
-        >
-          <Flex className="gap-3 items-start">
-            <Box className="p-2 bg-indigo-600 rounded-lg text-white shrink-0">
-              <Lightbulb className="w-4 h-4" />
-            </Box>
-            <Box className="flex-1 min-w-0">
-              <h4 className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider">
-                Recommended Action
-              </h4>
-              <p className="text-sm text-indigo-700 dark:text-indigo-400 font-medium">
-                {insights.recommendedAction}
-              </p>
-            </Box>
-            <Box className="ml-auto text-right shrink-0">
-              <p className="text-[10px] font-bold text-indigo-500 uppercase">Lead Score</p>
-              <p className="text-lg font-black text-indigo-900 dark:text-indigo-200">
-                {insights.score}%
-              </p>
-            </Box>
-          </Flex>
-        </motion.div>
+        <div className="flex items-start gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-500/20">
+          <div className="p-1.5 bg-indigo-600 rounded-lg text-white shrink-0 mt-0.5">
+            <Lightbulb className="w-3.5 h-3.5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-0.5">
+              Recommended
+            </p>
+            <p className="text-[12px] text-indigo-800 dark:text-indigo-300 font-medium leading-snug">
+              {insights.recommendedAction}
+            </p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-[9px] font-bold text-indigo-400 uppercase">Score</p>
+            <p className="text-base font-black text-indigo-700 dark:text-indigo-300">
+              {insights.score}%
+            </p>
+          </div>
+        </div>
       )}
 
-      {/* Quick Log Form */}
-      <Box className="bg-muted/30 p-4 rounded-xl border border-border/50">
-        <Flex className="gap-2 mb-3 flex-wrap">
-          {(mode === "admin" ? ["note", "call", "email", "meeting"] : ["note"]).map((item) => (
-            <Button
-              key={item}
-              variant={type === item ? "default" : "outline"}
-              size="sm"
-              onClick={() => setType(item)}
-              className="rounded-full text-[10px] h-7 capitalize px-3"
+      {/* Log form */}
+      <div className="rounded-xl border border-border/60 bg-muted/20 overflow-hidden">
+        <div className="flex gap-1.5 p-2 border-b border-border/40 bg-background/50">
+          {(mode === "admin" ? LOG_TYPES : (["note"] as const)).map((t_) => (
+            <button
+              key={t_}
+              onClick={() => setType(t_)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold capitalize transition-all ${
+                type === t_
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
             >
-              {item === "note" && mode === "client" ? "Send Message" : item}
-            </Button>
+              {t_ === "note" && mode === "client" ? "Message" : t_}
+            </button>
           ))}
-        </Flex>
+        </div>
 
-        <Box className="relative">
+        <div className="relative p-2">
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={t("activity.logPlaceholder", {
               type: type === "note" && mode === "client" ? "message" : type,
             })}
-            className="min-h-[80px] resize-none pr-12 rounded-xl text-sm focus-visible:ring-indigo-500"
+            className="min-h-[72px] resize-none pr-11 rounded-lg text-[13px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
           />
           <Button
             size="icon"
-            className="absolute bottom-2 right-2 rounded-full h-8 w-8 bg-indigo-600 hover:bg-indigo-700"
+            className="absolute bottom-4 right-4 rounded-full h-7 w-7 bg-indigo-600 hover:bg-indigo-700 shadow-md"
             onClick={handleSubmit}
             disabled={!content.trim() || addInteraction.isPending}
           >
-            {addInteraction.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            {addInteraction.isPending
+              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              : <Send className="w-3.5 h-3.5" />
+            }
           </Button>
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      {/* Timeline */}
-      <Box className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-0 before:w-0.5 before:bg-border/60">
-        <AnimatePresence initial={false}>
-          {timeline
-            ?.filter((item) => mode === "admin" || !["status_change", "temperature_change"].includes(item.type))
-            .map((item, index) => (
+      {/* Timeline list */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+        </div>
+      ) : !visibleTimeline?.length ? (
+        <p className="text-center py-8 text-[12px] text-muted-foreground/50 italic">
+          No interactions logged yet.
+        </p>
+      ) : (
+        <div className="relative pl-5 space-y-3">
+          {/* vertical line */}
+          <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border/50" />
+
+          <AnimatePresence initial={false}>
+            {visibleTimeline.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ delay: index * 0.03 }}
                 className="relative"
               >
-                <Box
-                  className={`absolute -left-[22px] p-1.5 rounded-full z-10 border-2 border-background ${getTypeColor(item.type)}`}
-                >
-                  {getIcon(item.type)}
-                </Box>
+                {/* dot */}
+                <div className={`absolute -left-[18px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-background z-10 ${TYPE_COLOR[item.type] ?? TYPE_COLOR.note}`}>
+                  {TYPE_ICON[item.type] ?? TYPE_ICON.note}
+                </div>
 
-                <Box className="bg-card p-3 rounded-xl border border-border shadow-sm group/item">
-                  <Flex className="justify-between items-start mb-1">
-                    <Flex className="items-center gap-2">
-                      <Avatar className="h-5 w-5">
+                <div className="bg-card rounded-xl border border-border/60 overflow-hidden">
+                  {/* item header */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-muted/20 border-b border-border/40">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-5 w-5 shrink-0">
                         <AvatarImage src={item.user?.image} />
-                        <AvatarFallback className="text-[8px]">
+                        <AvatarFallback className="text-[8px] font-bold">
                           {item.user?.name?.[0]}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs font-semibold">{item.user?.name}</span>
-                    </Flex>
-                    <Flex className="items-center gap-2">
-                      <Flex className="items-center gap-1 text-[10px] text-muted-foreground">
+                      <span className="text-[12px] font-semibold text-foreground">
+                        {item.user?.name}
+                      </span>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md capitalize ${TYPE_COLOR[item.type] ?? TYPE_COLOR.note}`}>
+                        {item.type.replace("_", " ")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <Clock className="w-3 h-3" />
-                        {format(new Date(item.createdAt), "MMM d, h:mm a")}
-                      </Flex>
+                        <span>{format(new Date(item.createdAt), "MMM d, h:mm a")}</span>
+                      </div>
                       {mode === "admin" && (
                         <button
-                          onClick={() => deleteInteraction.mutate({ interactionId: item.id, clientId })}
-                          disabled={deleteInteraction.isPending}
-                          className="opacity-0 group-hover/item:opacity-100 transition-opacity text-muted-foreground/40 hover:text-rose-500 disabled:opacity-30"
+                          onClick={() => handleDelete(item.id)}
+                          disabled={deletingId === item.id}
+                          title="Delete interaction"
+                          className="p-1 rounded-md text-muted-foreground/60 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          {deletingId === item.id
+                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                            : <Trash2 className="w-3 h-3" />
+                          }
                         </button>
                       )}
-                    </Flex>
-                  </Flex>
+                    </div>
+                  </div>
 
-                  <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
-                    {item.content}
-                  </p>
-                </Box>
+                  {/* item content */}
+                  <div className="px-3 py-2.5">
+                    <p className="text-[13px] text-foreground/85 whitespace-pre-wrap leading-relaxed">
+                      {item.content}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             ))}
-        </AnimatePresence>
-
-        {(!timeline || timeline.length === 0) && (
-          <Box className="text-center py-6 text-muted-foreground text-sm italic">
-            No interactions logged yet.
-          </Box>
-        )}
-      </Box>
-    </Box>
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
   );
 };

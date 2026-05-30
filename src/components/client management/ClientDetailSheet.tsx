@@ -422,14 +422,14 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
         )}
 
         {/* Activity */}
-        <div className="px-6 pt-4 pb-1 flex items-center justify-between shrink-0">
+        <div className="px-6 pt-4 pb-2 shrink-0">
           <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
             Activity
           </span>
         </div>
 
-        <ScrollArea className="flex-1">
-          <div className="px-6 pb-6">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="px-6 pb-4">
             <ClientTimeline clientId={client.id} />
           </div>
         </ScrollArea>
