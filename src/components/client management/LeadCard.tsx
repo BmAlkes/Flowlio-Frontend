@@ -99,10 +99,10 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <h4 className="text-[13px] font-semibold text-foreground truncate leading-tight">
+            <h4 className="text-[14px] font-semibold text-foreground truncate leading-tight">
               {lead.name}
             </h4>
-            <p className="text-[11px] text-muted-foreground/60 truncate mt-0.5 leading-tight">
+            <p className="text-[12px] text-muted-foreground/70 truncate mt-0.5 leading-tight">
               {lead.businessIndustry || "General"}
             </p>
           </div>
@@ -122,10 +122,10 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
           {formattedValue ? (
             <div className="flex items-center gap-1">
               <DollarSign className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-bold text-foreground">{formattedValue}</span>
+              <span className="text-[13px] font-bold text-foreground">{formattedValue}</span>
             </div>
           ) : (
-            <span className="text-[11px] text-muted-foreground/40 font-medium">No value</span>
+            <span className="text-[11px] text-muted-foreground/55 font-medium">No value</span>
           )}
         </Flex>
 
@@ -133,7 +133,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
         <div className="pt-2.5 border-t border-border/30">
           <Flex className="items-center justify-between">
             {showFollowUp ? (
-              <Flex className="items-center gap-1 text-[9px] font-bold text-rose-500 uppercase tracking-wide">
+              <Flex className="items-center gap-1 text-[10px] font-bold text-rose-500 uppercase tracking-wide">
                 <AlertCircle className="h-2.5 w-2.5" />
                 <span>Follow up</span>
               </Flex>
@@ -141,12 +141,12 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               <div />
             )}
             {lead.lastInteractionAt ? (
-              <Flex className="items-center gap-1 text-[10px] text-muted-foreground/50">
-                <Clock className="h-2.5 w-2.5" />
+              <Flex className="items-center gap-1 text-[11px] text-muted-foreground/60">
+                <Clock className="h-3 w-3" />
                 <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
               </Flex>
             ) : (
-              <span className="text-[10px] text-muted-foreground/35 italic">No contact yet</span>
+              <span className="text-[11px] text-muted-foreground/50">No contact yet</span>
             )}
           </Flex>
         </div>
