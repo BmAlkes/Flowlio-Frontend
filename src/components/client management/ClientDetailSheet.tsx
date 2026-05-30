@@ -404,18 +404,6 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           </div>
         </div>
 
-        {/* AI Suggestion strip */}
-        {insights?.recommendedAction && (
-          <div className="px-6 py-3 border-b border-border/40 flex items-center gap-3 bg-muted/20 shrink-0">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-0.5">
-                AI Suggestion
-              </p>
-              <p className="text-sm text-foreground/80 truncate">{insights.recommendedAction}</p>
-            </div>
-          </div>
-        )}
-
         {/* Activity label */}
         <div className="px-6 pt-4 pb-2 shrink-0">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
