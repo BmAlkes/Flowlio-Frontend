@@ -23,11 +23,14 @@ import { Loader2 } from "lucide-react";
 
 const STAGES = [
   "New Lead",
-  "In Negotiation",
+  "Contacted",
+  "Qualified",
+  "Proposal Sent",
   "Contract Signed",
   "Project In Progress",
   "Completed",
-  "Inactive Client",
+  "Inactive",
+  "Lost",
 ];
 
 export const CRMPipeline = () => {

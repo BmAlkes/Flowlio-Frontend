@@ -21,40 +21,62 @@ import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Ch
 
 const STAGES = [
   "New Lead",
-  "In Negotiation",
+  "Contacted",
+  "Qualified",
+  "Proposal Sent",
   "Contract Signed",
   "Project In Progress",
   "Completed",
-  "Inactive Client",
+  "Inactive",
+  "Lost",
 ];
 
-const STAGE_COLORS: Record<string, string> = {
-  "New Lead": "bg-blue-500",
-  "In Negotiation": "bg-amber-500",
-  "Contract Signed": "bg-indigo-500",
-  "Project In Progress": "bg-violet-500",
-  "Completed": "bg-emerald-500",
-  "Inactive Client": "bg-rose-500",
+// Stages that count toward progress (exclude terminal/negative ones)
+const PROGRESS_STAGES = [
+  "New Lead",
+  "Contacted",
+  "Qualified",
+  "Proposal Sent",
+  "Contract Signed",
+  "Project In Progress",
+  "Completed",
+];
+
+const STAGE_EMOJI: Record<string, string> = {
+  "New Lead": "🔵",
+  "Contacted": "🟣",
+  "Qualified": "🟡",
+  "Proposal Sent": "🟠",
+  "Contract Signed": "🟢",
+  "Project In Progress": "🔷",
+  "Completed": "✅",
+  "Inactive": "⚫",
+  "Lost": "🔴",
 };
+
 
 const STAGE_TEXT: Record<string, string> = {
   "New Lead": "text-blue-600 dark:text-blue-400",
-  "In Negotiation": "text-amber-600 dark:text-amber-400",
-  "Contract Signed": "text-indigo-600 dark:text-indigo-400",
-  "Project In Progress": "text-violet-600 dark:text-violet-400",
-  "Completed": "text-emerald-600 dark:text-emerald-400",
-  "Inactive Client": "text-rose-600 dark:text-rose-400",
+  "Contacted": "text-violet-600 dark:text-violet-400",
+  "Qualified": "text-yellow-600 dark:text-yellow-400",
+  "Proposal Sent": "text-amber-600 dark:text-amber-400",
+  "Contract Signed": "text-emerald-600 dark:text-emerald-400",
+  "Project In Progress": "text-indigo-600 dark:text-indigo-400",
+  "Completed": "text-green-600 dark:text-green-400",
+  "Inactive": "text-gray-500 dark:text-gray-400",
+  "Lost": "text-rose-600 dark:text-rose-400",
 };
 
 const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
-  Close: "Contract Signed",
   Hot: "Project In Progress",
-  Warm: "In Negotiation",
+  Warm: "Proposal Sent",
   Cold: "New Lead",
+  Lost: "Lost",
 };
 
 const TEMPERATURES: {
   value: LeadTemperature;
+  emoji: string;
   label: string;
   ring: string;
   activeText: string;
@@ -63,6 +85,7 @@ const TEMPERATURES: {
 }[] = [
   {
     value: "Hot",
+    emoji: "🔥",
     label: "Hot",
     ring: "ring-orange-400",
     activeText: "text-orange-700 dark:text-orange-300",
@@ -71,6 +94,7 @@ const TEMPERATURES: {
   },
   {
     value: "Warm",
+    emoji: "🟠",
     label: "Warm",
     ring: "ring-amber-400",
     activeText: "text-amber-700 dark:text-amber-300",
@@ -79,6 +103,7 @@ const TEMPERATURES: {
   },
   {
     value: "Cold",
+    emoji: "🔵",
     label: "Cold",
     ring: "ring-sky-400",
     activeText: "text-sky-700 dark:text-sky-300",
@@ -86,12 +111,13 @@ const TEMPERATURES: {
     badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-500/30",
   },
   {
-    value: "Close",
-    label: "Close",
-    ring: "ring-emerald-400",
-    activeText: "text-emerald-700 dark:text-emerald-300",
+    value: "Lost",
+    emoji: "⚫",
+    label: "Lost",
+    ring: "ring-gray-400",
+    activeText: "text-gray-700 dark:text-gray-300",
     activeBg: "bg-white dark:bg-gray-800 shadow-sm",
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-500/30",
+    badge: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800/40 dark:text-gray-300 dark:border-gray-600/40",
   },
 ];
 
@@ -182,7 +208,6 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
   };
 
   const formattedValue = formatValue(client.leadValue);
-  const activeIdx = STAGES.indexOf(currentStatus);
   const currentTemp = insights?.temperature;
   const tempConfig = TEMPERATURES.find((t) => t.value === currentTemp);
 
@@ -310,13 +335,14 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     key={t.value}
                     onClick={() => handleTemperatureChange(t.value)}
                     disabled={updateTemperature.isPending}
-                    className={`h-9 rounded-lg text-sm font-semibold transition-all duration-150 disabled:opacity-50 ${
+                    className={`h-10 rounded-lg text-xs font-semibold transition-all duration-150 disabled:opacity-50 flex flex-col items-center justify-center gap-0.5 ${
                       isActive
                         ? `${t.activeBg} ${t.activeText}`
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {t.label}
+                    <span className="text-base leading-none">{t.emoji}</span>
+                    <span>{t.label}</span>
                   </button>
                 );
               })}
@@ -358,7 +384,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               >
                 <SelectTrigger size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${STAGE_COLORS[currentStatus] ?? "bg-gray-400"}`} />
+                    <span className="text-sm leading-none">{STAGE_EMOJI[currentStatus]}</span>
                     <span className={STAGE_TEXT[currentStatus] ?? ""}>
                       <SelectValue />
                     </span>
@@ -368,7 +394,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   {STAGES.map((stage) => (
                     <SelectItem key={stage} value={stage} className="text-sm">
                       <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${STAGE_COLORS[stage]}`} />
+                        <span>{STAGE_EMOJI[stage]}</span>
                         {stage}
                       </div>
                     </SelectItem>
@@ -377,30 +403,32 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               </Select>
             </div>
 
-            <div className="flex items-center gap-1">
-              {STAGES.slice(0, 5).map((stage, idx) => {
-                const isActive = stage === currentStatus;
-                const isPast = currentStatus !== "Inactive Client" && idx < activeIdx;
-                return (
-                  <button
-                    key={stage}
-                    onClick={() => handleStatusChange(stage)}
-                    title={stage}
-                    className={`h-2 flex-1 rounded-full transition-all duration-300 focus:outline-none ${
-                      isActive
-                        ? `${STAGE_COLORS[stage]} opacity-100`
-                        : isPast
-                        ? `${STAGE_COLORS[stage]} opacity-35`
-                        : "bg-gray-200 dark:bg-gray-700"
-                    }`}
-                  />
-                );
-              })}
-            </div>
-
-            {currentStatus === "Inactive Client" && (
-              <p className="text-xs text-rose-500 mt-2 font-medium">Marked as inactive</p>
-            )}
+            {/* Percentage progress bar */}
+            {(() => {
+              const progressIdx = PROGRESS_STAGES.indexOf(currentStatus);
+              const isTerminal = currentStatus === "Lost" || currentStatus === "Inactive";
+              const pct = progressIdx >= 0
+                ? Math.round((progressIdx / (PROGRESS_STAGES.length - 1)) * 100)
+                : 0;
+              return (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs text-muted-foreground">
+                      {isTerminal ? currentStatus : `Step ${progressIdx + 1} of ${PROGRESS_STAGES.length}`}
+                    </span>
+                    <span className={`text-xs font-bold ${isTerminal ? "text-rose-500" : "text-indigo-600 dark:text-indigo-400"}`}>
+                      {isTerminal ? "—" : `${pct}%`}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${isTerminal ? "bg-rose-400" : "bg-indigo-500"}`}
+                      style={{ width: isTerminal ? "100%" : `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 

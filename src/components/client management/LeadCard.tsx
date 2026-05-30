@@ -17,14 +17,21 @@ const TEMP_BORDER: Record<string, string> = {
   Hot: "border-l-orange-400",
   Warm: "border-l-amber-400",
   Cold: "border-l-sky-400",
-  Close: "border-l-emerald-500",
+  Lost: "border-l-gray-400",
 };
 
 const TEMP_BADGE: Record<string, string> = {
   Hot: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-900/20 dark:border-orange-500/20",
   Warm: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-500/20",
   Cold: "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-900/20 dark:border-sky-500/20",
-  Close: "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-900/20 dark:border-emerald-500/20",
+  Lost: "text-gray-600 bg-gray-100 border-gray-300 dark:text-gray-400 dark:bg-gray-800/40 dark:border-gray-600/40",
+};
+
+const TEMP_EMOJI: Record<string, string> = {
+  Hot: "🔥",
+  Warm: "🟠",
+  Cold: "🔵",
+  Lost: "⚫",
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
@@ -113,6 +120,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
           {temp && TEMP_BADGE[temp] ? (
             <div className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-semibold ${TEMP_BADGE[temp]}`}>
               {insights?.isManualTemperature && <Pin className="h-2 w-2 shrink-0" />}
+              <span>{TEMP_EMOJI[temp]}</span>
               <span>{temp}</span>
             </div>
           ) : (

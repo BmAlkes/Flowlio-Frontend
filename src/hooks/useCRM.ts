@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { toast } from "sonner";
 
-export type LeadTemperature = "Hot" | "Warm" | "Cold" | "Close";
+export type LeadTemperature = "Hot" | "Warm" | "Cold" | "Lost";
 
 export interface ClientInteraction {
   id: string;
