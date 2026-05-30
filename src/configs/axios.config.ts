@@ -46,9 +46,13 @@ export const setLoggingOut = (value: boolean) => {
 // Add request interceptor to block requests during logout
 axios.interceptors.request.use(
   (config) => {
-    // Block all requests if user is logging out
     if (isLoggingOut) {
       return Promise.reject(new Error("User is logging out"));
+    }
+    // Prevent browser HTTP cache from returning 304 on GET requests
+    if (!config.method || config.method.toLowerCase() === "get") {
+      config.headers["Cache-Control"] = "no-cache";
+      config.headers["Pragma"] = "no-cache";
     }
     return config;
   },
