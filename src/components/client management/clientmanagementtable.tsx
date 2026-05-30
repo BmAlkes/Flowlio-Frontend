@@ -71,11 +71,14 @@ export type Project = {
   name: string;
   status:
     | "New Lead"
-    | "In Negotiation"
+    | "Contacted"
+    | "Qualified"
+    | "Proposal Sent"
     | "Contract Signed"
     | "Project In Progress"
     | "Completed"
-    | "Inactive Client";
+    | "Inactive"
+    | "Lost";
   completionRate: number; // 0-100
   contractFile: string; // file name or URL
 };
@@ -369,38 +372,53 @@ export const ClientManagementTable = () => {
       cell: ({ row }) => {
         const status = row.original.status as
           | "New Lead"
-          | "In Negotiation"
+          | "Contacted"
+          | "Qualified"
+          | "Proposal Sent"
           | "Contract Signed"
           | "Project In Progress"
           | "Completed"
-          | "Inactive Client";
+          | "Inactive"
+          | "Lost";
 
         const statusStyles: Record<
           typeof status,
           { text: string; dot: string }
         > = {
           "New Lead": {
-            text: "text-white bg-[#00A400] border-none rounded-full",
+            text: "text-white bg-blue-500 border-none rounded-full",
             dot: "bg-white",
           },
-          "In Negotiation": {
-            text: "text-white bg-[#640D5F] border-none rounded-full",
+          "Contacted": {
+            text: "text-white bg-violet-500 border-none rounded-full",
+            dot: "bg-white",
+          },
+          "Qualified": {
+            text: "text-white bg-yellow-500 border-none rounded-full",
+            dot: "bg-white",
+          },
+          "Proposal Sent": {
+            text: "text-white bg-amber-500 border-none rounded-full",
             dot: "bg-white",
           },
           "Contract Signed": {
-            text: "text-white bg-[#000000] border-none rounded-full",
+            text: "text-white bg-emerald-600 border-none rounded-full",
             dot: "bg-white",
           },
           "Project In Progress": {
-            text: "text-white bg-[#EB5B00] border-none rounded-full",
+            text: "text-white bg-indigo-500 border-none rounded-full",
             dot: "bg-white",
           },
-          Completed: {
-            text: "text-white bg-[#4300FF] border-none rounded-full",
+          "Completed": {
+            text: "text-white bg-green-600 border-none rounded-full",
             dot: "bg-white",
           },
-          "Inactive Client": {
-            text: "text-white bg-[#B12C00] border-none rounded-full",
+          "Inactive": {
+            text: "text-white bg-gray-500 border-none rounded-full",
+            dot: "bg-white",
+          },
+          "Lost": {
+            text: "text-white bg-rose-500 border-none rounded-full",
             dot: "bg-white",
           },
         };
@@ -418,23 +436,14 @@ export const ClientManagementTable = () => {
           label: string;
         }> = [
           { value: "New Lead", label: translateClientStatus("New Lead") },
-          {
-            value: "In Negotiation",
-            label: translateClientStatus("In Negotiation"),
-          },
-          {
-            value: "Contract Signed",
-            label: translateClientStatus("Contract Signed"),
-          },
-          {
-            value: "Project In Progress",
-            label: translateClientStatus("Project In Progress"),
-          },
+          { value: "Contacted", label: translateClientStatus("Contacted") },
+          { value: "Qualified", label: translateClientStatus("Qualified") },
+          { value: "Proposal Sent", label: translateClientStatus("Proposal Sent") },
+          { value: "Contract Signed", label: translateClientStatus("Contract Signed") },
+          { value: "Project In Progress", label: translateClientStatus("Project In Progress") },
           { value: "Completed", label: translateClientStatus("Completed") },
-          {
-            value: "Inactive Client",
-            label: translateClientStatus("Inactive Client"),
-          },
+          { value: "Inactive", label: translateClientStatus("Inactive") },
+          { value: "Lost", label: translateClientStatus("Lost") },
         ];
 
         return (

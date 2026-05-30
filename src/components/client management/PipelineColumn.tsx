@@ -21,11 +21,14 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
   const getStatusColor = (status: string) => {
     switch (status) {
       case "New Lead": return "bg-blue-500";
-      case "In Negotiation": return "bg-amber-500";
-      case "Contract Signed": return "bg-indigo-500";
-      case "Project In Progress": return "bg-violet-500";
-      case "Completed": return "bg-emerald-500";
-      case "Inactive Client": return "bg-rose-500";
+      case "Contacted": return "bg-violet-500";
+      case "Qualified": return "bg-yellow-400";
+      case "Proposal Sent": return "bg-amber-500";
+      case "Contract Signed": return "bg-emerald-500";
+      case "Project In Progress": return "bg-indigo-500";
+      case "Completed": return "bg-green-500";
+      case "Inactive": return "bg-gray-400";
+      case "Lost": return "bg-rose-500";
       default: return "bg-gray-400";
     }
   };

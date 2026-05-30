@@ -42,11 +42,14 @@ const PROJECT_COLORS: Record<string, string> = {
 
 const STATUS_BADGE_COLORS: Record<string, string> = {
   "New Lead": "bg-blue-100 text-blue-700",
-  "In Negotiation": "bg-yellow-100 text-yellow-700",
-  "Contract Signed": "bg-purple-100 text-purple-700",
-  "Project In Progress": "bg-cyan-100 text-cyan-700",
-  Completed: "bg-green-100 text-green-700",
-  "Inactive Client": "bg-slate-100 text-slate-600",
+  "Contacted": "bg-violet-100 text-violet-700",
+  "Qualified": "bg-yellow-100 text-yellow-700",
+  "Proposal Sent": "bg-amber-100 text-amber-700",
+  "Contract Signed": "bg-emerald-100 text-emerald-700",
+  "Project In Progress": "bg-indigo-100 text-indigo-700",
+  "Completed": "bg-green-100 text-green-700",
+  "Inactive": "bg-slate-100 text-slate-600",
+  "Lost": "bg-rose-100 text-rose-700",
 };
 
 const PIE_COLORS = [
