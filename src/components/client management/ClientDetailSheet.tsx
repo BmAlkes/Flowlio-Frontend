@@ -206,7 +206,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
             <div className="flex-1 min-w-0 pt-1">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="font-semibold text-base text-foreground leading-snug truncate">
+                <h2 className="font-bold text-lg text-foreground leading-snug truncate">
                   {client.name}
                 </h2>
                 {currentTemp && tempConfig && (
@@ -218,16 +218,16 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
               <div className="flex items-center gap-1.5 mt-1.5">
                 <Building2 className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-                <p className="text-[12px] text-muted-foreground truncate">
+                <p className="text-[13px] text-muted-foreground truncate">
                   {client.businessIndustry || "No industry"}
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 mt-2.5">
+              <div className="flex items-center gap-3 mt-3">
                 {/* Inline value edit */}
                 {editingValue ? (
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="h-3 w-3 text-emerald-600 shrink-0" />
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-600/50">
+                    <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
                     <input
                       autoFocus
                       type="text"
@@ -236,46 +236,48 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                       onChange={(e) => setValueInput(e.target.value)}
                       onBlur={handleValueSave}
                       onKeyDown={handleValueKeyDown}
-                      className="w-24 text-[12px] font-semibold text-emerald-700 dark:text-emerald-400 bg-transparent border-b border-emerald-400 outline-none"
+                      className="w-28 text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-transparent outline-none placeholder:text-emerald-400/50"
                       placeholder="0"
                     />
                     <button
                       onClick={handleValueSave}
                       disabled={updateValue.isPending}
-                      className="text-emerald-600 hover:text-emerald-800 transition-colors"
+                      className="text-emerald-600 hover:text-emerald-800 transition-colors shrink-0"
                     >
-                      <Check className="h-3 w-3" />
+                      <Check className="h-4 w-4" />
                     </button>
                   </div>
+                ) : formattedValue ? (
+                  <button
+                    onClick={handleValueEdit}
+                    className="flex items-center gap-1.5 group/val"
+                  >
+                    <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span className="text-base font-bold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
+                      {formattedValue}
+                    </span>
+                    <Pencil className="h-3 w-3 text-muted-foreground/40 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                  </button>
                 ) : (
                   <button
                     onClick={handleValueEdit}
-                    className="flex items-center gap-1 group/val"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-600/50 bg-emerald-50/60 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group/val"
                   >
-                    <DollarSign className="h-3 w-3 text-emerald-600 shrink-0" />
-                    {formattedValue ? (
-                      <span className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
-                        {formattedValue}
-                      </span>
-                    ) : (
-                      <span className="text-[12px] text-muted-foreground/50 italic group-hover/val:text-muted-foreground transition-colors">
-                        Add value
-                      </span>
-                    )}
-                    <Pencil className="h-2.5 w-2.5 text-muted-foreground/30 opacity-0 group-hover/val:opacity-100 transition-opacity ml-0.5" />
+                    <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      Add value
+                    </span>
+                    <Pencil className="h-3 w-3 text-emerald-400/60 opacity-0 group-hover/val:opacity-100 transition-opacity" />
                   </button>
                 )}
 
                 {insights?.score !== undefined && (
-                  <>
-                    <span className="text-border">·</span>
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3 text-indigo-500" />
-                      <span className="text-[12px] text-muted-foreground">
-                        {insights.score}% score
-                      </span>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1 ml-1">
+                    <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />
+                    <span className="text-[13px] font-medium text-muted-foreground">
+                      {insights.score}% score
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
