@@ -188,7 +188,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full">
+      <SheetContent className="sm:max-w-[500px] w-[500px] p-0 flex flex-col gap-0 overflow-hidden h-full">
 
         {/* Header */}
         <div className="px-6 pt-7 pb-6 border-b border-border/40 shrink-0">
@@ -196,35 +196,34 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           {/* Client identity */}
           <div className="flex items-start gap-4 mb-6">
             <div className="relative shrink-0">
-              <Avatar className={`h-14 w-14 rounded-2xl ring-[2.5px] ring-offset-2 ring-offset-background ${tempConfig?.ring ?? "ring-border/40"}`}>
+              <Avatar className={`h-16 w-16 rounded-2xl ring-[2.5px] ring-offset-2 ring-offset-background ${tempConfig?.ring ?? "ring-border/40"}`}>
                 <AvatarImage src={client.image} />
-                <AvatarFallback className="rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold text-base">
+                <AvatarFallback className="rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold text-lg">
                   {initials}
                 </AvatarFallback>
               </Avatar>
             </div>
 
-            <div className="flex-1 min-w-0 pt-1">
+            <div className="flex-1 min-w-0 pt-0.5">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="font-bold text-lg text-foreground leading-snug truncate">
+                <h2 className="font-bold text-xl text-foreground leading-snug truncate">
                   {client.name}
                 </h2>
                 {currentTemp && tempConfig && (
-                  <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${tempConfig.badge}`}>
+                  <span className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${tempConfig.badge}`}>
                     {currentTemp}
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-1.5 mt-1.5">
-                <Building2 className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-                <p className="text-[13px] text-muted-foreground truncate">
+                <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                <p className="text-sm text-muted-foreground truncate">
                   {client.businessIndustry || "No industry"}
                 </p>
               </div>
 
               <div className="flex items-center gap-3 mt-3">
-                {/* Inline value edit */}
                 {editingValue ? (
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-600/50">
                     <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -248,15 +247,12 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     </button>
                   </div>
                 ) : formattedValue ? (
-                  <button
-                    onClick={handleValueEdit}
-                    className="flex items-center gap-1.5 group/val"
-                  >
+                  <button onClick={handleValueEdit} className="flex items-center gap-1.5 group/val">
                     <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
                     <span className="text-base font-bold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
                       {formattedValue}
                     </span>
-                    <Pencil className="h-3 w-3 text-muted-foreground/40 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/40 opacity-0 group-hover/val:opacity-100 transition-opacity" />
                   </button>
                 ) : (
                   <button
@@ -264,7 +260,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-600/50 bg-emerald-50/60 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group/val"
                   >
                     <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       Add value
                     </span>
                     <Pencil className="h-3 w-3 text-emerald-400/60 opacity-0 group-hover/val:opacity-100 transition-opacity" />
@@ -272,9 +268,9 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 )}
 
                 {insights?.score !== undefined && (
-                  <div className="flex items-center gap-1 ml-1">
-                    <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />
-                    <span className="text-[13px] font-medium text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-4 w-4 text-indigo-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
                       {insights.score}% score
                     </span>
                   </div>
@@ -283,13 +279,13 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
             </div>
           </div>
 
-          {/* Temperature segmented control */}
+          {/* Temperature */}
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Temperature
                 {insights?.isManualTemperature && (
-                  <span className="ml-2 normal-case font-semibold text-[9px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
+                  <span className="ml-2 normal-case font-semibold text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
                     manual
                   </span>
                 )}
@@ -298,9 +294,9 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 <button
                   onClick={() => handleTemperatureChange(null)}
                   disabled={updateTemperature.isPending}
-                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
                 >
-                  <RotateCcw className="h-2.5 w-2.5" />
+                  <RotateCcw className="h-3 w-3" />
                   Auto
                 </button>
               )}
@@ -314,7 +310,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     key={t.value}
                     onClick={() => handleTemperatureChange(t.value)}
                     disabled={updateTemperature.isPending}
-                    className={`h-8 rounded-lg text-[12px] font-semibold transition-all duration-150 disabled:opacity-50 ${
+                    className={`h-9 rounded-lg text-sm font-semibold transition-all duration-150 disabled:opacity-50 ${
                       isActive
                         ? `${t.activeBg} ${t.activeText}`
                         : "text-muted-foreground hover:text-foreground"
@@ -326,17 +322,16 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               })}
             </div>
 
-            {/* Inline stage suggestion */}
             {stageSuggestion && (
-              <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/70 dark:border-amber-500/20">
-                <ArrowRight className="h-3 w-3 text-amber-600 dark:text-amber-400 shrink-0" />
-                <p className="text-[12px] text-amber-800 dark:text-amber-300 flex-1">
+              <div className="mt-2.5 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/70 dark:border-amber-500/20">
+                <ArrowRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
                   Move to <span className="font-semibold">{stageSuggestion}</span>?
                 </p>
                 <button
                   onClick={() => handleStatusChange(stageSuggestion)}
                   disabled={updateStatus.isPending}
-                  className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors disabled:opacity-50 shrink-0"
+                  className="text-sm font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors disabled:opacity-50 shrink-0"
                 >
                   Move
                 </button>
@@ -344,7 +339,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   onClick={() => setStageSuggestion(null)}
                   className="text-amber-400 hover:text-amber-600 transition-colors shrink-0"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             )}
@@ -353,7 +348,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           {/* Pipeline stage */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Pipeline Stage
               </span>
               <Select
@@ -361,9 +356,9 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 onValueChange={handleStatusChange}
                 disabled={updateStatus.isPending}
               >
-                <SelectTrigger size="sm" className="h-7 text-[12px] w-auto border-border/50 gap-2 font-medium">
+                <SelectTrigger size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${STAGE_COLORS[currentStatus] ?? "bg-gray-400"}`} />
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${STAGE_COLORS[currentStatus] ?? "bg-gray-400"}`} />
                     <span className={STAGE_TEXT[currentStatus] ?? ""}>
                       <SelectValue />
                     </span>
@@ -371,9 +366,9 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((stage) => (
-                    <SelectItem key={stage} value={stage} className="text-[12px]">
+                    <SelectItem key={stage} value={stage} className="text-sm">
                       <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${STAGE_COLORS[stage]}`} />
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${STAGE_COLORS[stage]}`} />
                         {stage}
                       </div>
                     </SelectItem>
@@ -391,7 +386,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     key={stage}
                     onClick={() => handleStatusChange(stage)}
                     title={stage}
-                    className={`h-1.5 flex-1 rounded-full transition-all duration-300 focus:outline-none ${
+                    className={`h-2 flex-1 rounded-full transition-all duration-300 focus:outline-none ${
                       isActive
                         ? `${STAGE_COLORS[stage]} opacity-100`
                         : isPast
@@ -404,26 +399,26 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
             </div>
 
             {currentStatus === "Inactive Client" && (
-              <p className="text-[11px] text-rose-500 mt-2 font-medium">Marked as inactive</p>
+              <p className="text-xs text-rose-500 mt-2 font-medium">Marked as inactive</p>
             )}
           </div>
         </div>
 
-        {/* Suggested action strip */}
+        {/* AI Suggestion strip */}
         {insights?.recommendedAction && (
           <div className="px-6 py-3 border-b border-border/40 flex items-center gap-3 bg-muted/20 shrink-0">
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-0.5">
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-0.5">
                 AI Suggestion
               </p>
-              <p className="text-[12px] text-foreground/75 truncate">{insights.recommendedAction}</p>
+              <p className="text-sm text-foreground/80 truncate">{insights.recommendedAction}</p>
             </div>
           </div>
         )}
 
-        {/* Activity */}
+        {/* Activity label */}
         <div className="px-6 pt-4 pb-2 shrink-0">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Activity
           </span>
         </div>
