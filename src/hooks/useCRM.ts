@@ -103,7 +103,32 @@ export const useAddInteraction = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["client-timeline", variables.clientId] });
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
       toast.success("Interaction logged");
+    },
+  });
+};
+
+export const useUpdateLeadValue = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { clientId: string; leadValue: number }) => {
+      const response = await axios.patch(`/leads/${data.clientId}/value`, {
+        leadValue: data.leadValue,
+      });
+      return response.data;
+    },
+    onSuccess: (responseData, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
+      if (responseData?.data) {
+        queryClient.setQueryData(["client", variables.clientId], responseData.data);
+      }
+      toast.success("Value updated");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update value");
     },
   });
 };

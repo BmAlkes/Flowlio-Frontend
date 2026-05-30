@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Sheet, SheetContent } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -13,10 +13,11 @@ import { ClientTimeline } from "./ClientTimeline";
 import {
   useUpdateLeadStatus,
   useUpdateLeadTemperature,
+  useUpdateLeadValue,
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check } from "lucide-react";
 
 const STAGES = [
   "New Lead",
@@ -103,14 +104,18 @@ interface ClientDetailSheetProps {
 export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetProps) => {
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
+  const updateValue = useUpdateLeadValue();
   const { data: insights } = useLeadInsights(client?.id ?? "");
 
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
   const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState(false);
+  const [valueInput, setValueInput] = useState("");
 
   useEffect(() => {
     setCurrentStatus(client?.status ?? "");
     setStageSuggestion(null);
+    setEditingValue(false);
   }, [client?.id]);
 
   useEffect(() => {
@@ -126,6 +131,25 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
       { clientId: client.id, newStatus, oldStatus: prev },
       { onError: () => setCurrentStatus(prev) }
     );
+  };
+
+  const handleValueEdit = () => {
+    const current = client?.leadValue ? String(Number(client.leadValue)) : "";
+    setValueInput(current);
+    setEditingValue(true);
+  };
+
+  const handleValueSave = () => {
+    if (!client) return;
+    const parsed = parseFloat(valueInput.replace(/[^0-9.]/g, ""));
+    setEditingValue(false);
+    if (isNaN(parsed) || parsed === Number(client.leadValue)) return;
+    updateValue.mutate({ clientId: client.id, leadValue: parsed });
+  };
+
+  const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleValueSave();
+    if (e.key === "Escape") setEditingValue(false);
   };
 
   const handleTemperatureChange = (temp: LeadTemperature | null) => {
@@ -200,17 +224,51 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               </div>
 
               <div className="flex items-center gap-3 mt-2.5">
-                {formattedValue && (
+                {/* Inline value edit */}
+                {editingValue ? (
                   <div className="flex items-center gap-1">
-                    <DollarSign className="h-3 w-3 text-emerald-600" />
-                    <span className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400">
-                      {formattedValue}
-                    </span>
+                    <DollarSign className="h-3 w-3 text-emerald-600 shrink-0" />
+                    <input
+                      autoFocus
+                      type="text"
+                      inputMode="numeric"
+                      value={valueInput}
+                      onChange={(e) => setValueInput(e.target.value)}
+                      onBlur={handleValueSave}
+                      onKeyDown={handleValueKeyDown}
+                      className="w-24 text-[12px] font-semibold text-emerald-700 dark:text-emerald-400 bg-transparent border-b border-emerald-400 outline-none"
+                      placeholder="0"
+                    />
+                    <button
+                      onClick={handleValueSave}
+                      disabled={updateValue.isPending}
+                      className="text-emerald-600 hover:text-emerald-800 transition-colors"
+                    >
+                      <Check className="h-3 w-3" />
+                    </button>
                   </div>
+                ) : (
+                  <button
+                    onClick={handleValueEdit}
+                    className="flex items-center gap-1 group/val"
+                  >
+                    <DollarSign className="h-3 w-3 text-emerald-600 shrink-0" />
+                    {formattedValue ? (
+                      <span className="text-[12px] font-semibold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
+                        {formattedValue}
+                      </span>
+                    ) : (
+                      <span className="text-[12px] text-muted-foreground/50 italic group-hover/val:text-muted-foreground transition-colors">
+                        Add value
+                      </span>
+                    )}
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground/30 opacity-0 group-hover/val:opacity-100 transition-opacity ml-0.5" />
+                  </button>
                 )}
+
                 {insights?.score !== undefined && (
                   <>
-                    {formattedValue && <span className="text-border">·</span>}
+                    <span className="text-border">·</span>
                     <div className="flex items-center gap-1">
                       <TrendingUp className="h-3 w-3 text-indigo-500" />
                       <span className="text-[12px] text-muted-foreground">
