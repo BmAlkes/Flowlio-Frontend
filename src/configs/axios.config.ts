@@ -49,10 +49,10 @@ axios.interceptors.request.use(
     if (isLoggingOut) {
       return Promise.reject(new Error("User is logging out"));
     }
-    // Prevent browser HTTP cache from returning 304 on GET requests
+    // Bust HTTP cache on GET requests by appending a timestamp param
+    // Avoids 304 responses without triggering CORS preflights
     if (!config.method || config.method.toLowerCase() === "get") {
-      config.headers["Cache-Control"] = "no-cache";
-      config.headers["Pragma"] = "no-cache";
+      config.params = { ...config.params, _t: Date.now() };
     }
     return config;
   },
