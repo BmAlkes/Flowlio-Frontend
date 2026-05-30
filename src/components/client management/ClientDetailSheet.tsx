@@ -14,10 +14,13 @@ import {
   useUpdateLeadStatus,
   useUpdateLeadTemperature,
   useUpdateLeadValue,
+  useSetFollowUp,
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2 } from "lucide-react";
+import { FollowUpPicker } from "./FollowUpPicker";
+import { differenceInDays, isPast, format } from "date-fns";
 
 const STAGES = [
   "New Lead",
@@ -131,17 +134,20 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
   const updateValue = useUpdateLeadValue();
+  const cancelFollowUp = useSetFollowUp();
   const { data: insights } = useLeadInsights(client?.id ?? "");
 
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
   const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState(false);
   const [valueInput, setValueInput] = useState("");
+  const [showFollowUp, setShowFollowUp] = useState(false);
 
   useEffect(() => {
     setCurrentStatus(client?.status ?? "");
     setStageSuggestion(null);
     setEditingValue(false);
+    setShowFollowUp(false);
   }, [client?.id]);
 
   useEffect(() => {
@@ -155,7 +161,10 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
     setStageSuggestion(null);
     updateStatus.mutate(
       { clientId: client.id, newStatus, oldStatus: prev },
-      { onError: () => setCurrentStatus(prev) }
+      {
+        onSuccess: () => setShowFollowUp(true),
+        onError: () => setCurrentStatus(prev),
+      }
     );
   };
 
@@ -187,6 +196,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           if (!temp) { setStageSuggestion(null); return; }
           const suggested = TEMP_STAGE_SUGGESTION[temp];
           setStageSuggestion(suggested && suggested !== currentStatus ? suggested : null);
+          setShowFollowUp(true);
         },
       }
     );
@@ -429,6 +439,49 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 </div>
               );
             })()}
+
+            {/* Existing follow-up badge */}
+            {client.followUpAt && !showFollowUp && (() => {
+              const date = new Date(client.followUpAt);
+              const overdue = isPast(date);
+              const daysLeft = differenceInDays(date, new Date());
+              return (
+                <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                  overdue
+                    ? "bg-rose-50 dark:bg-rose-900/15 border-rose-200 dark:border-rose-500/30"
+                    : "bg-indigo-50 dark:bg-indigo-900/15 border-indigo-200 dark:border-indigo-500/30"
+                }`}>
+                  <Bell className={`h-3.5 w-3.5 shrink-0 ${overdue ? "text-rose-500" : "text-indigo-500"}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
+                      {overdue ? "Follow-up vencido" : daysLeft === 0 ? "Follow-up hoje" : `Follow-up em ${daysLeft} dia${daysLeft > 1 ? "s" : ""}`}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">{format(date, "d MMM yyyy")}</p>
+                  </div>
+                  <button
+                    onClick={() => setShowFollowUp(true)}
+                    className={`text-xs font-semibold transition-colors shrink-0 ${overdue ? "text-rose-600 hover:text-rose-800" : "text-indigo-600 hover:text-indigo-800"}`}
+                  >
+                    Alterar
+                  </button>
+                  <button
+                    onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null })}
+                    disabled={cancelFollowUp.isPending}
+                    className="text-muted-foreground/50 hover:text-rose-500 transition-colors shrink-0"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })()}
+
+            {/* Follow-up picker */}
+            {showFollowUp && (
+              <FollowUpPicker
+                clientId={client.id}
+                onDismiss={() => setShowFollowUp(false)}
+              />
+            )}
           </div>
         </div>
 

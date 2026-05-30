@@ -155,6 +155,29 @@ export const useUpdateLeadValue = () => {
   });
 };
 
+export const useSetFollowUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { clientId: string; followUpAt: string | null }) => {
+      const response = await axios.patch(`/leads/${data.clientId}/followup`, {
+        followUpAt: data.followUpAt,
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      patchClientInCache(queryClient, variables.clientId, {
+        followUpAt: variables.followUpAt,
+      });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast.success(variables.followUpAt ? "Follow-up scheduled" : "Follow-up cancelled");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to schedule follow-up");
+    },
+  });
+};
+
 export const useDeleteInteraction = () => {
   const queryClient = useQueryClient();
 

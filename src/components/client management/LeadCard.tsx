@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DollarSign, Clock, AlertCircle, GripVertical, Pin } from "lucide-react";
+import { DollarSign, Clock, AlertCircle, GripVertical, Pin, Bell } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
 
@@ -63,9 +63,13 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
     }).format(Number(val));
   };
 
-  const showFollowUp =
+  const showStaleAlert =
     lead.lastInteractionAt &&
     differenceInDays(new Date(), new Date(lead.lastInteractionAt)) > 7;
+
+  const followUpDate = lead.followUpAt ? new Date(lead.followUpAt) : null;
+  const followUpOverdue = followUpDate ? differenceInDays(new Date(), followUpDate) >= 0 : false;
+  const followUpDaysLeft = followUpDate ? differenceInDays(followUpDate, new Date()) : null;
 
   const temp = insights?.temperature;
   const formattedValue = formatValue(lead.leadValue);
@@ -138,9 +142,9 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
         </Flex>
 
         {/* Footer */}
-        <div className="pt-2.5 border-t border-border/30">
+        <div className="pt-2.5 border-t border-border/30 space-y-1.5">
           <Flex className="items-center justify-between">
-            {showFollowUp ? (
+            {showStaleAlert ? (
               <Flex className="items-center gap-1 text-[10px] font-bold text-rose-500 uppercase tracking-wide">
                 <AlertCircle className="h-2.5 w-2.5" />
                 <span>Follow up</span>
@@ -157,6 +161,19 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               <span className="text-[11px] text-muted-foreground/50">No contact yet</span>
             )}
           </Flex>
+
+          {followUpDate && (
+            <Flex className={`items-center gap-1 text-[10px] font-semibold ${followUpOverdue ? "text-rose-500" : "text-indigo-500"}`}>
+              <Bell className="h-2.5 w-2.5 shrink-0" />
+              <span>
+                {followUpOverdue
+                  ? "Follow-up vencido"
+                  : followUpDaysLeft === 0
+                  ? "Follow-up hoje"
+                  : `Follow-up em ${followUpDaysLeft}d`}
+              </span>
+            </Flex>
+          )}
         </div>
       </div>
     </Box>
