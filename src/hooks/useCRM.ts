@@ -155,6 +155,25 @@ export const useUpdateLeadValue = () => {
   });
 };
 
+export const useDeleteInteraction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { interactionId: string; clientId: string }) => {
+      const response = await axios.delete(`/leads/timeline/${data.interactionId}`);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["client-timeline", variables.clientId] });
+      queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
+      toast.success("Interaction deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete interaction");
+    },
+  });
+};
+
 export const useLeadInsights = (clientId: string) => {
   return useQuery({
     queryKey: ["lead-insights", clientId],

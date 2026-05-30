@@ -188,10 +188,10 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden">
+      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full">
 
         {/* Header */}
-        <div className="px-6 pt-7 pb-6 border-b border-border/40">
+        <div className="px-6 pt-7 pb-6 border-b border-border/40 shrink-0">
 
           {/* Client identity */}
           <div className="flex items-start gap-4 mb-6">
@@ -411,7 +411,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
 
         {/* Suggested action strip */}
         {insights?.recommendedAction && (
-          <div className="px-6 py-3 border-b border-border/40 flex items-center gap-3 bg-muted/20">
+          <div className="px-6 py-3 border-b border-border/40 flex items-center gap-3 bg-muted/20 shrink-0">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-0.5">
                 AI Suggestion

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   useClientTimeline,
   useAddInteraction,
+  useDeleteInteraction,
   useLeadInsights,
 } from "@/hooks/useCRM";
 import { Box } from "../ui/box";
@@ -21,6 +22,7 @@ import {
   ArrowRightLeft,
   Lightbulb,
   Thermometer,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,6 +37,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
   const { data: timeline, isLoading } = useClientTimeline(clientId);
   const { data: insights } = useLeadInsights(clientId);
   const addInteraction = useAddInteraction();
+  const deleteInteraction = useDeleteInteraction();
 
   const [content, setContent] = useState("");
   const [type, setType] = useState<string>("note");
@@ -167,7 +170,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                   {getIcon(item.type)}
                 </Box>
 
-                <Box className="bg-card p-3 rounded-xl border border-border shadow-sm">
+                <Box className="bg-card p-3 rounded-xl border border-border shadow-sm group/item">
                   <Flex className="justify-between items-start mb-1">
                     <Flex className="items-center gap-2">
                       <Avatar className="h-5 w-5">
@@ -178,9 +181,20 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                       </Avatar>
                       <span className="text-xs font-semibold">{item.user?.name}</span>
                     </Flex>
-                    <Flex className="items-center gap-1 text-[10px] text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {format(new Date(item.createdAt), "MMM d, h:mm a")}
+                    <Flex className="items-center gap-2">
+                      <Flex className="items-center gap-1 text-[10px] text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        {format(new Date(item.createdAt), "MMM d, h:mm a")}
+                      </Flex>
+                      {mode === "admin" && (
+                        <button
+                          onClick={() => deleteInteraction.mutate({ interactionId: item.id, clientId })}
+                          disabled={deleteInteraction.isPending}
+                          className="opacity-0 group-hover/item:opacity-100 transition-opacity text-muted-foreground/40 hover:text-rose-500 disabled:opacity-30"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
                     </Flex>
                   </Flex>
 
