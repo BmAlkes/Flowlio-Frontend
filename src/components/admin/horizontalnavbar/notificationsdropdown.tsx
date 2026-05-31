@@ -55,6 +55,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return <Users className="h-4 w-4" />;
       case "client_interaction":
         return <InboxIcon className="h-4 w-4" />;
+      case "follow_up_scheduled":
+        return <Bell className="h-4 w-4" />;
       default:
         return <InboxIcon className="h-4 w-4" />;
     }
@@ -74,6 +76,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-purple-500";
       case "client_interaction":
         return "bg-cyan-500";
+      case "follow_up_scheduled":
+        return "bg-indigo-500";
       default:
         return "bg-muted/500";
     }

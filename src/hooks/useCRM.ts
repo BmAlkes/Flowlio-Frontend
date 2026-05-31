@@ -197,21 +197,29 @@ export const useDeleteInteraction = () => {
   });
 };
 
-export const usePendingFollowUps = () => {
+export interface FollowUpLead {
+  id: string;
+  name: string;
+  businessIndustry?: string;
+  status: string;
+  followUpAt: string;
+  image?: string;
+}
+
+export interface FollowUpDashboardData {
+  overdue: FollowUpLead[];
+  today: FollowUpLead[];
+  upcoming: FollowUpLead[];
+}
+
+export const useFollowUpsDashboard = () => {
   return useQuery({
-    queryKey: ["pending-followups"],
+    queryKey: ["followups-dashboard"],
     queryFn: async () => {
-      const response = await axios.get("/leads/followups/pending");
-      return response.data.data as Array<{
-        id: string;
-        name: string;
-        businessIndustry?: string;
-        status: string;
-        followUpAt: string;
-        image?: string;
-      }>;
+      const response = await axios.get("/leads/followups/dashboard");
+      return response.data.data as FollowUpDashboardData;
     },
-    refetchInterval: 5 * 60 * 1000, // refresh every 5 min
+    refetchInterval: 5 * 60 * 1000,
   });
 };
 
