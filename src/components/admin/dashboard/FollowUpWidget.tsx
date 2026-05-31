@@ -1,8 +1,9 @@
 import { useFollowUpsDashboard, useSetFollowUp, FollowUpLead } from "@/hooks/useCRM";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Building2, CalendarClock, Loader2, CheckCheck, AlertTriangle } from "lucide-react";
+import { Bell, Building2, CalendarClock, Loader2, CheckCheck, AlertTriangle, ArrowRight } from "lucide-react";
 import { differenceInDays, format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -11,10 +12,11 @@ interface LeadRowProps {
   lead: FollowUpLead;
   variant: "overdue" | "today" | "upcoming";
   onDone: (id: string) => void;
+  onNavigate: (id: string) => void;
   isPending: boolean;
 }
 
-const LeadRow = ({ lead, variant, onDone, isPending }: LeadRowProps) => {
+const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps) => {
   const date = new Date(lead.followUpAt);
   const daysLeft = differenceInDays(date, new Date());
   const daysAgo = differenceInDays(new Date(), date);
@@ -54,7 +56,8 @@ const LeadRow = ({ lead, variant, onDone, isPending }: LeadRowProps) => {
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
-      className={`flex items-center gap-3 p-2.5 rounded-xl border ${colors[variant]}`}
+      className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer hover:brightness-95 transition-all ${colors[variant]}`}
+      onClick={() => onNavigate(lead.id)}
     >
       <Avatar className="h-8 w-8 rounded-lg shrink-0">
         <AvatarImage src={lead.image} />
@@ -80,14 +83,17 @@ const LeadRow = ({ lead, variant, onDone, isPending }: LeadRowProps) => {
         </div>
       </div>
 
-      <button
-        onClick={() => onDone(lead.id)}
-        disabled={isPending}
-        title="Marcar como feito"
-        className={`shrink-0 p-1.5 rounded-lg transition-colors disabled:opacity-40 ${btnColors[variant]}`}
-      >
-        <CheckCheck className="h-4 w-4" />
-      </button>
+      <div className="flex items-center gap-1 shrink-0">
+        <button
+          onClick={(e) => { e.stopPropagation(); onDone(lead.id); }}
+          disabled={isPending}
+          title="Marcar como feito"
+          className={`p-1.5 rounded-lg transition-colors disabled:opacity-40 ${btnColors[variant]}`}
+        >
+          <CheckCheck className="h-4 w-4" />
+        </button>
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+      </div>
     </motion.div>
   );
 };
@@ -97,10 +103,11 @@ interface SectionProps {
   leads: FollowUpLead[];
   variant: "overdue" | "today" | "upcoming";
   onDone: (id: string) => void;
+  onNavigate: (id: string) => void;
   isPending: boolean;
 }
 
-const Section = ({ title, leads, variant, onDone, isPending }: SectionProps) => {
+const Section = ({ title, leads, variant, onDone, onNavigate, isPending }: SectionProps) => {
   if (!leads.length) return null;
 
   const labelColors = {
@@ -108,6 +115,8 @@ const Section = ({ title, leads, variant, onDone, isPending }: SectionProps) => 
     today: "text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30",
     upcoming: "text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30",
   };
+
+  const visible = leads.slice(0, 5);
 
   return (
     <div className="space-y-2">
@@ -120,16 +129,22 @@ const Section = ({ title, leads, variant, onDone, isPending }: SectionProps) => 
         </span>
       </div>
       <AnimatePresence initial={false}>
-        {leads.map((lead) => (
+        {visible.map((lead) => (
           <LeadRow
             key={lead.id}
             lead={lead}
             variant={variant}
             onDone={onDone}
+            onNavigate={onNavigate}
             isPending={isPending}
           />
         ))}
       </AnimatePresence>
+      {leads.length > 5 && (
+        <p className={`text-xs text-center ${labelColors[variant].split(" ")[0]}`}>
+          +{leads.length - 5} mais
+        </p>
+      )}
     </div>
   );
 };
@@ -137,9 +152,14 @@ const Section = ({ title, leads, variant, onDone, isPending }: SectionProps) => 
 export const FollowUpWidget = () => {
   const { data, isLoading } = useFollowUpsDashboard();
   const cancelFollowUp = useSetFollowUp();
+  const navigate = useNavigate();
 
   const handleDone = (clientId: string) => {
     cancelFollowUp.mutate({ clientId, followUpAt: null });
+  };
+
+  const handleNavigate = (_clientId: string) => {
+    navigate("/dashboard/client-management");
   };
 
   const total = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) + (data?.upcoming?.length ?? 0);
@@ -191,6 +211,7 @@ export const FollowUpWidget = () => {
             leads={data?.overdue ?? []}
             variant="overdue"
             onDone={handleDone}
+            onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
           />
           <Section
@@ -198,6 +219,7 @@ export const FollowUpWidget = () => {
             leads={data?.today ?? []}
             variant="today"
             onDone={handleDone}
+            onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
           />
           <Section
@@ -205,6 +227,7 @@ export const FollowUpWidget = () => {
             leads={data?.upcoming ?? []}
             variant="upcoming"
             onDone={handleDone}
+            onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
           />
         </div>

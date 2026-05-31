@@ -170,7 +170,10 @@ export const useSetFollowUp = () => {
         followUpAt: variables.followUpAt,
       });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast.success(variables.followUpAt ? "Follow-up scheduled" : "Follow-up cancelled");
+      queryClient.invalidateQueries({ queryKey: ["followups-dashboard"] });
+      // Refresh notifications so the bell picks up the new follow_up_scheduled entry
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success(variables.followUpAt ? "Follow-up agendado" : "Follow-up cancelado");
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to schedule follow-up");
