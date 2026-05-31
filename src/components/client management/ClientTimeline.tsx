@@ -96,14 +96,14 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">
-              Recommended Action
+              {t("pipeline.recommendedAction")}
             </p>
             <p className="text-sm text-indigo-800 dark:text-indigo-300 font-medium leading-snug">
               {insights.recommendedAction}
             </p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="text-[10px] font-bold text-indigo-400 uppercase">Score</p>
+            <p className="text-[10px] font-bold text-indigo-400 uppercase">{t("pipeline.scoreLabel")}</p>
             <p className="text-lg font-black text-indigo-700 dark:text-indigo-300">
               {insights.score}%
             </p>
@@ -124,7 +124,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
-              {t_ === "note" && mode === "client" ? "Message" : t_}
+              {t_ === "note" && mode === "client" ? t("pipeline.typeSendMessage") : t(`pipeline.type${t_.charAt(0).toUpperCase() + t_.slice(1)}` as any)}
             </button>
           ))}
         </div>
@@ -160,7 +160,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
         </div>
       ) : !visibleTimeline?.length ? (
         <p className="text-center py-10 text-sm text-muted-foreground/60 italic">
-          No interactions logged yet.
+          {t("pipeline.noInteractions")}
         </p>
       ) : (
         <div className="relative pl-7 space-y-4">
@@ -209,7 +209,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                         <button
                           onClick={() => handleDelete(item.id)}
                           disabled={deletingId === item.id}
-                          title="Delete"
+                          title={t("pipeline.deleteInteraction")}
                           className="p-1.5 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40"
                         >
                           {deletingId === item.id

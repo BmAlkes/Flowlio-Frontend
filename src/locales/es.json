@@ -890,5 +890,58 @@
       "November": "Noviembre",
       "December": "Diciembre"
     }
+  },
+  "pipeline": {
+    "noValue": "Sin valor",
+    "noContactYet": "Sin contacto aún",
+    "followUpAlert": "Follow up",
+    "followUpOverdue": "Follow-up vencido",
+    "followUpToday": "Follow-up hoy",
+    "followUpInDays": "Follow-up en {{count}}d",
+    "temperature": "Temperatura",
+    "temperatureManual": "manual",
+    "temperatureAuto": "Auto",
+    "pipelineStage": "Etapa del Pipeline",
+    "stepOf": "Paso {{current}} de {{total}}",
+    "markedInactive": "Marcado como inactivo",
+    "activity": "Actividad",
+    "addValue": "Agregar valor",
+    "noIndustry": "Sin industria",
+    "score": "puntuación",
+    "moveTo": "¿Mover a <1>{{stage}}</1>?",
+    "move": "Mover",
+    "recommendedAction": "Acción Recomendada",
+    "scoreLabel": "Puntuación",
+    "noInteractions": "Aún no se han registrado interacciones.",
+    "deleteInteraction": "Eliminar",
+    "typeNote": "nota",
+    "typeCall": "llamada",
+    "typeEmail": "email",
+    "typeMeeting": "reunión",
+    "typeSendMessage": "Mensaje",
+    "followUpQuestion": "¿Cuándo deseas hacer el seguimiento?",
+    "tomorrow": "Mañana",
+    "in3Days": "3 días",
+    "in7Days": "7 días",
+    "customDate": "Personalizado",
+    "freeDate": "fecha libre",
+    "followUpChange": "Cambiar",
+    "clientStatuses": {
+      "New Lead": "Nuevo Lead",
+      "Contacted": "Contactado",
+      "Qualified": "Calificado",
+      "Proposal Sent": "Propuesta Enviada",
+      "Contract Signed": "Contrato Firmado",
+      "Project In Progress": "Proyecto en Curso",
+      "Completed": "Completado",
+      "Inactive": "Inactivo",
+      "Lost": "Perdido"
+    },
+    "temperatures": {
+      "Hot": "Caliente",
+      "Warm": "Tibio",
+      "Cold": "Frío",
+      "Lost": "Perdido"
+    }
   }
 }

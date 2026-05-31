@@ -2,22 +2,24 @@ import { useState } from "react";
 import { addDays, format } from "date-fns";
 import { Bell, X, CalendarDays, Check } from "lucide-react";
 import { useSetFollowUp } from "@/hooks/useCRM";
+import { useTranslation } from "react-i18next";
 
 interface FollowUpPickerProps {
   clientId: string;
   onDismiss: () => void;
 }
 
-const QUICK_OPTIONS = [
-  { label: "Amanhã", days: 1 },
-  { label: "3 dias", days: 3 },
-  { label: "7 dias", days: 7 },
-];
-
 export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => {
+  const { t } = useTranslation();
   const setFollowUp = useSetFollowUp();
   const [customDate, setCustomDate] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+
+  const QUICK_OPTIONS = [
+    { label: t("pipeline.tomorrow"), days: 1 },
+    { label: t("pipeline.in3Days"), days: 3 },
+    { label: t("pipeline.in7Days"), days: 7 },
+  ];
 
   const handleQuick = (days: number) => {
     const date = addDays(new Date(), days);
@@ -42,13 +44,10 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
         <div className="flex items-center gap-2">
           <Bell className="h-3.5 w-3.5 text-indigo-500" />
           <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-            Quando deseja fazer follow-up?
+            {t("pipeline.followUpQuestion")}
           </span>
         </div>
-        <button
-          onClick={onDismiss}
-          className="text-indigo-400 hover:text-indigo-600 transition-colors"
-        >
+        <button onClick={onDismiss} className="text-indigo-400 hover:text-indigo-600 transition-colors">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -79,9 +78,9 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
             >
               <CalendarDays className="h-4 w-4 text-indigo-400" />
               <span className="text-xs font-semibold text-indigo-500 text-center leading-tight">
-                Custom
+                {t("pipeline.customDate")}
               </span>
-              <span className="text-[10px] text-muted-foreground">data livre</span>
+              <span className="text-[10px] text-muted-foreground">{t("pipeline.freeDate")}</span>
             </button>
           </div>
         ) : (

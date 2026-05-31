@@ -649,5 +649,58 @@
         "actions": "פעולות"
       }
     }
+  },
+  "pipeline": {
+    "noValue": "אין ערך",
+    "noContactYet": "אין קשר עדיין",
+    "followUpAlert": "מעקב",
+    "followUpOverdue": "מעקב באיחור",
+    "followUpToday": "מעקב היום",
+    "followUpInDays": "מעקב בעוד {{count}}י",
+    "temperature": "טמפרטורה",
+    "temperatureManual": "ידני",
+    "temperatureAuto": "אוטו",
+    "pipelineStage": "שלב בצינור",
+    "stepOf": "שלב {{current}} מתוך {{total}}",
+    "markedInactive": "מסומן כלא פעיל",
+    "activity": "פעילות",
+    "addValue": "הוסף ערך",
+    "noIndustry": "ללא תעשייה",
+    "score": "ציון",
+    "moveTo": "לעבור ל-<1>{{stage}}</1>?",
+    "move": "העבר",
+    "recommendedAction": "פעולה מומלצת",
+    "scoreLabel": "ציון",
+    "noInteractions": "לא נרשמו אינטראקציות עדיין.",
+    "deleteInteraction": "מחק",
+    "typeNote": "הערה",
+    "typeCall": "שיחה",
+    "typeEmail": "אימייל",
+    "typeMeeting": "פגישה",
+    "typeSendMessage": "הודעה",
+    "followUpQuestion": "מתי תרצה לעשות מעקב?",
+    "tomorrow": "מחר",
+    "in3Days": "3 ימים",
+    "in7Days": "7 ימים",
+    "customDate": "מותאם אישית",
+    "freeDate": "תאריך חופשי",
+    "followUpChange": "שנה",
+    "clientStatuses": {
+      "New Lead": "ליד חדש",
+      "Contacted": "נוצר קשר",
+      "Qualified": "מוסמך",
+      "Proposal Sent": "הצעה נשלחה",
+      "Contract Signed": "חוזה נחתם",
+      "Project In Progress": "פרויקט בביצוע",
+      "Completed": "הושלם",
+      "Inactive": "לא פעיל",
+      "Lost": "אבוד"
+    },
+    "temperatures": {
+      "Hot": "חם",
+      "Warm": "פושר",
+      "Cold": "קר",
+      "Lost": "אבוד"
+    }
   }
 }

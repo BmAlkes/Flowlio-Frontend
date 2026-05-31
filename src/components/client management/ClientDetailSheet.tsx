@@ -21,6 +21,7 @@ import {
 import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2 } from "lucide-react";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 const STAGES = [
   "New Lead",
@@ -131,6 +132,7 @@ interface ClientDetailSheetProps {
 }
 
 export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetProps) => {
+  const { t } = useTranslation();
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
   const updateValue = useUpdateLeadValue();
@@ -254,7 +256,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               <div className="flex items-center gap-1.5 mt-1.5">
                 <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
                 <p className="text-sm text-muted-foreground truncate">
-                  {client.businessIndustry || "No industry"}
+                  {client.businessIndustry || t("pipeline.noIndustry")}
                 </p>
               </div>
 
@@ -296,7 +298,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   >
                     <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                      Add value
+                      {t("pipeline.addValue")}
                     </span>
                     <Pencil className="h-3 w-3 text-emerald-400/60 opacity-0 group-hover/val:opacity-100 transition-opacity" />
                   </button>
@@ -306,7 +308,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   <div className="flex items-center gap-1">
                     <TrendingUp className="h-4 w-4 text-indigo-500" />
                     <span className="text-sm font-medium text-muted-foreground">
-                      {insights.score}% score
+                      {insights.score}% {t("pipeline.score")}
                     </span>
                   </div>
                 )}
@@ -318,10 +320,10 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           <div className="mb-5">
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Temperature
+                {t("pipeline.temperature")}
                 {insights?.isManualTemperature && (
                   <span className="ml-2 normal-case font-semibold text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
-                    manual
+                    {t("pipeline.temperatureManual")}
                   </span>
                 )}
               </span>
@@ -332,27 +334,27 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
                 >
                   <RotateCcw className="h-3 w-3" />
-                  Auto
+                  {t("pipeline.temperatureAuto")}
                 </button>
               )}
             </div>
 
             <div className="grid grid-cols-4 gap-1 p-1 bg-muted/50 dark:bg-muted/20 rounded-xl">
-              {TEMPERATURES.map((t) => {
-                const isActive = currentTemp === t.value;
+              {TEMPERATURES.map((temp) => {
+                const isActive = currentTemp === temp.value;
                 return (
                   <button
-                    key={t.value}
-                    onClick={() => handleTemperatureChange(t.value)}
+                    key={temp.value}
+                    onClick={() => handleTemperatureChange(temp.value)}
                     disabled={updateTemperature.isPending}
                     className={`h-10 rounded-lg text-xs font-semibold transition-all duration-150 disabled:opacity-50 flex flex-col items-center justify-center gap-0.5 ${
                       isActive
-                        ? `${t.activeBg} ${t.activeText}`
+                        ? `${temp.activeBg} ${temp.activeText}`
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <span className="text-base leading-none">{t.emoji}</span>
-                    <span>{t.label}</span>
+                    <span className="text-base leading-none">{temp.emoji}</span>
+                    <span>{t(`pipeline.temperatures.${temp.value}`)}</span>
                   </button>
                 );
               })}
@@ -362,14 +364,14 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
               <div className="mt-2.5 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/70 dark:border-amber-500/20">
                 <ArrowRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
-                  Move to <span className="font-semibold">{stageSuggestion}</span>?
+                  {t("pipeline.moveTo", { stage: "" }).replace("<1></1>", "")}<span className="font-semibold">{t(`pipeline.clientStatuses.${stageSuggestion}` as any)}</span>?
                 </p>
                 <button
                   onClick={() => handleStatusChange(stageSuggestion)}
                   disabled={updateStatus.isPending}
                   className="text-sm font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors disabled:opacity-50 shrink-0"
                 >
-                  Move
+                  {t("pipeline.move")}
                 </button>
                 <button
                   onClick={() => setStageSuggestion(null)}
@@ -385,7 +387,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Pipeline Stage
+                {t("pipeline.pipelineStage")}
               </span>
               <Select
                 value={currentStatus}
@@ -405,7 +407,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     <SelectItem key={stage} value={stage} className="text-sm">
                       <div className="flex items-center gap-2">
                         <span>{STAGE_EMOJI[stage]}</span>
-                        {stage}
+                        {t(`pipeline.clientStatuses.${stage}` as any)}
                       </div>
                     </SelectItem>
                   ))}
@@ -424,7 +426,9 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-muted-foreground">
-                      {isTerminal ? currentStatus : `Step ${progressIdx + 1} of ${PROGRESS_STAGES.length}`}
+                      {isTerminal
+                        ? t(`pipeline.clientStatuses.${currentStatus}` as any)
+                        : t("pipeline.stepOf", { current: progressIdx + 1, total: PROGRESS_STAGES.length })}
                     </span>
                     <span className={`text-xs font-bold ${isTerminal ? "text-rose-500" : "text-indigo-600 dark:text-indigo-400"}`}>
                       {isTerminal ? "—" : `${pct}%`}
@@ -454,7 +458,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                   <Bell className={`h-3.5 w-3.5 shrink-0 ${overdue ? "text-rose-500" : "text-indigo-500"}`} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
-                      {overdue ? "Follow-up vencido" : daysLeft === 0 ? "Follow-up hoje" : `Follow-up em ${daysLeft} dia${daysLeft > 1 ? "s" : ""}`}
+                      {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
                     </p>
                     <p className="text-[11px] text-muted-foreground">{format(date, "d MMM yyyy")}</p>
                   </div>
@@ -462,7 +466,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
                     onClick={() => setShowFollowUp(true)}
                     className={`text-xs font-semibold transition-colors shrink-0 ${overdue ? "text-rose-600 hover:text-rose-800" : "text-indigo-600 hover:text-indigo-800"}`}
                   >
-                    Alterar
+                    {t("pipeline.followUpChange")}
                   </button>
                   <button
                     onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null })}
@@ -488,7 +492,7 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
         {/* Activity label */}
         <div className="px-6 pt-4 pb-2 shrink-0">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Activity
+            {t("pipeline.activity")}
           </span>
         </div>
 

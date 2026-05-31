@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DollarSign, Clock, AlertCircle, GripVertical, Pin, Bell } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
+import { useTranslation } from "react-i18next";
 
 interface LeadCardProps {
   lead: any;
@@ -35,6 +36,7 @@ const TEMP_EMOJI: Record<string, string> = {
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
+  const { t } = useTranslation();
   const { data: insights } = useLeadInsights(lead.id);
   const {
     attributes,
@@ -137,7 +139,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               <span className="text-[13px] font-bold text-foreground">{formattedValue}</span>
             </div>
           ) : (
-            <span className="text-[11px] text-muted-foreground/55 font-medium">No value</span>
+            <span className="text-[11px] text-muted-foreground/55 font-medium">{t("pipeline.noValue")}</span>
           )}
         </Flex>
 
@@ -147,7 +149,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
             {showStaleAlert ? (
               <Flex className="items-center gap-1 text-[10px] font-bold text-rose-500 uppercase tracking-wide">
                 <AlertCircle className="h-2.5 w-2.5" />
-                <span>Follow up</span>
+                <span>{t("pipeline.followUpAlert")}</span>
               </Flex>
             ) : (
               <div />
@@ -158,7 +160,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
                 <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
               </Flex>
             ) : (
-              <span className="text-[11px] text-muted-foreground/50">No contact yet</span>
+              <span className="text-[11px] text-muted-foreground/50">{t("pipeline.noContactYet")}</span>
             )}
           </Flex>
 
@@ -167,10 +169,10 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               <Bell className="h-2.5 w-2.5 shrink-0" />
               <span>
                 {followUpOverdue
-                  ? "Follow-up vencido"
+                  ? t("pipeline.followUpOverdue")
                   : followUpDaysLeft === 0
-                  ? "Follow-up hoje"
-                  : `Follow-up em ${followUpDaysLeft}d`}
+                  ? t("pipeline.followUpToday")
+                  : t("pipeline.followUpInDays", { count: followUpDaysLeft ?? 0 })}
               </span>
             </Flex>
           )}
