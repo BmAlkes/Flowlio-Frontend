@@ -320,7 +320,19 @@
     "totalProduction": "Producción total",
     "totalHours": "Total de horas",
     "hoursAbbreviation": "h",
-    "clickToView": "Haz clic para ver {{title}}"
+    "clickToView": "Haz clic para ver {{title}}",
+    "followUps": "Seguimientos",
+    "followUpsOverdue": "Vencidos",
+    "followUpsToday": "Hoy",
+    "followUpsUpcoming": "Próximos 7 días",
+    "followUpsAllDone": "¡Todo al día!",
+    "followUpsAllDoneDesc": "No hay seguimientos pendientes en este momento.",
+    "followUpsMarkDone": "Marcar como hecho",
+    "followUpsMore": "+{{count}} más",
+    "followUpsToday_label": "Hoy",
+    "followUpsTomorrow_label": "Mañana",
+    "followUpsDaysLeft": "en {{count}}d · {{date}}",
+    "followUpsDaysAgo": "hace {{count}}d"
   },
   "projects": {
     "title": "Proyectos",

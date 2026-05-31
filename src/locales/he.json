@@ -207,7 +207,19 @@
     "totalProduction": "סה\"כ הפקה",
     "totalHours": "סה\"כ שעות",
     "hoursAbbreviation": "ש'",
-    "clickToView": "לחץ לצפייה ב-{{title}}"
+    "clickToView": "לחץ לצפייה ב-{{title}}",
+    "followUps": "מעקבים",
+    "followUpsOverdue": "באיחור",
+    "followUpsToday": "היום",
+    "followUpsUpcoming": "7 הימים הבאים",
+    "followUpsAllDone": "הכל מעודכן!",
+    "followUpsAllDoneDesc": "אין מעקבים ממתינים כרגע.",
+    "followUpsMarkDone": "סמן כבוצע",
+    "followUpsMore": "+{{count}} עוד",
+    "followUpsToday_label": "היום",
+    "followUpsTomorrow_label": "מחר",
+    "followUpsDaysLeft": "בעוד {{count}}י · {{date}}",
+    "followUpsDaysAgo": "לפני {{count}}י"
   },
   "projects": {
     "title": "פרויקטים",
