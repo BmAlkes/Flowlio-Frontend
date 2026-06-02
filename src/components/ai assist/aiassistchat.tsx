@@ -145,7 +145,14 @@ export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean }> = ({
         onSend={handleSend}
         showWelcome={showWelcome}
         activeChatId={activeChatId}
-        generateImage={generateImage}
+        generateImage={async (prompt: string) => {
+          let chatId = activeChatId;
+          if (!chatId) {
+            chatId = addChat({ title: "Image Generation", messages: [] });
+            setActiveChat(chatId);
+          }
+          await generateImage(prompt, chatId);
+        }}
         isLoading={isLoading}
       />
     </Center>
@@ -201,7 +208,7 @@ const ChatBox: React.FC<{
   ) => void;
   showWelcome: boolean;
   activeChatId: string | null;
-  generateImage: (prompt: string, chatId: string) => void;
+  generateImage: (prompt: string) => Promise<void>;
   isLoading: boolean;
 }> = ({
   messages,
@@ -282,13 +289,8 @@ const ChatBox: React.FC<{
   };
 
   const handleImageGenerate = async (prompt: string) => {
-    let chatId = activeChatId;
-    if (!chatId) {
-      chatId = addChat({ title: "Image Generation", messages: [] });
-    }
-
     try {
-      await generateImage(prompt, chatId);
+      await generateImage(prompt);
       setIsImageModalOpen(false);
     } catch (error) {
       console.error("Failed to generate image:", error);
