@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
@@ -31,7 +30,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleGenerate();
@@ -85,13 +84,14 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
               Describe the image you want to generate:
             </label>
             <div className="space-y-2">
-              <Input
+              <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 placeholder="e.g., A beautiful sunset over mountains, a futuristic city skyline, a cute cat playing with yarn..."
-                className="w-full"
+                className="w-full min-h-[80px] max-h-[200px] resize-y rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isLoading}
+                rows={3}
               />
               <p className="text-xs text-muted-foreground">
                 Press Enter to generate, Shift+Enter for new line
