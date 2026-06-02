@@ -214,7 +214,6 @@ const ChatBox: React.FC<{
   messages,
   onSend,
   showWelcome,
-  activeChatId,
   generateImage,
   isLoading: storeIsLoading,
 }) => {
