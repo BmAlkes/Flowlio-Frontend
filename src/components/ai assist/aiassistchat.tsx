@@ -92,15 +92,19 @@ export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean }> = ({
       return;
 
     let chatId = activeChatId;
-    // If no active chat, create one
     if (!chatId) {
       chatId = addChat({ title: "New Chat", messages: [] });
       setActiveChat(chatId);
     }
 
-    setInput("");
+    const imageMatch = input.trim().match(/^\/(image|img)\s+(.+)/i);
+    if (imageMatch) {
+      setInput("");
+      await generateImage(imageMatch[2].trim(), chatId);
+      return;
+    }
 
-    // Send AI request with attachments
+    setInput("");
     await sendAIRequest(input, chatId, attachments);
   };
 
@@ -496,7 +500,7 @@ const ChatBox: React.FC<{
 
         <textarea
           value={input}
-          placeholder="Ask me anything... (Shift+Enter for new line)"
+          placeholder="Ask me anything... or /image <prompt> to generate an image"
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           className="w-full p-3 bg-card border-none outline-none focus:outline-none focus-visible:ring-0 focus-visible:outline-none shadow-none resize-none min-h-[44px] max-h-32 rounded-md transition-all duration-200 focus:ring-2 focus:ring-blue-200"
