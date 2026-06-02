@@ -282,11 +282,13 @@ const ChatBox: React.FC<{
   };
 
   const handleImageGenerate = async (prompt: string) => {
-    if (!activeChatId) return;
+    let chatId = activeChatId;
+    if (!chatId) {
+      chatId = addChat({ title: "Image Generation", messages: [] });
+    }
 
     try {
-      await generateImage(prompt, activeChatId);
-      // The generated image URL will be handled by the store and displayed in the chat
+      await generateImage(prompt, chatId);
       setIsImageModalOpen(false);
     } catch (error) {
       console.error("Failed to generate image:", error);

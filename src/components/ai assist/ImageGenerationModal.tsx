@@ -31,7 +31,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && e.ctrlKey) {
       e.preventDefault();
       handleGenerate();
     }
@@ -94,7 +94,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
                 rows={3}
               />
               <p className="text-xs text-muted-foreground">
-                Press Enter to generate, Shift+Enter for new line
+                Ctrl+Enter to generate, Enter for new line
               </p>
             </div>
             <Button
