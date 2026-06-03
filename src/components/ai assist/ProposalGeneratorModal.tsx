@@ -92,7 +92,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
       });
 
       if (response.data?.success && response.data?.data) {
-        const generatedData = response.data.data;
+        const generatedData = { ...response.data.data, language };
         setProposalData(generatedData);
         setStep("ready");
 

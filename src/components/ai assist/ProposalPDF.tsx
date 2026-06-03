@@ -5,13 +5,31 @@ import {
   Text,
   View,
   StyleSheet,
+  Font,
 } from "@react-pdf/renderer";
 
+// ─── Font Registration ─────────────────────────────────────────────────────
+Font.register({
+  family: "NotoSansHebrew",
+  fonts: [
+    {
+      src: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-400-normal.woff",
+      fontWeight: 400,
+    },
+    {
+      src: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-700-normal.woff",
+      fontWeight: 700,
+    },
+  ],
+});
+
+// ─── Types ────────────────────────────────────────────────────────────────
 export interface ProposalData {
   projectTitle: string;
   clientName: string;
   companyName: string;
   generatedAt: string;
+  language?: string;
   executiveSummary?: string;
   projectOverview?: string;
   scopeOfWork?: string[];
@@ -30,209 +48,223 @@ export interface ProposalData {
   rawContent?: string;
 }
 
-const BRAND_COLOR = "#0c89af";
-const BRAND_DARK = "#086f8e";
-const LIGHT_BG = "#f0f9fb";
-const BORDER_COLOR = "#d1ecf1";
-const TEXT_DARK = "#1a2e3a";
-const TEXT_MUTED = "#5a7080";
+// ─── Constants ────────────────────────────────────────────────────────────
+const RTL_LANGUAGES = ["Hebrew", "Arabic", "Persian", "Urdu"];
 
+const C = {
+  headerBg: "#1e3a5f",
+  blue: "#2e86c1",
+  blueDark: "#1a5276",
+  sectionBg: "#f0f4f8",
+  border: "#d5e8f3",
+  text: "#333333",
+  textMuted: "#6b7280",
+  white: "#ffffff",
+  yellow: "#fffbeb",
+  yellowBorder: "#f59e0b",
+  yellowText: "#92400e",
+  totalBg: "#1e3a5f",
+};
+
+// ─── Base Styles ──────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    padding: 40,
+    paddingTop: 0,
+    paddingBottom: 60,
+    paddingHorizontal: 0,
     fontSize: 10,
     lineHeight: 1.6,
-    fontFamily: "Helvetica",
-    color: TEXT_DARK,
+    color: C.text,
+  },
+  content: {
+    paddingHorizontal: 40,
   },
   // ─── Header ───────────────────────────────────────────
   header: {
-    backgroundColor: BRAND_COLOR,
-    padding: 30,
-    marginBottom: 24,
-    borderRadius: 4,
+    backgroundColor: C.headerBg,
+    paddingVertical: 32,
+    paddingHorizontal: 40,
+    marginBottom: 0,
   },
   headerTag: {
-    fontSize: 9,
-    color: "#bde8f5",
-    letterSpacing: 2,
+    fontSize: 8,
+    color: "#93c5fd",
+    letterSpacing: 3,
     textTransform: "uppercase",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#ffffff",
-    marginBottom: 4,
+    color: C.white,
+    marginBottom: 6,
+    lineHeight: 1.3,
   },
-  headerMeta: {
-    fontSize: 9,
-    color: "#d0eef8",
-    marginTop: 2,
+  // ─── Info Bar ──────────────────────────────────────────
+  infoBar: {
+    flexDirection: "row",
+    backgroundColor: C.sectionBg,
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderBottom: `1 solid ${C.border}`,
+    marginBottom: 20,
   },
-  headerDate: {
+  infoBarCell: {
+    flex: 1,
     fontSize: 9,
-    color: "#d0eef8",
+    color: C.textMuted,
+  },
+  infoBarLabel: {
+    fontWeight: "bold",
+    color: C.blueDark,
+  },
+  infoBarDivider: {
+    width: 1,
+    backgroundColor: C.border,
+    marginHorizontal: 12,
+  },
+  // ─── Confidential ──────────────────────────────────────
+  confidential: {
+    backgroundColor: C.yellow,
+    border: `1 solid ${C.yellowBorder}`,
+    borderRadius: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginHorizontal: 40,
+    marginBottom: 20,
+  },
+  confidentialText: {
+    fontSize: 8,
+    color: C.yellowText,
+    fontStyle: "italic",
   },
   // ─── Section ──────────────────────────────────────────
   section: {
-    marginBottom: 18,
+    marginBottom: 20,
+    paddingHorizontal: 40,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-    borderBottom: `1 solid ${BRAND_COLOR}`,
-    paddingBottom: 4,
+    marginBottom: 10,
+    paddingBottom: 6,
+    borderBottom: `2 solid ${C.blue}`,
   },
   sectionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: BRAND_COLOR,
-    marginRight: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: C.blue,
+    marginRight: 8,
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: "bold",
-    color: BRAND_DARK,
+    color: C.blue,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   sectionText: {
     fontSize: 10,
-    color: TEXT_DARK,
+    color: C.text,
     lineHeight: 1.7,
-    backgroundColor: LIGHT_BG,
-    padding: 10,
-    borderRadius: 3,
-    border: `1 solid ${BORDER_COLOR}`,
+    backgroundColor: C.sectionBg,
+    padding: 12,
+    borderRadius: 4,
+    border: `1 solid ${C.border}`,
   },
-  // ─── List Items ───────────────────────────────────────
+  // ─── Bullet items ─────────────────────────────────────
   bulletItem: {
     flexDirection: "row",
-    marginBottom: 5,
+    marginBottom: 6,
     alignItems: "flex-start",
   },
-  bulletDot: {
-    width: 14,
-    fontSize: 10,
-    color: BRAND_COLOR,
-    fontWeight: "bold",
+  bulletCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: C.blue,
+    marginRight: 8,
+    marginTop: 1,
+    flexShrink: 0,
   },
   bulletText: {
     flex: 1,
     fontSize: 10,
-    color: TEXT_DARK,
+    color: C.text,
     lineHeight: 1.6,
   },
   // ─── Timeline ─────────────────────────────────────────
-  timelineBadge: {
-    backgroundColor: BRAND_COLOR,
-    color: "#fff",
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: C.headerBg,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  tableHeaderCell: {
     fontSize: 9,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-    marginBottom: 8,
+    fontWeight: "bold",
+    color: C.white,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderBottom: `1 solid ${C.border}`,
+    backgroundColor: C.white,
+  },
+  tableRowAlt: {
+    flexDirection: "row",
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderBottom: `1 solid ${C.border}`,
+    backgroundColor: C.sectionBg,
+  },
+  tableCell: {
+    fontSize: 9,
+    color: C.text,
+    lineHeight: 1.5,
+  },
+  durationBadge: {
+    backgroundColor: C.blue,
+    color: C.white,
+    fontSize: 8,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 8,
     alignSelf: "flex-start",
   },
-  phaseRow: {
-    flexDirection: "row",
-    marginBottom: 6,
-    backgroundColor: LIGHT_BG,
-    borderRadius: 4,
-    padding: 8,
-    border: `1 solid ${BORDER_COLOR}`,
-  },
-  phaseNumber: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: BRAND_COLOR,
-    color: "#fff",
-    fontSize: 9,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginRight: 8,
-    paddingTop: 5,
-  },
-  phaseContent: {
-    flex: 1,
-  },
-  phaseName: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: BRAND_DARK,
-  },
-  phaseDuration: {
-    fontSize: 9,
-    color: TEXT_MUTED,
-    marginBottom: 2,
-  },
-  phaseDesc: {
-    fontSize: 9,
-    color: TEXT_DARK,
-  },
-  // ─── Investment ───────────────────────────────────────
-  investmentHeader: {
-    flexDirection: "row",
-    backgroundColor: BRAND_COLOR,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginBottom: 1,
-    borderTopLeftRadius: 3,
-    borderTopRightRadius: 3,
-  },
-  investmentHeaderCell: {
-    flex: 1,
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  investmentRow: {
-    flexDirection: "row",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderBottom: `1 solid ${BORDER_COLOR}`,
-    backgroundColor: "#fff",
-  },
-  investmentRowEven: {
-    flexDirection: "row",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderBottom: `1 solid ${BORDER_COLOR}`,
-    backgroundColor: LIGHT_BG,
-  },
-  investmentCell: {
-    flex: 1,
-    fontSize: 9,
-    color: TEXT_DARK,
-  },
+  // ─── Investment total ─────────────────────────────────
   investmentTotalRow: {
     flexDirection: "row",
-    paddingVertical: 8,
+    paddingVertical: 9,
     paddingHorizontal: 10,
-    backgroundColor: BRAND_COLOR,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
+    backgroundColor: C.totalBg,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
   },
   investmentTotalLabel: {
     flex: 2,
     fontSize: 10,
     fontWeight: "bold",
-    color: "#fff",
+    color: C.white,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   investmentTotalValue: {
     flex: 1,
     fontSize: 10,
     fontWeight: "bold",
-    color: "#fff",
+    color: C.white,
     textAlign: "right",
   },
-  // ─── Why Us Cards ─────────────────────────────────────
+  // ─── Why Us grid ──────────────────────────────────────
   whyUsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -240,93 +272,100 @@ const styles = StyleSheet.create({
   },
   whyUsCard: {
     width: "47%",
-    backgroundColor: LIGHT_BG,
-    border: `1 solid ${BORDER_COLOR}`,
+    backgroundColor: C.sectionBg,
+    border: `1 solid ${C.border}`,
+    borderLeft: `3 solid ${C.blue}`,
     borderRadius: 4,
-    padding: 8,
-    marginBottom: 6,
+    padding: 10,
+    marginBottom: 8,
   },
   whyUsNumber: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
-    color: BRAND_COLOR,
-    marginBottom: 3,
+    color: C.blue,
+    marginBottom: 4,
   },
   whyUsText: {
     fontSize: 9,
-    color: TEXT_DARK,
+    color: C.text,
     lineHeight: 1.5,
   },
   // ─── Next Steps ───────────────────────────────────────
   stepRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   stepBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: BRAND_COLOR,
-    color: "#fff",
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: C.blue,
+    color: C.white,
     fontSize: 9,
     fontWeight: "bold",
     textAlign: "center",
-    marginRight: 8,
-    paddingTop: 4,
+    marginRight: 10,
+    paddingTop: 5,
+    flexShrink: 0,
   },
   stepText: {
     flex: 1,
     fontSize: 10,
-    color: TEXT_DARK,
+    color: C.text,
     lineHeight: 1.6,
   },
   // ─── Footer ───────────────────────────────────────────
   footer: {
     position: "absolute",
-    bottom: 30,
+    bottom: 20,
     left: 40,
     right: 40,
-    borderTop: `1 solid ${BORDER_COLOR}`,
+    borderTop: `1 solid ${C.border}`,
     paddingTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  footerLeft: {
+  footerText: {
     fontSize: 8,
-    color: TEXT_MUTED,
-  },
-  footerRight: {
-    fontSize: 8,
-    color: TEXT_MUTED,
-  },
-  // ─── Confidential banner ──────────────────────────────
-  confidential: {
-    backgroundColor: "#fff3cd",
-    border: `1 solid #ffc107`,
-    borderRadius: 3,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    marginBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  confidentialText: {
-    fontSize: 8,
-    color: "#856404",
+    color: C.textMuted,
   },
 });
 
-// ─── Reusable SectionHeader ───────────────────────────────────
-const SectionHeader = ({ title }: { title: string }) => (
-  <View style={styles.sectionHeader}>
-    <View style={styles.sectionDot} />
-    <Text style={styles.sectionTitle}>{title}</Text>
+// ─── Helpers ──────────────────────────────────────────────────────────────
+const getFont = (isRTL: boolean, weight?: "bold") =>
+  isRTL ? "NotoSansHebrew" : weight === "bold" ? "Helvetica-Bold" : "Helvetica";
+
+const rtlText = (isRTL: boolean) =>
+  isRTL ? { textAlign: "right" as const, direction: "rtl" as const } : {};
+
+const rtlRow = (isRTL: boolean) =>
+  isRTL ? { flexDirection: "row-reverse" as const } : {};
+
+// ─── Sub-components ───────────────────────────────────────────────────────
+const SectionHeader = ({
+  title,
+  isRTL,
+  font,
+}: {
+  title: string;
+  isRTL: boolean;
+  font: string;
+}) => (
+  <View style={[styles.sectionHeader, isRTL ? { flexDirection: "row-reverse" } : {}]}>
+    <View style={[styles.sectionDot, isRTL ? { marginRight: 0, marginLeft: 8 } : {}]} />
+    <Text style={[styles.sectionTitle, { fontFamily: font }, rtlText(isRTL)]}>
+      {title}
+    </Text>
   </View>
 );
 
-// ─── Main PDF Component ───────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────────────
 export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+  const isRTL = RTL_LANGUAGES.includes(data.language ?? "");
+  const font = getFont(isRTL);
+  const fontBold = getFont(isRTL, "bold");
+
   const formattedDate = data.generatedAt
     ? new Date(data.generatedAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -335,181 +374,288 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
       })
     : new Date().toLocaleDateString();
 
+  const pageStyle = { ...styles.page, fontFamily: font };
+
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        {/* ── Header ── */}
-        <View style={styles.header}>
-          <Text style={styles.headerTag}>Professional Proposal</Text>
-          <Text style={styles.headerTitle}>{data.projectTitle}</Text>
-          <Text style={styles.headerMeta}>
-            Prepared for: {data.clientName}
+      {/* ══ PAGE 1 ══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={pageStyle}>
+        {/* Header */}
+        <View style={[styles.header, isRTL ? { alignItems: "flex-end" } : {}]}>
+          <Text style={[styles.headerTag, rtlText(isRTL)]}>
+            Professional Proposal
           </Text>
-          <Text style={styles.headerMeta}>By: {data.companyName}</Text>
-          <Text style={styles.headerDate}>Generated: {formattedDate}</Text>
+          <Text style={[styles.headerTitle, { fontFamily: fontBold }, rtlText(isRTL)]}>
+            {data.projectTitle}
+          </Text>
         </View>
 
-        {/* ── Confidential Banner ── */}
+        {/* Info Bar */}
+        <View style={[styles.infoBar, isRTL ? { flexDirection: "row-reverse" } : {}]}>
+          <Text style={[styles.infoBarCell, rtlText(isRTL)]}>
+            <Text style={[styles.infoBarLabel, { fontFamily: fontBold }]}>
+              {isRTL ? "לקוח: " : "Prepared for: "}
+            </Text>
+            {data.clientName}
+          </Text>
+          <View style={styles.infoBarDivider} />
+          <Text style={[styles.infoBarCell, rtlText(isRTL)]}>
+            <Text style={[styles.infoBarLabel, { fontFamily: fontBold }]}>
+              {isRTL ? "מאת: " : "By: "}
+            </Text>
+            {data.companyName}
+          </Text>
+          <View style={styles.infoBarDivider} />
+          <Text style={[styles.infoBarCell, rtlText(isRTL)]}>
+            <Text style={[styles.infoBarLabel, { fontFamily: fontBold }]}>
+              {isRTL ? "תאריך: " : "Date: "}
+            </Text>
+            {formattedDate}
+          </Text>
+        </View>
+
+        {/* Confidential Banner */}
         <View style={styles.confidential}>
-          <Text style={styles.confidentialText}>
-            CONFIDENTIAL — This document is prepared exclusively for{" "}
-            {data.clientName} and contains proprietary information.
+          <Text style={[styles.confidentialText, rtlText(isRTL)]}>
+            {isRTL
+              ? `סודי — מסמך זה הוכן באופן בלעדי עבור ${data.clientName} ומכיל מידע קנייני.`
+              : `CONFIDENTIAL — This document is prepared exclusively for ${data.clientName} and contains proprietary information.`}
           </Text>
         </View>
 
-        {/* ── Executive Summary ── */}
+        {/* Executive Summary */}
         {data.executiveSummary && (
           <View style={styles.section}>
-            <SectionHeader title="Executive Summary" />
-            <Text style={styles.sectionText}>{data.executiveSummary}</Text>
+            <SectionHeader
+              title={isRTL ? "סיכום מנהלים" : "Executive Summary"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
+            <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
+              {data.executiveSummary}
+            </Text>
           </View>
         )}
 
-        {/* ── Project Overview ── */}
+        {/* Project Overview */}
         {data.projectOverview && (
           <View style={styles.section}>
-            <SectionHeader title="Project Overview" />
-            <Text style={styles.sectionText}>{data.projectOverview}</Text>
+            <SectionHeader
+              title={isRTL ? "סקירת הפרויקט" : "Project Overview"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
+            <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
+              {data.projectOverview}
+            </Text>
           </View>
         )}
 
-        {/* ── Scope of Work ── */}
+        {/* Scope of Work */}
         {data.scopeOfWork && data.scopeOfWork.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Scope of Work" />
+            <SectionHeader
+              title={isRTL ? "היקף העבודה" : "Scope of Work"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
             {data.scopeOfWork.map((item, i) => (
-              <View key={i} style={styles.bulletItem}>
-                <Text style={styles.bulletDot}>-</Text>
-                <Text style={styles.bulletText}>{item}</Text>
+              <View key={i} style={[styles.bulletItem, rtlRow(isRTL)]}>
+                <View style={[styles.bulletCircle, isRTL ? { marginRight: 0, marginLeft: 8 } : {}]} />
+                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>
+                  {item}
+                </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* ── Our Approach ── */}
+        {/* Approach */}
         {data.approach && (
           <View style={styles.section}>
-            <SectionHeader title="Our Approach & Methodology" />
-            <Text style={styles.sectionText}>{data.approach}</Text>
+            <SectionHeader
+              title={isRTL ? "מתודולוגיה וגישה" : "Methodology & Approach"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
+            <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
+              {data.approach}
+            </Text>
           </View>
         )}
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            © {new Date().getFullYear()} {data.companyName} — Powered by Flowlio AI
+          </Text>
+          <Text style={styles.footerText}>Confidential | {formattedDate}</Text>
+        </View>
       </Page>
 
-      {/* ── PAGE 2 ── */}
-      <Page size="A4" style={styles.page}>
-        {/* ── Timeline ── */}
+      {/* ══ PAGE 2 ══════════════════════════════════════════════════════ */}
+      <Page size="A4" style={pageStyle}>
+        {/* Timeline */}
         {data.timeline && (
-          <View style={styles.section}>
-            <SectionHeader title="Project Timeline" />
-            <Text style={styles.timelineBadge}>
-              Total Duration: {data.timeline.totalDuration}
-            </Text>
+          <View style={[styles.section, { paddingTop: 30 }]}>
+            <SectionHeader
+              title={isRTL ? "לוח זמנים לפרויקט" : "Project Timeline"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
+            {/* Badge */}
+            <View style={{ marginBottom: 10 }}>
+              <Text style={styles.durationBadge}>
+                {isRTL ? "משך כולל: " : "Total Duration: "}
+                {data.timeline.totalDuration}
+              </Text>
+            </View>
+            {/* Table */}
+            <View style={[styles.tableHeader, rtlRow(isRTL)]}>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
+                {isRTL ? "שלב" : "Phase"}
+              </Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>
+                {isRTL ? "משך" : "Duration"}
+              </Text>
+              <Text style={[styles.tableHeaderCell, { flex: 3 }, rtlText(isRTL)]}>
+                {isRTL ? "תיאור" : "Description"}
+              </Text>
+            </View>
             {data.timeline.phases?.map((phase, i) => (
-              <View key={i} style={styles.phaseRow}>
-                <Text style={styles.phaseNumber}>{i + 1}</Text>
-                <View style={styles.phaseContent}>
-                  <Text style={styles.phaseName}>{phase.phase}</Text>
-                  <Text style={styles.phaseDuration}>
-                    {phase.duration}
-                  </Text>
-                  <Text style={styles.phaseDesc}>{phase.description}</Text>
-                </View>
+              <View
+                key={i}
+                style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}
+              >
+                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>
+                  {phase.phase}
+                </Text>
+                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>
+                  {phase.duration}
+                </Text>
+                <Text style={[styles.tableCell, { flex: 3 }, rtlText(isRTL)]}>
+                  {phase.description}
+                </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* ── Investment ── */}
+        {/* Investment */}
         {data.investment && (
           <View style={styles.section}>
-            <SectionHeader title="Investment & Pricing" />
-            {/* Table header */}
-            <View style={styles.investmentHeader}>
-              <Text style={{ ...styles.investmentHeaderCell, flex: 2 }}>
-                Item
+            <SectionHeader
+              title={isRTL ? "השקעה ותמחור" : "Investment & Pricing"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
+            <View style={[styles.tableHeader, rtlRow(isRTL)]}>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
+                {isRTL ? "פריט" : "Item"}
               </Text>
-              <Text style={styles.investmentHeaderCell}>Amount</Text>
-              <Text style={{ ...styles.investmentHeaderCell, flex: 2 }}>
-                Description
+              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>
+                {isRTL ? "סכום" : "Amount"}
+              </Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
+                {isRTL ? "תיאור" : "Description"}
               </Text>
             </View>
             {data.investment.breakdown?.map((row, i) => (
               <View
                 key={i}
-                style={
-                  i % 2 === 0 ? styles.investmentRow : styles.investmentRowEven
-                }
+                style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}
               >
-                <Text style={{ ...styles.investmentCell, flex: 2 }}>
+                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>
                   {row.item}
                 </Text>
-                <Text style={styles.investmentCell}>{row.amount}</Text>
-                <Text style={{ ...styles.investmentCell, flex: 2 }}>
+                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>
+                  {row.amount}
+                </Text>
+                <Text style={[styles.tableCell, { flex: 2 }, rtlText(isRTL)]}>
                   {row.description}
                 </Text>
               </View>
             ))}
-            <View style={styles.investmentTotalRow}>
-              <Text style={styles.investmentTotalLabel}>
-                TOTAL INVESTMENT
+            <View style={[styles.investmentTotalRow, rtlRow(isRTL)]}>
+              <Text style={[styles.investmentTotalLabel, { fontFamily: fontBold }, rtlText(isRTL)]}>
+                {isRTL ? "סה״כ השקעה" : "TOTAL INVESTMENT"}
               </Text>
-              <Text style={styles.investmentTotalValue}>
+              <Text style={[styles.investmentTotalValue, { fontFamily: fontBold }]}>
                 {data.investment.totalBudget}
               </Text>
             </View>
           </View>
         )}
 
-        {/* ── Why Choose Us ── */}
+        {/* Why Us */}
         {data.whyUs && data.whyUs.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Why Choose Us" />
+            <SectionHeader
+              title={isRTL ? "למה לבחור בנו" : "Why Choose Us"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
             <View style={styles.whyUsGrid}>
               {data.whyUs.map((reason, i) => (
-                <View key={i} style={styles.whyUsCard}>
-                  <Text style={styles.whyUsNumber}>0{i + 1}</Text>
-                  <Text style={styles.whyUsText}>{reason}</Text>
+                <View key={i} style={[styles.whyUsCard, isRTL ? { borderLeft: 0, borderRight: `3 solid ${C.blue}` } : {}]}>
+                  <Text style={[styles.whyUsNumber, { fontFamily: fontBold }]}>
+                    0{i + 1}
+                  </Text>
+                  <Text style={[styles.whyUsText, { fontFamily: font }, rtlText(isRTL)]}>
+                    {reason}
+                  </Text>
                 </View>
               ))}
             </View>
           </View>
         )}
 
-        {/* ── Terms ── */}
+        {/* Terms */}
         {data.terms && data.terms.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Terms & Conditions" />
+            <SectionHeader
+              title={isRTL ? "תנאים והגבלות" : "Terms & Conditions"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
             {data.terms.map((term, i) => (
-              <View key={i} style={styles.bulletItem}>
-                <Text style={styles.bulletDot}>-</Text>
-                <Text style={styles.bulletText}>{term}</Text>
+              <View key={i} style={[styles.bulletItem, rtlRow(isRTL)]}>
+                <View style={[styles.bulletCircle, isRTL ? { marginRight: 0, marginLeft: 8 } : {}]} />
+                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>
+                  {term}
+                </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* ── Next Steps ── */}
+        {/* Next Steps */}
         {data.nextSteps && data.nextSteps.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Next Steps" />
+            <SectionHeader
+              title={isRTL ? "הצעדים הבאים" : "Next Steps"}
+              isRTL={isRTL}
+              font={fontBold}
+            />
             {data.nextSteps.map((step, i) => (
-              <View key={i} style={styles.stepRow}>
-                <Text style={styles.stepBadge}>{i + 1}</Text>
-                <Text style={styles.stepText}>{step}</Text>
+              <View key={i} style={[styles.stepRow, rtlRow(isRTL)]}>
+                <Text style={[styles.stepBadge, { fontFamily: fontBold }, isRTL ? { marginRight: 0, marginLeft: 10 } : {}]}>
+                  {i + 1}
+                </Text>
+                <Text style={[styles.stepText, { fontFamily: font }, rtlText(isRTL)]}>
+                  {step}
+                </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* ── Footer ── */}
+        {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerLeft}>
-            © {new Date().getFullYear()} {data.companyName} — Powered by
-            Flowlio AI
+          <Text style={styles.footerText}>
+            © {new Date().getFullYear()} {data.companyName} — Powered by Flowlio AI
           </Text>
-          <Text style={styles.footerRight}>
-            Confidential | {formattedDate}
-          </Text>
+          <Text style={styles.footerText}>Confidential | {formattedDate}</Text>
         </View>
       </Page>
     </Document>
