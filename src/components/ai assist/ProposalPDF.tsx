@@ -9,15 +9,17 @@ import {
 } from "@react-pdf/renderer";
 
 // ─── Font Registration ─────────────────────────────────────────────────────
+// @react-pdf/renderer requires TTF/OTF format — WOFF/WOFF2 are not supported.
+// Using @expo-google-fonts which packages Google Fonts as TTF files.
 Font.register({
   family: "NotoSansHebrew",
   fonts: [
     {
-      src: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-400-normal.woff",
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew/NotoSansHebrew_400Regular.ttf",
       fontWeight: 400,
     },
     {
-      src: "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-hebrew/files/noto-sans-hebrew-hebrew-700-normal.woff",
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew/NotoSansHebrew_700Bold.ttf",
       fontWeight: 700,
     },
   ],
