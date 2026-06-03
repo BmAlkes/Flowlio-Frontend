@@ -758,6 +758,7 @@
     "generateNew": "צור חדש",
     "downloadPdf": "הורד PDF",
     "preparingPdf": "מכין PDF...",
+    "notSavedWarning": "לא נבחר לקוח — ההצעה לא תישמר. הורד אותה עכשיו לפני הסגירה.",
     "errorRequired": "שם הפרויקט והתיאור הם שדות חובה.",
     "errorFailed": "יצירת ההצעה נכשלה. אנא נסה שוב.",
     "errorPdf": "יצירת ה-PDF נכשלה. אנא נסה שוב.",
@@ -771,6 +772,13 @@
       "whyUs": "למה לבחור בנו",
       "terms": "תנאים והגבלות",
       "nextSteps": "הצעדים הבאים"
-    }
+    },
+    "colActions": "פעולות",
+    "tooltipDelete": "מחק הצעה",
+    "confirmDelete": "אישור",
+    "deleteSuccess": "ההצעה נמחקה בהצלחה.",
+    "deleteError": "מחיקת ההצעה נכשלה. נסה שוב.",
+    "downloadSuccess": "ה-PDF הורד בהצלחה.",
+    "downloadError": "יצירת ה-PDF נכשלה"
   }
 }

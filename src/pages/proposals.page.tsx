@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { PageWrapper } from "@/components/common/pagewrapper";
 import { Box } from "@/components/ui/box";
@@ -9,7 +9,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import { useState } from "react";
-import { Download, CheckCircle2, XCircle, Clock, FileText, Users, Upload, Sparkles } from "lucide-react";
+import { Download, CheckCircle2, XCircle, Clock, FileText, Users, Upload, Sparkles, Trash2 } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { ProposalPDF, type ProposalData } from "@/components/ai assist/ProposalPDF";
 import { ProposalGeneratorModal } from "@/components/ai assist/ProposalGeneratorModal";
@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 interface Proposal {
   id: string;
@@ -40,9 +41,24 @@ interface Proposal {
 
 const OrgProposalsPage = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => axios.delete(`/proposals/${id}`),
+    onSuccess: () => {
+      toast.success(t("proposal.deleteSuccess"));
+      queryClient.invalidateQueries({ queryKey: ["org-proposals"] });
+      setConfirmDeleteId(null);
+    },
+    onError: () => {
+      toast.error(t("proposal.deleteError"));
+      setConfirmDeleteId(null);
+    },
+  });
 
   const statusConfig = {
     pending: {
@@ -101,8 +117,10 @@ const OrgProposalsPage = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err) {
+      toast.success(t("proposal.downloadSuccess"));
+    } catch (err: any) {
       console.error("PDF download error:", err);
+      toast.error(t("proposal.downloadError") + (err?.message ? `: ${err.message}` : ""));
     } finally {
       setDownloadingId(null);
     }
@@ -164,31 +182,72 @@ const OrgProposalsPage = () => {
     },
     {
       id: "actions",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colDownload")}</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colActions")}</Box>,
       cell: ({ row }) => {
         const proposal = row.original;
         const isDownloadingThis = downloadingId === proposal.id;
+        const isConfirming = confirmDeleteId === proposal.id;
+        const isDeleting = deleteMutation.isPending && confirmDeleteId === proposal.id;
         return (
           <Center>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
+            <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-[#0c89af] hover:bg-[#0a7a9e] border-none w-9 h-9 p-0 rounded-md"
+                      onClick={() => handleDownload(proposal)}
+                      disabled={isDownloadingThis}
+                    >
+                      {isDownloadingThis ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                      ) : (
+                        <Download className="text-white w-4 h-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("proposal.tooltipDownload")}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {isConfirming ? (
+                <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
-                    className="bg-[#0c89af] hover:bg-[#0a7a9e] border-none w-9 h-9 p-0 rounded-md"
-                    onClick={() => handleDownload(proposal)}
-                    disabled={isDownloadingThis}
+                    className="bg-red-500 hover:bg-red-600 border-none h-9 px-2 rounded-md text-white text-xs"
+                    onClick={() => deleteMutation.mutate(proposal.id)}
+                    disabled={isDeleting}
                   >
-                    {isDownloadingThis ? (
+                    {isDeleting ? (
                       <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
-                    ) : (
-                      <Download className="text-white w-4 h-4" />
-                    )}
+                    ) : t("proposal.confirmDelete")}
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("proposal.tooltipDownload")}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                  <Button
+                    variant="outline"
+                    className="border-border h-9 px-2 rounded-md text-xs"
+                    onClick={() => setConfirmDeleteId(null)}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                </div>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="bg-red-50 hover:bg-red-100 border-red-200 w-9 h-9 p-0 rounded-md"
+                        onClick={() => setConfirmDeleteId(proposal.id)}
+                      >
+                        <Trash2 className="text-red-500 w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("proposal.tooltipDelete")}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </Center>
         );
       },

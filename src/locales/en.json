@@ -1005,6 +1005,7 @@
     "generateNew": "Generate New",
     "downloadPdf": "Download PDF",
     "preparingPdf": "Preparing PDF...",
+    "notSavedWarning": "No client selected — this proposal will not be saved. Download it now before closing.",
     "errorRequired": "Project title and description are required.",
     "errorFailed": "Failed to generate proposal. Please try again.",
     "errorPdf": "Failed to generate PDF. Please try again.",
@@ -1018,6 +1019,13 @@
       "whyUs": "Why Choose Us",
       "terms": "Terms & Conditions",
       "nextSteps": "Next Steps"
-    }
+    },
+    "colActions": "Actions",
+    "tooltipDelete": "Delete Proposal",
+    "confirmDelete": "Confirm",
+    "deleteSuccess": "Proposal deleted successfully.",
+    "deleteError": "Failed to delete proposal. Please try again.",
+    "downloadSuccess": "PDF downloaded successfully.",
+    "downloadError": "Failed to generate PDF"
   }
 }

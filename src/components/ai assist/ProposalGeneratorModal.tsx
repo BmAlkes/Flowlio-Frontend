@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { X, FileText, Loader2, Download, Sparkles, ChevronRight, Bell, CheckCircle2 } from "lucide-react";
+import { X, FileText, Loader2, Download, Sparkles, ChevronRight, Bell, CheckCircle2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { axios } from "@/configs/axios.config";
 import { pdf } from "@react-pdf/renderer";
@@ -136,9 +137,11 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error("PDF generation error:", err);
-      setError(t("proposal.errorPdf"));
+      const msg = t("proposal.errorPdf") + (err?.message ? `: ${err.message}` : "");
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsDownloading(false);
     }
@@ -379,6 +382,14 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
                   <Bell className="w-4 h-4 text-yellow-600 shrink-0" />
                   <p className="text-xs text-yellow-700">
                     {t("proposal.savingNotifying")}
+                  </p>
+                </div>
+              )}
+              {!selectedClientId && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-orange-50 border border-orange-200">
+                  <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0" />
+                  <p className="text-xs text-orange-700">
+                    {t("proposal.notSavedWarning")}
                   </p>
                 </div>
               )}

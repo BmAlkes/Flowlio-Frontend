@@ -784,6 +784,7 @@
     "generateNew": "Gerar Nova",
     "downloadPdf": "Baixar PDF",
     "preparingPdf": "Preparando PDF...",
+    "notSavedWarning": "Nenhum cliente selecionado — esta proposta não será salva. Baixe agora antes de fechar.",
     "errorRequired": "Título do projeto e descrição são obrigatórios.",
     "errorFailed": "Falha ao gerar proposta. Por favor, tente novamente.",
     "errorPdf": "Falha ao gerar PDF. Por favor, tente novamente.",
@@ -797,6 +798,13 @@
       "whyUs": "Por Que Nos Escolher",
       "terms": "Termos e Condições",
       "nextSteps": "Próximos Passos"
-    }
+    },
+    "colActions": "Ações",
+    "tooltipDelete": "Excluir Proposta",
+    "confirmDelete": "Confirmar",
+    "deleteSuccess": "Proposta excluída com sucesso.",
+    "deleteError": "Falha ao excluir a proposta. Tente novamente.",
+    "downloadSuccess": "PDF baixado com sucesso.",
+    "downloadError": "Falha ao gerar PDF"
   }
 }

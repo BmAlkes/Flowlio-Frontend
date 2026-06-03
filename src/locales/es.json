@@ -999,6 +999,7 @@
     "generateNew": "Generar Nueva",
     "downloadPdf": "Descargar PDF",
     "preparingPdf": "Preparando PDF...",
+    "notSavedWarning": "No hay cliente seleccionado — esta propuesta no se guardará. Descárgala ahora antes de cerrar.",
     "errorRequired": "El título del proyecto y la descripción son obligatorios.",
     "errorFailed": "Error al generar la propuesta. Por favor, inténtalo de nuevo.",
     "errorPdf": "Error al generar el PDF. Por favor, inténtalo de nuevo.",
@@ -1012,6 +1013,13 @@
       "whyUs": "Por Qué Elegirnos",
       "terms": "Términos y Condiciones",
       "nextSteps": "Próximos Pasos"
-    }
+    },
+    "colActions": "Acciones",
+    "tooltipDelete": "Eliminar Propuesta",
+    "confirmDelete": "Confirmar",
+    "deleteSuccess": "Propuesta eliminada con éxito.",
+    "deleteError": "Error al eliminar la propuesta. Inténtalo de nuevo.",
+    "downloadSuccess": "PDF descargado con éxito.",
+    "downloadError": "Error al generar el PDF"
   }
 }
