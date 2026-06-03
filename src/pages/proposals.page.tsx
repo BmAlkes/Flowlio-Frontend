@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 
 interface Proposal {
   id: string;
@@ -37,28 +38,29 @@ interface Proposal {
   rejectedAt?: string;
 }
 
-const statusConfig = {
-  pending: {
-    label: "Pending",
-    className: "text-white bg-[#F98618] rounded-full",
-    icon: Clock,
-  },
-  approved: {
-    label: "Approved",
-    className: "text-white bg-[#00A400] rounded-full",
-    icon: CheckCircle2,
-  },
-  rejected: {
-    label: "Rejected",
-    className: "text-white bg-[#EF5350] rounded-full",
-    icon: XCircle,
-  },
-};
-
 const OrgProposalsPage = () => {
+  const { t } = useTranslation();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const statusConfig = {
+    pending: {
+      label: t("proposal.statusPending"),
+      className: "text-white bg-[#F98618] rounded-full",
+      icon: Clock,
+    },
+    approved: {
+      label: t("proposal.statusApproved"),
+      className: "text-white bg-[#00A400] rounded-full",
+      icon: CheckCircle2,
+    },
+    rejected: {
+      label: t("proposal.statusRejected"),
+      className: "text-white bg-[#EF5350] rounded-full",
+      icon: XCircle,
+    },
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["org-proposals"],
@@ -70,7 +72,6 @@ const OrgProposalsPage = () => {
 
   const proposals = data || [];
 
-  // Stats
   const totalProposals = proposals.length;
   const approved = proposals.filter((p) => p.status === "approved").length;
   const pending = proposals.filter((p) => p.status === "pending").length;
@@ -81,7 +82,7 @@ const OrgProposalsPage = () => {
       window.open(proposal.proposalData.fileUrl, "_blank");
       return;
     }
-    
+
     setDownloadingId(proposal.id);
     try {
       const pdfData: ProposalData = {
@@ -110,21 +111,21 @@ const OrgProposalsPage = () => {
   const columns: ColumnDef<Proposal>[] = [
     {
       accessorKey: "projectTitle",
-      header: () => <Box className="text-center text-foreground">Project Title</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colProjectTitle")}</Box>,
       cell: ({ row }) => (
         <Box className="text-center font-medium">{row.original.projectTitle}</Box>
       ),
     },
     {
       accessorKey: "clientName",
-      header: () => <Box className="text-center text-foreground">Client</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colClient")}</Box>,
       cell: ({ row }) => (
         <Box className="text-center">{row.original.clientName}</Box>
       ),
     },
     {
       accessorKey: "createdAt",
-      header: () => <Box className="text-center text-foreground">Sent On</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colSentOn")}</Box>,
       cell: ({ row }) => (
         <Box className="text-center text-sm">
           {format(new Date(row.original.createdAt), "MMM d, yyyy")}
@@ -133,7 +134,7 @@ const OrgProposalsPage = () => {
     },
     {
       accessorKey: "status",
-      header: () => <Box className="text-center text-foreground">Status</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colStatus")}</Box>,
       cell: ({ row }) => {
         const cfg = statusConfig[row.original.status] || statusConfig.pending;
         const Icon = cfg.icon;
@@ -151,7 +152,7 @@ const OrgProposalsPage = () => {
     },
     {
       accessorKey: "approvedAt",
-      header: () => <Box className="text-center text-foreground">Response Date</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colResponseDate")}</Box>,
       cell: ({ row }) => {
         const date = row.original.approvedAt || row.original.rejectedAt;
         return (
@@ -163,7 +164,7 @@ const OrgProposalsPage = () => {
     },
     {
       id: "actions",
-      header: () => <Box className="text-center text-foreground">Download</Box>,
+      header: () => <Box className="text-center text-foreground">{t("proposal.colDownload")}</Box>,
       cell: ({ row }) => {
         const proposal = row.original;
         const isDownloadingThis = downloadingId === proposal.id;
@@ -185,7 +186,7 @@ const OrgProposalsPage = () => {
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Download PDF</TooltipContent>
+                <TooltipContent>{t("proposal.tooltipDownload")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </Center>
@@ -203,13 +204,13 @@ const OrgProposalsPage = () => {
               <FileText className="w-5 h-5 text-[#0c89af]" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">Proposals</h1>
+              <h1 className="text-2xl font-semibold text-foreground">{t("proposal.pageTitle")}</h1>
               <p className="text-muted-foreground text-sm">
-                Track and manage proposals sent to clients.
+                {t("proposal.pageSubtitle")}
               </p>
             </div>
           </Box>
-          
+
           <Box className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -217,14 +218,14 @@ const OrgProposalsPage = () => {
               className="gap-2 rounded-full border-[#0c89af] text-[#0c89af] hover:bg-[#0c89af]/5"
             >
               <Upload className="w-4 h-4" />
-              Upload Proposal
+              {t("proposal.uploadProposal")}
             </Button>
             <Button
               onClick={() => setIsProposalModalOpen(true)}
               className="gap-2 rounded-full bg-[#0c89af] hover:bg-[#0a7a9e] text-white"
             >
               <Sparkles className="w-4 h-4" />
-              AI Generator
+              {t("proposal.aiGenerator")}
             </Button>
           </Box>
         </Box>
@@ -233,10 +234,10 @@ const OrgProposalsPage = () => {
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 mb-6">
         {[
-          { label: "Total Sent", value: totalProposals, color: "bg-[#0c89af]/10 text-[#0c89af]" },
-          { label: "Pending", value: pending, color: "bg-orange-50 text-orange-600" },
-          { label: "Approved", value: approved, color: "bg-green-50 text-green-600" },
-          { label: "Rejected", value: rejected, color: "bg-red-50 text-red-600" },
+          { label: t("proposal.statsTotalSent"), value: totalProposals, color: "bg-[#0c89af]/10 text-[#0c89af]" },
+          { label: t("proposal.statsPending"), value: pending, color: "bg-orange-50 text-orange-600" },
+          { label: t("proposal.statsApproved"), value: approved, color: "bg-green-50 text-green-600" },
+          { label: t("proposal.statsRejected"), value: rejected, color: "bg-red-50 text-red-600" },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -249,13 +250,13 @@ const OrgProposalsPage = () => {
       </div>
 
       {isLoading ? (
-        <Box className="flex justify-center p-10 text-muted-foreground">Loading proposals...</Box>
+        <Box className="flex justify-center p-10 text-muted-foreground">{t("proposal.loading")}</Box>
       ) : proposals.length === 0 ? (
         <Box className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
           <Users className="w-12 h-12 opacity-30" />
-          <p className="text-base font-medium">No proposals sent yet</p>
+          <p className="text-base font-medium">{t("proposal.emptyTitle")}</p>
           <p className="text-sm text-center max-w-xs">
-            Go to AI Assist and generate a proposal for a client to see it here.
+            {t("proposal.emptyDesc")}
           </p>
         </Box>
       ) : (
@@ -273,7 +274,7 @@ const OrgProposalsPage = () => {
         isOpen={isProposalModalOpen}
         onClose={() => setIsProposalModalOpen(false)}
       />
-      
+
       <ProposalUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
