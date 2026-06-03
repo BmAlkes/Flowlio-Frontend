@@ -2,9 +2,17 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import path from "path";
+import { copyFileSync } from "fs";
+
+const copyIndexTo404: import("vite").Plugin = {
+  name: "copy-index-to-404",
+  closeBundle() {
+    copyFileSync("dist/index.html", "dist/404.html");
+  },
+};
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), copyIndexTo404],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
