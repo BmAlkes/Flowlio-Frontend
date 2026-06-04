@@ -3,7 +3,7 @@ import { X, FileText, Loader2, Download, Sparkles, ChevronRight, Bell, CheckCirc
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { axios } from "@/configs/axios.config";
-import { pdf } from "@react-pdf/renderer";
+import { generatePdfBlob } from "@/lib/generatePdf";
 import { ProposalPDF, type ProposalData } from "./ProposalPDF";
 import { useFetchClients } from "@/hooks/usefetchclients";
 import { useTranslation } from "react-i18next";
@@ -126,7 +126,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
     if (!proposalData) return;
     setIsDownloading(true);
     try {
-      const blob = await pdf(<ProposalPDF data={proposalData} />).toBlob();
+      const blob = await generatePdfBlob(<ProposalPDF data={proposalData} />);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

@@ -10,7 +10,7 @@ import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Download, CheckCircle2, XCircle, Clock, FileText, Users, Upload, Sparkles, Trash2 } from "lucide-react";
-import { pdf } from "@react-pdf/renderer";
+import { generatePdfBlob } from "@/lib/generatePdf";
 import { ProposalPDF, type ProposalData } from "@/components/ai assist/ProposalPDF";
 import { ProposalGeneratorModal } from "@/components/ai assist/ProposalGeneratorModal";
 import { ProposalUploadModal } from "@/components/proposals/ProposalUploadModal";
@@ -108,7 +108,7 @@ const OrgProposalsPage = () => {
         companyName: proposal.companyName,
         generatedAt: proposal.createdAt,
       };
-      const blob = await pdf(<ProposalPDF data={pdfData} />).toBlob();
+      const blob = await generatePdfBlob(<ProposalPDF data={pdfData} />);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
