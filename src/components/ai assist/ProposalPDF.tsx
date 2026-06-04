@@ -9,17 +9,29 @@ import {
 } from "@react-pdf/renderer";
 
 // ─── Font Registration ─────────────────────────────────────────────────────
-// TTF files from @expo-google-fonts are in weight subdirectories.
+// Italic variants point to the same TTF (no italic file exists for Hebrew).
 Font.register({
   family: "NotoSansHebrew",
   fonts: [
     {
       src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/400Regular/NotoSansHebrew_400Regular.ttf",
       fontWeight: 400,
+      fontStyle: "normal",
+    },
+    {
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/400Regular/NotoSansHebrew_400Regular.ttf",
+      fontWeight: 400,
+      fontStyle: "italic",
     },
     {
       src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/700Bold/NotoSansHebrew_700Bold.ttf",
       fontWeight: 700,
+      fontStyle: "normal",
+    },
+    {
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/700Bold/NotoSansHebrew_700Bold.ttf",
+      fontWeight: 700,
+      fontStyle: "italic",
     },
   ],
 });
@@ -72,8 +84,8 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    paddingTop: 0,
-    paddingBottom: 60,
+    paddingTop: 20,
+    paddingBottom: 70,
     paddingHorizontal: 0,
     fontSize: 10,
     lineHeight: 1.6,
@@ -85,9 +97,11 @@ const styles = StyleSheet.create({
   // ─── Header ───────────────────────────────────────────
   header: {
     backgroundColor: C.headerBg,
-    paddingVertical: 32,
+    paddingTop: 12,
+    paddingBottom: 32,
     paddingHorizontal: 40,
     marginBottom: 0,
+    marginTop: -20,
   },
   headerTag: {
     fontSize: 8,
