@@ -5,12 +5,9 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { AvatarFallback, AvatarImage, Avatar } from "@/components/ui/avatar";
-import { Box, type BoxProps } from "@/components/ui/box";
+import { type BoxProps } from "@/components/ui/box";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Stack } from "@/components/ui/stack";
-import { PanelLeftOpen } from "lucide-react";
-import { Flex } from "@/components/ui/flex";
+import { PanelLeftOpen, Calendar, User } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 import { type FC } from "react";
@@ -34,68 +31,109 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
   ...props
 }) => {
   const { t } = useTranslation();
+
+  const progressColor =
+    progress >= 75
+      ? "text-emerald-600"
+      : progress >= 40
+      ? "text-blue-600"
+      : "text-orange-500";
+
   return (
-    <Link to={"/dashboard/task-management"}>
-      <Box
+    <Link to={"/dashboard/task-management"} className="block">
+      <div
         className={cn(
-          "bg-card/50 border border-border rounded-xl p-3",
+          "group relative bg-card border border-border rounded-2xl overflow-hidden",
+          "hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800",
+          "transition-all duration-200 cursor-pointer",
           className
         )}
-        {...props}
+        {...(props as React.HTMLAttributes<HTMLDivElement>)}
       >
-        <Stack className="bg-muted p-4 rounded-md gap-6">
-          <Flex className="justify-between flex-wrap">
-            <Box className="bg-foreground p-2 rounded-full">
-              <PanelLeftOpen className="text-background size-4" />
-            </Box>
-            <p className="text-sm bg-background border border-border rounded-full py-1 px-2.5">
+        {/* Top gradient accent */}
+        <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600" />
+
+        <div className="p-4 flex flex-col gap-4">
+
+          {/* Row 1: icon + date */}
+          <div className="flex items-center justify-between">
+            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900">
+              <PanelLeftOpen className="size-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted rounded-full px-3 py-1">
+              <Calendar className="size-3" />
               {createdAt}
-            </p>
-          </Flex>
+            </div>
+          </div>
 
-          <h1 className="text-xl font-semibold capitalize">
-            {taskName.substring(0, 26).concat("...")}
-          </h1>
-          <Flex>
-            <p className="text-sm text-muted-foreground">{t("dashboard.createdBy")}</p>
-            <p className="capitalize text-sm">{createdBy}</p>
-          </Flex>
-        </Stack>
+          {/* Row 2: task name + created by */}
+          <div className="space-y-1">
+            <h3 className="font-semibold text-sm leading-snug line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {taskName}
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <User className="size-3 shrink-0" />
+              <span>{t("dashboard.createdBy")}</span>
+              <span className="text-foreground font-medium capitalize truncate">
+                {createdBy}
+              </span>
+            </div>
+          </div>
 
-        <Flex className="mt-6 justify-between">
-          <Badge
-            className="border-blue-600 text-blue-600 rounded-sm py-1.5 px-3"
-            variant="outline"
-          >
-            <Box className="bg-blue-600 p-1 rounded-full"></Box>
-            {t("dashboard.ongoing")}
-          </Badge>
+          {/* Divider */}
+          <div className="border-t border-border" />
 
-          <Flex className="-space-x-5">
-            {assignees.map(({ src, userName }, key) => (
-              <TooltipProvider key={key}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Avatar className="relative hover:z-1 border-2 border-background size-10">
-                      <AvatarImage src={src} alt={userName} />
-                      <AvatarFallback>{userName}</AvatarFallback>
-                    </Avatar>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="capitalize">{userName}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ))}
-          </Flex>
-        </Flex>
+          {/* Row 3: status badge + assignees */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full px-3 py-1 border border-blue-100 dark:border-blue-900">
+              <span className="size-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
+              {t("dashboard.ongoing")}
+            </div>
 
-        <Progress value={progress} className="w-full min-h-0.5 mt-6" />
-        <Flex className="justify-between mb-2">
-          <h5 className="text-muted-foreground text-sm">{t("dashboard.progress")}</h5>
-          <p className="text-sm">{progress}%</p>
-        </Flex>
-      </Box>
+            <div className="flex -space-x-2">
+              {assignees.slice(0, 4).map(({ src, userName }, key) => (
+                <TooltipProvider key={key}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Avatar className="size-7 border-2 border-background hover:z-10 relative transition-transform hover:scale-110">
+                        <AvatarImage src={src} alt={userName} />
+                        <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
+                          {userName?.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="capitalize">{userName}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+              {assignees.length > 4 && (
+                <div className="size-7 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] text-muted-foreground font-medium">
+                  +{assignees.length - 4}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Row 4: progress */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground font-medium">
+                {t("dashboard.progress")}
+              </span>
+              <span className={cn("font-bold tabular-nums", progressColor)}>
+                {progress}%
+              </span>
+            </div>
+            <Progress
+              value={progress}
+              className="h-1.5 rounded-full bg-muted"
+            />
+          </div>
+
+        </div>
+      </div>
     </Link>
   );
 };
