@@ -134,7 +134,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
             <OngoingTaskCard
               key={index}
               taskName={task.taskName}
-              className="md:basis-1/1 lg:basis-1/1 min-w-[17.5rem]"
+              className="md:basis-1/1 lg:basis-1/1 min-w-[22rem]"
               createdAt={task.createdAt}
               createdBy={task.createdBy}
               assignees={task.assignees}
