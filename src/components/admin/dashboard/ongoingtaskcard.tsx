@@ -36,12 +36,17 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
     <Link to={"/dashboard/task-management"} className="block">
       <div
         className={cn(
-          "bg-card border border-border rounded-2xl p-5 flex flex-col gap-5",
-          "hover:shadow-md hover:-translate-y-0.5 transition-all duration-200",
+          "relative overflow-hidden border border-border rounded-2xl p-5 flex flex-col gap-5",
+          "bg-gradient-to-br from-card via-card to-blue-50/60 dark:to-blue-950/30",
+          "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
           className
         )}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}
       >
+        {/* ── Decorative background shapes ── */}
+        <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-xl" />
+
         {/* ── Top row ── */}
         <div className="flex items-start justify-between gap-3">
           <div className="p-2.5 rounded-xl bg-foreground shrink-0">
