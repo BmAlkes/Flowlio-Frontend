@@ -9,17 +9,16 @@ import {
 } from "@react-pdf/renderer";
 
 // ─── Font Registration ─────────────────────────────────────────────────────
-// @react-pdf/renderer requires TTF/OTF format — WOFF/WOFF2 are not supported.
-// Using @expo-google-fonts which packages Google Fonts as TTF files.
+// TTF files from @expo-google-fonts are in weight subdirectories.
 Font.register({
   family: "NotoSansHebrew",
   fonts: [
     {
-      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew/NotoSansHebrew_400Regular.ttf",
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/400Regular/NotoSansHebrew_400Regular.ttf",
       fontWeight: 400,
     },
     {
-      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew/NotoSansHebrew_700Bold.ttf",
+      src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-hebrew@0.4.1/700Bold/NotoSansHebrew_700Bold.ttf",
       fontWeight: 700,
     },
   ],
@@ -376,23 +375,32 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
       })
     : new Date().toLocaleDateString();
 
+  // Single page — content auto-paginates. paddingBottom leaves room for the fixed footer.
   const pageStyle = { ...styles.page, fontFamily: font };
 
   return (
     <Document>
-      {/* ══ PAGE 1 ══════════════════════════════════════════════════════ */}
       <Page size="A4" style={pageStyle}>
-        {/* Header */}
+
+        {/* ── Fixed footer on every page ── */}
+        <View fixed style={styles.footer}>
+          <Text style={styles.footerText}>
+            © {new Date().getFullYear()} {data.companyName} — Powered by Flowlio AI
+          </Text>
+          <Text style={styles.footerText}>Confidential | {formattedDate}</Text>
+        </View>
+
+        {/* ── Header (first page only) ── */}
         <View style={[styles.header, isRTL ? { alignItems: "flex-end" } : {}]}>
           <Text style={[styles.headerTag, rtlText(isRTL)]}>
-            Professional Proposal
+            {isRTL ? "הצעה מקצועית" : "Professional Proposal"}
           </Text>
           <Text style={[styles.headerTitle, { fontFamily: fontBold }, rtlText(isRTL)]}>
             {data.projectTitle}
           </Text>
         </View>
 
-        {/* Info Bar */}
+        {/* ── Info Bar ── */}
         <View style={[styles.infoBar, isRTL ? { flexDirection: "row-reverse" } : {}]}>
           <Text style={[styles.infoBarCell, rtlText(isRTL)]}>
             <Text style={[styles.infoBarLabel, { fontFamily: fontBold }]}>
@@ -416,7 +424,7 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
           </Text>
         </View>
 
-        {/* Confidential Banner */}
+        {/* ── Confidential Banner ── */}
         <View style={styles.confidential}>
           <Text style={[styles.confidentialText, rtlText(isRTL)]}>
             {isRTL
@@ -425,157 +433,87 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
           </Text>
         </View>
 
-        {/* Executive Summary */}
+        {/* ── Executive Summary ── */}
         {data.executiveSummary && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "סיכום מנהלים" : "Executive Summary"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "סיכום מנהלים" : "Executive Summary"} isRTL={isRTL} font={fontBold} />
             <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
               {data.executiveSummary}
             </Text>
           </View>
         )}
 
-        {/* Project Overview */}
+        {/* ── Project Overview ── */}
         {data.projectOverview && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "סקירת הפרויקט" : "Project Overview"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "סקירת הפרויקט" : "Project Overview"} isRTL={isRTL} font={fontBold} />
             <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
               {data.projectOverview}
             </Text>
           </View>
         )}
 
-        {/* Scope of Work */}
+        {/* ── Scope of Work ── */}
         {data.scopeOfWork && data.scopeOfWork.length > 0 && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "היקף העבודה" : "Scope of Work"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "היקף העבודה" : "Scope of Work"} isRTL={isRTL} font={fontBold} />
             {data.scopeOfWork.map((item, i) => (
               <View key={i} style={[styles.bulletItem, rtlRow(isRTL)]}>
                 <View style={[styles.bulletCircle, isRTL ? { marginRight: 0, marginLeft: 8 } : {}]} />
-                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>
-                  {item}
-                </Text>
+                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>{item}</Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Approach */}
+        {/* ── Methodology ── */}
         {data.approach && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "מתודולוגיה וגישה" : "Methodology & Approach"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "מתודולוגיה וגישה" : "Methodology & Approach"} isRTL={isRTL} font={fontBold} />
             <Text style={[styles.sectionText, { fontFamily: font }, rtlText(isRTL)]}>
               {data.approach}
             </Text>
           </View>
         )}
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            © {new Date().getFullYear()} {data.companyName} — Powered by Flowlio AI
-          </Text>
-          <Text style={styles.footerText}>Confidential | {formattedDate}</Text>
-        </View>
-      </Page>
-
-      {/* ══ PAGE 2 ══════════════════════════════════════════════════════ */}
-      <Page size="A4" style={pageStyle}>
-        {/* Timeline */}
+        {/* ── Timeline ── */}
         {data.timeline && (
-          <View style={[styles.section, { paddingTop: 30 }]}>
-            <SectionHeader
-              title={isRTL ? "לוח זמנים לפרויקט" : "Project Timeline"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
-            {/* Badge */}
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "לוח זמנים לפרויקט" : "Project Timeline"} isRTL={isRTL} font={fontBold} />
             <View style={{ marginBottom: 10 }}>
               <Text style={styles.durationBadge}>
-                {isRTL ? "משך כולל: " : "Total Duration: "}
-                {data.timeline.totalDuration}
+                {isRTL ? "משך כולל: " : "Total Duration: "}{data.timeline.totalDuration}
               </Text>
             </View>
-            {/* Table */}
             <View style={[styles.tableHeader, rtlRow(isRTL)]}>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
-                {isRTL ? "שלב" : "Phase"}
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>
-                {isRTL ? "משך" : "Duration"}
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 3 }, rtlText(isRTL)]}>
-                {isRTL ? "תיאור" : "Description"}
-              </Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>{isRTL ? "שלב" : "Phase"}</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>{isRTL ? "משך" : "Duration"}</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 3 }, rtlText(isRTL)]}>{isRTL ? "תיאור" : "Description"}</Text>
             </View>
             {data.timeline.phases?.map((phase, i) => (
-              <View
-                key={i}
-                style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}
-              >
-                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>
-                  {phase.phase}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>
-                  {phase.duration}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 3 }, rtlText(isRTL)]}>
-                  {phase.description}
-                </Text>
+              <View key={i} style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}>
+                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>{phase.phase}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>{phase.duration}</Text>
+                <Text style={[styles.tableCell, { flex: 3 }, rtlText(isRTL)]}>{phase.description}</Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Investment */}
+        {/* ── Investment ── */}
         {data.investment && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "השקעה ותמחור" : "Investment & Pricing"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "השקעה ותמחור" : "Investment & Pricing"} isRTL={isRTL} font={fontBold} />
             <View style={[styles.tableHeader, rtlRow(isRTL)]}>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
-                {isRTL ? "פריט" : "Item"}
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>
-                {isRTL ? "סכום" : "Amount"}
-              </Text>
-              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>
-                {isRTL ? "תיאור" : "Description"}
-              </Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>{isRTL ? "פריט" : "Item"}</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }, rtlText(isRTL)]}>{isRTL ? "סכום" : "Amount"}</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>{isRTL ? "תיאור" : "Description"}</Text>
             </View>
             {data.investment.breakdown?.map((row, i) => (
-              <View
-                key={i}
-                style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}
-              >
-                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>
-                  {row.item}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>
-                  {row.amount}
-                </Text>
-                <Text style={[styles.tableCell, { flex: 2 }, rtlText(isRTL)]}>
-                  {row.description}
-                </Text>
+              <View key={i} style={[i % 2 === 0 ? styles.tableRow : styles.tableRowAlt, rtlRow(isRTL)]}>
+                <Text style={[styles.tableCell, { flex: 2, fontFamily: fontBold }, rtlText(isRTL)]}>{row.item}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }, rtlText(isRTL)]}>{row.amount}</Text>
+                <Text style={[styles.tableCell, { flex: 2 }, rtlText(isRTL)]}>{row.description}</Text>
               </View>
             ))}
             <View style={[styles.investmentTotalRow, rtlRow(isRTL)]}>
@@ -589,76 +527,57 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
           </View>
         )}
 
-        {/* Why Us */}
+        {/* ── Why Us ── */}
         {data.whyUs && data.whyUs.length > 0 && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "למה לבחור בנו" : "Why Choose Us"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "למה לבחור בנו" : "Why Choose Us"} isRTL={isRTL} font={fontBold} />
             <View style={styles.whyUsGrid}>
               {data.whyUs.map((reason, i) => (
-                <View key={i} style={[styles.whyUsCard, isRTL ? { borderLeft: 0, borderRight: `3 solid ${C.blue}` } : {}]}>
-                  <Text style={[styles.whyUsNumber, { fontFamily: fontBold }]}>
-                    0{i + 1}
-                  </Text>
-                  <Text style={[styles.whyUsText, { fontFamily: font }, rtlText(isRTL)]}>
-                    {reason}
-                  </Text>
+                <View
+                  key={i}
+                  style={[
+                    styles.whyUsCard,
+                    isRTL
+                      ? { borderLeftWidth: 0, borderRightWidth: 3, borderRightColor: C.blue, borderRightStyle: "solid" }
+                      : {},
+                  ]}
+                >
+                  <Text style={[styles.whyUsNumber, { fontFamily: fontBold }]}>0{i + 1}</Text>
+                  <Text style={[styles.whyUsText, { fontFamily: font }, rtlText(isRTL)]}>{reason}</Text>
                 </View>
               ))}
             </View>
           </View>
         )}
 
-        {/* Terms */}
+        {/* ── Terms ── */}
         {data.terms && data.terms.length > 0 && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "תנאים והגבלות" : "Terms & Conditions"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "תנאים והגבלות" : "Terms & Conditions"} isRTL={isRTL} font={fontBold} />
             {data.terms.map((term, i) => (
               <View key={i} style={[styles.bulletItem, rtlRow(isRTL)]}>
                 <View style={[styles.bulletCircle, isRTL ? { marginRight: 0, marginLeft: 8 } : {}]} />
-                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>
-                  {term}
-                </Text>
+                <Text style={[styles.bulletText, { fontFamily: font }, rtlText(isRTL)]}>{term}</Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Next Steps */}
+        {/* ── Next Steps ── */}
         {data.nextSteps && data.nextSteps.length > 0 && (
-          <View style={styles.section}>
-            <SectionHeader
-              title={isRTL ? "הצעדים הבאים" : "Next Steps"}
-              isRTL={isRTL}
-              font={fontBold}
-            />
+          <View style={styles.section} wrap={false}>
+            <SectionHeader title={isRTL ? "הצעדים הבאים" : "Next Steps"} isRTL={isRTL} font={fontBold} />
             {data.nextSteps.map((step, i) => (
               <View key={i} style={[styles.stepRow, rtlRow(isRTL)]}>
                 <Text style={[styles.stepBadge, { fontFamily: fontBold }, isRTL ? { marginRight: 0, marginLeft: 10 } : {}]}>
                   {i + 1}
                 </Text>
-                <Text style={[styles.stepText, { fontFamily: font }, rtlText(isRTL)]}>
-                  {step}
-                </Text>
+                <Text style={[styles.stepText, { fontFamily: font }, rtlText(isRTL)]}>{step}</Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            © {new Date().getFullYear()} {data.companyName} — Powered by Flowlio AI
-          </Text>
-          <Text style={styles.footerText}>Confidential | {formattedDate}</Text>
-        </View>
       </Page>
     </Document>
   );
