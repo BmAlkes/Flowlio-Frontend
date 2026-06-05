@@ -29,6 +29,8 @@ import { authClient } from "@/lib/auth-client";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { DetailsPageSkeleton } from "../skeletons";
+import { RotateCcw, Sparkles } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 const settingsSchema = z
   .object({
@@ -538,6 +540,15 @@ export const SettingsHeader = () => {
     }
   };
 
+  const resetOnboardingMutation = useMutation({
+    mutationFn: () => axios.patch("/onboarding/reset"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["onboarding"] });
+      toast.success(t("settings.onboardingResetSuccess"));
+    },
+    onError: () => toast.error(t("settings.onboardingResetError")),
+  });
+
   // Show loading state while user data is being fetched
   if (isLoading || !userData?.user) {
     return (
@@ -934,6 +945,34 @@ export const SettingsHeader = () => {
                 )}
               </Stack>
             </Box>
+          </Stack>
+          {/* Onboarding Section */}
+          <Stack className="w-full bg-card border border-border p-8 rounded-xl max-md:px-3">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 rounded-xl bg-[#0c89af]/10">
+                <Sparkles className="size-5 text-[#0c89af]" />
+              </div>
+              <h1 className="text-xl font-semibold">{t("settings.onboardingTitle")}</h1>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("settings.onboardingDesc")}
+            </p>
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2 rounded-full border-[#0c89af] text-[#0c89af] hover:bg-[#0c89af]/5"
+                onClick={() => resetOnboardingMutation.mutate()}
+                disabled={resetOnboardingMutation.isPending}
+              >
+                {resetOnboardingMutation.isPending ? (
+                  <span className="size-4 border-2 border-[#0c89af] border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <RotateCcw className="size-4" />
+                )}
+                {t("settings.onboardingReset")}
+              </Button>
+            </div>
           </Stack>
         </Stack>
       </form>
