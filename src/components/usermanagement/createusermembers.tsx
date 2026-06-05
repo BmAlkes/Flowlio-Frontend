@@ -74,16 +74,16 @@ export const CreateUserMembers = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstname: "Test",
-      lastname: "User",
-      email: "testuser@gmail.com",
-      phonenumber: "+923052095951",
-      companyname: "Test Company",
+      firstname: "",
+      lastname: "",
+      email: "",
+      phonenumber: "",
+      companyname: "",
       userrole: "",
       setpermission: "",
       position: "",
-      password: "Test@123",
-      confirmpassword: "Test@123",
+      password: "",
+      confirmpassword: "",
     },
   });
 
