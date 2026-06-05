@@ -48,8 +48,8 @@ export const useCreateInvoice = () => {
     mutationFn: createInvoice,
     onSuccess: () => {
       toast.success("Invoice created successfully!");
-      // Invalidate and refetch invoices
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["onboarding"] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to create invoice");

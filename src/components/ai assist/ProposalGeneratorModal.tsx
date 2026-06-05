@@ -7,6 +7,7 @@ import { generatePdfBlob } from "@/lib/generatePdf";
 import { ProposalPDF, type ProposalData } from "./ProposalPDF";
 import { useFetchClients } from "@/hooks/usefetchclients";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProposalGeneratorModalProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>("form");
   const [form, setForm] = useState<FormData>(initialForm);
   const [proposalData, setProposalData] = useState<ProposalData | null>(null);
@@ -107,6 +109,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
               proposalData: generatedData,
             });
             setIsSaved(true);
+            queryClient.invalidateQueries({ queryKey: ["onboarding"] });
           } catch (saveErr) {
             console.warn("Could not save proposal to DB:", saveErr);
           }

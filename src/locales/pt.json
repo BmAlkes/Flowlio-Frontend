@@ -729,6 +729,28 @@
       "Lost": "Perdido"
     }
   },
+  "onboarding": {
+    "welcomeTitle": "Bem-vindo ao Flowlio",
+    "welcomeDesc": "Vamos configurar tudo em poucos passos. Veja como o Flowlio funciona:",
+    "flowClients": "Clientes",
+    "flowProjects": "Projetos",
+    "flowProposals": "Faturas e Propostas",
+    "startTour": "Começar",
+    "skipOnboarding": "Pular por agora",
+    "checklistTitle": "Primeiros Passos",
+    "dismiss": "Dispensar",
+    "allDoneTitle": "Tudo pronto! 🎉",
+    "allDoneDesc": "Você completou a configuração. Aproveite o Flowlio!",
+    "step_create_client": "Crie seu primeiro cliente",
+    "step_create_project": "Crie seu primeiro projeto",
+    "step_add_team_member": "Adicione um membro à equipe",
+    "step_create_task": "Crie sua primeira tarefa",
+    "step_generate_proposal": "Gere uma proposta",
+    "step_create_invoice": "Crie uma fatura",
+    "step_view_projects": "Abra Meus Projetos",
+    "step_log_time": "Registre tempo em uma tarefa",
+    "step_update_profile": "Complete seu perfil"
+  },
   "proposal": {
     "pageTitle": "Propostas",
     "pageSubtitle": "Acompanhe e gerencie as propostas enviadas aos clientes.",

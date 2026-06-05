@@ -53,8 +53,7 @@ export const useCreateClient = () => {
       queryClient.invalidateQueries({
         queryKey: ["organization-clients"],
       });
-
-      // You can add more query invalidations here if needed
+      queryClient.invalidateQueries({ queryKey: ["onboarding"] });
     },
     onError: (error) => {
       console.error("Error creating client:", error);

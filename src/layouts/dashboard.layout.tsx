@@ -8,6 +8,7 @@ import { getNavigationItemsByRole } from "@/utils/role-based-navigation";
 import { useUser } from "@/providers/user.provider";
 import { useEffect, useState } from "react";
 // import { SubscriptionGuard } from "@/components/common/subscriptionguard";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 
 export const DashboardLayout = () => {
   const { data: userData, isLoading } = useUser();
@@ -77,6 +78,7 @@ export const DashboardLayout = () => {
           </Box>
         </SidebarInset>
       </SidebarProvider>
+      <OnboardingProvider />
     </Box>
     // </SubscriptionGuard>
   );

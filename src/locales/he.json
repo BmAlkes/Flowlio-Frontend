@@ -703,6 +703,28 @@
       "Lost": "אבוד"
     }
   },
+  "onboarding": {
+    "welcomeTitle": "ברוכים הבאים ל-Flowlio",
+    "welcomeDesc": "בואו נגדיר הכל בכמה שלבים. כך עובד Flowlio:",
+    "flowClients": "לקוחות",
+    "flowProjects": "פרויקטים",
+    "flowProposals": "חשבוניות והצעות",
+    "startTour": "להתחיל",
+    "skipOnboarding": "דלג לעת עתה",
+    "checklistTitle": "תחילת עבודה",
+    "dismiss": "סגור",
+    "allDoneTitle": "הכל מוכן! 🎉",
+    "allDoneDesc": "השלמת את ההגדרה. תהנה מ-Flowlio!",
+    "step_create_client": "צור את הלקוח הראשון שלך",
+    "step_create_project": "צור את הפרויקט הראשון שלך",
+    "step_add_team_member": "הוסף חבר צוות",
+    "step_create_task": "צור את המשימה הראשונה שלך",
+    "step_generate_proposal": "צור הצעת מחיר",
+    "step_create_invoice": "צור חשבונית",
+    "step_view_projects": "פתח את הפרויקטים שלי",
+    "step_log_time": "רשום זמן על משימה",
+    "step_update_profile": "השלם את הפרופיל שלך"
+  },
   "proposal": {
     "pageTitle": "הצעות מחיר",
     "pageSubtitle": "עקוב ונהל הצעות מחיר שנשלחו ללקוחות.",

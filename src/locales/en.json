@@ -950,6 +950,28 @@
       "December": "December"
     }
   },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Flowlio",
+    "welcomeDesc": "Let's get you set up in a few steps. Here's how Flowlio works:",
+    "flowClients": "Clients",
+    "flowProjects": "Projects",
+    "flowProposals": "Invoices & Proposals",
+    "startTour": "Get Started",
+    "skipOnboarding": "Skip for now",
+    "checklistTitle": "Getting Started",
+    "dismiss": "Dismiss",
+    "allDoneTitle": "You're all set! 🎉",
+    "allDoneDesc": "You've completed the setup. Enjoy Flowlio!",
+    "step_create_client": "Create your first client",
+    "step_create_project": "Create your first project",
+    "step_add_team_member": "Add a team member",
+    "step_create_task": "Create your first task",
+    "step_generate_proposal": "Generate a proposal",
+    "step_create_invoice": "Create an invoice",
+    "step_view_projects": "Open My Projects",
+    "step_log_time": "Log time on a task",
+    "step_update_profile": "Complete your profile"
+  },
   "proposal": {
     "pageTitle": "Proposals",
     "pageSubtitle": "Track and manage proposals sent to clients.",

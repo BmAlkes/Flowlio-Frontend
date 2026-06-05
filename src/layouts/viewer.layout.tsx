@@ -17,6 +17,7 @@ import {
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useUser } from "@/providers/user.provider";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 
 export const navItems: NavItem[] = [
   {
@@ -98,6 +99,7 @@ export const ViewerLayout = () => {
           </Box>
         </SidebarInset>
       </SidebarProvider>
+      <OnboardingProvider />
     </Box>
   );
 };

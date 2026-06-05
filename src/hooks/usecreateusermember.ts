@@ -58,8 +58,7 @@ export const useCreateUserMember = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["fetch user organizations"] });
       queryClient.invalidateQueries({ queryKey: ["fetch all organizations"] });
-
-      // You can add more query invalidations here if needed
+      queryClient.invalidateQueries({ queryKey: ["onboarding"] });
     },
     onError: (error) => {
       console.error("Error creating user member:", error);
