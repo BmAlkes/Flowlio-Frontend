@@ -41,9 +41,10 @@ export function useOnboarding() {
   const totalSteps = Object.keys(steps).length;
   const completedSteps = Object.values(steps).filter((s) => s?.completedAt).length;
   const allDone = totalSteps > 0 && completedSteps === totalSteps;
-  const isFirstVisit =
-    !data?.dismissed && !data?.completedAt && completedSteps === 0;
-  const showOnboarding = !data?.dismissed && !data?.completedAt;
+  // Show as long as the user hasn't explicitly dismissed.
+  // completedAt is set by the backend via auto-detection and should NOT hide the UI.
+  const isFirstVisit = !data?.dismissed && completedSteps === 0;
+  const showOnboarding = !data?.dismissed;
 
   return {
     data,

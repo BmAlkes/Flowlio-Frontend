@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -38,14 +38,19 @@ export function OnboardingChecklist() {
     useOnboarding();
   const [open, setOpen] = useState(true);
   const [celebrating, setCelebrating] = useState(false);
+  // Track previous allDone so we only celebrate on the false→true transition,
+  // never on initial load (backend auto-detects steps as done from existing data).
+  const prevAllDone = useRef<boolean | null>(null);
 
-  // Celebrate + auto-dismiss when all done
   useEffect(() => {
-    if (allDone && !celebrating) {
+    if (isLoading) return;
+    // Only celebrate when it transitions from false to true (user just finished last step)
+    if (allDone && prevAllDone.current === false) {
       setCelebrating(true);
       setTimeout(() => dismiss(), 3500);
     }
-  }, [allDone]);
+    prevAllDone.current = allDone;
+  }, [allDone, isLoading]);
 
   if (isLoading || !data || !showOnboarding) return null;
 
