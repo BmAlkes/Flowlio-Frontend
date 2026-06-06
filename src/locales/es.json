@@ -746,6 +746,7 @@
     "deadlineLabel": "Fecha límite:",
     "viewComments": "Ver comentarios",
     "closeComments": "Cerrar comentarios",
+    "addComment": "Agregar un comentario...",
     "noCommentsYet": "Aún no hay comentarios.",
     "dragOverlayProject": "Proyecto:"
   },

@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { TooltipContent } from "../ui/tooltip";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { GripVertical, MessageCircleMore } from "lucide-react";
+import { GripVertical, MessageCircleMore, Send } from "lucide-react";
 import { format } from "date-fns";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
+import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { useTranslation } from "react-i18next";
 
 // Task type
@@ -101,6 +102,8 @@ function DraggableTask({
     });
 
   const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const createComment = useCreateProjectComment();
 
   // Fetch project comments if projectId is available
   const { data: commentsResponse } = useFetchProjectComments(
@@ -264,7 +267,7 @@ function DraggableTask({
           </div>
 
           {/* Comments list */}
-          <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto p-2">
+          <div className="flex flex-col gap-1.5 max-h-44 overflow-y-auto p-2">
             {displayComments.length > 0 ? (
               displayComments.map((comment) => (
                 <div key={comment.id} className="bg-muted/60 rounded-lg p-2.5 text-xs">
@@ -275,12 +278,45 @@ function DraggableTask({
                 </div>
               ))
             ) : (
-              <div className="py-4 text-center">
-                <MessageCircleMore className="size-6 text-muted-foreground/40 mx-auto mb-1" />
+              <div className="py-3 text-center">
+                <MessageCircleMore className="size-5 text-muted-foreground/40 mx-auto mb-1" />
                 <p className="text-xs text-muted-foreground">{t("taskManagement.noCommentsYet")}</p>
               </div>
             )}
           </div>
+
+          {/* Add comment input */}
+          {task.projectId && (
+            <div className="px-2 pb-2 border-t border-border pt-2">
+              <form
+                className="flex gap-1.5"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = newComment.trim();
+                  if (!text || createComment.isPending) return;
+                  createComment.mutate(
+                    { projectId: task.projectId!, content: text },
+                    { onSuccess: () => setNewComment("") }
+                  );
+                }}
+              >
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder={t("taskManagement.addComment")}
+                  className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-[#0c89af] placeholder:text-muted-foreground transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={!newComment.trim() || createComment.isPending}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0c89af] text-white disabled:opacity-40 hover:bg-[#0a7a9e] transition-colors shrink-0"
+                >
+                  <Send className="size-3" />
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       )}
     </Box>
