@@ -124,10 +124,10 @@ function DraggableTask({
   const statusColor = STATUS_COLORS[task.status] ?? "#5B60FE";
 
   return (
-    <Box className="relative mb-3 mx-2">
+    <Box className="relative mb-3 w-full">
       <Box
         className={cn(
-          "bg-card rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-200",
+          "bg-card rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-200 w-full",
           "hover:shadow-md hover:border-border/80 cursor-pointer",
           isDragging && "opacity-50 shadow-xl scale-105"
         )}
