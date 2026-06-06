@@ -177,11 +177,6 @@ function DraggableTask({
                     )}
                   >
                     <MessageCircleMore className="size-3.5" />
-                    {displayComments.length > 0 && (
-                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
-                        {displayComments.length > 9 ? "9+" : displayComments.length}
-                      </span>
-                    )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
