@@ -118,13 +118,15 @@ function DraggableTask({
   // Use project comments if available, otherwise use task comments
   const displayComments =
     projectComments.length > 0 ? projectComments : task.comments || [];
+  const statusColor = STATUS_COLORS[task.status] ?? "#5B60FE";
+
   return (
-    <Box className="relative">
+    <Box className="relative mb-3 mx-2">
       <Box
         className={cn(
-          "bg-muted/50 rounded-lg border border-border p-4  min-w-[240px] mb-3 mx-2 transition-all duration-200",
-          "hover:shadow-md hover:border-border cursor-pointer",
-          isDragging && "opacity-50 shadow-lg scale-105"
+          "bg-card rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-200",
+          "hover:shadow-md hover:border-border/80 cursor-pointer",
+          isDragging && "opacity-50 shadow-xl scale-105"
         )}
         style={{
           transform: transform
@@ -133,23 +135,24 @@ function DraggableTask({
         }}
         ref={setNodeRef}
         onClick={(e) => {
-          // Don't open modal if dragging or clicking on drag handle
           if (!isDragging && !e.defaultPrevented && onTaskClick) {
             onTaskClick(task);
           }
         }}
       >
-        <Flex className="flex-col w-full items-start gap-2">
-          <Flex className="w-full justify-between items-center">
-            {/* Drag handle */}
+        {/* Status accent bar */}
+        <div className="h-1 w-full" style={{ backgroundColor: statusColor }} />
+
+        <div className="p-3">
+          {/* Title row */}
+          <Flex className="w-full justify-between items-start gap-2 mb-3">
             <Flex
-              className="font-semibold text-foreground text-md leading-tight cursor-grab"
+              className="font-semibold text-foreground text-sm leading-snug cursor-grab gap-1.5 flex-1 min-w-0"
               {...attributes}
               {...listeners}
             >
-              <GripVertical className="text-muted-foreground size-4" />
-
-              {task.title}
+              <GripVertical className="text-muted-foreground size-3.5 shrink-0 mt-0.5" />
+              <span className="line-clamp-2">{task.title}</span>
             </Flex>
 
             <TooltipProvider>
@@ -161,73 +164,63 @@ function DraggableTask({
                       e.preventDefault();
                       setShowComments(!showComments);
                     }}
-                    variant="outline"
-                    className="bg-[#40aeed] hover:bg-[#40aeed]/80 w-8 h-8 rounded-full border-none cursor-pointer flex items-center justify-center text-center"
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-7 h-7 p-0 rounded-full shrink-0 border transition-colors",
+                      showComments
+                        ? "bg-[#0c89af] border-[#0c89af] text-white"
+                        : "border-border text-muted-foreground hover:border-[#0c89af] hover:text-[#0c89af]"
+                    )}
                   >
-                    <MessageCircleMore className="text-white size-4" />
+                    <MessageCircleMore className="size-3.5" />
+                    {displayComments.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                        {displayComments.length > 9 ? "9+" : displayComments.length}
+                      </span>
+                    )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className="mb-2">
-                  <p>{t("taskManagement.viewComments")}</p>
+                <TooltipContent side="top" className="text-xs">
+                  {t("taskManagement.viewComments")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </Flex>
 
-          <Flex
-            className="mt-4 flex-col items-start gap-1 pointer-events-none"
-            style={{
-              userSelect: "none",
-            }}
+          {/* Meta info */}
+          <div
+            className="flex flex-col gap-1.5 pointer-events-none"
+            style={{ userSelect: "none" }}
           >
-            <Flex className="text-muted-foreground">
-              <Flex className="gap-1 text-sm font-normal">
-                <img
-                  src="/dashboard/analytics.svg"
-                  className="size-4"
-                  alt="calendericon"
-                />
-                {t("taskManagement.projectLabel")}
-              </Flex>
-
-              <span className="font-normal text-foreground text-sm ml-4">
-                {task.project}
-              </span>
+            <Flex className="gap-1.5 text-xs text-muted-foreground items-center">
+              <img src="/dashboard/analytics.svg" className="size-3.5 shrink-0" alt="" />
+              <span className="text-foreground font-medium truncate">{task.project}</span>
             </Flex>
 
-            <Flex className="mt-1 text-muted-foreground">
-              <Flex className="gap-1 text-sm">
-                <img
-                  src="/dashboard/calendericonfordraging.svg"
-                  className="size-4"
-                  alt="calendericon"
-                />
-                {t("taskManagement.deadlineLabel")}
-              </Flex>
-              <Box className="text-red-500 text-xs font-medium rounded ml-2">
-                {task.dueDate}
-              </Box>
+            <Flex className="gap-1.5 text-xs text-muted-foreground items-center">
+              <img src="/dashboard/calendericonfordraging.svg" className="size-3.5 shrink-0" alt="" />
+              <span className="text-red-500 font-medium">{task.dueDate}</span>
             </Flex>
+          </div>
 
-            {/* Custom Field Colors */}
-            {task.projectCustomFields && 
-             projectCustomFieldsDefinitions && 
-             projectCustomFieldsDefinitions.length > 0 && (
-              <Flex className="mt-2 gap-1.5 flex-wrap">
+          {/* Custom Field Colors */}
+          {task.projectCustomFields &&
+            projectCustomFieldsDefinitions &&
+            projectCustomFieldsDefinitions.length > 0 && (
+              <Flex className="mt-2.5 gap-1.5 flex-wrap pointer-events-none">
                 {projectCustomFieldsDefinitions.map((field) => {
                   if (field.type !== "select") return null;
                   const value = task.projectCustomFields?.[field.id];
                   if (!value) return null;
-                  
-                  const option = field.options?.find(opt => opt.label === value);
+                  const option = field.options?.find((opt) => opt.label === value);
                   if (!option) return null;
-
                   return (
                     <TooltipProvider key={field.id}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div 
-                            className="w-3 h-3 rounded-full border border-white shadow-sm" 
+                          <div
+                            className="w-3 h-3 rounded-full border border-white shadow-sm pointer-events-auto"
                             style={{ backgroundColor: option.color }}
                           />
                         </TooltipTrigger>
@@ -240,38 +233,55 @@ function DraggableTask({
                 })}
               </Flex>
             )}
-          </Flex>
-        </Flex>
+        </div>
       </Box>
 
+      {/* Comments panel — positioned below the card */}
       {showComments && (
-        <Box className="absolute top-0 left-0 w-full h-full z-50 flex flex-col bg-black/50 rounded">
-          <Button
-            onClick={() => setShowComments(false)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full cursor-pointer self-end m-2"
-          >
-            {t("taskManagement.closeComments")}
-          </Button>
-          <Box className="flex-1 flex flex-col gap-2 max-h-70 overflow-y-auto bg-muted p-2 rounded">
-            {displayComments && displayComments.length > 0 ? (
+        <div
+          className="absolute left-0 right-0 top-full mt-1 z-50 bg-background border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Panel header */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/50">
+            <Flex className="gap-1.5 items-center">
+              <MessageCircleMore className="size-3.5 text-[#0c89af]" />
+              <span className="text-xs font-semibold text-foreground">
+                {t("taskManagement.viewComments")}
+              </span>
+              {displayComments.length > 0 && (
+                <span className="text-[10px] bg-[#0c89af]/10 text-[#0c89af] px-1.5 py-0.5 rounded-full font-medium">
+                  {displayComments.length}
+                </span>
+              )}
+            </Flex>
+            <button
+              onClick={() => setShowComments(false)}
+              className="w-5 h-5 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span className="text-xs">✕</span>
+            </button>
+          </div>
+
+          {/* Comments list */}
+          <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto p-2">
+            {displayComments.length > 0 ? (
               displayComments.map((comment) => (
-                <Box
-                  key={comment.id}
-                  className="bg-card p-2 rounded shadow text-sm"
-                >
-                  <Box>{comment.text}</Box>
-                  <Box className="text-xs text-muted-foreground mt-1">
-                    {format(comment.timestamp, "MMM d, yyyy hh:mm a")}
-                  </Box>
-                </Box>
+                <div key={comment.id} className="bg-muted/60 rounded-lg p-2.5 text-xs">
+                  <p className="text-foreground leading-relaxed">{comment.text}</p>
+                  <p className="text-muted-foreground mt-1 text-[10px]">
+                    {format(comment.timestamp, "MMM d, yyyy · h:mm a")}
+                  </p>
+                </div>
               ))
             ) : (
-              <Box className="text-muted-foreground text-center">
-                {t("taskManagement.noCommentsYet")}
-              </Box>
+              <div className="py-4 text-center">
+                <MessageCircleMore className="size-6 text-muted-foreground/40 mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">{t("taskManagement.noCommentsYet")}</p>
+              </div>
             )}
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
     </Box>
   );
