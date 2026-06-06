@@ -258,61 +258,99 @@ function TaskDetailModalContent({
         )}
 
         {/* Attachments */}
-        {task.attachments && task.attachments.length > 0 && (
-          <Stack className="gap-2">
-            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <File className="w-4 h-4" />
-              Attachments ({task.attachments.length})
-            </p>
-            <Box className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {task.attachments.map((attachment) => (
-                <Box
-                  key={attachment.id}
-                  className="bg-card rounded-lg p-3 border border-border hover:border-blue-300 transition-colors group"
-                >
-                  <Flex className="gap-3 items-center">
-                    <Center className="w-10 h-10 bg-blue-100 rounded-lg text-blue-600 shrink-0">
-                      {getFileIcon(attachment.type)}
-                    </Center>
-                    <Box className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground text-sm truncate">
-                        {attachment.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(attachment.size)}
-                      </p>
-                    </Box>
-                    <Flex className="gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-8 h-8 p-0 cursor-pointer"
-                        title="View"
+        {task.attachments && task.attachments.length > 0 && (() => {
+          const imageAttachments = task.attachments!.filter(a => a.type.startsWith("image/"));
+          const fileAttachments = task.attachments!.filter(a => !a.type.startsWith("image/"));
+          return (
+            <Stack className="gap-3">
+              {/* Image gallery */}
+              {imageAttachments.length > 0 && (
+                <Stack className="gap-2">
+                  <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                    <Image className="w-4 h-4" />
+                    Images ({imageAttachments.length})
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {imageAttachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="relative group rounded-xl overflow-hidden border border-border aspect-video bg-muted cursor-pointer"
                         onClick={() => setPreviewUrl(attachment.url)}
                       >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-8 h-8 p-0 cursor-pointer"
-                        title="Download"
-                        onClick={() => {
-                          const link = document.createElement("a");
-                          link.href = attachment.url;
-                          link.download = attachment.name;
-                          link.click();
-                        }}
+                        <img
+                          src={attachment.url}
+                          alt={attachment.name}
+                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                          <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <p className="text-white text-[10px] truncate">{attachment.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Stack>
+              )}
+
+              {/* File attachments */}
+              {fileAttachments.length > 0 && (
+                <Stack className="gap-2">
+                  <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                    <File className="w-4 h-4" />
+                    Files ({fileAttachments.length})
+                  </p>
+                  <Box className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {fileAttachments.map((attachment) => (
+                      <Box
+                        key={attachment.id}
+                        className="bg-card rounded-lg p-3 border border-border hover:border-blue-300 transition-colors group"
                       >
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </Flex>
-                  </Flex>
-                </Box>
-              ))}
-            </Box>
-          </Stack>
-        )}
+                        <Flex className="gap-3 items-center">
+                          <Center className="w-9 h-9 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                            {getFileIcon(attachment.type)}
+                          </Center>
+                          <Box className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">
+                              {attachment.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(attachment.size)}
+                            </p>
+                          </Box>
+                          <Flex className="gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-7 h-7 p-0 cursor-pointer"
+                              onClick={() => setPreviewUrl(attachment.url)}
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-7 h-7 p-0 cursor-pointer"
+                              onClick={() => {
+                                const link = document.createElement("a");
+                                link.href = attachment.url;
+                                link.download = attachment.name;
+                                link.click();
+                              }}
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </Button>
+                          </Flex>
+                        </Flex>
+                      </Box>
+                    ))}
+                  </Box>
+                </Stack>
+              )}
+            </Stack>
+          );
+        })()}
 
         <hr className="border-border" />
 
