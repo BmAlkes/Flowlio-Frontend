@@ -11,6 +11,8 @@
     "error": "Error",
     "success": "Éxito",
     "confirm": "Confirmar",
+    "ending": "Finalizando...",
+    "starting": "Iniciando...",
     "close": "Cerrar",
     "select": "Seleccionar",
     "back": "Volver",
@@ -793,7 +795,11 @@
     "alreadyTrackingError": "Ya está rastreando una tarea",
     "noActiveTrackingError": "No se encontró seguimiento de tiempo activo",
     "deleteConfirm": "¿Está seguro de que desea eliminar esta entrada de tiempo?",
-    "stopCurrentTaskError": "Por favor detenga la tarea actual antes de iniciar una nueva"
+    "stopCurrentTaskError": "Por favor detenga la tarea actual antes de iniciar una nueva",
+    "timeSpent": "Tiempo empleado",
+    "stop": "Detener",
+    "start": "Iniciar",
+    "taskIsActive": "Esta tarea está actualmente activa"
   },
   "support": {
     "title": "Centro de soporte",
@@ -840,7 +846,8 @@
     "ticketNumberShort": "#",
     "viewTicketTooltip": "Ver ticket",
     "closeTicketTooltip": "Cerrar ticket",
-    "deleteTicketTooltip": "Eliminar ticket"
+    "deleteTicketTooltip": "Eliminar ticket",
+    "ticketId": "ID del ticket"
   },
   "viewerDashboard": {
     "totalTasks": "Tareas totales",

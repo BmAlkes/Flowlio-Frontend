@@ -11,6 +11,8 @@
     "error": "Erro",
     "success": "Sucesso",
     "confirm": "Confirmar",
+    "ending": "Encerrando...",
+    "starting": "Iniciando...",
     "back": "Voltar",
     "next": "Próximo",
     "previous": "Anterior",
@@ -840,5 +842,18 @@
     "deleteError": "Falha ao excluir a proposta. Tente novamente.",
     "downloadSuccess": "PDF baixado com sucesso.",
     "downloadError": "Falha ao gerar PDF"
+  },
+  "timeTracking": {
+    "timeSpent": "Tempo gasto",
+    "stop": "Parar",
+    "start": "Iniciar",
+    "taskIsActive": "Esta tarefa está ativa no momento",
+    "startedAt": "Iniciado às",
+    "active": "Ativo"
+  },
+  "support": {
+    "sentBy": "Enviado por",
+    "description": "Descrição",
+    "ticketId": "ID do ticket"
   }
 }

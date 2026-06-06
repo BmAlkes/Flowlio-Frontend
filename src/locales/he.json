@@ -11,6 +11,8 @@
     "error": "שגיאה",
     "success": "הצלחה",
     "confirm": "אשר",
+    "ending": "מסיים...",
+    "starting": "מתחיל...",
     "back": "חזור",
     "next": "הבא",
     "previous": "הקודם",
@@ -814,5 +816,18 @@
     "deleteError": "מחיקת ההצעה נכשלה. נסה שוב.",
     "downloadSuccess": "ה-PDF הורד בהצלחה.",
     "downloadError": "יצירת ה-PDF נכשלה"
+  },
+  "timeTracking": {
+    "timeSpent": "זמן שהושקע",
+    "stop": "עצור",
+    "start": "התחל",
+    "taskIsActive": "משימה זו פעילה כרגע",
+    "startedAt": "התחיל ב",
+    "active": "פעיל"
+  },
+  "support": {
+    "sentBy": "נשלח על ידי",
+    "description": "תיאור",
+    "ticketId": "מזהה כרטיס"
   }
 }

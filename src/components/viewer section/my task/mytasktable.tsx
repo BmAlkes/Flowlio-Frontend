@@ -7,7 +7,7 @@ import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Download, Eye, File, FileText, Image } from "lucide-react";
+import { ChevronDown, Download, Eye, File, FileText, Image, MessageCircle } from "lucide-react";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
@@ -24,10 +24,13 @@ import {
 } from "@/hooks/useTimeTracking";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { useAllTimeEntries } from "@/hooks/useAllTimeEntries";
+import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 
 export type Data = {
   id: string;
+  projectId?: string;
   status:
     | "on going"
     | "completed"
@@ -42,8 +45,8 @@ export type Data = {
   duedate: string;
   description: string;
   timeSpent?: string;
-  isActive?: boolean; // For tracking if task is currently being worked on
-  startTime?: Date; // When the task was started
+  isActive?: boolean;
+  startTime?: Date;
   attachments?: Array<{
     id: string;
     name: string;
@@ -66,6 +69,7 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
   const { data: allTimeEntries } = useAllTimeEntries();
   const modalProps = useGeneralModalDisclosure();
   const [selectedTask, setSelectedTask] = useState<Data | null>(null);
+  const { data: commentsResponse } = useFetchProjectComments(selectedTask?.projectId ?? "");
   // removed live ticking: no need for useEffect
 
   // Convert ViewerTask to Data format
@@ -112,6 +116,7 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
 
       return {
         id: task.id,
+        projectId: task.projectId,
         status: mapBackendStatusToFrontend(task.status),
         submittedby: task.creatorName,
         project: task.projectName,
@@ -546,6 +551,32 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                   </h1>
                 </Stack>
               </Center>
+
+              {/* Comments */}
+              {commentsResponse?.data && commentsResponse.data.length > 0 && (
+                <Stack className="gap-2">
+                  <h1 className="text-sm font-normal text-muted-foreground flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    Comments ({commentsResponse.data.length})
+                  </h1>
+                  <Stack className="gap-2 max-h-48 overflow-y-auto">
+                    {commentsResponse.data.map((comment) => (
+                      <Box key={comment.id} className="bg-muted/60 rounded-xl p-3">
+                        <Flex className="gap-2 items-center mb-1">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0c89af] to-cyan-400 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                            {comment.userName.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-xs font-semibold text-foreground">{comment.userName}</span>
+                          <span className="text-[10px] text-muted-foreground ml-auto">
+                            {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
+                          </span>
+                        </Flex>
+                        <p className="text-sm text-foreground leading-relaxed pl-8">{comment.content}</p>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Stack>
+              )}
 
               {/* Time Tracking Status */}
               {selectedTask.isActive && (

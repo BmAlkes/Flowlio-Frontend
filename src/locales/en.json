@@ -12,6 +12,8 @@
     "success": "Success",
     "confirm": "Confirm",
     "close": "Close",
+    "ending": "Ending...",
+    "starting": "Starting...",
     "select": "Select",
     "back": "Back",
     "next": "Next",
@@ -788,7 +790,11 @@
     "alreadyTrackingError": "You are already tracking a task",
     "noActiveTrackingError": "No active time tracking found",
     "deleteConfirm": "Are you sure you want to delete this time entry?",
-    "stopCurrentTaskError": "Please stop the current task before starting a new one"
+    "stopCurrentTaskError": "Please stop the current task before starting a new one",
+    "timeSpent": "Time Spent",
+    "stop": "Stop",
+    "start": "Start",
+    "taskIsActive": "This task is currently active"
   },
   "support": {
     "title": "Support Center",
@@ -839,7 +845,8 @@
     "ticketNumberShort": "#",
     "viewTicketTooltip": "View Ticket",
     "closeTicketTooltip": "Close Ticket",
-    "deleteTicketTooltip": "Delete Ticket"
+    "deleteTicketTooltip": "Delete Ticket",
+    "ticketId": "Ticket ID"
   },
   "pipeline": {
     "noValue": "No value",
