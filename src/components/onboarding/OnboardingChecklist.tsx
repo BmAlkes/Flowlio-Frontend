@@ -14,11 +14,11 @@ import {
   Eye,
   Clock,
   UserCog,
-  PartyPopper,
 } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { OnboardingCelebration } from "./OnboardingCelebration";
 
 const STEP_META: Record<string, { icon: React.ElementType; route?: string }> = {
   create_client:     { icon: Users,        route: "/dashboard/client-management/create-client" },
@@ -47,7 +47,6 @@ export function OnboardingChecklist() {
     // Only celebrate when it transitions from false to true (user just finished last step)
     if (allDone && prevAllDone.current === false) {
       setCelebrating(true);
-      setTimeout(() => dismiss(), 3500);
     }
     prevAllDone.current = allDone;
   }, [allDone, isLoading]);
@@ -58,16 +57,12 @@ export function OnboardingChecklist() {
 
   if (celebrating) {
     return (
-      <div className="fixed bottom-6 right-6 z-[9998] w-80 bg-background border border-green-200 dark:border-green-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="h-1 w-full bg-gradient-to-r from-green-400 to-emerald-500" />
-        <div className="p-5 flex flex-col items-center text-center gap-3">
-          <div className="p-3 rounded-2xl bg-green-50 dark:bg-green-950/50">
-            <PartyPopper className="size-7 text-green-600" />
-          </div>
-          <p className="font-bold text-foreground">{t("onboarding.allDoneTitle")}</p>
-          <p className="text-sm text-muted-foreground">{t("onboarding.allDoneDesc")}</p>
-        </div>
-      </div>
+      <OnboardingCelebration
+        onClose={() => {
+          setCelebrating(false);
+          dismiss();
+        }}
+      />
     );
   }
 
