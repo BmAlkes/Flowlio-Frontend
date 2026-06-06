@@ -105,9 +105,10 @@ function DraggableTask({
   const [newComment, setNewComment] = useState("");
   const createComment = useCreateProjectComment();
 
-  // Fetch project comments if projectId is available
+  // Fetch task-specific comments
   const { data: commentsResponse } = useFetchProjectComments(
-    task.projectId || ""
+    task.projectId || "",
+    task.id
   );
 
   // Map project comments to task comments format
@@ -170,13 +171,18 @@ function DraggableTask({
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      "w-7 h-7 p-0 rounded-full shrink-0 border transition-colors",
+                      "relative w-7 h-7 p-0 rounded-full shrink-0 border transition-colors",
                       showComments
                         ? "bg-[#0c89af] border-[#0c89af] text-white"
                         : "border-border text-muted-foreground hover:border-[#0c89af] hover:text-[#0c89af]"
                     )}
                   >
                     <MessageCircleMore className="size-3.5" />
+                    {displayComments.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                        {displayComments.length > 9 ? "9+" : displayComments.length}
+                      </span>
+                    )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
@@ -290,7 +296,7 @@ function DraggableTask({
                   const text = newComment.trim();
                   if (!text || createComment.isPending) return;
                   createComment.mutate(
-                    { projectId: task.projectId!, content: text },
+                    { projectId: task.projectId!, taskId: task.id, content: text },
                     { onSuccess: () => setNewComment("") }
                   );
                 }}

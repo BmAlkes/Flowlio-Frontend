@@ -20,15 +20,18 @@ export interface GetProjectCommentsResponse {
   totalComments: number;
 }
 
-export const useFetchProjectComments = (projectId: string) => {
+export const useFetchProjectComments = (projectId: string, taskId?: string) => {
   return useQuery({
-    queryKey: ["project-comments", projectId],
+    queryKey: ["project-comments", projectId, taskId],
     queryFn: async (): Promise<GetProjectCommentsResponse> => {
-      const response = await axios.get(`/projects/comments/${projectId}`);
+      const url = taskId
+        ? `/projects/comments/${projectId}?taskId=${taskId}`
+        : `/projects/comments/${projectId}`;
+      const response = await axios.get(url);
       return response.data;
     },
     enabled: !!projectId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
 };

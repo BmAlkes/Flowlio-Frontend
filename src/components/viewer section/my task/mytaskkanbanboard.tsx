@@ -96,7 +96,7 @@ function DraggableTask({
   return (
     <Box
       className={cn(
-        "bg-card rounded-lg border border-border p-4 min-w-[240px] mb-3 mx-2 transition-all duration-200 shadow-sm",
+        "bg-card rounded-xl border border-border p-4 w-full mb-3 transition-all duration-200 shadow-sm",
         "hover:shadow-md hover:border-border",
         isDragging && "opacity-50 shadow-lg scale-105"
       )}

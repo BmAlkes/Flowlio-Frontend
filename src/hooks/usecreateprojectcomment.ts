@@ -5,6 +5,7 @@ import { toast } from "sonner";
 export interface CreateProjectCommentRequest {
   projectId: string;
   content: string;
+  taskId?: string;
   parentId?: string;
 }
 
@@ -36,7 +37,7 @@ export const useCreateProjectComment = () => {
       // Invalidate and refetch project comments
       console.log("data", data);
       queryClient.invalidateQueries({
-        queryKey: ["project-comments", variables.projectId],
+        queryKey: ["project-comments", variables.projectId, variables.taskId],
       });
 
       toast.success("Comment added successfully!");
