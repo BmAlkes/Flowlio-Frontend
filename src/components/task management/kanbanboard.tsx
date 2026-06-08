@@ -7,10 +7,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { TooltipContent } from "../ui/tooltip";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { GripVertical, MessageCircleMore, Send } from "lucide-react";
-import { format } from "date-fns";
+import { GripVertical, MessageCircleMore } from "lucide-react";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
-import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
+import { CommentThread } from "@/components/common/CommentThread";
 import { useTranslation } from "react-i18next";
 
 // Task type
@@ -102,26 +101,13 @@ function DraggableTask({
     });
 
   const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState("");
-  const createComment = useCreateProjectComment();
 
-  // Fetch task-specific comments
+  // Fetch task-specific comments for badge count
   const { data: commentsResponse } = useFetchProjectComments(
     task.projectId || "",
     task.id
   );
-
-  // Map project comments to task comments format
-  const projectComments =
-    commentsResponse?.data?.map((comment) => ({
-      id: comment.id,
-      text: comment.content,
-      timestamp: new Date(comment.createdAt),
-    })) || [];
-
-  // Use project comments if available, otherwise use task comments
-  const displayComments =
-    projectComments.length > 0 ? projectComments : task.comments || [];
+  const commentCount = commentsResponse?.data?.length ?? task.comments?.length ?? 0;
   const statusColor = STATUS_COLORS[task.status] ?? "#5B60FE";
 
   return (
@@ -178,9 +164,9 @@ function DraggableTask({
                     )}
                   >
                     <MessageCircleMore className="size-3.5" />
-                    {displayComments.length > 0 && (
+                    {commentCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
-                        {displayComments.length > 9 ? "9+" : displayComments.length}
+                        {commentCount > 9 ? "9+" : commentCount}
                       </span>
                     )}
                   </Button>
@@ -241,7 +227,7 @@ function DraggableTask({
       </Box>
 
       {/* Comments panel — positioned below the card */}
-      {showComments && (
+      {showComments && task.projectId && (
         <div
           className="absolute left-0 right-0 top-full mt-1 z-50 bg-background border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
           onClick={(e) => e.stopPropagation()}
@@ -253,11 +239,6 @@ function DraggableTask({
               <span className="text-xs font-semibold text-foreground">
                 {t("taskManagement.viewComments")}
               </span>
-              {displayComments.length > 0 && (
-                <span className="text-[10px] bg-[#0c89af]/10 text-[#0c89af] px-1.5 py-0.5 rounded-full font-medium">
-                  {displayComments.length}
-                </span>
-              )}
             </Flex>
             <button
               onClick={() => setShowComments(false)}
@@ -267,57 +248,15 @@ function DraggableTask({
             </button>
           </div>
 
-          {/* Comments list */}
-          <div className="flex flex-col gap-1.5 max-h-44 overflow-y-auto p-2">
-            {displayComments.length > 0 ? (
-              displayComments.map((comment) => (
-                <div key={comment.id} className="bg-muted/60 rounded-lg p-2.5 text-xs">
-                  <p className="text-foreground leading-relaxed">{comment.text}</p>
-                  <p className="text-muted-foreground mt-1 text-[10px]">
-                    {format(comment.timestamp, "MMM d, yyyy · h:mm a")}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div className="py-3 text-center">
-                <MessageCircleMore className="size-5 text-muted-foreground/40 mx-auto mb-1" />
-                <p className="text-xs text-muted-foreground">{t("taskManagement.noCommentsYet")}</p>
-              </div>
-            )}
+          <div className="p-3">
+            <CommentThread
+              projectId={task.projectId}
+              taskId={task.id}
+              canComment
+              maxHeight="11rem"
+              showHeader={false}
+            />
           </div>
-
-          {/* Add comment input */}
-          {task.projectId && (
-            <div className="px-2 pb-2 border-t border-border pt-2">
-              <form
-                className="flex gap-1.5"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const text = newComment.trim();
-                  if (!text || createComment.isPending) return;
-                  createComment.mutate(
-                    { projectId: task.projectId!, taskId: task.id, content: text },
-                    { onSuccess: () => setNewComment("") }
-                  );
-                }}
-              >
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={t("taskManagement.addComment")}
-                  className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-[#0c89af] placeholder:text-muted-foreground transition-colors"
-                />
-                <button
-                  type="submit"
-                  disabled={!newComment.trim() || createComment.isPending}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0c89af] text-white disabled:opacity-40 hover:bg-[#0a7a9e] transition-colors shrink-0"
-                >
-                  <Send className="size-3" />
-                </button>
-              </form>
-            </div>
-          )}
         </div>
       )}
     </Box>

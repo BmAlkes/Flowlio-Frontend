@@ -14,11 +14,12 @@ import {
   Clock,
   Upload,
 } from "lucide-react";
+
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useFetchSubtasks } from "@/hooks/usefetchtasks";
+import { CommentThread } from "@/components/common/CommentThread";
 import { useDeleteTask } from "@/hooks/usedeletetask";
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
 import { Box } from "../ui/box";
@@ -86,9 +87,6 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const uploadVersion = useUploadFileVersion();
-  const { data: commentsResponse } = useFetchProjectComments(
-    task.projectId || ""
-  );
   const { data: subtasksResponse } = useFetchSubtasks(
     !task.parentId ? task.id : undefined
   );
@@ -163,8 +161,6 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
     if (type === "application/pdf") return <FileText className="w-4 h-4" />;
     return <File className="w-4 h-4" />;
   };
-
-  const projectComments = commentsResponse?.data || [];
 
   const handleDeleteTask = () => {
     deleteTask.mutate(task.id, {
@@ -371,39 +367,16 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                 </Box>
               )}
 
-              {/* Project Comments */}
-              {projectComments.length > 0 && (
+              {/* Comments */}
+              {task.projectId && (
                 <Box className="bg-muted/50 rounded-xl p-4">
-                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Project Comments ({projectComments.length})
-                  </h3>
-                  <Box className="space-y-3 max-h-60 overflow-y-auto">
-                    {projectComments.map((comment) => (
-                      <Box
-                        key={comment.id}
-                        className="bg-card rounded-lg p-3 border border-border"
-                      >
-                        <Flex className="mb-2">
-                          <Center className="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-full text-white text-xs font-semibold">
-                            {comment.userName.charAt(0).toUpperCase()}
-                          </Center>
-                          <span className="font-medium text-foreground">
-                            {comment.userName}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(
-                              new Date(comment.createdAt),
-                              "MMM d, yyyy 'at' h:mm a"
-                            )}
-                          </span>
-                        </Flex>
-                        <p className="text-foreground text-sm">
-                          {comment.content}
-                        </p>
-                      </Box>
-                    ))}
-                  </Box>
+                  <CommentThread
+                    projectId={task.projectId}
+                    taskId={task.id}
+                    canComment
+                    maxHeight="15rem"
+                    showHeader
+                  />
                 </Box>
               )}
 

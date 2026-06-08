@@ -16,6 +16,7 @@ import {
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, File, FileText, Image, X } from "lucide-react";
+import { CommentThread } from "@/components/common/CommentThread";
 
 // Status keys for consistency
 type StatusType =
@@ -31,6 +32,7 @@ export type Task = {
   id: string;
   title: string;
   project: string;
+  projectId?: string;
   comments?: string;
   endDate: string;
   status: StatusType;
@@ -354,6 +356,19 @@ function TaskDetailModalContent({
 
         <hr className="border-border" />
 
+        {/* Comments */}
+        {task.projectId && (
+          <CommentThread
+            projectId={task.projectId}
+            taskId={task.id}
+            canComment
+            maxHeight="12rem"
+            showHeader
+          />
+        )}
+
+        <hr className="border-border" />
+
         {/* Meta grid */}
         <Center className="grid grid-cols-2 gap-4">
           <Stack className="bg-[#FFFEE8] text-center p-3 rounded-lg">
@@ -448,6 +463,7 @@ export default function KanbanBoard({ filteredTasks }: KanbanBoardProps) {
       id: task.id,
       title: task.title,
       project: task.projectName,
+      projectId: task.projectId,
       endDate: task.endDate
         ? format(new Date(task.endDate), "MMM dd, yyyy")
         : "",
