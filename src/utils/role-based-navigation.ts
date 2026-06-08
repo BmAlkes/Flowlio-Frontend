@@ -6,7 +6,7 @@ import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
 import { SquareKanban, UserPen, Clock } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
-import { MessageCircleQuestion, Bell } from "lucide-react";
+import { MessageCircleQuestion, Bell, MessageCircleMore } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
 import { BadgeDollarSign } from "lucide-react";
 import { FolderOpen, ListTodo, FileText } from "lucide-react";
@@ -109,6 +109,11 @@ const operatorNavItems: NavItem[] = [
     icon: React.createElement(Clock),
   },
   {
+    url: "/dashboard/comments",
+    title: "comments",
+    icon: React.createElement(MessageCircleMore),
+  },
+  {
     url: "/dashboard/support",
     title: "supportTickets",
     icon: React.createElement(MessageCircleQuestion),
@@ -161,6 +166,11 @@ const userNavItems: NavItem[] = [
     url: "/dashboard/ai-assist",
     title: "aiAssistance",
     icon: React.createElement(LuWandSparkles),
+  },
+  {
+    url: "/dashboard/comments",
+    title: "comments",
+    icon: React.createElement(MessageCircleMore),
   },
   {
     url: "/dashboard/subscription",
@@ -235,6 +245,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/ai-assist",
     title: "aiAssistance",
     icon: React.createElement(LuWandSparkles),
+  },
+  {
+    url: "/dashboard/comments",
+    title: "comments",
+    icon: React.createElement(MessageCircleMore),
   },
   {
     url: "/dashboard/payment-links",

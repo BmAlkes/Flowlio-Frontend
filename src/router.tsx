@@ -207,6 +207,11 @@ const ClientInvoicesPage = lazy(() => import("./pages/clientinvoices.page"));
 const ClientProposalsPage = lazy(() => import("./pages/clientproposals.page"));
 const ClientActivityPage = lazy(() => import("./pages/clientactivity.page"));
 const OrgProposalsPage = lazy(() => import("./pages/proposals.page"));
+const CommentsPage = lazy(() =>
+  import("./pages/comments.page").then((module) => ({
+    default: module.CommentsPage,
+  })),
+);
 
 // Force Light Theme on non-dashboard paths
 const ThemeWatcher = () => {
@@ -459,6 +464,10 @@ const AppRoutes = () => {
             </AdminManagerOrOrgOwnerRoute>
           }
           path="proposals"
+        />
+        <Route
+          element={<LazyWrapper component={CommentsPage} />}
+          path="comments"
         />
         <Route index element={<LazyWrapper component={DashboardPage} />} />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
