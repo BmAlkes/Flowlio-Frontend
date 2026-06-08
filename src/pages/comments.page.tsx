@@ -23,7 +23,7 @@ import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
 import { useUpdateProjectComment } from "@/hooks/useupdateprojectcomment";
 import { useUser } from "@/providers/user.provider";
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import "jspdf-autotable";
 import { Trash2, Pencil, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -219,7 +219,7 @@ export const CommentsPage = () => {
     );
     yPos += 20;
 
-    autoTable(doc, {
+    (doc as any).autoTable({
       startY: yPos,
       head: [["Author", "Comment", "Project", "Task", "Date"]],
       body: filtered.map((c) => [
