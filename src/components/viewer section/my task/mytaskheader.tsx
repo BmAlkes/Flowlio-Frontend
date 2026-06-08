@@ -22,6 +22,7 @@ type Task = {
   id: string;
   title: string;
   project: string;
+  projectId?: string;
   comments?: string;
   endDate: string;
   status:
@@ -83,6 +84,7 @@ export const MyTaskHeader = () => {
       id: task.id,
       title: task.title,
       project: task.projectName,
+      projectId: task.projectId,
       comments: task.description,
       description: task.description,
       endDate: task.endDate
