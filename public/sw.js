@@ -1,6 +1,6 @@
-const CACHE_NAME = "flowlio-v1";
-const STATIC_CACHE = "flowlio-static-v1";
-const DYNAMIC_CACHE = "flowlio-dynamic-v1";
+const CACHE_NAME = "flowlio-v2";
+const STATIC_CACHE = "flowlio-static-v2";
+const DYNAMIC_CACHE = "flowlio-dynamic-v2";
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
