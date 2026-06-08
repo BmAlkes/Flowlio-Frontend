@@ -22,8 +22,6 @@ import {
 import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
 import { useUpdateProjectComment } from "@/hooks/useupdateprojectcomment";
 import { useUser } from "@/providers/user.provider";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
 import { Trash2, Pencil, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -200,7 +198,9 @@ export const CommentsPage = () => {
     );
   }, [allComments, search]);
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
+    const { jsPDF } = await import("jspdf");
+    await import("jspdf-autotable");
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     let yPos = 20;
