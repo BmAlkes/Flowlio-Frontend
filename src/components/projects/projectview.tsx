@@ -44,7 +44,6 @@ import { toast } from "sonner";
 import { Flex } from "../ui/flex";
 import { Input } from "../ui/input";
 import { Stack } from "../ui/stack";
-import { Trash2 } from "lucide-react";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { CommentThread } from "@/components/common/CommentThread";
