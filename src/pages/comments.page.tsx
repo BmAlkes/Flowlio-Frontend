@@ -183,8 +183,9 @@ export const CommentsPage = () => {
 
   const { data, isLoading, isError, error } = useFetchAllOrgComments({ page, limit: PAGE_SIZE });
 
-  const allComments = data?.data ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const hasApiError = !isLoading && data !== undefined && !Array.isArray(data?.data);
+  const allComments: OrgComment[] = Array.isArray(data?.data) ? data.data : [];
+  const totalPages = typeof data?.totalPages === "number" ? data.totalPages : 1;
 
   const filtered = useMemo(() => {
     if (!search.trim()) return allComments;
@@ -302,12 +303,12 @@ export const CommentsPage = () => {
             <Box key={i} className="animate-pulse bg-muted rounded-xl h-20" />
           ))}
         </Box>
-      ) : isError ? (
+      ) : (isError || hasApiError) ? (
         <Box className="py-16 text-center">
           <MessageCircleMore className="w-12 h-12 text-red-300 mx-auto mb-3" />
           <p className="text-red-500 font-medium">Failed to load comments.</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {(error as any)?.response?.data?.message || (error as any)?.message || "API endpoint may not be available yet."}
+            {(error as any)?.response?.data?.message || (error as any)?.message || (data as any)?.message || "API endpoint may not be available yet."}
           </p>
         </Box>
       ) : filtered.length === 0 ? (
