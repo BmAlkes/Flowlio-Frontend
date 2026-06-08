@@ -183,7 +183,7 @@ export const CommentsPage = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useFetchAllOrgComments({ page, limit: PAGE_SIZE });
+  const { data, isLoading, isError, error } = useFetchAllOrgComments({ page, limit: PAGE_SIZE });
 
   const allComments = data?.data ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -301,6 +301,14 @@ export const CommentsPage = () => {
           {[1, 2, 3, 4, 5].map((i) => (
             <Box key={i} className="animate-pulse bg-muted rounded-xl h-20" />
           ))}
+        </Box>
+      ) : isError ? (
+        <Box className="py-16 text-center">
+          <MessageCircleMore className="w-12 h-12 text-red-300 mx-auto mb-3" />
+          <p className="text-red-500 font-medium">Failed to load comments.</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {(error as any)?.response?.data?.message || (error as any)?.message || "API endpoint may not be available yet."}
+          </p>
         </Box>
       ) : filtered.length === 0 ? (
         <Box className="py-16 text-center">
