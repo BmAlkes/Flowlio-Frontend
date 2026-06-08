@@ -47,7 +47,7 @@ import { Stack } from "../ui/stack";
 import { Trash2 } from "lucide-react";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
-import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
+import { CommentThread } from "@/components/common/CommentThread";
 import { Skeleton } from "../ui/skeleton";
 import {
   Select,
@@ -87,18 +87,9 @@ export const ProjectView = () => {
 
   const { open, onOpenChange } = useGeneralModalDisclosure();
 
-  // Comment state management
-  const [input, setInput] = useState("");
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState("");
-
-  // API hooks for comments
-  const { data: commentsData, isLoading: commentsLoading } =
-    useFetchProjectComments(id || "");
-  const { mutate: createComment, isPending: isCreatingComment } =
-    useCreateProjectComment();
-  const { mutate: deleteComment, isPending: isDeletingComment } =
-    useDeleteProjectComment();
+  // Fetch comments count for badge
+  const { data: commentsData } = useFetchProjectComments(id || "");
+  const { mutate: createComment } = useCreateProjectComment();
 
   // Local state for inline edits (initialized with safe defaults)
   const [editStatus, setEditStatus] = useState<string>("pending");
@@ -350,42 +341,16 @@ export const ProjectView = () => {
   };
 
   // Comment handling functions
-  const handleAddComment = (parentId?: string) => {
-    if (!id || !input.trim()) return;
-
-    createComment({
-      projectId: id,
-      content: input.trim(),
-      parentId: parentId || undefined,
-    });
-
-    setInput("");
-    setReplyTo(null);
-    setReplyContent("");
-  };
-
-  const handleAddReply = () => {
-    if (!id || !replyTo || !replyContent.trim()) return;
-
-    createComment({
-      projectId: id,
-      content: replyContent.trim(),
-      parentId: replyTo,
-    });
-
-    setReplyTo(null);
-    setReplyContent("");
-  };
-
-  const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId);
-  };
-
   const openCommentModal = () => {
     onOpenChange(true);
-    setInput("");
-    setReplyTo(null);
-    setReplyContent("");
+  };
+
+  const handleApproveProject = () => {
+    if (!id) return;
+    createComment({
+      projectId: id,
+      content: "I approve this project completion.",
+    });
   };
 
   const handleSaveAsTemplate = () => {
@@ -408,8 +373,6 @@ export const ProjectView = () => {
     );
   };
 
-  // Get comments for the current project from API
-  const commentsWithReplies = commentsData?.data || [];
   const projectComments = commentsData?.data || [];
 
   return (
@@ -975,7 +938,7 @@ export const ProjectView = () => {
               {isClient && editStatus === "completed" && (
                 <Button
                   onClick={() => {
-                    handleAddComment("I approve this project completion.");
+                    handleApproveProject();
                     toast.success("Project approved!");
                   }}
                   className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer"
@@ -1196,175 +1159,20 @@ export const ProjectView = () => {
       {/* Comments Modal */}
       <GeneralModal
         {...{ open: open && selectedImage === null, onOpenChange }}
-        contentProps={{ className: "overflow-hidden max-sm:p-3" }}
+        contentProps={{ className: "overflow-hidden max-sm:p-3 max-w-lg" }}
       >
         <Box>
           <Box className="mb-4 text-lg font-semibold">
-            Project Comments - {project.projectName}
+            Project Comments — {project.projectName}
           </Box>
-
-          {/* Comments list with nested replies */}
-          <Box className="flex flex-col gap-3 max-h-64 overflow-y-auto mb-4 bg-muted/50 p-3 rounded">
-            {commentsLoading ? (
-              <Box className="text-muted-foreground text-center py-4">
-                Loading comments...
-              </Box>
-            ) : commentsWithReplies.length === 0 ? (
-              <Box className="text-muted-foreground text-center py-4">
-                No comments yet. Be the first to add a comment!
-              </Box>
-            ) : (
-              commentsWithReplies.map((comment) => (
-                <Box key={comment.id} className="space-y-2">
-                  {/* Main comment */}
-                  <Box className="flex items-start gap-2 group">
-                    <Flex className="flex-1 items-start justify-between bg-card p-3 rounded shadow-sm text-sm">
-                      <Stack className="flex-1">
-                        <Flex className="justify-between">
-                          <Box className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-xs text-foreground">
-                              {comment.userName}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {format(
-                                new Date(comment.createdAt),
-                                "MMM d, yyyy hh:mm a",
-                              )}
-                            </span>
-                          </Box>
-
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-500 cursor-pointer p-1 h-auto text-xs"
-                            onClick={() => handleDeleteComment(comment.id)}
-                            disabled={isDeletingComment}
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </Flex>
-
-                        <Box className="w-full max-sm:w-48 overflow-hidden break-words whitespace-pre-line">
-                          {comment.content}
-                        </Box>
-
-                        {/* Reply button */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-blue-600 cursor-pointer p-1 h-auto text-xs mt-2 hidden"
-                          onClick={() => {
-                            setReplyTo(
-                              replyTo === comment.id ? null : comment.id,
-                            );
-                            setReplyContent("");
-                          }}
-                        >
-                          {replyTo === comment.id ? "Cancel Reply" : "Reply"}
-                        </Button>
-                      </Stack>
-                    </Flex>
-                  </Box>
-
-                  {/* Reply input for this comment */}
-                  {replyTo === comment.id && (
-                    <Box className="ml-6 bg-card p-2 rounded border">
-                      <Input
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="Write a reply..."
-                        className="mb-2"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleAddReply();
-                        }}
-                      />
-                      <Box className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={handleAddReply}
-                          disabled={!replyContent.trim() || isCreatingComment}
-                          className="bg-blue-600 hover:bg-blue-700 text-xs"
-                        >
-                          {isCreatingComment ? "Adding..." : "Reply"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setReplyTo(null);
-                            setReplyContent("");
-                          }}
-                          className="text-xs"
-                        >
-                          Cancel
-                        </Button>
-                      </Box>
-                    </Box>
-                  )}
-
-                  {/* Render replies */}
-                  {comment.replies && comment.replies.length > 0 && (
-                    <Box className="ml-6 space-y-2">
-                      {comment.replies.map((reply) => (
-                        <Box key={reply.id} className="flex items-start gap-2">
-                          <Flex className="flex-1 items-start justify-between bg-card p-2 rounded shadow-sm text-sm border-l-2 border-blue-200">
-                            <Stack className="flex-1">
-                              <Box className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-xs text-foreground">
-                                  {reply.userName}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(
-                                    new Date(reply.createdAt),
-                                    "MMM d, yyyy hh:mm a",
-                                  )}
-                                </span>
-                              </Box>
-                              <Box className="w-full max-sm:w-40 overflow-hidden break-words whitespace-pre-line">
-                                {reply.content}
-                              </Box>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-red-500 cursor-pointer p-1 h-auto text-xs mt-1"
-                                onClick={() => handleDeleteComment(reply.id)}
-                                disabled={isDeletingComment}
-                                title={t("common.delete")}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </Stack>
-                          </Flex>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                </Box>
-              ))
-            )}
-          </Box>
-
-          {/* Add new comment */}
-          <Flex className="items-center justify-between">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a comment..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddComment();
-              }}
-              className="bg-background rounded-full placeholder:text-muted-foreground h-11 border border-gray-400"
+          {id && (
+            <CommentThread
+              projectId={id}
+              canComment
+              maxHeight="20rem"
+              showHeader={false}
             />
-
-            <Button
-              onClick={() => handleAddComment()}
-              disabled={!input.trim() || isCreatingComment}
-              className="rounded-full h-11 cursor-pointer"
-            >
-              {isCreatingComment ? "Sending..." : "Send"}
-            </Button>
-          </Flex>
+          )}
         </Box>
       </GeneralModal>
       {/* File Version History Modal */}
