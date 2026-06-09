@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
+export interface InteractionReply {
+  id: string;
+  content: string;
+  createdAt: string;
+  userId: string;
+  userName: string;
+}
+
 export interface OrgInteraction {
   id: string;
   clientId: string;
@@ -10,6 +18,7 @@ export interface OrgInteraction {
   createdAt: string;
   userId: string;
   userName: string;
+  replies?: InteractionReply[];
 }
 
 export interface GetOrgInteractionsResponse {

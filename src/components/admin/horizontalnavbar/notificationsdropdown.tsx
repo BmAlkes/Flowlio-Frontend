@@ -19,7 +19,7 @@ import {
 } from "@/hooks/useNotifications";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router";
-import { Bell, InboxIcon, Ticket, Users, AlertCircle } from "lucide-react";
+import { Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Center } from "../../ui/center";
 import { Badge } from "../../ui/badge";
@@ -55,6 +55,9 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return <Users className="h-4 w-4" />;
       case "client_interaction":
         return <InboxIcon className="h-4 w-4" />;
+      case "project_comment":
+      case "client_message":
+        return <MessageCircleMore className="h-4 w-4" />;
       case "follow_up_scheduled":
         return <Bell className="h-4 w-4" />;
       default:
@@ -76,6 +79,10 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-purple-500";
       case "client_interaction":
         return "bg-cyan-500";
+      case "project_comment":
+        return "bg-blue-500";
+      case "client_message":
+        return "bg-indigo-500";
       case "follow_up_scheduled":
         return "bg-indigo-500";
       default:
@@ -116,6 +123,16 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
       } else {
         navigate(`/dashboard/client-management?clientId=${clientId}`);
       }
+      return;
+    }
+
+    if (notification.type === "project_comment") {
+      navigate("/dashboard/comments");
+      return;
+    }
+
+    if (notification.type === "client_message") {
+      navigate("/dashboard/comments?tab=messages");
       return;
     }
 
