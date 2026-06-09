@@ -202,63 +202,41 @@ export const CommentsPage = () => {
     );
   }, [allInteractions, search]);
 
-  const generatePDF = async () => {
-    const { jsPDF } = await import("jspdf");
-    await import("jspdf-autotable");
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    let yPos = 20;
+  const downloadCSV = () => {
+    const escape = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
 
-    doc.setFontSize(20);
-    doc.setTextColor(108, 117, 125);
-    doc.text(tab === "comments" ? "Comments Report" : "Client Messages Report", pageWidth / 2, yPos, { align: "center" });
-    yPos += 10;
-    doc.setFontSize(11);
-    doc.text(`Generated on: ${format(new Date(), "PPP")}`, pageWidth / 2, yPos, { align: "center" });
-    yPos += 20;
+    let rows: string[][];
+    let headers: string[];
+    let filename: string;
 
     if (tab === "comments") {
-      (doc as any).autoTable({
-        startY: yPos,
-        head: [["Author", "Comment", "Project", "Task", "Date"]],
-        body: filteredComments.map((c) => [
-          c.userName,
-          c.content.substring(0, 60) + (c.content.length > 60 ? "..." : ""),
-          c.projectName,
-          c.taskTitle ?? "—",
-          format(new Date(c.createdAt), "MMM d, yyyy"),
-        ]),
-        theme: "striped",
-        styles: { fontSize: 9, cellPadding: 2 },
-        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-        columnStyles: { 0: { cellWidth: 35 }, 1: { cellWidth: 70 }, 2: { cellWidth: 35 }, 3: { cellWidth: 30 }, 4: { cellWidth: 25 } },
-        margin: { left: 15, right: 15 },
-      });
+      headers = ["Author", "Comment", "Project", "Task", "Date"];
+      rows = filteredComments.map((c) => [
+        c.userName,
+        c.content,
+        c.projectName,
+        c.taskTitle ?? "",
+        format(new Date(c.createdAt), "MMM d, yyyy"),
+      ]);
+      filename = "Comments-Report.csv";
     } else {
-      (doc as any).autoTable({
-        startY: yPos,
-        head: [["Client", "Message", "Date"]],
-        body: filteredInteractions.map((i) => [
-          i.clientName,
-          i.content.substring(0, 100) + (i.content.length > 100 ? "..." : ""),
-          format(new Date(i.createdAt), "MMM d, yyyy"),
-        ]),
-        theme: "striped",
-        styles: { fontSize: 9, cellPadding: 2 },
-        headStyles: { fillColor: [99, 102, 241], textColor: 255 },
-        columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 115 }, 2: { cellWidth: 30 } },
-        margin: { left: 15, right: 15 },
-      });
+      headers = ["Client", "Message", "Date"];
+      rows = filteredInteractions.map((i) => [
+        i.clientName,
+        i.content,
+        format(new Date(i.createdAt), "MMM d, yyyy"),
+      ]);
+      filename = "ClientMessages-Report.csv";
     }
 
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(108, 117, 125);
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: "center" });
-    }
-    doc.save(tab === "comments" ? "Comments-Report.pdf" : "ClientMessages-Report.pdf");
+    const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const isLoading = tab === "comments" ? commentsLoading : interactionsLoading;
@@ -282,7 +260,7 @@ export const CommentsPage = () => {
         <Button
           className="bg-green-600 cursor-pointer hover:bg-green-500 shrink-0"
           size="lg"
-          onClick={generatePDF}
+          onClick={downloadCSV}
           disabled={items.length === 0}
         >
           <DownloadIcon className="w-4 h-4 mr-2" />
