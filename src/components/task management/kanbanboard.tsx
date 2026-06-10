@@ -8,7 +8,6 @@ import { Button } from "../ui/button";
 import { TooltipContent } from "../ui/tooltip";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { GripVertical, MessageCircleMore } from "lucide-react";
-import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { CommentThread } from "@/components/common/CommentThread";
 import { useTranslation } from "react-i18next";
 
@@ -102,12 +101,7 @@ function DraggableTask({
 
   const [showComments, setShowComments] = useState(false);
 
-  // Fetch task-specific comments for badge count
-  const { data: commentsResponse } = useFetchProjectComments(
-    task.projectId || "",
-    task.id
-  );
-  const commentCount = commentsResponse?.data?.length ?? task.comments?.length ?? 0;
+  const commentCount = task.comments?.length ?? 0;
   const statusColor = STATUS_COLORS[task.status] ?? "#5B60FE";
 
   return (

@@ -245,7 +245,7 @@ export function CommentThread({
   const { data: userData } = useUser();
   const currentUserId = userData?.user?.id ?? "";
 
-  const { data: commentsResponse, isLoading, isError } = useFetchProjectComments(
+  const { data: commentsResponse, isLoading, isError, refetch } = useFetchProjectComments(
     projectId,
     taskId
   );
@@ -294,8 +294,11 @@ export function CommentThread({
           </Box>
         ) : isError ? (
           <Box className="py-6 text-center">
-            <MessageCircleMore className="w-8 h-8 text-red-300 mx-auto mb-2" />
-            <p className="text-xs text-red-500">Failed to load comments.</p>
+            <MessageCircleMore className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-2">Could not load comments.</p>
+            <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => refetch()}>
+              Try again
+            </Button>
           </Box>
         ) : topLevel.length === 0 ? (
           <Box className="py-6 text-center">
