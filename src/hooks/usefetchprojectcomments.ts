@@ -4,6 +4,7 @@ import { axios } from "@/configs/axios.config";
 export interface ProjectComment {
   id: string;
   projectId: string;
+  taskId?: string;
   userId: string;
   userName: string;
   content: string;
