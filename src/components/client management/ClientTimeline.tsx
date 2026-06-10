@@ -206,19 +206,17 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                         <Clock className="w-3.5 h-3.5" />
                         <span>{format(new Date(item.createdAt), "MMM d, h:mm a")}</span>
                       </div>
-                      {mode === "admin" && (
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          disabled={deletingId === item.id}
-                          title={t("pipeline.deleteInteraction")}
-                          className="p-1.5 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40"
-                        >
-                          {deletingId === item.id
-                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            : <Trash2 className="w-3.5 h-3.5" />
-                          }
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deletingId === item.id}
+                        title={t("pipeline.deleteInteraction")}
+                        className="p-1.5 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40"
+                      >
+                        {deletingId === item.id
+                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          : <Trash2 className="w-3.5 h-3.5" />
+                        }
+                      </button>
                     </div>
                   </div>
 
