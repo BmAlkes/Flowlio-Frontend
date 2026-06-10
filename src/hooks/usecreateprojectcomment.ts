@@ -37,7 +37,7 @@ export const useCreateProjectComment = () => {
       queryClient.invalidateQueries({
         queryKey: ["project-comments", variables.projectId, variables.taskId],
       });
-
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Comment added successfully!");
     },
     onError: (error: any) => {

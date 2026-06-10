@@ -17,6 +17,7 @@ export const useCreateOrgInteraction = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org-interactions"] });
       queryClient.invalidateQueries({ queryKey: ["client-timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };

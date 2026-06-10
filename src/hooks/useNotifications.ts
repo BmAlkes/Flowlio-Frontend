@@ -51,8 +51,8 @@ export const useNotifications = (params?: {
       );
       return response.data;
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 10000,
+    refetchInterval: 15000,
   });
 };
 
@@ -66,8 +66,8 @@ export const useUnreadNotificationsCount = () => {
       );
       return response.data.data.pagination.totalNotifications;
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 10000,
+    refetchInterval: 15000,
   });
 };
 
