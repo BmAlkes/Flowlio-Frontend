@@ -251,11 +251,7 @@ export function CommentThread({
   );
   const createComment = useCreateProjectComment();
 
-  const allComments = commentsResponse?.data ?? [];
-  // Client-side task filter — workaround until backend WHERE task_id is fixed
-  const comments = taskId
-    ? allComments.filter((c) => !c.taskId || c.taskId === taskId)
-    : allComments;
+  const comments = commentsResponse?.data ?? [];
   const topLevel = comments.filter((c) => !c.parentId);
 
   const handleAdd = () => {
