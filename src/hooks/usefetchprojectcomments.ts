@@ -24,10 +24,12 @@ export const useFetchProjectComments = (projectId: string, taskId?: string) => {
   return useQuery({
     queryKey: ["project-comments", projectId, taskId],
     queryFn: async (): Promise<GetProjectCommentsResponse> => {
-      const url = taskId
-        ? `/projects/comments/${projectId}?taskId=${taskId}`
-        : `/projects/comments/${projectId}`;
-      const response = await axios.get(url);
+      const params: Record<string, string> = { projectId };
+      if (taskId) params.taskId = taskId;
+      const response = await axios.get("/projects/comments", { params });
+      if (response.data?.success === false) {
+        throw new Error(response.data?.message || "Failed to load comments");
+      }
       return response.data;
     },
     enabled: !!projectId,

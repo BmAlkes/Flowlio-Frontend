@@ -33,9 +33,7 @@ export const useCreateProjectComment = () => {
       const response = await axios.post("/projects/comments", data);
       return response.data;
     },
-    onSuccess: (data, variables) => {
-      // Invalidate and refetch project comments
-      console.log("data", data);
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["project-comments", variables.projectId, variables.taskId],
       });

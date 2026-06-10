@@ -245,7 +245,7 @@ export function CommentThread({
   const { data: userData } = useUser();
   const currentUserId = userData?.user?.id ?? "";
 
-  const { data: commentsResponse, isLoading } = useFetchProjectComments(
+  const { data: commentsResponse, isLoading, isError } = useFetchProjectComments(
     projectId,
     taskId
   );
@@ -291,6 +291,11 @@ export function CommentThread({
             {[1, 2].map((i) => (
               <Box key={i} className="animate-pulse bg-muted rounded-lg h-14" />
             ))}
+          </Box>
+        ) : isError ? (
+          <Box className="py-6 text-center">
+            <MessageCircleMore className="w-8 h-8 text-red-300 mx-auto mb-2" />
+            <p className="text-xs text-red-500">Failed to load comments.</p>
           </Box>
         ) : topLevel.length === 0 ? (
           <Box className="py-6 text-center">
