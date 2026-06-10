@@ -31,6 +31,8 @@ import { useTranslation } from "react-i18next";
 import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
 import { DashboardSkeleton, SkeletonWrapper } from "@/components/skeletons";
 import { FollowUpWidget } from "@/components/admin/dashboard/FollowUpWidget";
+import { AITokenUsageWidget } from "@/components/user section/AITokenUsageWidget";
+import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 
 const DashboardPage = () => {
   const { t } = useTranslation();
@@ -60,6 +62,8 @@ const DashboardPage = () => {
     useFetchOrganizationWeeklyHoursTracked();
   const { data: pendingTasksResponse, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useFetchOrganizationPendingTasks();
   const { data: projectStatusResponse, isLoading: isLoadingStatus, isFetching: isFetchingStatus } = useFetchProjectStatusData();
+  const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
+  const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
 
   // Aggregated loading flag — show skeleton while any stats hook is in flight
   const isAnyLoading =
@@ -134,6 +138,7 @@ const DashboardPage = () => {
       skeleton={<DashboardSkeleton />}
     >
       <Stack className="pt-5 gap-3 px-2">
+      {hasAIAssist && <AITokenUsageWidget />}
       <Stats stats={stats} />
       <Flex className="max-[950px]:flex-col items-start gap-3">
         <Stack className="w-full gap-3">

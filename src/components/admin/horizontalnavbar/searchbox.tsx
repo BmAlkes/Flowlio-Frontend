@@ -31,13 +31,19 @@ export const SearchBox: React.FC<{
 }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
-  const { data: viewerProjects } = useFetchViewerProjects();
-  const { data: orgProjects } = useFetchProjects();
-  const { data: tasksRes } = useFetchViewerTasks();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   const isViewer = pathname.startsWith("/viewer");
+  const isDashboard = pathname.startsWith("/dashboard");
+  const canSearchProjects = isViewer || isDashboard;
+
+  const { data: viewerProjects } = useFetchViewerProjects({
+    enabled: isViewer,
+  });
+  const { data: orgProjects } = useFetchProjects({}, { enabled: isDashboard });
+  const { data: tasksRes } = useFetchViewerTasks({ enabled: isViewer });
+
   const fetched = isViewer
     ? viewerProjects?.data
     : ((orgProjects?.data as any[] | undefined)?.map((p: any) => ({
@@ -67,21 +73,29 @@ export const SearchBox: React.FC<{
   }, [tasks, query]);
 
   const handleSubmit = () => {
+    if (!canSearchProjects) {
+      return;
+    }
+
     const topProject = filteredProjects[0];
     if (topProject) {
       const target = getProjectPath
         ? getProjectPath(topProject.id, pathname)
-        : pathname.startsWith("/viewer")
+        : isViewer
         ? `/viewer/projects/${topProject.id}`
         : `/dashboard/project/view/${topProject.id}`;
       navigate(target);
       return;
     }
-    // Otherwise go to tasks list with query param
+
     const q = query.trim();
+    if (!q) {
+      return;
+    }
+
     const target = getTasksPath
       ? getTasksPath(q, pathname)
-      : pathname.startsWith("/viewer")
+      : isViewer
       ? `/viewer/my-tasks?q=${encodeURIComponent(q)}`
       : `/dashboard/task-management?q=${encodeURIComponent(q)}`;
     navigate(target);

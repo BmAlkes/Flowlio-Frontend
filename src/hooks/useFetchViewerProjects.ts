@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
 
@@ -21,7 +21,12 @@ export interface ViewerProject {
   completedTasks: number;
 }
 
-export const useFetchViewerProjects = () => {
+export const useFetchViewerProjects = (
+  options?: Omit<
+    UseQueryOptions<ApiResponse<ViewerProject[]>>,
+    "queryKey" | "queryFn"
+  >,
+) => {
   return useQuery<ApiResponse<ViewerProject[]>>({
     queryKey: ["viewer-projects"],
     queryFn: async () => {
@@ -31,5 +36,6 @@ export const useFetchViewerProjects = () => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
+    ...options,
   });
 };

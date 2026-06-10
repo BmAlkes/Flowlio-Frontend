@@ -21,8 +21,8 @@ import {
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 // import { Button } from "@/components/ui/button";
 import {
-  useCreatePayPalOrder,
-  useCapturePayPalOrder,
+  useCreatePayPalSubscription,
+  useActivatePayPalSubscription,
 } from "@/hooks/usePayPalPayment";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
 import type { IPlan } from "@/types";
@@ -65,8 +65,8 @@ const CheckoutPage = () => {
   const { data: subscriptionStatus } = useSubscriptionStatus({
     enabled: !!userData?.user, // Only check if user is logged in
   });
-  const createPayPalOrderMutation = useCreatePayPalOrder();
-  const capturePayPalOrderMutation = useCapturePayPalOrder();
+  const createSubscriptionMutation = useCreatePayPalSubscription();
+  const activateSubscriptionMutation = useActivatePayPalSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBackendDemoMode, setIsBackendDemoMode] = useState<boolean | null>(
     null
@@ -260,82 +260,68 @@ const CheckoutPage = () => {
     }
   }, [selectedPlan, userData?.user, userLoading, plansLoading]);
 
-  // Handle PayPal order creation
-  const handlePayPalCreateOrder = async (): Promise<string> => {
+  // Handle PayPal subscription creation
+  const handlePayPalCreateSubscription = async (): Promise<string> => {
     if (!selectedPlan) {
       const errorMsg = "Plan not selected";
-      console.error("[PayPal] Error:", errorMsg);
       toast.error(errorMsg);
       throw new Error(errorMsg);
     }
 
     // Validate organization name if creating organization
     if (createOrganization) {
-      // Trigger form validation first
       const isValid = await form.trigger("organizationName");
       if (!isValid) {
         const errorMsg = "Please enter a valid organization name";
-        console.error("[PayPal] Error:", errorMsg);
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
 
       const formData = form.getValues();
-      if (
-        !formData.organizationName ||
-        formData.organizationName.trim() === ""
-      ) {
+      if (!formData.organizationName?.trim()) {
         const errorMsg = "Please enter an organization name";
-        console.error("[PayPal] Error:", errorMsg);
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
     }
 
     try {
-      const planPrice = parseFloat(
-        selectedPlan.price.toString().replace("$", "")
-      );
-
-      console.log("[PayPal] Creating order:", {
+      const response = await createSubscriptionMutation.mutateAsync({
         planId: selectedPlan.id,
-        amount: planPrice,
-        currency: "USD",
       });
 
-      const response = await createPayPalOrderMutation.mutateAsync({
-        planId: selectedPlan.id,
-        amount: planPrice,
-        currency: "USD",
-      });
-
-      console.log("[PayPal] Order created:", response.data);
-
-      // DEMO MODE REMOVED - Only real PayPal orders in production
-      // If we get a PayPal order ID, return it
-      if (response.data?.orderId) {
-        return response.data.orderId;
+      const subscriptionId = response.data?.subscriptionId;
+      if (!subscriptionId) {
+        const errorMsg = "Failed to create PayPal subscription — no ID returned";
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
       }
 
-      const errorMsg = "Failed to create PayPal order - no order ID returned";
-      console.error("[PayPal] Error:", errorMsg, response);
-      toast.error(errorMsg);
-      throw new Error(errorMsg);
+      return subscriptionId;
     } catch (error: any) {
-      console.error("[PayPal] Error creating order:", error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
-        "Failed to create PayPal order. Please try again.";
+        "Failed to create PayPal subscription. Please try again.";
       toast.error(errorMessage);
       throw error;
     }
   };
 
-  // Handle PayPal order approval
-  const handlePayPalApprove = async (data: { orderID: string }) => {
+  // Handle PayPal subscription approval
+  const handlePayPalApprove = async (data: {
+    subscriptionID?: string | null;
+    orderID?: string;
+    [key: string]: any;
+  }) => {
     if (!userData?.user || !selectedPlan) {
       toast.error("User or plan information is missing");
+      return;
+    }
+
+    const subscriptionId = data.subscriptionID;
+    if (!subscriptionId) {
+      toast.error("PayPal subscription ID missing. Please try again.");
       return;
     }
 
@@ -344,10 +330,8 @@ const CheckoutPage = () => {
     try {
       const formData = form.getValues();
 
-      // Capture the PayPal order with organization details
-      // This will create the organization automatically after successful payment
-      const captureResponse = await capturePayPalOrderMutation.mutateAsync({
-        orderId: data.orderID,
+      const activateResponse = await activateSubscriptionMutation.mutateAsync({
+        subscriptionId,
         userId: userData.user.id,
         organizationName: createOrganization
           ? formData.organizationName
@@ -355,27 +339,19 @@ const CheckoutPage = () => {
         planId: selectedPlan.id,
       });
 
-      if (captureResponse.data?.status === "COMPLETED") {
-        toast.success("Payment processed successfully!");
-
-        // If organization was created, it's already done in the backend
-        if (captureResponse.data?.organization) {
-          toast.success("Organization created successfully!");
-        }
-
-        // Reload page to refresh session with updated organizationId
-        // This ensures the session is updated with the new organization data
+      if (activateResponse.data?.status === "ACTIVE") {
+        toast.success("Subscription activated successfully!");
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1500);
       } else {
-        toast.error("Payment was not completed. Please try again.");
+        toast.error("Subscription could not be confirmed. Please try again.");
       }
     } catch (error: any) {
-      console.error("Error capturing PayPal order:", error);
+      console.error("Error activating PayPal subscription:", error);
       toast.error(
         error?.response?.data?.message ||
-        "Failed to process payment. Please try again."
+        "Failed to activate subscription. Please try again."
       );
     } finally {
       setIsProcessing(false);
@@ -581,9 +557,11 @@ const CheckoutPage = () => {
       ? {
         clientId: paypalClientId,
         currency: "USD",
+        vault: true,
+        intent: "subscription",
         disableFunding: "credit,card" as const,
       }
-      : { clientId: "", currency: "USD" as const }; // Use empty string, not "sb" to avoid sandbox detection
+      : { clientId: "", currency: "USD" as const, vault: false }; // Use empty string, not "sb" to avoid sandbox detection
 
   return (
     <PayPalScriptProvider
@@ -821,7 +799,7 @@ const CheckoutPage = () => {
                   {/* PayPal Buttons - Only show when fully configured */}
                   <Box className="mb-4 bg-card rounded-lg p-4 border border-border">
                     <PayPalButtons
-                      createOrder={handlePayPalCreateOrder}
+                      createSubscription={handlePayPalCreateSubscription}
                       onApprove={handlePayPalApprove}
                       onError={handlePayPalError}
                       onCancel={() => {

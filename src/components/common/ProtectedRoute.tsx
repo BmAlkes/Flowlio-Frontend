@@ -31,7 +31,8 @@ const ROLE_HIERARCHY: Record<string, number> = {
 };
 
 const hasRole = (userRole: string, requiredRole: string): boolean => {
-  if (requiredRole === "client") return userRole === "client";
+  if (requiredRole === "client" || requiredRole === "viewer")
+    return userRole === requiredRole;
   return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[requiredRole] ?? 0);
 };
 

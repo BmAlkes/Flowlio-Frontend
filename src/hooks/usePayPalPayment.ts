@@ -71,3 +71,63 @@ export const useCapturePayPalOrder = () => {
     },
   });
 };
+
+// ── Subscription hooks ────────────────────────────────────────────────────────
+
+interface CreatePayPalSubscriptionRequest {
+  planId: string;
+}
+
+interface CreatePayPalSubscriptionResponse {
+  subscriptionId: string;
+}
+
+interface ActivatePayPalSubscriptionRequest {
+  subscriptionId: string;
+  userId?: string;
+  organizationName?: string;
+  organizationWebsite?: string;
+  organizationIndustry?: string;
+  organizationSize?: string;
+  planId?: string;
+}
+
+interface ActivatePayPalSubscriptionResponse {
+  subscriptionId: string;
+  status: string;
+  organizationId: string;
+  subscription: { id: string; planId: string };
+  plan: { id: string; name: string };
+}
+
+export const useCreatePayPalSubscription = () => {
+  return useMutation<
+    ApiResponse<CreatePayPalSubscriptionResponse>,
+    ErrorWithMessage,
+    CreatePayPalSubscriptionRequest
+  >({
+    mutationFn: async (data) => {
+      const response = await axios.post(
+        "/payments/paypal/create-subscription",
+        data
+      );
+      return response.data;
+    },
+  });
+};
+
+export const useActivatePayPalSubscription = () => {
+  return useMutation<
+    ApiResponse<ActivatePayPalSubscriptionResponse>,
+    ErrorWithMessage,
+    ActivatePayPalSubscriptionRequest
+  >({
+    mutationFn: async (data) => {
+      const response = await axios.post(
+        "/payments/paypal/activate-subscription",
+        data
+      );
+      return response.data;
+    },
+  });
+};
