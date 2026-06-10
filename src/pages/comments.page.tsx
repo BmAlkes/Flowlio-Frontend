@@ -12,6 +12,12 @@ import {
   UserCircle2,
   Reply,
   Send,
+  Trash2,
+  Pencil,
+  X,
+  Check,
+  PlusCircle,
+  Loader2,
 } from "lucide-react";
 import { ComponentWrapper } from "@/components/common/componentwrapper";
 import { Button } from "@/components/ui/button";
@@ -29,8 +35,10 @@ import {
 import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
 import { useUpdateProjectComment } from "@/hooks/useupdateprojectcomment";
 import { useReplyToInteraction } from "@/hooks/useReplyToInteraction";
+import { useDeleteOrgInteraction } from "@/hooks/useDeleteOrgInteraction";
+import { useCreateOrgInteraction } from "@/hooks/useCreateOrgInteraction";
+import { useFetchOrganizationClients } from "@/hooks/usefetchclients";
 import { useUser } from "@/providers/user.provider";
-import { Trash2, Pencil, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 20;
@@ -140,18 +148,14 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState("");
   const replyMutation = useReplyToInteraction();
+  const deleteMutation = useDeleteOrgInteraction();
 
   const handleReply = () => {
     const text = replyText.trim();
     if (!text || replyMutation.isPending) return;
     replyMutation.mutate(
       { interactionId: item.id, content: text },
-      {
-        onSuccess: () => {
-          setReplyText("");
-          setShowReply(false);
-        },
-      }
+      { onSuccess: () => { setReplyText(""); setShowReply(false); } }
     );
   };
 
@@ -162,11 +166,26 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
           {item.clientName.charAt(0).toUpperCase()}
         </Box>
         <Box className="flex-1 min-w-0">
-          <Flex className="gap-2 items-center flex-wrap mb-1">
-            <span className="font-semibold text-sm text-foreground">{item.clientName}</span>
-            <span className="text-xs text-muted-foreground">
-              {format(new Date(item.createdAt), "MMM d, yyyy · h:mm a")}
-            </span>
+          <Flex className="justify-between items-start gap-2">
+            <Flex className="gap-2 items-center flex-wrap mb-1">
+              <span className="font-semibold text-sm text-foreground">{item.clientName}</span>
+              <span className="text-xs text-muted-foreground">
+                {format(new Date(item.createdAt), "MMM d, yyyy · h:mm a")}
+              </span>
+            </Flex>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-7 h-7 p-0 text-muted-foreground hover:text-red-600 shrink-0"
+              onClick={() => deleteMutation.mutate(item.id)}
+              disabled={deleteMutation.isPending}
+              title="Delete message"
+            >
+              {deleteMutation.isPending
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Trash2 className="w-3.5 h-3.5" />
+              }
+            </Button>
           </Flex>
           <Flex className="gap-2 mb-2">
             <Flex className="gap-1 items-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-medium px-2 py-0.5 rounded-full">
@@ -221,22 +240,10 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
                   autoFocus
                 />
                 <Flex className="flex-col gap-1 shrink-0">
-                  <Button
-                    size="sm"
-                    className="w-8 h-8 p-0 bg-indigo-600 hover:bg-indigo-500"
-                    onClick={handleReply}
-                    disabled={!replyText.trim() || replyMutation.isPending}
-                    title="Send reply"
-                  >
+                  <Button size="sm" className="w-8 h-8 p-0 bg-indigo-600 hover:bg-indigo-500" onClick={handleReply} disabled={!replyText.trim() || replyMutation.isPending} title="Send reply">
                     <Send className="w-3.5 h-3.5" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-8 h-8 p-0 text-muted-foreground"
-                    onClick={() => { setShowReply(false); setReplyText(""); }}
-                    title="Cancel"
-                  >
+                  <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-muted-foreground" onClick={() => { setShowReply(false); setReplyText(""); }} title="Cancel">
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </Flex>
@@ -259,6 +266,69 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
   );
 }
 
+// ── New Message form ──────────────────────────────────────────────────────────
+function NewMessageForm({ onClose }: { onClose: () => void }) {
+  const [clientId, setClientId] = useState("");
+  const [content, setContent] = useState("");
+  const { data: clientsData } = useFetchOrganizationClients();
+  const clients = clientsData?.data ?? [];
+  const createMsg = useCreateOrgInteraction();
+
+  const handleSend = () => {
+    if (!clientId || !content.trim() || createMsg.isPending) return;
+    createMsg.mutate(
+      { clientId, content: content.trim() },
+      { onSuccess: () => { setClientId(""); setContent(""); onClose(); } }
+    );
+  };
+
+  return (
+    <Box className="bg-card rounded-xl border border-indigo-200 dark:border-indigo-800 p-4 mb-4 shadow-sm">
+      <Flex className="justify-between items-center mb-3">
+        <span className="text-sm font-semibold text-foreground">New Message to Client</span>
+        <Button variant="ghost" size="sm" className="w-7 h-7 p-0 text-muted-foreground" onClick={onClose}>
+          <X className="w-3.5 h-3.5" />
+        </Button>
+      </Flex>
+      <Box className="space-y-3">
+        <select
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          className="w-full text-sm bg-muted rounded-lg px-3 py-2 border border-border focus:outline-none focus:border-indigo-400 text-foreground"
+        >
+          <option value="">Select a client...</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>{c.name} — {c.email}</option>
+          ))}
+        </select>
+        <textarea
+          className="w-full text-sm bg-muted rounded-lg px-3 py-2 border border-border focus:outline-none focus:border-indigo-400 resize-none"
+          rows={3}
+          placeholder="Write your message..."
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            if (e.key === "Escape") onClose();
+          }}
+        />
+        <Flex className="justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+          <Button
+            size="sm"
+            className="bg-indigo-600 hover:bg-indigo-500 gap-1.5"
+            onClick={handleSend}
+            disabled={!clientId || !content.trim() || createMsg.isPending}
+          >
+            {createMsg.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            Send Message
+          </Button>
+        </Flex>
+      </Box>
+    </Box>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 type Tab = "comments" | "messages";
 
@@ -269,6 +339,7 @@ export const CommentsPage = () => {
   );
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [showNewMessage, setShowNewMessage] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("tab") === "messages") setTab("messages");
@@ -327,7 +398,7 @@ export const CommentsPage = () => {
       {/* Tabs */}
       <Flex className="gap-1 mb-5 border-b border-border">
         <button
-          onClick={() => { setTab("comments"); setPage(1); setSearch(""); }}
+          onClick={() => { setTab("comments"); setPage(1); setSearch(""); setShowNewMessage(false); }}
           className={cn(
             "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
             tab === "comments"
@@ -366,16 +437,33 @@ export const CommentsPage = () => {
         </button>
       </Flex>
 
-      {/* Search */}
-      <Box className="relative max-w-sm mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={tab === "comments" ? "Search by content, author, project or task..." : "Search by content or client..."}
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="pl-9 bg-background"
-        />
-      </Box>
+      {/* Search + New Message button */}
+      <Flex className="gap-3 mb-6 items-center">
+        <Box className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={tab === "comments" ? "Search by content, author, project or task..." : "Search by content or client..."}
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="pl-9 bg-background"
+          />
+        </Box>
+        {tab === "messages" && (
+          <Button
+            size="sm"
+            className="bg-indigo-600 hover:bg-indigo-500 gap-1.5 shrink-0"
+            onClick={() => setShowNewMessage((v) => !v)}
+          >
+            <PlusCircle className="w-4 h-4" />
+            New Message
+          </Button>
+        )}
+      </Flex>
+
+      {/* New Message form */}
+      {tab === "messages" && showNewMessage && (
+        <NewMessageForm onClose={() => setShowNewMessage(false)} />
+      )}
 
       {/* List */}
       {isLoading ? (
