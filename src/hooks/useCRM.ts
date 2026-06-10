@@ -4,6 +4,14 @@ import { toast } from "sonner";
 
 export type LeadTemperature = "Hot" | "Warm" | "Cold" | "Lost";
 
+export interface InteractionReply {
+  id: string;
+  content: string;
+  createdAt: string;
+  userId: string;
+  userName: string;
+}
+
 export interface ClientInteraction {
   id: string;
   clientId: string;
@@ -16,6 +24,7 @@ export interface ClientInteraction {
     name: string;
     image: string;
   };
+  replies?: InteractionReply[];
 }
 
 export interface LeadInsights {

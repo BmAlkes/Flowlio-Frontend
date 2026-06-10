@@ -21,6 +21,7 @@ import {
   Thermometer,
   Trash2,
   Lightbulb,
+  CornerDownRight,
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -226,6 +227,32 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                     <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
                       {item.content}
                     </p>
+
+                    {/* Replies from team */}
+                    {item.replies && item.replies.length > 0 && (
+                      <div className="mt-3 space-y-2 border-l-2 border-indigo-200 dark:border-indigo-700 pl-3">
+                        {item.replies.map((reply) => (
+                          <div key={reply.id} className="bg-indigo-50/60 dark:bg-indigo-900/10 rounded-lg p-3">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                                {reply.userName.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-xs font-semibold text-foreground">{reply.userName}</span>
+                              <div className="flex items-center gap-1 text-[10px] text-teal-600 dark:text-teal-400">
+                                <CornerDownRight className="w-3 h-3" />
+                                <span>Reply</span>
+                              </div>
+                              <span className="text-[10px] text-muted-foreground">
+                                {format(new Date(reply.createdAt), "MMM d, h:mm a")}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                              {reply.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
