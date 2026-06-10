@@ -201,6 +201,7 @@ export const useDeleteInteraction = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["client-timeline", variables.clientId] });
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
+      queryClient.invalidateQueries({ queryKey: ["org-interactions"] });
       toast.success("Interaction deleted");
     },
     onError: (error: any) => {

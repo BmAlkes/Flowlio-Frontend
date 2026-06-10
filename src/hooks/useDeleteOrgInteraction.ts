@@ -11,6 +11,7 @@ export const useDeleteOrgInteraction = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org-interactions"] });
+      queryClient.invalidateQueries({ queryKey: ["client-timeline"] });
     },
   });
 };
