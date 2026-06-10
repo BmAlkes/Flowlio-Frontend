@@ -35,7 +35,7 @@ export const useFetchAllOrgComments = (params?: FetchAllOrgCommentsParams) => {
   return useQuery({
     queryKey: ["org-comments", params],
     queryFn: async (): Promise<GetAllOrgCommentsResponse> => {
-      const response = await axios.get("/projects/comments", { params });
+      const response = await axios.get("/projects/comments/all", { params });
       return response.data;
     },
     staleTime: 1000 * 60 * 2,
