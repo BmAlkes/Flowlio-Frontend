@@ -6,6 +6,7 @@ import {
   useDeleteInteraction,
   useLeadInsights,
 } from "@/hooks/useCRM";
+import { useDeleteOrgInteraction } from "@/hooks/useDeleteOrgInteraction";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -57,6 +58,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
   const { data: insights } = useLeadInsights(clientId);
   const addInteraction = useAddInteraction();
   const deleteInteraction = useDeleteInteraction();
+  const deleteCrmInteraction = useDeleteOrgInteraction();
 
   const [content, setContent] = useState("");
   const [type, setType] = useState<string>("note");
@@ -72,10 +74,16 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
 
   const handleDelete = (interactionId: string) => {
     setDeletingId(interactionId);
-    deleteInteraction.mutate(
-      { interactionId, clientId },
-      { onSettled: () => setDeletingId(null) }
-    );
+    if (mode === "client") {
+      deleteCrmInteraction.mutate(interactionId, {
+        onSettled: () => setDeletingId(null),
+      });
+    } else {
+      deleteInteraction.mutate(
+        { interactionId, clientId },
+        { onSettled: () => setDeletingId(null) }
+      );
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
