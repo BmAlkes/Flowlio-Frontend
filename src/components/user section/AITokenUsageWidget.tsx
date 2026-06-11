@@ -21,6 +21,11 @@ function clamp(n: number): number {
   return Math.min(100, Math.max(0, n));
 }
 
+function formatUsagePercent(pct: number): string {
+  if (pct === 0 || pct === 100) return pct.toString();
+  return pct < 10 ? pct.toFixed(2) : pct.toFixed(1);
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function LoadingSkeleton() {
@@ -44,6 +49,7 @@ export const AITokenUsageWidget = () => {
   const tokenLimit = data?.limit?.tokenLimit ?? null;
   const rawPct = data?.usagePercent ?? 0;
   const pct = clamp(rawPct);
+  const displayedPct = formatUsagePercent(pct);
 
   const isUnlimited = tokenLimit === null;
   const isExceeded = !isUnlimited && tokensUsed >= (tokenLimit ?? Infinity);
@@ -113,7 +119,9 @@ export const AITokenUsageWidget = () => {
                         count: remaining ?? 0,
                       })}
                 </p>
-                <p className="text-xs text-muted-foreground">{pct}%</p>
+                <p className="text-xs text-muted-foreground">
+                  {displayedPct}%
+                </p>
               </Flex>
             </div>
           )}

@@ -1,6 +1,22 @@
 import { create } from "zustand";
 import { axios } from "@/configs/axios.config";
 
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (
+    error &&
+    typeof error === "object" &&
+    "response" in error &&
+    error.response &&
+    typeof error.response === "object" &&
+    "data" in error.response
+  ) {
+    const data = error.response.data as { message?: string; error?: string };
+    return data.message || data.error || fallback;
+  }
+
+  return fallback;
+};
+
 export type ChatMessage = {
   role: "user" | "ai";
   text: string;
@@ -301,7 +317,10 @@ export const useAiAssistChatStore = create<AiAssistChatState>((set, get) => ({
         size: "1024x1024",
       });
 
-      const imageUrl = response.data.data?.imageUrl;
+      const imageUrl =
+        response.data.data?.imageUrl ||
+        response.data.imageUrl ||
+        response.data.data?.url;
 
       if (imageUrl) {
         // Update the loading message with the image
@@ -330,6 +349,10 @@ export const useAiAssistChatStore = create<AiAssistChatState>((set, get) => ({
       }
     } catch (error) {
       console.error("Image generation failed:", error);
+      const errorMessage = getApiErrorMessage(
+        error,
+        "I'm sorry, I couldn't generate the image. Please try again later."
+      );
       // Update the loading message with error
       set((state) => ({
         chats: state.chats.map((c) =>
@@ -340,7 +363,7 @@ export const useAiAssistChatStore = create<AiAssistChatState>((set, get) => ({
                   index === c.messages.length - 1 && msg.isLoading
                     ? {
                         role: "ai",
-                        text: "I'm sorry, I couldn't generate the image. Please try again later.",
+                        text: errorMessage,
                         timestamp: new Date(),
                       }
                     : msg
