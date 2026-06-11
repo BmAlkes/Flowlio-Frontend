@@ -1,10 +1,10 @@
 import React from "react";
-import { Box } from "@/components/ui/box";
-import { Flex } from "@/components/ui/flex";
-import { Center } from "@/components/ui/center";
 import { cn } from "@/lib/utils";
-import { formatHour, CustomEvent, getDaysShort } from "./calendarUtils";
+import { formatHour, CustomEvent, getDaysShort, platformColors } from "./calendarUtils";
 import { useTranslation } from "react-i18next";
+import GoogleMeetIcon from "/dashboard/google-meet.svg";
+import WhatsappIcon from "/dashboard/whatsapp-icon.svg";
+import OutlookIcon from "/dashboard/google-drive.svg";
 
 interface MonthViewProps {
   currentDate: Date;
@@ -12,6 +12,13 @@ interface MonthViewProps {
   setSelectedEvent: (event: CustomEvent | null) => void;
   setPopupPosition: (position: { top: number; left: number } | null) => void;
   gridContainerRef: React.RefObject<HTMLDivElement>;
+}
+
+function PlatformIcon({ platform }: { platform?: string }) {
+  if (platform === "google_meet") return <img src={GoogleMeetIcon} alt="" className="size-3 shrink-0" />;
+  if (platform === "whatsapp") return <img src={WhatsappIcon} alt="" className="size-3 shrink-0" />;
+  if (platform === "outlook") return <img src={OutlookIcon} alt="" className="size-3 shrink-0" />;
+  return null;
 }
 
 export const MonthView: React.FC<MonthViewProps> = ({
@@ -24,154 +31,127 @@ export const MonthView: React.FC<MonthViewProps> = ({
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   const daysShort = getDaysShort(currentLanguage);
-  const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  );
-  const lastDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  );
+
+  const today = new Date();
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
   const firstDayWeekday = firstDayOfMonth.getDay();
   const daysInMonth = lastDayOfMonth.getDate();
 
-  const calendarDays = [];
+  const calendarDays: React.ReactNode[] = [];
 
-  // Add empty cells for days before the first day of the month
+  // Empty cells before first day
   for (let i = 0; i < firstDayWeekday; i++) {
     calendarDays.push(
-      <Box
-        key={`empty-${i}`}
-        className="min-h-[120px] border border-border bg-muted/50"
-      ></Box>
+      <div key={`empty-${i}`} className="min-h-[110px] bg-muted/20 border-b border-r border-border/40" />
     );
   }
 
-  // Add days of the month
   for (let day = 1; day <= daysInMonth; day++) {
-    const currentDay = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
-    const dayEvents = monthEvents.filter((event: any) => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === day;
+    const cellDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const isToday = cellDate.toDateString() === today.toDateString();
+    const isSunday = cellDate.getDay() === 0;
+
+    const dayEvents = monthEvents.filter((e: any) => {
+      const ed = new Date(e.date);
+      return ed.getDate() === day;
     });
 
     calendarDays.push(
-      <Box
+      <div
         key={day}
         className={cn(
-          "min-h-[120px] border border-border bg-card p-2 relative",
-          currentDay.toDateString() === new Date().toDateString() &&
-            "bg-primary/10"
+          "min-h-[110px] border-b border-r border-border/40 p-1.5 relative",
+          isToday ? "bg-blue-50/20 dark:bg-blue-950/10" : "bg-card"
         )}
       >
-        <Box
-          className={cn(
-            "text-sm font-medium mb-1",
-            currentDay.toDateString() === new Date().toDateString() &&
-              "text-primary"
-          )}
-        >
-          {day}
-        </Box>
-        <Flex className="flex-col gap-1">
-          {dayEvents.slice(0, 3).map((event: any, idx: number) => {
-            const eventText = `${formatHour(event.startHour, currentLanguage)} ${event.title}`;
-            const maxLength = 20; // Maximum characters before truncation
-            const displayText =
-              eventText.length > maxLength
-                ? eventText.slice(0, maxLength) + "..."
-                : eventText;
+        {/* Day number */}
+        <div className="flex justify-end mb-1">
+          <span
+            className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold select-none",
+              isToday
+                ? "bg-[#1797B9] text-white shadow-sm"
+                : isSunday
+                ? "text-muted-foreground/50"
+                : "text-foreground"
+            )}
+          >
+            {day}
+          </span>
+        </div>
 
+        {/* Events */}
+        <div className="flex flex-col gap-0.5">
+          {dayEvents.slice(0, 3).map((event: any, idx: number) => {
+            const colors = platformColors[(event.platform as keyof typeof platformColors) ?? "none"];
             return (
-              <Box
+              <button
                 key={idx}
-                className="text-xs bg-primary/20 text-primary-foreground px-2 py-1 rounded truncate cursor-pointer hover:bg-primary/30 max-w-full overflow-hidden"
-                title={eventText} // Show full text on hover
+                className="flex items-center gap-1 w-full text-left px-1.5 py-0.5 rounded text-[10px] font-medium truncate border-l-2 transition-opacity hover:opacity-80"
+                style={{
+                  background: colors.bg,
+                  color: colors.text,
+                  borderLeftColor: colors.text,
+                }}
+                title={`${formatHour(event.startHour, currentLanguage)} ${event.title}`}
                 onClick={(e) => {
                   setSelectedEvent(event);
-                  // Smart positioning to avoid popup going off-screen
-                  const gridRect =
-                    gridContainerRef.current?.getBoundingClientRect();
-                  const popupWidth = 300; // Approximate popup width
-                  const popupHeight = 200; // Approximate popup height
-
+                  const gridRect = gridContainerRef.current?.getBoundingClientRect();
                   if (gridRect) {
-                    const relativeX = e.clientX - gridRect.left;
-                    const relativeY = e.clientY - gridRect.top;
-                    const gridWidth = gridRect.width;
-                    const gridHeight = gridRect.height;
-
-                    // Calculate smart positioning
-                    let left = relativeX + 10;
-                    let top = relativeY + 10;
-
-                    // Check if popup would go off the right edge
-                    if (left + popupWidth > gridWidth) {
-                      // Position popup to the left of the click point
-                      left = relativeX - popupWidth - 10;
-                    }
-
-                    // Check if popup would go off the bottom edge
-                    if (top + popupHeight > gridHeight) {
-                      // Position popup above the click point
-                      top = relativeY - popupHeight - 10;
-                    }
-
-                    // Final safety checks to ensure popup stays within bounds
-                    if (left < 0) {
-                      left = Math.max(10, gridWidth - popupWidth - 10);
-                    }
-
-                    if (top < 0) {
-                      top = Math.max(10, gridHeight - popupHeight - 10);
-                    }
-
+                    const popupWidth = 300;
+                    const popupHeight = 200;
+                    let left = e.clientX - gridRect.left + 10;
+                    let top = e.clientY - gridRect.top + 10;
+                    if (left + popupWidth > gridRect.width) left = e.clientX - gridRect.left - popupWidth - 10;
+                    if (top + popupHeight > gridRect.height) top = e.clientY - gridRect.top - popupHeight - 10;
+                    if (left < 0) left = 10;
+                    if (top < 0) top = 10;
                     setPopupPosition({ top, left });
                   } else {
-                    // Fallback positioning - always position to the left for safety
-                    setPopupPosition({
-                      top: e.clientY + 10,
-                      left: e.clientX - popupWidth - 200,
-                    });
+                    setPopupPosition({ top: e.clientY + 10, left: e.clientX - 310 });
                   }
                 }}
               >
-                {displayText}
-              </Box>
+                <PlatformIcon platform={event.platform} />
+                <span className="truncate">{event.title}</span>
+              </button>
             );
           })}
           {dayEvents.length > 3 && (
-            <Box className="text-xs text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground px-1.5">
               +{dayEvents.length - 3} {t("calendar.more")}
-            </Box>
+            </span>
           )}
-        </Flex>
-      </Box>
+        </div>
+      </div>
     );
   }
 
   return (
     <>
-      {/* Date Row */}
-      <Box className="grid grid-cols-7 bg-background border-b border-border mt-6">
-        {daysShort.map((day) => (
-          <Center
+      {/* Day header row */}
+      <div className="grid grid-cols-7 border-b border-border bg-background">
+        {daysShort.map((day, i) => (
+          <div
             key={day}
-            className="text-center text-sm font-semibold text-foreground py-3"
+            className={cn(
+              "text-center py-2 text-[10px] uppercase tracking-widest font-medium select-none",
+              i === 0 ? "text-muted-foreground/50" : "text-muted-foreground"
+            )}
           >
             {day}
-          </Center>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Calendar grid */}
-      <Box className="grid grid-cols-7 ml-2 rounded-lg">{calendarDays}</Box>
+      <div
+        className="grid grid-cols-7 border-t border-l border-border/40"
+        ref={gridContainerRef}
+      >
+        {calendarDays}
+      </div>
     </>
   );
 };
