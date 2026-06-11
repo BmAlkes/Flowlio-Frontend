@@ -67,6 +67,34 @@ export const CustomCalendarHeader = () => {
   });
   const [miniCalRange, setMiniCalRange] = useState<{ from?: Date }>({});
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
+
+  // Sidebar filters
+  const [activeCalendarTypes, setActiveCalendarTypes] = useState<Set<string>>(
+    new Set(["meeting", "education", "personal"])
+  );
+  const [activePlatforms, setActivePlatforms] = useState<Set<string>>(
+    new Set(["google_meet", "whatsapp", "outlook"])
+  );
+
+  const toggleCalendarType = (type: string) => {
+    setActiveCalendarTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
+  };
+
+  const togglePlatform = (platform: string) => {
+    setActivePlatforms((prev) => {
+      const next = new Set(prev);
+      if (next.has(platform)) next.delete(platform);
+      else next.add(platform);
+      return next;
+    });
+  };
+
+  const SIDEBAR_PLATFORMS = new Set(["google_meet", "whatsapp", "outlook"]);
   const [selectedEvent, setSelectedEvent] = useState<CustomEvent | null>(null);
   const [popupPosition, setPopupPosition] = useState<{
     top: number;
@@ -126,19 +154,28 @@ export const CustomCalendarHeader = () => {
     }
     setCurrentWeek(next);
   };
+  // Apply sidebar filters — platform filter only affects events whose platform is managed in sidebar
+  const filteredEvents = events.filter((e: any) => {
+    const typeMatch = activeCalendarTypes.has(e.calendarType);
+    const platformMatch =
+      !SIDEBAR_PLATFORMS.has(e.platform ?? "none") ||
+      activePlatforms.has(e.platform);
+    return typeMatch && platformMatch;
+  });
+
   // Filter events based on view mode
   const weekKey = getStartOfWeek(currentWeek).toISOString();
-  const weekEvents = events.filter((e: any) => e.weekStart === weekKey);
+  const weekEvents = filteredEvents.filter((e: any) => e.weekStart === weekKey);
 
   // Day view events
-  const dayEvents = events.filter((event: any) => {
+  const dayEvents = filteredEvents.filter((event: any) => {
     const eventDate = new Date(event.date);
     const currentDate = new Date(currentWeek);
     return eventDate.toDateString() === currentDate.toDateString();
   });
 
   // Month view events
-  const monthEvents = events.filter((event: any) => {
+  const monthEvents = filteredEvents.filter((event: any) => {
     const eventDate = new Date(event.date);
     const currentDate = new Date(currentWeek);
     return (
@@ -148,7 +185,7 @@ export const CustomCalendarHeader = () => {
   });
 
   // Get all meetings (events with platform other than "none")
-  const allMeetings = events.filter((event: any) => event.platform !== "none");
+  const allMeetings = filteredEvents.filter((event: any) => event.platform !== "none");
 
   // Function to navigate to a meeting's week
   const navigateToMeetingWeek = (meeting: any) => {
@@ -170,6 +207,10 @@ export const CustomCalendarHeader = () => {
             setMiniCalRange={setMiniCalRange}
             allMeetings={allMeetings}
             navigateToMeetingWeek={navigateToMeetingWeek}
+            activeCalendarTypes={activeCalendarTypes}
+            activePlatforms={activePlatforms}
+            onToggleCalendarType={toggleCalendarType}
+            onTogglePlatform={togglePlatform}
           />
 
           {/* Main Calendar Area */}
