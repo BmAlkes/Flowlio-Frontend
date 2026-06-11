@@ -271,7 +271,7 @@ function DroppableColumn({
   return (
     <Flex
       className={cn(
-        "flex-col flex-1 min-w-[280px] bg-card rounded-xl border-1 border-border",
+        "flex-col w-[280px] shrink-0 bg-card rounded-xl border-1 border-border",
         "overflow-hidden max-h-[700px] transition-all duration-200",
         isOver && "border-dashed border-blue-400 bg-blue-50/30"
       )}
@@ -353,7 +353,8 @@ export default function KanbanBoard({
 
   return (
     <Box className="w-full">
-      <Flex className="w-full items-start gap-4 min-h-[600px] overflow-x-auto mt-5 p-0 bg-muted/20 rounded-lg">
+      <div className="w-full overflow-x-auto mt-5 bg-muted/20 rounded-lg">
+      <Flex className="items-start gap-4 min-h-[600px] p-3 flex-nowrap" style={{ minWidth: "max-content" }}>
         <DndContext
           collisionDetection={closestCenter}
           onDragStart={(event) => {
@@ -399,6 +400,7 @@ export default function KanbanBoard({
           </DragOverlay>
         </DndContext>
       </Flex>
+      </div>
     </Box>
   );
 }
