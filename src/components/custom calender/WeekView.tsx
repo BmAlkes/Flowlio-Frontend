@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
