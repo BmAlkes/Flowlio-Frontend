@@ -16,6 +16,7 @@ import { Calendar } from "../ui/calendar";
 import { getStartOfWeek, formatHour as utilsFormatHour } from "./calendarUtils";
 import { useForm } from "react-hook-form";
 import { CalendarIcon } from "../customeIcons";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
