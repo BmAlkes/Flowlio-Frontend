@@ -39,14 +39,14 @@ import { useUpdateProject } from "../../hooks/useupdateproject";
 import { useFetchProjectById } from "../../hooks/usefetchprojects";
 import { useFetchOrganizationClients } from "../../hooks/usefetchorganizationdata";
 import { useFetchOrganizationUsers } from "../../hooks/usefetchorganizationdata";
-import { useFetchAllOrganizations } from "../../hooks/usefetchallorganizations";
+import { useFetchUserOrganization } from "../../hooks/useFetchUserOrganization";
 import { useUser } from "../../providers/user.provider";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useFetchCustomFields } from "../../hooks/usecustomfields";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
-import { Lock, Globe, DollarSign, ClipboardList } from "lucide-react";
+import { Lock, Globe, DollarSign, ClipboardList, Building2, Users, BadgeCheck } from "lucide-react";
 import { useFetchProjectTemplates } from "@/hooks/useProjectTemplates";
 
 const formSchema = z
@@ -113,12 +113,10 @@ export const CreateProject = () => {
   // Get user authentication data
   const { data: userData, isLoading: isLoadingUser } = useUser();
 
-  // Get user's organization data
-  const {
-    data: userOrgData,
-    isLoading: isLoadingUserOrg,
-    error: userOrgError,
-  } = useFetchAllOrganizations();
+  // Fetch current user's organization details
+  const { data: userOrgData, isLoading: isLoadingOrg } = useFetchUserOrganization();
+  const currentOrg = userOrgData?.data?.[0]?.organization ?? null;
+  const memberCount = currentOrg?.userOrganizations?.length ?? null;
 
   // Fetch custom field definitions
   // Fetch custom field definitions
@@ -158,19 +156,12 @@ export const CreateProject = () => {
     error: usersError,
   } = useFetchOrganizationUsers();
 
-  // Get organization ID from user profile or session (this is the correct one)
+  // Organization ID — session first, then user-org endpoint, then secondary fallbacks
   const userOrgId = userData?.user?.organizationId;
-
-  // Fallback: Try to get organization ID from user organization data
-  const fallbackOrgId = userOrgData?.data?.[0]?.id;
-
-  // Get organization ID from clients/users data (this should be the correct one from backend)
+  const fetchedOrgId = currentOrg?.id;
   const clientsOrgId = clientsData?.data?.[0]?.organizationId;
   const usersOrgId = usersData?.data?.[0]?.organizationId;
-
-  // Use the organization ID from clients/users data first, then fallback to user data
-  const finalOrganizationId =
-    clientsOrgId || usersOrgId || userOrgId || fallbackOrgId;
+  const finalOrganizationId = userOrgId || fetchedOrgId || clientsOrgId || usersOrgId;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -455,6 +446,32 @@ export const CreateProject = () => {
         </Stack>
       </Center>
 
+      {/* Organization Details Card */}
+      {isLoadingOrg ? (
+        <Box className="bg-muted/40 border border-border rounded-xl p-4 mb-4 animate-pulse h-16" />
+      ) : currentOrg ? (
+        <Box className="bg-card border border-border rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Building2 className="h-4 w-4 text-primary shrink-0" />
+              <span>{currentOrg.name}</span>
+            </div>
+            {currentOrg.subscriptionPlan?.name && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-primary/10 rounded-full px-2.5 py-0.5">
+                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+                {currentOrg.subscriptionPlan.name}
+              </div>
+            )}
+            {memberCount !== null && memberCount > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Users className="h-3.5 w-3.5" />
+                {memberCount} member{memberCount !== 1 ? "s" : ""}
+              </div>
+            )}
+          </div>
+        </Box>
+      ) : null}
+
       {/* Error and Success Messages */}
       {(createError || updateError || projectError) && (
         <Box className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -484,22 +501,6 @@ export const CreateProject = () => {
         </Box>
       )}
 
-      {userOrgError && (
-        <Box className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-600 text-sm">
-            {t("projects.errorLoadingOrganization")}: {userOrgError.message}
-          </p>
-        </Box>
-      )}
-
-      {isLoadingUserOrg && (
-        <Box className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-blue-600 text-sm">
-            {t("projects.loadingOrganization")}
-          </p>
-        </Box>
-      )}
-
       {isLoadingProject && (
         <Box className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <p className="text-blue-600 text-sm">
@@ -518,7 +519,6 @@ export const CreateProject = () => {
               isCreating ||
               isUpdating ||
               isLoadingUser ||
-              isLoadingUserOrg ||
               isLoadingProject
             }
           >
