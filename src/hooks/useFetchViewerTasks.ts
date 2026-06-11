@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
 
@@ -38,7 +38,12 @@ export interface ViewerTask {
   }>;
 }
 
-export const useFetchViewerTasks = () => {
+export const useFetchViewerTasks = (
+  options?: Omit<
+    UseQueryOptions<ApiResponse<ViewerTask[]>>,
+    "queryKey" | "queryFn"
+  >,
+) => {
   return useQuery<ApiResponse<ViewerTask[]>>({
     queryKey: ["viewer-tasks"],
     queryFn: async () => {
@@ -48,5 +53,6 @@ export const useFetchViewerTasks = () => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
+    ...options,
   });
 };

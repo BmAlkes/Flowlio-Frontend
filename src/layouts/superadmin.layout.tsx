@@ -15,6 +15,7 @@ import {
   FlaskConical,
   Bell,
   Mail,
+  Bot,
 } from "lucide-react";
 import { useUser } from "@/providers/user.provider";
 
@@ -53,6 +54,11 @@ export const navItems: NavItem[] = [
     title: "demoAccounts",
     url: "/superadmin/demo-accounts",
     icon: <FlaskConical />,
+  },
+  {
+    title: "aiMonitoring",
+    url: "/superadmin/ai-monitoring",
+    icon: <Bot />,
   },
   {
     title: "supportTickets",

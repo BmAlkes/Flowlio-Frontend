@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
 export interface Project {
@@ -64,7 +64,10 @@ const fetchProjects = async ({
   return response.data;
 };
 
-export const useFetchProjects = (params: FetchProjectsParams = {}) => {
+export const useFetchProjects = (
+  params: FetchProjectsParams = {},
+  options?: Omit<UseQueryOptions<ProjectsResponse>, "queryKey" | "queryFn">,
+) => {
   return useQuery({
     queryKey: ["projects", params],
     queryFn: () => fetchProjects(params),
@@ -72,6 +75,7 @@ export const useFetchProjects = (params: FetchProjectsParams = {}) => {
     gcTime: 0, // No garbage collection delay
     refetchOnMount: true, // Always refetch when component mounts
     refetchOnWindowFocus: true, // Refetch when window gains focus
+    ...options,
   });
 };
 
