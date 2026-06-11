@@ -7,7 +7,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { Center } from "@/components/ui/center";
 import { Plus, ChevronDown, Check } from "lucide-react";
 import { CustomEvent } from "./calendarUtils";
 import { GoogleCalendarIntegration } from "./GoogleCalendarIntegration";
@@ -15,16 +14,19 @@ import GoogleMeetIcon from "/dashboard/google-meet.svg";
 import WhatsappIcon from "/dashboard/whatsapp-icon.svg";
 import OutlookIcon from "/dashboard/google-drive.svg";
 
+const ALL_CALENDAR_TYPES = new Set(["meeting", "education", "personal"]);
+const ALL_PLATFORMS = new Set(["google_meet", "whatsapp", "outlook"]);
+
 interface CalendarSidebarProps {
   onNewEvent: () => void;
   miniCalRange: { from?: Date };
   setMiniCalRange: (range: { from?: Date }) => void;
   allMeetings: CustomEvent[];
   navigateToMeetingWeek: (meeting: CustomEvent) => void;
-  activeCalendarTypes: Set<string>;
-  activePlatforms: Set<string>;
-  onToggleCalendarType: (type: string) => void;
-  onTogglePlatform: (platform: string) => void;
+  activeCalendarTypes?: Set<string>;
+  activePlatforms?: Set<string>;
+  onToggleCalendarType?: (type: string) => void;
+  onTogglePlatform?: (platform: string) => void;
 }
 
 const CALENDAR_TYPES = [
@@ -45,8 +47,8 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   setMiniCalRange,
   allMeetings,
   navigateToMeetingWeek,
-  activeCalendarTypes,
-  activePlatforms,
+  activeCalendarTypes = ALL_CALENDAR_TYPES,
+  activePlatforms = ALL_PLATFORMS,
   onToggleCalendarType,
   onTogglePlatform,
 }) => {
@@ -126,7 +128,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
               return (
                 <button
                   key={cal.id}
-                  onClick={() => onToggleCalendarType(cal.id)}
+                  onClick={() => onToggleCalendarType?.(cal.id)}
                   className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-left hover:bg-muted/60 ${
                     isActive ? "opacity-100" : "opacity-40"
                   }`}
@@ -172,7 +174,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
               return (
                 <button
                   key={platform.id}
-                  onClick={() => onTogglePlatform(platform.id)}
+                  onClick={() => onTogglePlatform?.(platform.id)}
                   className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-left hover:bg-muted/60 ${
                     isActive ? "opacity-100" : "opacity-40"
                   }`}
