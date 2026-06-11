@@ -353,8 +353,8 @@ export default function KanbanBoard({
 
   return (
     <Box className="w-full">
-      <div className="w-full overflow-x-auto mt-5 bg-muted/20 rounded-lg">
-      <div className="inline-flex items-start gap-4 min-h-[600px] p-3">
+      <div className="w-full overflow-x-auto mt-5 bg-muted/20 rounded-lg pb-2">
+      <div className="flex items-start gap-4 min-h-[600px] p-3 w-max min-w-full">
         <DndContext
           collisionDetection={closestCenter}
           onDragStart={(event) => {
