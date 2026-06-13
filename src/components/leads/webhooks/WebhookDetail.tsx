@@ -345,16 +345,16 @@ export const WebhookDetail = () => {
                       Lead created: <code className="font-mono">{log.leadId}</code>
                     </p>
                   )}
-                  {log.payload && Object.keys(log.payload).length > 0 && (
-                    <details className="mt-1.5">
-                      <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                        View payload
-                      </summary>
-                      <pre className="mt-1.5 text-xs bg-muted/50 rounded-lg p-2 overflow-x-auto text-muted-foreground font-mono">
-                        {JSON.stringify(log.payload, null, 2)}
-                      </pre>
-                    </details>
-                  )}
+                  <details className="mt-1.5">
+                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none">
+                      View payload
+                    </summary>
+                    <pre className="mt-1.5 text-xs bg-muted/50 rounded-lg p-2 overflow-x-auto text-muted-foreground font-mono">
+                      {log.payload && Object.keys(log.payload).length > 0
+                        ? JSON.stringify(log.payload, null, 2)
+                        : "(payload not stored or empty)"}
+                    </pre>
+                  </details>
                 </div>
               </div>
             ))}
