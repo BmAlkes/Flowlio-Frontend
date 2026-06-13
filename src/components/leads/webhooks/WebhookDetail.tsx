@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { backendDomain } from "@/configs/axios.config";
 import {
@@ -93,16 +93,15 @@ export const WebhookDetail = () => {
   const rotateToken = useRotateWebhookToken();
 
   const [mapping, setMapping] = useState<Record<string, string>>({});
-  const [mappingLoaded, setMappingLoaded] = useState(false);
   const [newExtField, setNewExtField] = useState("");
   const [newLeadField, setNewLeadField] = useState("");
   const [showRotateConfirm, setShowRotateConfirm] = useState(false);
 
-  // Init mapping from webhook data once
-  if (webhook && !mappingLoaded) {
-    setMapping(webhook.fieldMapping ?? {});
-    setMappingLoaded(true);
-  }
+  useEffect(() => {
+    if (webhook) {
+      setMapping(webhook.fieldMapping ?? {});
+    }
+  }, [webhook?.id]);
 
   const allLeadFields = [
     ...CORE_LEAD_FIELDS,
