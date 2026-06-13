@@ -4,7 +4,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { LuWandSparkles } from "react-icons/lu";
 import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
-import { SquareKanban, UserPen, Clock } from "lucide-react";
+import { SquareKanban, UserPen, Clock, Users } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, Bell, MessageCircleMore } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
@@ -227,6 +227,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(UserPen),
   },
   {
+    url: "/dashboard/leads",
+    title: "leads",
+    icon: React.createElement(Users),
+  },
+  {
     url: "/dashboard/client-management/media-center",
     title: "mediaCenter",
     icon: React.createElement(TbReportSearch),
@@ -317,6 +322,11 @@ const subAdminNavItems: NavItem[] = [
     icon: React.createElement(UserPen),
   },
   {
+    url: "/dashboard/leads",
+    title: "leads",
+    icon: React.createElement(Users),
+  },
+  {
     url: "/dashboard/calender",
     title: "calendar",
     icon: React.createElement(IoCalendarOutline),
@@ -391,6 +401,11 @@ const superAdminNavItems: NavItem[] = [
     url: "/dashboard/client-management",
     title: "clientManagement",
     icon: React.createElement(UserPen),
+  },
+  {
+    url: "/dashboard/leads",
+    title: "leads",
+    icon: React.createElement(Users),
   },
   {
     url: "/dashboard/calender",
