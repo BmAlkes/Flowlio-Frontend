@@ -99,7 +99,13 @@ export const WebhookDetail = () => {
 
   useEffect(() => {
     if (webhook) {
-      setMapping(webhook.fieldMapping ?? {});
+      const fm = webhook.fieldMapping ?? {};
+      // Normalize: backend may have stored { mapping: {...} } if the PUT body was wrapped
+      const nested = (fm as any).mapping;
+      const normalized = nested && typeof nested === "object" && !Array.isArray(nested)
+        ? nested
+        : fm;
+      setMapping(normalized as Record<string, string>);
     }
   }, [webhook?.id]);
 

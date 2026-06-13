@@ -111,7 +111,7 @@ export const useUpdateWebhookMapping = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, mapping }: { id: string; mapping: Record<string, string> }) => {
-      const response = await axios.put(`/webhooks/${id}/mapping`, { mapping });
+      const response = await axios.put(`/webhooks/${id}/mapping`, mapping);
       return response.data;
     },
     onSuccess: (_, variables) => {
