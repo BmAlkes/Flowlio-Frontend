@@ -68,6 +68,7 @@ export const useUpdateLeadStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast.success("Lead status updated");
     },
     onError: (error: any) => {
@@ -92,6 +93,7 @@ export const useUpdateLeadTemperature = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
       queryClient.invalidateQueries({ queryKey: ["client-timeline", variables.clientId] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast.success(
         variables.temperature ? "Temperature updated" : "Temperature reset to automatic"
       );
@@ -150,11 +152,11 @@ export const useUpdateLeadValue = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      // Optimistic: update leadValue immediately in the kanban cache
       patchClientInCache(queryClient, variables.clientId, {
         leadValue: variables.leadValue,
       });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead-insights", variables.clientId] });
       toast.success("Value updated");
     },
@@ -179,8 +181,8 @@ export const useSetFollowUp = () => {
         followUpAt: variables.followUpAt,
       });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["followups-dashboard"] });
-      // Refresh notifications so the bell picks up the new follow_up_scheduled entry
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success(variables.followUpAt ? "Follow-up agendado" : "Follow-up cancelado");
     },
