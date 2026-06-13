@@ -18,10 +18,12 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2 } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck } from "lucide-react";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
 import { useTranslation } from "react-i18next";
+import { useConvertLead } from "@/hooks/useLeads";
+import { LeadCustomFieldsSection } from "@/components/leads/LeadCustomFieldsSection";
 
 const STAGES = [
   "New Lead",
@@ -129,15 +131,18 @@ interface ClientDetailSheetProps {
   client: any | null;
   open: boolean;
   onClose: () => void;
+  isLead?: boolean;
+  onConverted?: () => void;
 }
 
-export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetProps) => {
+export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }: ClientDetailSheetProps) => {
   const { t } = useTranslation();
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
   const updateValue = useUpdateLeadValue();
   const cancelFollowUp = useSetFollowUp();
   const { data: insights } = useLeadInsights(client?.id ?? "");
+  const convertLead = useConvertLead();
 
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
   const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
@@ -488,6 +493,27 @@ export const ClientDetailSheet = ({ client, open, onClose }: ClientDetailSheetPr
             )}
           </div>
         </div>
+
+        {/* Convert to Client (leads only) */}
+        {isLead && (
+          <div className="px-6 pt-4 pb-2 shrink-0">
+            <button
+              onClick={() =>
+                convertLead.mutate(client.id, {
+                  onSuccess: () => { onClose(); onConverted?.(); },
+                })
+              }
+              disabled={convertLead.isPending}
+              className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
+            >
+              <UserCheck className="h-4 w-4" />
+              {convertLead.isPending ? "Converting..." : "Convert to Client"}
+            </button>
+          </div>
+        )}
+
+        {/* Custom fields (leads only) */}
+        {isLead && <LeadCustomFieldsSection leadId={client.id} />}
 
         {/* Activity label */}
         <div className="px-6 pt-4 pb-2 shrink-0">

@@ -196,6 +196,9 @@ const ClientManagementPage = lazy(
   () => import("./pages/clientmanagement.page"),
 );
 const CreateClientPage = lazy(() => import("./pages/createclient.page"));
+const LeadsPage = lazy(() => import("./pages/leads.page"));
+const LeadsWebhooksPage = lazy(() => import("./pages/leads-webhooks.page"));
+const LeadsWebhookDetailPage = lazy(() => import("./pages/leads-webhook-detail.page"));
 const SubscriptionsPage = lazy(() => import("./pages/subscriptions.page"));
 const ClientMediaCenterPage = lazy(() => import("./pages/clientmediacenter.page"));
 const ClientPortalSettingsPage = lazy(
@@ -443,6 +446,30 @@ const AppRoutes = () => {
             </AdminManagerOrOrgOwnerRoute>
           }
           path="client-management/create-client"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={LeadsPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="leads"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={LeadsWebhooksPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="leads/webhooks"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={LeadsWebhookDetailPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="leads/webhooks/:id"
         />
         <Route
           element={<LazyWrapper component={SubscriptionsPage} />}
