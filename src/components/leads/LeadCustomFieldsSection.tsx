@@ -111,7 +111,16 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
     setEditing(false);
   }, [leadId, savedValues]);
 
-  if (fields.length === 0) return null;
+  // Keys that belong to defined fields
+  const definedFieldIds = new Set(fields.map((f) => f.id));
+
+  // Raw entries from customFields that have no formal definition (webhook data)
+  const rawEntries = Object.entries(savedValues).filter(
+    ([key, value]) => !definedFieldIds.has(key) && value !== null && value !== undefined && value !== ""
+  );
+
+  const hasContent = fields.length > 0 || rawEntries.length > 0;
+  if (!hasContent) return null;
 
   const handleSave = () => {
     saveValues({ leadId, values: draft }, { onSuccess: () => setEditing(false) });
@@ -178,6 +187,22 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
             )}
           </div>
         ))}
+
+        {/* Raw webhook data — entries without a formal field definition */}
+        {rawEntries.length > 0 && (
+          <>
+            {fields.length > 0 && <div className="border-t border-border/30 pt-3 mt-1" />}
+            <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">
+              Webhook Data
+            </p>
+            {rawEntries.map(([key, value]) => (
+              <div key={key}>
+                <p className="text-xs text-muted-foreground mb-0.5 font-mono">{key}</p>
+                <p className="text-sm text-foreground">{String(value)}</p>
+              </div>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
