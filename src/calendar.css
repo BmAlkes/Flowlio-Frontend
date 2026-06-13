@@ -408,6 +408,39 @@
     var(--rdp-animation_timing) forwards;
 }
 
+/* ── Sidebar mini calendar ── */
+.rdp-sidebar {
+  --rdp-day-width: 36px;
+  --rdp-day-height: 36px;
+  --rdp-day_button-width: 32px;
+  --rdp-day_button-height: 32px;
+  width: 100%;
+}
+
+.rdp-sidebar .rdp-months {
+  width: 100%;
+  max-width: 100%;
+}
+
+.rdp-sidebar .rdp-month {
+  width: 100%;
+}
+
+.rdp-sidebar .rdp-month_grid {
+  width: 100%;
+}
+
+.rdp-sidebar .rdp-weekday {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.rdp-sidebar .rdp-day_button {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 @keyframes rdp-fade_in {
   from {
     opacity: 0;

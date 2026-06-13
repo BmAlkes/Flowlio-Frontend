@@ -62,7 +62,11 @@ export const MonthView: React.FC<MonthViewProps> = ({
         key={day}
         className={cn(
           "min-h-[110px] border-b border-r border-border/40 p-1.5 relative",
-          isToday ? "bg-blue-50/20 dark:bg-blue-950/10" : "bg-card"
+          isToday
+            ? "bg-blue-50/30 dark:bg-blue-950/10"
+            : isSunday || cellDate.getDay() === 6
+            ? "bg-muted/30 dark:bg-muted/10"
+            : "bg-card"
         )}
       >
         {/* Day number */}
@@ -114,7 +118,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
                 }}
               >
                 <PlatformIcon platform={event.platform} />
-                <span className="truncate">{event.title}</span>
+                <span className="truncate flex-1">{event.title}</span>
+                <span className="shrink-0 opacity-70 hidden sm:inline">{formatHour(event.startHour, currentLanguage)}</span>
               </button>
             );
           })}

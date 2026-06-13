@@ -99,12 +99,18 @@ export const WeekView: React.FC<WeekViewProps> = ({
         <div /> {/* time gutter */}
         {weekDates.map((d, i) => {
           const isToday = d.toDateString() === today.toDateString();
-          const isSunday = d.getDay() === 0;
+          const isWeekend = d.getDay() === 0 || d.getDay() === 6;
           return (
-            <div key={i} className="flex flex-col items-center py-2 gap-0.5 select-none">
+            <div
+              key={i}
+              className={cn(
+                "flex flex-col items-center py-2 gap-0.5 select-none",
+                isWeekend && !isToday && "bg-muted/20"
+              )}
+            >
               <span className={cn(
                 "text-[10px] uppercase tracking-widest font-medium",
-                isSunday ? "text-muted-foreground/50" : "text-muted-foreground"
+                isWeekend && !isToday ? "text-muted-foreground/50" : "text-muted-foreground"
               )}>
                 {daysShort[d.getDay()]}
               </span>
@@ -112,8 +118,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
                 "w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-colors",
                 isToday
                   ? "bg-[#1797B9] text-white shadow-sm"
-                  : isSunday
-                  ? "text-muted-foreground/50"
+                  : isWeekend
+                  ? "text-muted-foreground/60 hover:bg-muted"
                   : "text-foreground hover:bg-muted"
               )}>
                 {d.getDate()}
@@ -172,7 +178,11 @@ export const WeekView: React.FC<WeekViewProps> = ({
                     className={cn(
                       "relative border-t border-border/40",
                       dayIdx > 0 && "border-l border-border/40",
-                      isToday && "bg-blue-50/20 dark:bg-blue-950/10"
+                      isToday
+                        ? "bg-blue-50/30 dark:bg-blue-950/10"
+                        : (dayIdx === 0 || dayIdx === 6)
+                        ? "bg-muted/30 dark:bg-muted/10"
+                        : "bg-card"
                     )}
                     style={{ minHeight: ROW_HEIGHT, cursor: event ? "pointer" : "default" }}
                     onMouseMove={(e) => {

@@ -68,7 +68,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   const [showPlatforms, setShowPlatforms] = useState(true);
 
   return (
-    <Flex className="w-[270px] shrink-0 bg-card flex-col gap-1 items-start border-r border-border h-full">
+    <Flex className="w-[300px] shrink-0 bg-card flex-col gap-1 items-start border-r border-border h-full">
       {/* Mini Calendar */}
       <Stack className="w-full px-3 pt-4 pb-2">
         <Button
@@ -78,13 +78,15 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           <Plus className="size-4 text-white" />
           {t("calendar.newEvent")}
         </Button>
-        <Calendar
-          className="w-full p-0 overflow-hidden mt-3"
-          mode="single"
-          selected={miniCalRange.from}
-          classNameforCustomCalendar="bg-[#1797B9] text-white size-6"
-          onSelect={(date) => setMiniCalRange({ from: date })}
-        />
+        <div className="rdp-sidebar w-full mt-3">
+          <Calendar
+            className="w-full p-0"
+            mode="single"
+            selected={miniCalRange.from}
+            classNameforCustomCalendar="bg-[#1797B9] text-white size-6"
+            onSelect={(date) => setMiniCalRange({ from: date })}
+          />
+        </div>
       </Stack>
 
       <div className="w-full h-px bg-border" />

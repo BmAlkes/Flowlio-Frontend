@@ -55,6 +55,7 @@ export const DayView: React.FC<DayViewProps> = ({
 
   const today = new Date();
   const isToday = currentDate.toDateString() === today.toDateString();
+  const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
 
   const [nowMinutes, setNowMinutes] = useState(() => {
     const n = new Date();
@@ -85,7 +86,11 @@ export const DayView: React.FC<DayViewProps> = ({
           <span
             className={cn(
               "w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold",
-              isToday ? "bg-[#1797B9] text-white shadow-sm" : "text-foreground"
+              isToday
+                ? "bg-[#1797B9] text-white shadow-sm"
+                : isWeekend
+                ? "text-muted-foreground/60"
+                : "text-foreground"
             )}
           >
             {currentDate.getDate()}
@@ -123,7 +128,11 @@ export const DayView: React.FC<DayViewProps> = ({
               <div
                 className={cn(
                   "relative border-t border-l border-border/40",
-                  isToday && "bg-blue-50/20 dark:bg-blue-950/10"
+                  isToday
+                    ? "bg-blue-50/30 dark:bg-blue-950/10"
+                    : isWeekend
+                    ? "bg-muted/30 dark:bg-muted/10"
+                    : "bg-card"
                 )}
                 style={{ minHeight: ROW_HEIGHT }}
                 onMouseMove={(e) => {

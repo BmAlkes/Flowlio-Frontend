@@ -62,7 +62,6 @@ export const EventDetailsPopup = ({
       style={{
         top: position.top,
         left: position.left,
-        background: "white",
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
