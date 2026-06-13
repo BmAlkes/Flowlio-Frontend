@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { backendDomain } from "@/configs/axios.config";
 import {
   useWebhook,
   useUpdateWebhook,
@@ -108,7 +109,8 @@ export const WebhookDetail = () => {
     ...customFields.map((f) => ({ id: `custom_${f.id}`, label: `${f.name} (custom)` })),
   ];
 
-  const receiveUrl = `${import.meta.env.VITE_API_URL ?? ""}/webhooks/receive/${webhook?.token ?? ""}`;
+  const base = backendDomain.endsWith("/") ? backendDomain.slice(0, -1) : backendDomain;
+  const receiveUrl = `${base}/api/webhooks/receive/${webhook?.token ?? ""}`;
 
   const addMapping = () => {
     if (!newExtField.trim() || !newLeadField) return;

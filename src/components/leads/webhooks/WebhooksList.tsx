@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { backendDomain } from "@/configs/axios.config";
 
 const SOURCE_INFO: Record<WebhookSource, { label: string; color: string; icon: string }> = {
   wordpress: { label: "WordPress", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20 border-blue-200", icon: "🟦" },
@@ -145,8 +146,8 @@ export const WebhooksList = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getReceiveUrl = (token: string) => {
-    const base = import.meta.env.VITE_API_URL ?? "";
-    return `${base}/webhooks/receive/${token}`;
+    const base = backendDomain.endsWith("/") ? backendDomain.slice(0, -1) : backendDomain;
+    return `${base}/api/webhooks/receive/${token}`;
   };
 
   if (isLoading) {
