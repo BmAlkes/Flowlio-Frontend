@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useLeads, useDeleteLead } from "@/hooks/useLeads";
 import { useWebhooks } from "@/hooks/useWebhooks";
+import { useUpdateLeadTemperature, LeadTemperature } from "@/hooks/useCRM";
 import { ClientDetailSheet } from "@/components/client management/ClientDetailSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -32,6 +34,64 @@ const TEMP_CONFIG: Record<string, { label: string; badge: string }> = {
   Cold: { label: "🔵 Cold", badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300" },
   Lost: { label: "⚫ Lost", badge: "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800/40 dark:text-gray-400" },
 };
+
+const TEMPERATURES: { value: LeadTemperature; emoji: string; label: string; active: string }[] = [
+  { value: "Hot", emoji: "🔥", label: "Hot", active: "bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-900/20 dark:text-orange-300" },
+  { value: "Warm", emoji: "🟠", label: "Warm", active: "bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-900/20 dark:text-amber-300" },
+  { value: "Cold", emoji: "🔵", label: "Cold", active: "bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-900/20 dark:text-sky-300" },
+  { value: "Lost", emoji: "⚫", label: "Lost", active: "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800/40 dark:text-gray-400" },
+];
+
+function InlineTemperaturePicker({ leadId, current }: { leadId: string; current?: string | null }) {
+  const updateTemp = useUpdateLeadTemperature();
+  const cfg = current ? TEMP_CONFIG[current] : null;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="flex items-center gap-1.5 group">
+          {cfg ? (
+            <span className={`text-sm font-semibold px-3 py-1 rounded-full border ${cfg.badge}`}>
+              {cfg.label}
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
+              Set temp
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-2" align="start">
+        <div className="flex flex-col gap-1">
+          {TEMPERATURES.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => updateTemp.mutate({ clientId: leadId, temperature: t.value })}
+              disabled={updateTemp.isPending}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                current === t.value
+                  ? t.active + " border"
+                  : "hover:bg-muted text-foreground"
+              }`}
+            >
+              <span>{t.emoji}</span>
+              {t.label}
+            </button>
+          ))}
+          {current && (
+            <button
+              onClick={() => updateTemp.mutate({ clientId: leadId, temperature: null })}
+              disabled={updateTemp.isPending}
+              className="text-xs text-muted-foreground hover:text-foreground px-3 py-1 text-left transition-colors mt-1 border-t border-border pt-2"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const STAGE_COLORS: Record<string, string> = {
   "New Lead": "text-blue-600 bg-blue-50 dark:bg-blue-900/20",
@@ -102,30 +162,29 @@ export const LeadsTable = () => {
 
       {/* Table */}
       <div className="border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+        <table className="w-full">
           <thead className="bg-muted/40 border-b border-border">
             <tr>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Industry</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stage</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Temp</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Follow-up</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Added</th>
-              <th className="px-4 py-3" />
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Industry</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stage</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Temperature</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Follow-up</th>
+              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Added</th>
+              <th className="px-5 py-4" />
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center py-16 text-muted-foreground">
+                <td colSpan={9} className="text-center py-16 text-base text-muted-foreground">
                   {search ? "No leads match your search." : "No leads yet. Create your first lead!"}
                 </td>
               </tr>
             ) : (
               leads.map((lead: any) => {
-                const tempCfg = lead.temperature ? TEMP_CONFIG[lead.temperature] : null;
                 const stageColor = STAGE_COLORS[lead.status] ?? "text-muted-foreground bg-muted";
                 const followUp = lead.followUpAt ? new Date(lead.followUpAt) : null;
                 const followUpOverdue = followUp ? isPast(followUp) : false;
@@ -144,78 +203,76 @@ export const LeadsTable = () => {
                     className="hover:bg-muted/20 transition-colors cursor-pointer"
                     onClick={() => openDetail(lead)}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 rounded-xl shrink-0">
+                        <Avatar className="h-10 w-10 rounded-xl shrink-0">
                           <AvatarImage src={lead.image} />
-                          <AvatarFallback className="rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-xs font-bold">
+                          <AvatarFallback className="rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-sm font-bold">
                             {initials}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-foreground">{lead.name}</p>
-                          <p className="text-xs text-muted-foreground">{lead.email}</p>
+                          <p className="font-semibold text-base text-foreground leading-tight">{lead.name}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{lead.email}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Source */}
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       {lead.webhookName ? (
                         <div className="flex items-center gap-1.5">
-                          <Webhook className="h-3 w-3 text-indigo-400 shrink-0" />
-                          <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[120px]">
+                          <Webhook className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                          <span className="text-sm text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[140px]">
                             {lead.webhookName}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground/50">Manual</span>
+                        <span className="text-sm text-muted-foreground/60">Manual</span>
                       )}
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       {lead.businessIndustry ? (
                         <div className="flex items-center gap-1.5">
-                          <Building2 className="h-3.5 w-3.5 text-muted-foreground/50" />
-                          <span className="text-muted-foreground">{lead.businessIndustry}</span>
+                          <Building2 className="h-4 w-4 text-muted-foreground/50" />
+                          <span className="text-sm text-muted-foreground">{lead.businessIndustry}</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/40">—</span>
+                        <span className="text-sm text-muted-foreground/40">—</span>
                       )}
                     </td>
 
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${stageColor}`}>
+                    <td className="px-5 py-4">
+                      <span className={`text-sm font-semibold px-3 py-1 rounded-full ${stageColor}`}>
                         {lead.status}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3">
-                      {tempCfg ? (
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${tempCfg.badge}`}>
-                          {tempCfg.label}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground/40">—</span>
-                      )}
+                    {/* Temperature — inline picker */}
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                      <InlineTemperaturePicker
+                        leadId={lead.id}
+                        current={lead.temperature}
+                      />
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       {lead.leadValue ? (
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
-                          <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                        <div className="flex items-center gap-1.5">
+                          <DollarSign className="h-4 w-4 text-emerald-500" />
+                          <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                             {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Number(lead.leadValue))}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/40">—</span>
+                        <span className="text-sm text-muted-foreground/40">—</span>
                       )}
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       {followUp ? (
-                        <span className={`text-xs font-medium ${followUpOverdue ? "text-rose-600" : followUpDays === 0 ? "text-amber-600" : "text-indigo-600 dark:text-indigo-400"}`}>
+                        <span className={`text-sm font-medium ${followUpOverdue ? "text-rose-600" : followUpDays === 0 ? "text-amber-600" : "text-indigo-600 dark:text-indigo-400"}`}>
                           {followUpOverdue
                             ? `Overdue (${format(followUp, "d MMM")})`
                             : followUpDays === 0
@@ -223,17 +280,17 @@ export const LeadsTable = () => {
                             : `In ${followUpDays}d`}
                         </span>
                       ) : (
-                        <span className="text-muted-foreground/40">—</span>
+                        <span className="text-sm text-muted-foreground/40">—</span>
                       )}
                     </td>
 
-                    <td className="px-4 py-3">
-                      <span className="text-xs text-muted-foreground">
+                    <td className="px-5 py-4">
+                      <span className="text-sm text-muted-foreground">
                         {format(new Date(lead.createdAt), "d MMM yyyy")}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
