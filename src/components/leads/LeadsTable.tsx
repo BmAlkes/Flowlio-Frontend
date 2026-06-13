@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { useLeads, useDeleteLead } from "@/hooks/useLeads";
+import { useWebhooks } from "@/hooks/useWebhooks";
 import { ClientDetailSheet } from "@/components/client management/ClientDetailSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Trash2, Eye, Building2, DollarSign } from "lucide-react";
+import { Loader2, Search, Trash2, Eye, Building2, DollarSign, Webhook } from "lucide-react";
 import { format, isPast, differenceInDays } from "date-fns";
 import { TableSkeleton } from "@/components/skeletons";
 
@@ -39,11 +47,13 @@ const STAGE_COLORS: Record<string, string> = {
 
 export const LeadsTable = () => {
   const [search, setSearch] = useState("");
+  const [webhookId, setWebhookId] = useState<string>("");
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data, isLoading } = useLeads({ search });
+  const { data, isLoading } = useLeads({ search, webhookId: webhookId || undefined });
+  const { data: webhooks = [] } = useWebhooks();
   const deleteLead = useDeleteLead();
 
   const leads = data?.data ?? [];
@@ -57,15 +67,37 @@ export const LeadsTable = () => {
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          className="pl-9 rounded-full"
-          placeholder="Search leads..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* Filters */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative max-w-sm flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            className="pl-9 rounded-full"
+            placeholder="Search leads..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        {webhooks.length > 0 && (
+          <Select value={webhookId} onValueChange={setWebhookId}>
+            <SelectTrigger className="rounded-full w-[200px] h-10">
+              <div className="flex items-center gap-2">
+                <Webhook className="h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue placeholder="All sources" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All sources</SelectItem>
+              <SelectItem value="manual">Manual (no webhook)</SelectItem>
+              {webhooks.map((wh) => (
+                <SelectItem key={wh.id} value={wh.id}>
+                  {wh.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Table */}
@@ -74,6 +106,7 @@ export const LeadsTable = () => {
           <thead className="bg-muted/40 border-b border-border">
             <tr>
               <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Industry</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stage</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Temp</th>
@@ -86,7 +119,7 @@ export const LeadsTable = () => {
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-16 text-muted-foreground">
+                <td colSpan={9} className="text-center py-16 text-muted-foreground">
                   {search ? "No leads match your search." : "No leads yet. Create your first lead!"}
                 </td>
               </tr>
@@ -124,6 +157,20 @@ export const LeadsTable = () => {
                           <p className="text-xs text-muted-foreground">{lead.email}</p>
                         </div>
                       </div>
+                    </td>
+
+                    {/* Source */}
+                    <td className="px-4 py-3">
+                      {lead.webhookName ? (
+                        <div className="flex items-center gap-1.5">
+                          <Webhook className="h-3 w-3 text-indigo-400 shrink-0" />
+                          <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[120px]">
+                            {lead.webhookName}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/50">Manual</span>
+                      )}
                     </td>
 
                     <td className="px-4 py-3">

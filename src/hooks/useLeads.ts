@@ -20,6 +20,8 @@ export interface Lead {
   position: number;
   customFields?: Record<string, any>;
   socialMediaLinks?: string;
+  webhookId?: string | null;
+  webhookName?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,6 +39,7 @@ export interface FetchLeadsParams {
   status?: string;
   temperature?: string;
   dateRange?: string;
+  webhookId?: string;
   page?: number;
   limit?: number;
 }
@@ -74,6 +77,7 @@ export const useLeads = (params: FetchLeadsParams = {}) => {
       if (params.status) searchParams.append("status", params.status);
       if (params.temperature) searchParams.append("temperature", params.temperature);
       if (params.dateRange) searchParams.append("dateRange", params.dateRange);
+      if (params.webhookId) searchParams.append("webhookId", params.webhookId);
       if (params.page) searchParams.append("page", String(params.page));
       if (params.limit) searchParams.append("limit", String(params.limit));
 
