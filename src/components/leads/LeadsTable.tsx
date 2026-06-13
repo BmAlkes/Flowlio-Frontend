@@ -47,12 +47,12 @@ const STAGE_COLORS: Record<string, string> = {
 
 export const LeadsTable = () => {
   const [search, setSearch] = useState("");
-  const [webhookId, setWebhookId] = useState<string>("");
+  const [webhookId, setWebhookId] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data, isLoading } = useLeads({ search, webhookId: webhookId || undefined });
+  const { data, isLoading } = useLeads({ search, webhookId: webhookId !== "all" ? webhookId : undefined });
   const { data: webhooks = [] } = useWebhooks();
   const deleteLead = useDeleteLead();
 
@@ -88,7 +88,7 @@ export const LeadsTable = () => {
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All sources</SelectItem>
+              <SelectItem value="all">All sources</SelectItem>
               <SelectItem value="manual">Manual (no webhook)</SelectItem>
               {webhooks.map((wh) => (
                 <SelectItem key={wh.id} value={wh.id}>
