@@ -37,6 +37,7 @@ export const useFetchClients = (params: FetchClientsParams = {}) => {
     queryFn: async () => {
       const searchParams = new URLSearchParams();
 
+      searchParams.append("type", "client");
       if (params.search) searchParams.append("search", params.search);
       if (params.status) searchParams.append("status", params.status);
       if (params.industry) searchParams.append("industry", params.industry);
@@ -60,7 +61,7 @@ export const useFetchOrganizationClients = () => {
     queryKey: ["organization-clients"],
     queryFn: async () => {
       try {
-        const response = await axios.get<ClientsResponse>(`/clients`);
+        const response = await axios.get<ClientsResponse>(`/clients?type=client`);
         return response.data;
       } catch (error) {
         console.error("❌ Error fetching clients:", error);

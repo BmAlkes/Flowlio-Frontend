@@ -3,7 +3,7 @@ import { Center } from "../ui/center";
 import { Stack } from "../ui/stack";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
-import { CirclePlus, Settings2, LayoutGrid, List } from "lucide-react";
+import { CirclePlus, Settings2 } from "lucide-react";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
@@ -13,14 +13,11 @@ import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { ClientManagementTable } from "./clientmanagementtable";
 import { useTranslation } from "react-i18next";
-import { CRMPipeline } from "./CRMPipeline";
-import { useState } from "react";
 
 export const ClientManagementHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const customFieldsModal = useGeneralModalDisclosure();
-  const [view, setView] = useState("table");
 
   return (
     <PageWrapper className="mt-6">
@@ -35,28 +32,6 @@ export const ClientManagementHeader = () => {
         </Stack>
 
         <Flex className="gap-2 items-center">
-          {/* View Toggle */}
-          <Box className="bg-muted/50 p-1 rounded-full border border-border flex items-center mr-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full h-8 px-4 flex items-center gap-2 ${view === "table" ? "bg-white dark:bg-gray-800 shadow-sm text-indigo-600" : "text-muted-foreground"}`}
-              onClick={() => setView("table")}
-            >
-              <List className="w-4 h-4" />
-              <span className="text-xs font-medium">Table</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full h-8 px-4 flex items-center gap-2 ${view === "pipeline" ? "bg-white dark:bg-gray-800 shadow-sm text-indigo-600" : "text-muted-foreground"}`}
-              onClick={() => setView("pipeline")}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span className="text-xs font-medium">Pipeline</span>
-            </Button>
-          </Box>
-
           <Button
             variant="outline"
             className="bg-black text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer hover:bg-muted/50"
@@ -68,7 +43,7 @@ export const ClientManagementHeader = () => {
 
           <Button
             variant="outline"
-            className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
+            className="bg-black text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
             onClick={() => navigate("/dashboard/client-management/create-client")}
           >
             <CirclePlus className="size-5 text-white" />
@@ -78,11 +53,7 @@ export const ClientManagementHeader = () => {
       </Center>
 
       <Box className="px-4">
-        {view === "table" ? (
-          <ClientManagementTable />
-        ) : (
-          <CRMPipeline />
-        )}
+        <ClientManagementTable />
       </Box>
 
       <GeneralModal {...customFieldsModal}>
