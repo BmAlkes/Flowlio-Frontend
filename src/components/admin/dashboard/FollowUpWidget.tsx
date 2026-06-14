@@ -162,7 +162,7 @@ export const FollowUpWidget = () => {
   };
 
   const handleNavigate = (_clientId: string) => {
-    navigate("/dashboard/client-management");
+    navigate("/dashboard/leads");
   };
 
   const total = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) + (data?.upcoming?.length ?? 0);
