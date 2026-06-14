@@ -157,8 +157,8 @@ export const useTestWebhook = () => {
 export const useDeleteWebhookLog = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ logId, webhookId }: { logId: string; webhookId: string }) => {
-      const response = await axios.delete(`/webhooks/logs/${logId}`);
+    mutationFn: async (params: { logId: string; webhookId: string }) => {
+      const response = await axios.delete(`/webhooks/logs/${params.logId}`);
       return response.data;
     },
     onSuccess: (_, variables) => {
