@@ -320,7 +320,7 @@ export const WebhookDetail = () => {
   const logs = logsData?.logs ?? [];
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 w-full">
       {/* Back + title */}
       <div className="flex items-center gap-3">
         <button
@@ -334,67 +334,70 @@ export const WebhookDetail = () => {
         <h2 className="font-bold text-lg text-foreground">{webhook.name}</h2>
       </div>
 
-      {/* Info card */}
-      <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-bold text-xl text-foreground">{webhook.name}</h3>
-            <p className="text-base text-muted-foreground mt-0.5">{SOURCE_LABELS[webhook.source]}</p>
+      {/* Two-column layout: left = config, right = guide */}
+      <div className="grid grid-cols-1 xl:grid-cols-[3fr_2fr] gap-6 items-start">
+
+        {/* ── LEFT COLUMN ── */}
+        <div className="space-y-6">
+
+          {/* Info card */}
+          <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h3 className="font-bold text-xl text-foreground">{webhook.name}</h3>
+                <p className="text-base text-muted-foreground mt-0.5">{SOURCE_LABELS[webhook.source]}</p>
+              </div>
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-muted/60 border border-border/60">
+                <span className="text-base font-semibold text-muted-foreground">
+                  {webhook.active ? "Active" : "Inactive"}
+                </span>
+                <Switch
+                  checked={webhook.active}
+                  onCheckedChange={(checked) =>
+                    updateWebhook.mutate({ id: webhook.id, data: { active: checked } })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Webhook URL */}
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                Webhook URL
+              </p>
+              <div className="flex items-center gap-2 p-4 rounded-xl bg-muted/50 border border-border/50">
+                <code className="text-sm font-mono text-foreground flex-1 break-all">{receiveUrl}</code>
+                <CopyButton value={receiveUrl} label="URL" />
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Use this URL as the webhook endpoint in your form / integration.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button
+                variant="outline"
+                className="rounded-full flex items-center gap-2 h-10 px-5 text-base"
+                onClick={() => testWebhook.mutate(webhook.id)}
+                disabled={testWebhook.isPending}
+              >
+                {testWebhook.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
+                Send Test
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full flex items-center gap-2 h-10 px-5 text-base text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                onClick={() => setShowRotateConfirm(true)}
+              >
+                <RefreshCw className="h-4 w-4" />
+                Rotate Token
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-muted/60 border border-border/60">
-            <span className="text-base font-semibold text-muted-foreground">
-              {webhook.active ? "Active" : "Inactive"}
-            </span>
-            <Switch
-              checked={webhook.active}
-              onCheckedChange={(checked) =>
-                updateWebhook.mutate({ id: webhook.id, data: { active: checked } })
-              }
-            />
-          </div>
-        </div>
 
-        {/* Webhook URL */}
-        <div>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">
-            Webhook URL
-          </p>
-          <div className="flex items-center gap-2 p-4 rounded-xl bg-muted/50 border border-border/50">
-            <code className="text-sm font-mono text-foreground flex-1 break-all">{receiveUrl}</code>
-            <CopyButton value={receiveUrl} label="URL" />
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Use this URL as the webhook endpoint in your form / integration.
-          </p>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <Button
-            variant="outline"
-            className="rounded-full flex items-center gap-2 h-10 px-5 text-base"
-            onClick={() => testWebhook.mutate(webhook.id)}
-            disabled={testWebhook.isPending}
-          >
-            {testWebhook.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
-            Send Test
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full flex items-center gap-2 h-10 px-5 text-base text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
-            onClick={() => setShowRotateConfirm(true)}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Rotate Token
-          </Button>
-        </div>
-      </div>
-
-      {/* Setup Guide */}
-      <SetupGuide webhookUrl={receiveUrl} />
-
-      {/* Field Mapping */}
-      <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
+          {/* Field Mapping */}
+          <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-bold text-lg">Field Mapping</h3>
@@ -551,6 +554,15 @@ export const WebhookDetail = () => {
           </p>
         )}
       </div>
+
+        </div> {/* END left column */}
+
+        {/* ── RIGHT COLUMN — Setup Guide (sticky on desktop) ── */}
+        <div className="xl:sticky xl:top-6">
+          <SetupGuide webhookUrl={receiveUrl} />
+        </div>
+
+      </div> {/* END grid */}
 
       {/* Rotate token confirm */}
       <AlertDialog open={showRotateConfirm} onOpenChange={setShowRotateConfirm}>
