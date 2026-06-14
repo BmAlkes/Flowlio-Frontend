@@ -48,8 +48,8 @@ export const AITokenUsageWidget = () => {
         <div className="relative flex items-center gap-5 flex-wrap">
 
           {/* Icon — dark pill same as stat cards */}
-          <div className="p-2.5 rounded-xl bg-foreground shrink-0">
-            <Sparkles className="size-5 text-background" />
+          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">
+            <Sparkles className="size-5 text-blue-600 dark:text-blue-400" />
           </div>
 
           {/* Label + count */}

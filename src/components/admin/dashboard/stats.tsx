@@ -66,8 +66,8 @@ export const Stats: FC<{
                     {isViewerHours ? (
                       <div className="relative flex items-center justify-between gap-3">
                         <div className="flex flex-col gap-3 flex-1">
-                          <div className="p-2.5 rounded-xl bg-foreground w-fit shrink-0">
-                            <img src={item.icon} className="size-5 invert dark:invert-0" alt={item.title} />
+                          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 w-fit shrink-0">
+                            <img src={item.icon} className="size-5" alt={item.title} />
                           </div>
                           <div>
                             <p className="font-semibold text-foreground">{item.title}</p>
@@ -89,8 +89,8 @@ export const Stats: FC<{
                       <div className="relative flex flex-col gap-3">
                         {/* Icon — same dark pill as OngoingTaskCard */}
                         <div className="flex items-center justify-between">
-                          <div className="p-2.5 rounded-xl bg-foreground shrink-0">
-                            <img src={item.icon} className="size-5 invert dark:invert-0" alt={item.title} />
+                          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">
+                            <img src={item.icon} className="size-5" alt={item.title} />
                           </div>
                           <span className="text-xs text-muted-foreground border border-border rounded-full px-3 py-1">
                             {item.description}
