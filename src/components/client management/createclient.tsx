@@ -336,6 +336,7 @@ export const ClientForm = ({
       ),
       customFields: values.customFields,
       ...(mode === "create" && { password: values.portalPassword }),
+      ...(mode === "edit" && values.portalPassword && values.portalPassword.length >= 8 && { password: values.portalPassword }),
     };
 
     if (mode === "edit") {
@@ -702,23 +703,25 @@ export const ClientForm = ({
               />
             </Box>
 
-            {/* Grant Portal Access - Create mode only */}
-            {mode === "create" && (
-              <Box className="mt-6 p-4 border border-border rounded-xl bg-muted/30">
-                <Stack className="gap-4">
-                  <h1 className="text-foreground text-xl font-medium">
-                    Client Portal Access
-                  </h1>
-                  <p className="text-muted-foreground text-sm">
-                    Every client will have portal access to view projects, tasks
-                    & invoices
-                  </p>
+            {/* Grant Portal Access */}
+            <Box className="mt-6 p-4 border border-border rounded-xl bg-muted/30">
+              <Stack className="gap-4">
+                <h1 className="text-foreground text-xl font-medium">
+                  Client Portal Access
+                </h1>
+                <p className="text-muted-foreground text-sm">
+                  {mode === "create"
+                    ? "Every client will have portal access to view projects, tasks & invoices"
+                    : "Leave blank to keep the current password. Fill in to set a new portal password."}
+                </p>
                   <FormField
                     control={form.control}
                     name="portalPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Portal password (required)</FormLabel>
+                        <FormLabel>
+                          {mode === "create" ? "Portal password (required)" : "New portal password (optional)"}
+                        </FormLabel>
                         <FormControl>
                           <div className="relative max-w-md">
                             <Input
@@ -747,7 +750,6 @@ export const ClientForm = ({
                   />
                 </Stack>
               </Box>
-            )}
 
             {/* Social Media Links Section */}
             <Box className="mt-6">
