@@ -154,6 +154,20 @@ export const useTestWebhook = () => {
   });
 };
 
+export const useLeadWebhookPayload = (leadId: string) => {
+  return useQuery({
+    queryKey: ["lead-webhook-payload", leadId],
+    queryFn: async () => {
+      const response = await axios.get<{
+        success: boolean;
+        data: { payload: Record<string, any>; webhookName: string | null; createdAt: string } | null;
+      }>(`/webhooks/logs/by-lead/${leadId}`);
+      return response.data.data;
+    },
+    enabled: !!leadId,
+  });
+};
+
 export const useDeleteWebhookLog = () => {
   const queryClient = useQueryClient();
   return useMutation({

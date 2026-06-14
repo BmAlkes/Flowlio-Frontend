@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLeadFields, useLeadCustomValues, useUpdateLeadCustomValues, LeadFieldDefinition } from "@/hooks/useLeadFields";
+import { useLeadWebhookPayload } from "@/hooks/useWebhooks";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "@/components/customeIcons";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Check, Pencil, X } from "lucide-react";
+import { Check, Pencil, X, Webhook } from "lucide-react";
 
 interface Props {
   leadId: string;
@@ -99,19 +100,48 @@ function FieldInput({
 }
 
 function cleanWebhookKey(key: string): string {
-  // Elementor format: fields[message][value] → Message
   const elementorMatch = key.match(/^fields\[([^\]]+)\]\[value\]$/);
   if (elementorMatch) {
     return elementorMatch[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   }
-  // Generic cleanup: replace underscores/dashes with spaces, capitalize
   return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function extractPayloadFields(payload: Record<string, any>): { label: string; value: string }[] {
+  const results: { label: string; value: string }[] = [];
+
+  // Elementor/WordPress nested format: { fields: { xxx: { value: "..." } } }
+  if (payload.fields && typeof payload.fields === "object" && !Array.isArray(payload.fields)) {
+    for (const [key, fieldObj] of Object.entries(payload.fields)) {
+      const val =
+        typeof fieldObj === "object" && fieldObj !== null
+          ? (fieldObj as any).value
+          : fieldObj;
+      if (val !== null && val !== undefined && val !== "") {
+        results.push({
+          label: key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+          value: String(val),
+        });
+      }
+    }
+    return results;
+  }
+
+  // Flat format: { "fields[xxx][value]": "..." } or plain key-value
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === null || value === undefined || value === "") continue;
+    if (typeof value === "object") continue;
+    results.push({ label: cleanWebhookKey(key), value: String(value) });
+  }
+
+  return results;
 }
 
 export function LeadCustomFieldsSection({ leadId }: Props) {
   const { data: fields = [] } = useLeadFields();
   const { data: savedValues = {} } = useLeadCustomValues(leadId);
   const { mutate: saveValues, isPending } = useUpdateLeadCustomValues();
+  const { data: webhookLog } = useLeadWebhookPayload(leadId);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Record<string, any>>({});
@@ -121,15 +151,15 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
     setEditing(false);
   }, [leadId, savedValues]);
 
-  // Keys that belong to defined fields
   const definedFieldIds = new Set(fields.map((f) => f.id));
 
-  // Raw entries from customFields that have no formal definition (webhook data)
   const rawEntries = Object.entries(savedValues).filter(
     ([key, value]) => !definedFieldIds.has(key) && value !== null && value !== undefined && value !== ""
   );
 
-  const hasContent = fields.length > 0 || rawEntries.length > 0;
+  const payloadFields = webhookLog?.payload ? extractPayloadFields(webhookLog.payload) : [];
+
+  const hasContent = fields.length > 0 || rawEntries.length > 0 || payloadFields.length > 0;
   if (!hasContent) return null;
 
   const handleSave = () => {
@@ -142,78 +172,114 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
   };
 
   return (
-    <div className="border-t border-border/40 px-6 py-4">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Custom Fields
-        </span>
-        {!editing ? (
-          <button
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Pencil className="h-3 w-3" />
-            Edit
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleSave}
-              disabled={isPending}
-              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800 font-semibold transition-colors disabled:opacity-50"
-            >
-              <Check className="h-3 w-3" />
-              Save
-            </button>
-            <button
-              onClick={handleCancel}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="h-3 w-3" />
-              Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-3">
-        {fields.map((field) => (
-          <div key={field.id}>
-            <p className="text-xs text-muted-foreground mb-1">{field.name}</p>
-            {editing ? (
-              <FieldInput
-                field={field}
-                value={draft[field.id]}
-                onChange={(v) => setDraft((prev) => ({ ...prev, [field.id]: v }))}
-              />
+    <>
+      {/* Defined custom fields */}
+      {(fields.length > 0 || rawEntries.length > 0) && (
+        <div className="border-t border-border/40 px-6 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Custom Fields
+            </span>
+            {!editing ? (
+              <button
+                onClick={() => setEditing(true)}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Pencil className="h-3 w-3" />
+                Edit
+              </button>
             ) : (
-              <p className="text-sm text-foreground">
-                {field.type === "boolean"
-                  ? draft[field.id] ? "Yes" : "No"
-                  : field.type === "date" && draft[field.id]
-                  ? format(new Date(draft[field.id]), "d MMM yyyy")
-                  : draft[field.id] ?? <span className="text-muted-foreground/50 italic">—</span>}
-              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSave}
+                  disabled={isPending}
+                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800 font-semibold transition-colors disabled:opacity-50"
+                >
+                  <Check className="h-3 w-3" />
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                  Cancel
+                </button>
+              </div>
             )}
           </div>
-        ))}
 
-        {/* Raw webhook data — entries without a formal field definition */}
-        {rawEntries.length > 0 && (
-          <>
-            {fields.length > 0 && <div className="border-t border-border/30 pt-3 mt-1" />}
-            <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">
-              Webhook Data
-            </p>
-            {rawEntries.map(([key, value]) => (
-              <div key={key}>
-                <p className="text-xs text-muted-foreground mb-0.5">{cleanWebhookKey(key)}</p>
-                <p className="text-sm text-foreground">{String(value)}</p>
+          <div className="space-y-3">
+            {fields.map((field) => (
+              <div key={field.id}>
+                <p className="text-xs text-muted-foreground mb-1">{field.name}</p>
+                {editing ? (
+                  <FieldInput
+                    field={field}
+                    value={draft[field.id]}
+                    onChange={(v) => setDraft((prev) => ({ ...prev, [field.id]: v }))}
+                  />
+                ) : (
+                  <p className="text-sm text-foreground">
+                    {field.type === "boolean"
+                      ? draft[field.id] ? "Yes" : "No"
+                      : field.type === "date" && draft[field.id]
+                      ? format(new Date(draft[field.id]), "d MMM yyyy")
+                      : draft[field.id] ?? <span className="text-muted-foreground/50 italic">—</span>}
+                  </p>
+                )}
               </div>
             ))}
-          </>
-        )}
-      </div>
-    </div>
+
+            {rawEntries.length > 0 && (
+              <>
+                {fields.length > 0 && <div className="border-t border-border/30 pt-3 mt-1" />}
+                <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">
+                  Webhook Data
+                </p>
+                {rawEntries.map(([key, value]) => (
+                  <div key={key}>
+                    <p className="text-xs text-muted-foreground mb-0.5">{cleanWebhookKey(key)}</p>
+                    <p className="text-sm text-foreground">{String(value)}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Webhook payload section — data from the original webhook call */}
+      {payloadFields.length > 0 && (
+        <div className="border-t border-border/40 px-6 py-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Webhook className="h-3.5 w-3.5 text-indigo-400" />
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Payload recebido
+            </span>
+            {webhookLog?.webhookName && (
+              <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20 px-1.5 py-0.5 rounded-full">
+                {webhookLog.webhookName}
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            {payloadFields.map((f) => (
+              <div key={f.label}>
+                <p className="text-xs text-muted-foreground mb-0.5">{f.label}</p>
+                <p className="text-sm text-foreground break-words">{f.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {webhookLog?.createdAt && (
+            <p className="text-[10px] text-muted-foreground/50 mt-3">
+              Received {format(new Date(webhookLog.createdAt), "d MMM yyyy HH:mm")}
+            </p>
+          )}
+        </div>
+      )}
+    </>
   );
 }
