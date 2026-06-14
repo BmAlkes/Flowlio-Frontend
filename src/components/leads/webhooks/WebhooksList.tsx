@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useWebhooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -39,9 +40,8 @@ import {
   Trash2,
   Copy,
   Check,
-  ToggleLeft,
-  ToggleRight,
   ChevronRight,
+  Activity,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -65,9 +65,10 @@ function CopyButton({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+      title="Copy URL"
     >
-      {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
     </button>
   );
 }
@@ -80,25 +81,21 @@ function CreateWebhookDialog({ open, onClose }: { open: boolean; onClose: () => 
   const handleCreate = () => {
     if (!name.trim()) return;
     create({ name, source }, {
-      onSuccess: () => {
-        setName("");
-        setSource("generic");
-        onClose();
-      },
+      onSuccess: () => { setName(""); setSource("generic"); onClose(); },
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>New Webhook</DialogTitle>
+          <DialogTitle className="text-xl">New Webhook</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Name *</label>
+            <label className="text-sm font-semibold mb-1.5 block">Name *</label>
             <Input
-              className="rounded-lg"
+              className="rounded-lg h-11 text-base"
               placeholder="e.g. WordPress Contact Form"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -106,14 +103,14 @@ function CreateWebhookDialog({ open, onClose }: { open: boolean; onClose: () => 
             />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Source</label>
+            <label className="text-sm font-semibold mb-1.5 block">Source</label>
             <Select value={source} onValueChange={(v) => setSource(v as WebhookSource)}>
-              <SelectTrigger className="rounded-lg">
+              <SelectTrigger className="rounded-lg h-11 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(SOURCE_INFO).map(([val, info]) => (
-                  <SelectItem key={val} value={val}>
+                  <SelectItem key={val} value={val} className="text-base">
                     {info.icon} {info.label}
                   </SelectItem>
                 ))}
@@ -121,14 +118,10 @@ function CreateWebhookDialog({ open, onClose }: { open: boolean; onClose: () => 
             </Select>
           </div>
         </div>
-        <div className="flex justify-end gap-3 mt-4">
-          <Button variant="outline" onClick={onClose} className="rounded-full px-5">Cancel</Button>
-          <Button
-            onClick={handleCreate}
-            disabled={isPending || !name.trim()}
-            className="rounded-full px-5"
-          >
-            {isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</> : "Create"}
+        <div className="flex justify-end gap-3 mt-5">
+          <Button variant="outline" onClick={onClose} className="rounded-full px-6 h-10">Cancel</Button>
+          <Button onClick={handleCreate} disabled={isPending || !name.trim()} className="rounded-full px-6 h-10">
+            {isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating...</> : "Create"}
           </Button>
         </div>
       </DialogContent>
@@ -153,33 +146,31 @@ export const WebhooksList = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-40">
-        <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Each webhook has a unique public URL. Send form submissions to that URL and leads are created automatically.
-          </p>
-        </div>
-        <Button onClick={() => setShowCreate(true)} className="rounded-full px-5 flex items-center gap-2 shrink-0">
-          <Plus className="h-4 w-4" />
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-base text-muted-foreground">
+          Each webhook has a unique public URL. Send form submissions to that URL and leads are created automatically.
+        </p>
+        <Button onClick={() => setShowCreate(true)} className="rounded-full px-6 h-11 text-base flex items-center gap-2 shrink-0">
+          <Plus className="h-5 w-5" />
           New Webhook
         </Button>
       </div>
 
       {webhooks.length === 0 ? (
-        <div className="border border-dashed border-border rounded-xl p-10 text-center">
-          <Webhook className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">No webhooks yet.</p>
-          <p className="text-muted-foreground/60 text-xs mt-1 max-w-xs mx-auto">
+        <div className="border-2 border-dashed border-border rounded-2xl p-14 text-center">
+          <Webhook className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+          <p className="text-foreground text-lg font-semibold">No webhooks yet</p>
+          <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto">
             Connect WordPress, Facebook Lead Ads, or any form to automatically create leads.
           </p>
-          <Button variant="outline" className="mt-4 rounded-full" onClick={() => setShowCreate(true)}>
+          <Button variant="outline" className="mt-5 rounded-full px-6 h-10" onClick={() => setShowCreate(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create your first webhook
           </Button>
@@ -193,36 +184,48 @@ export const WebhooksList = () => {
             return (
               <div
                 key={wh.id}
-                className="border border-border rounded-xl p-4 bg-card hover:bg-muted/20 transition-colors cursor-pointer group"
+                className="border border-border rounded-2xl p-5 bg-card hover:shadow-sm transition-all cursor-pointer group"
                 onClick={() => navigate(`/dashboard/leads/webhooks/${wh.id}`)}
               >
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-xl">
+                  {/* Icon */}
+                  <div className="shrink-0 w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-2xl">
                     {srcInfo.icon}
                   </div>
 
+                  {/* Main content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-foreground">{wh.name}</span>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${srcInfo.color}`}>
+                    {/* Name + badges */}
+                    <div className="flex items-center gap-2.5 flex-wrap mb-2">
+                      <span className="font-bold text-lg text-foreground">{wh.name}</span>
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${srcInfo.color}`}>
                         {srcInfo.label}
                       </span>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wh.active ? "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-muted text-muted-foreground border border-border"}`}>
-                        {wh.active ? "Active" : "Inactive"}
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
+                        wh.active
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                          : "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-500/30"
+                      }`}>
+                        {wh.active ? "● Active" : "○ Inactive"}
                       </span>
                     </div>
 
+                    {/* URL */}
                     <div
-                      className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-muted/50 border border-border/50"
+                      className="flex items-center gap-2 p-3 rounded-xl bg-muted/60 border border-border/60"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <code className="text-xs text-muted-foreground font-mono flex-1 truncate">{url}</code>
+                      <code className="text-sm text-muted-foreground font-mono flex-1 truncate">{url}</code>
                       <CopyButton value={url} />
                     </div>
 
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 mt-2.5 text-sm text-muted-foreground">
                       {wh.totalCalls !== undefined && (
-                        <span>{wh.totalCalls} calls</span>
+                        <span className="flex items-center gap-1">
+                          <Activity className="h-3.5 w-3.5" />
+                          {wh.totalCalls} calls
+                        </span>
                       )}
                       {wh.lastCallAt && (
                         <span>Last: {format(new Date(wh.lastCallAt), "d MMM HH:mm")}</span>
@@ -231,23 +234,27 @@ export const WebhooksList = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => updateWebhook.mutate({ id: wh.id, data: { active: !wh.active } })}
-                      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      title={wh.active ? "Deactivate" : "Activate"}
-                    >
-                      {wh.active
-                        ? <ToggleRight className="h-5 w-5 text-emerald-500" />
-                        : <ToggleLeft className="h-5 w-5" />}
-                    </button>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/60 border border-border/40">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {wh.active ? "On" : "Off"}
+                      </span>
+                      <Switch
+                        checked={wh.active}
+                        onCheckedChange={(checked) =>
+                          updateWebhook.mutate({ id: wh.id, data: { active: checked } })
+                        }
+                      />
+                    </div>
                     <button
                       onClick={() => setDeleteId(wh.id)}
-                      className="p-2 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
+                      className="h-10 w-10 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/30 text-rose-600 border border-rose-200 dark:border-rose-500/30 transition-colors"
+                      title="Delete webhook"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors ml-1" />
+                    <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                   </div>
                 </div>
               </div>
