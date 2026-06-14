@@ -22,6 +22,19 @@ interface Props {
   rawCustomFields?: Record<string, any> | null;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUUID(s: string) {
+  return UUID_RE.test(s);
+}
+
+function cleanLabel(key: string): string {
+  // Elementor flat: fields[message][value] → Message
+  const m = key.match(/^fields\[([^\]]+)\]\[value\]$/);
+  if (m) return m[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function FieldInput({
   field,
   value,
@@ -34,43 +47,32 @@ function FieldInput({
   if (field.type === "boolean") {
     return (
       <div className="flex items-center gap-2 h-9">
-        <Checkbox
-          checked={value === true || value === "true"}
-          onCheckedChange={onChange}
-        />
+        <Checkbox checked={value === true || value === "true"} onCheckedChange={onChange} />
         <span className="text-sm text-muted-foreground">{field.name}</span>
       </div>
     );
   }
-
   if (field.type === "select" || field.type === "multiselect") {
-    const options = field.options ?? [];
     return (
       <Select value={value ?? ""} onValueChange={onChange}>
         <SelectTrigger className="h-9 text-sm rounded-lg">
           <SelectValue placeholder={`Select ${field.name}`} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((opt) => (
-            <SelectItem key={opt} value={opt} className="text-sm">
-              {opt}
-            </SelectItem>
+          {(field.options ?? []).map((opt) => (
+            <SelectItem key={opt} value={opt} className="text-sm">{opt}</SelectItem>
           ))}
         </SelectContent>
       </Select>
     );
   }
-
   if (field.type === "date") {
     return (
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn(
-              "w-full h-9 justify-start text-left font-normal text-sm rounded-lg",
-              !value && "text-muted-foreground"
-            )}
+            className={cn("w-full h-9 justify-start text-left font-normal text-sm rounded-lg", !value && "text-muted-foreground")}
           >
             <CalendarIcon className="size-4 mr-2 text-muted-foreground" />
             {value ? format(new Date(value), "d MMM yyyy") : "Pick a date"}
@@ -87,7 +89,6 @@ function FieldInput({
       </Popover>
     );
   }
-
   return (
     <Input
       className="h-9 text-sm rounded-lg"
@@ -97,36 +98,6 @@ function FieldInput({
       onChange={(e) => onChange(e.target.value)}
     />
   );
-}
-
-function cleanLabel(key: string): string {
-  // Elementor flat: fields[message][value] → Message
-  const m = key.match(/^fields\[([^\]]+)\]\[value\]$/);
-  if (m) return m[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-/** Flatten the raw customFields payload into { label, value } pairs. */
-function extractFields(raw: Record<string, any>): { label: string; value: string }[] {
-  const out: { label: string; value: string }[] = [];
-
-  // Elementor nested: { fields: { name: { value }, message: { value } } }
-  if (raw.fields && typeof raw.fields === "object" && !Array.isArray(raw.fields)) {
-    for (const [key, obj] of Object.entries(raw.fields)) {
-      const val = typeof obj === "object" && obj !== null ? (obj as any).value : obj;
-      if (val != null && val !== "") {
-        out.push({ label: key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), value: String(val) });
-      }
-    }
-    return out;
-  }
-
-  // Flat format or plain key-value
-  for (const [key, value] of Object.entries(raw)) {
-    if (value == null || value === "" || typeof value === "object") continue;
-    out.push({ label: cleanLabel(key), value: String(value) });
-  }
-  return out;
 }
 
 export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
@@ -142,38 +113,77 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
     setEditing(false);
   }, [leadId, savedValues]);
 
-  const definedFieldIds = new Set(fields.map((f) => f.id));
+  // Build webhook display items from rawCustomFields:
+  // - UUID key that matches a defined field → use the field name as label
+  // - Non-UUID key → clean label
+  // - UUID key with no matching field → skip (internal key, not useful to show)
+  const webhookItems: { label: string; value: string }[] = [];
+  if (rawCustomFields) {
+    for (const [key, val] of Object.entries(rawCustomFields)) {
+      if (val == null || val === "") continue;
+      if (typeof val === "object") continue;
+      if (isUUID(key)) {
+        const matchingField = fields.find((f) => f.id === key);
+        if (matchingField) {
+          webhookItems.push({ label: matchingField.name, value: String(val) });
+        }
+        // else: UUID without a matching field definition → skip
+      } else {
+        webhookItems.push({ label: cleanLabel(key), value: String(val) });
+      }
+    }
+  }
 
-  // Raw entries stored in the DB customFields that don't match a defined field
-  const rawEntries = Object.entries(savedValues).filter(
-    ([key, value]) => !definedFieldIds.has(key) && value != null && value !== ""
+  // Editable custom fields: only show fields that have NO value from the webhook
+  // (fields with webhook values are already shown as read-only above)
+  const webhookFieldIds = new Set(webhookItems.map((_, i) => {
+    // rebuild from rawCustomFields to get the original field IDs
+    return Object.keys(rawCustomFields ?? {})
+      .filter(isUUID)
+      .find((key) => fields.find((f) => f.id === key));
+  }).filter(Boolean));
+
+  const fieldsWithWebhookValue = new Set(
+    rawCustomFields
+      ? Object.keys(rawCustomFields).filter((k) => isUUID(k) && fields.some((f) => f.id === k) && rawCustomFields[k] != null && rawCustomFields[k] !== "")
+      : []
   );
 
-  // Payload coming directly from the lead's customFields (set by the webhook receiver)
-  const payloadFields = rawCustomFields ? extractFields(rawCustomFields) : [];
+  const editableFields = fields.filter((f) => !fieldsWithWebhookValue.has(f.id));
 
-  // Filter out payload fields already covered by savedValues keys
-  const savedKeys = new Set(Object.keys(savedValues));
-  const uniquePayloadFields = payloadFields.filter((f) => !savedKeys.has(f.label.toLowerCase()));
+  const hasWebhook = webhookItems.length > 0;
+  const hasEditable = editableFields.length > 0;
 
-  const hasCustom = fields.length > 0 || rawEntries.length > 0;
-  const hasPayload = uniquePayloadFields.length > 0;
-
-  if (!hasCustom && !hasPayload) return null;
+  if (!hasWebhook && !hasEditable) return null;
 
   const handleSave = () => {
     saveValues({ leadId, values: draft }, { onSuccess: () => setEditing(false) });
   };
 
-  const handleCancel = () => {
-    setDraft(savedValues);
-    setEditing(false);
-  };
-
   return (
     <>
-      {/* Defined + raw custom fields */}
-      {hasCustom && (
+      {/* Read-only webhook payload section */}
+      {hasWebhook && (
+        <div className="border-t border-border/40 px-6 py-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Webhook className="h-3.5 w-3.5 text-indigo-400" />
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Dados do Webhook
+            </span>
+          </div>
+          <div className="space-y-3">
+            {webhookItems.map((item) => (
+              <div key={item.label}>
+                <p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
+                <p className="text-sm text-foreground break-words">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Editable custom fields (only those not sourced from webhook) */}
+      {hasEditable && (
         <div className="border-t border-border/40 px-6 py-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -198,7 +208,7 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
                   Save
                 </button>
                 <button
-                  onClick={handleCancel}
+                  onClick={() => { setDraft(savedValues); setEditing(false); }}
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="h-3 w-3" />
@@ -207,9 +217,8 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
               </div>
             )}
           </div>
-
           <div className="space-y-3">
-            {fields.map((field) => (
+            {editableFields.map((field) => (
               <div key={field.id}>
                 <p className="text-xs text-muted-foreground mb-1">{field.name}</p>
                 {editing ? (
@@ -227,41 +236,6 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
                       : draft[field.id] ?? <span className="text-muted-foreground/50 italic">—</span>}
                   </p>
                 )}
-              </div>
-            ))}
-
-            {rawEntries.length > 0 && (
-              <>
-                {fields.length > 0 && <div className="border-t border-border/30 pt-3 mt-1" />}
-                <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">
-                  Webhook Data
-                </p>
-                {rawEntries.map(([key, value]) => (
-                  <div key={key}>
-                    <p className="text-xs text-muted-foreground mb-0.5">{cleanLabel(key)}</p>
-                    <p className="text-sm text-foreground">{String(value)}</p>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Payload from webhook (client.customFields passed directly from the lead object) */}
-      {hasPayload && (
-        <div className="border-t border-border/40 px-6 py-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Webhook className="h-3.5 w-3.5 text-indigo-400" />
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Dados do Webhook
-            </span>
-          </div>
-          <div className="space-y-3">
-            {uniquePayloadFields.map((f) => (
-              <div key={f.label}>
-                <p className="text-xs text-muted-foreground mb-0.5">{f.label}</p>
-                <p className="text-sm text-foreground break-words">{f.value}</p>
               </div>
             ))}
           </div>
