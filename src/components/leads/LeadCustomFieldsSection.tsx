@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLeadFields, useLeadCustomValues, useUpdateLeadCustomValues, LeadFieldDefinition } from "@/hooks/useLeadFields";
-import { useLeadWebhookPayload } from "@/hooks/useWebhooks";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +19,7 @@ import { Check, Pencil, X, Webhook } from "lucide-react";
 
 interface Props {
   leadId: string;
+  rawCustomFields?: Record<string, any> | null;
 }
 
 function FieldInput({
@@ -99,49 +99,40 @@ function FieldInput({
   );
 }
 
-function cleanWebhookKey(key: string): string {
-  const elementorMatch = key.match(/^fields\[([^\]]+)\]\[value\]$/);
-  if (elementorMatch) {
-    return elementorMatch[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  }
+function cleanLabel(key: string): string {
+  // Elementor flat: fields[message][value] → Message
+  const m = key.match(/^fields\[([^\]]+)\]\[value\]$/);
+  if (m) return m[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function extractPayloadFields(payload: Record<string, any>): { label: string; value: string }[] {
-  const results: { label: string; value: string }[] = [];
+/** Flatten the raw customFields payload into { label, value } pairs. */
+function extractFields(raw: Record<string, any>): { label: string; value: string }[] {
+  const out: { label: string; value: string }[] = [];
 
-  // Elementor/WordPress nested format: { fields: { xxx: { value: "..." } } }
-  if (payload.fields && typeof payload.fields === "object" && !Array.isArray(payload.fields)) {
-    for (const [key, fieldObj] of Object.entries(payload.fields)) {
-      const val =
-        typeof fieldObj === "object" && fieldObj !== null
-          ? (fieldObj as any).value
-          : fieldObj;
-      if (val !== null && val !== undefined && val !== "") {
-        results.push({
-          label: key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-          value: String(val),
-        });
+  // Elementor nested: { fields: { name: { value }, message: { value } } }
+  if (raw.fields && typeof raw.fields === "object" && !Array.isArray(raw.fields)) {
+    for (const [key, obj] of Object.entries(raw.fields)) {
+      const val = typeof obj === "object" && obj !== null ? (obj as any).value : obj;
+      if (val != null && val !== "") {
+        out.push({ label: key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), value: String(val) });
       }
     }
-    return results;
+    return out;
   }
 
-  // Flat format: { "fields[xxx][value]": "..." } or plain key-value
-  for (const [key, value] of Object.entries(payload)) {
-    if (value === null || value === undefined || value === "") continue;
-    if (typeof value === "object") continue;
-    results.push({ label: cleanWebhookKey(key), value: String(value) });
+  // Flat format or plain key-value
+  for (const [key, value] of Object.entries(raw)) {
+    if (value == null || value === "" || typeof value === "object") continue;
+    out.push({ label: cleanLabel(key), value: String(value) });
   }
-
-  return results;
+  return out;
 }
 
-export function LeadCustomFieldsSection({ leadId }: Props) {
+export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
   const { data: fields = [] } = useLeadFields();
   const { data: savedValues = {} } = useLeadCustomValues(leadId);
   const { mutate: saveValues, isPending } = useUpdateLeadCustomValues();
-  const { data: webhookLog } = useLeadWebhookPayload(leadId);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Record<string, any>>({});
@@ -153,14 +144,22 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
 
   const definedFieldIds = new Set(fields.map((f) => f.id));
 
+  // Raw entries stored in the DB customFields that don't match a defined field
   const rawEntries = Object.entries(savedValues).filter(
-    ([key, value]) => !definedFieldIds.has(key) && value !== null && value !== undefined && value !== ""
+    ([key, value]) => !definedFieldIds.has(key) && value != null && value !== ""
   );
 
-  const payloadFields = webhookLog?.payload ? extractPayloadFields(webhookLog.payload) : [];
+  // Payload coming directly from the lead's customFields (set by the webhook receiver)
+  const payloadFields = rawCustomFields ? extractFields(rawCustomFields) : [];
 
-  const hasContent = fields.length > 0 || rawEntries.length > 0 || payloadFields.length > 0;
-  if (!hasContent) return null;
+  // Filter out payload fields already covered by savedValues keys
+  const savedKeys = new Set(Object.keys(savedValues));
+  const uniquePayloadFields = payloadFields.filter((f) => !savedKeys.has(f.label.toLowerCase()));
+
+  const hasCustom = fields.length > 0 || rawEntries.length > 0;
+  const hasPayload = uniquePayloadFields.length > 0;
+
+  if (!hasCustom && !hasPayload) return null;
 
   const handleSave = () => {
     saveValues({ leadId, values: draft }, { onSuccess: () => setEditing(false) });
@@ -173,8 +172,8 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
 
   return (
     <>
-      {/* Defined custom fields */}
-      {(fields.length > 0 || rawEntries.length > 0) && (
+      {/* Defined + raw custom fields */}
+      {hasCustom && (
         <div className="border-t border-border/40 px-6 py-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -239,7 +238,7 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
                 </p>
                 {rawEntries.map(([key, value]) => (
                   <div key={key}>
-                    <p className="text-xs text-muted-foreground mb-0.5">{cleanWebhookKey(key)}</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{cleanLabel(key)}</p>
                     <p className="text-sm text-foreground">{String(value)}</p>
                   </div>
                 ))}
@@ -249,35 +248,23 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
         </div>
       )}
 
-      {/* Webhook payload section — data from the original webhook call */}
-      {payloadFields.length > 0 && (
+      {/* Payload from webhook (client.customFields passed directly from the lead object) */}
+      {hasPayload && (
         <div className="border-t border-border/40 px-6 py-4">
           <div className="flex items-center gap-2 mb-3">
             <Webhook className="h-3.5 w-3.5 text-indigo-400" />
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Payload recebido
+              Dados do Webhook
             </span>
-            {webhookLog?.webhookName && (
-              <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20 px-1.5 py-0.5 rounded-full">
-                {webhookLog.webhookName}
-              </span>
-            )}
           </div>
-
           <div className="space-y-3">
-            {payloadFields.map((f) => (
+            {uniquePayloadFields.map((f) => (
               <div key={f.label}>
                 <p className="text-xs text-muted-foreground mb-0.5">{f.label}</p>
                 <p className="text-sm text-foreground break-words">{f.value}</p>
               </div>
             ))}
           </div>
-
-          {webhookLog?.createdAt && (
-            <p className="text-[10px] text-muted-foreground/50 mt-3">
-              Received {format(new Date(webhookLog.createdAt), "d MMM yyyy HH:mm")}
-            </p>
-          )}
         </div>
       )}
     </>

@@ -531,7 +531,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
         )}
 
         {/* Custom fields (leads only) */}
-        {isLead && <LeadCustomFieldsSection leadId={client.id} />}
+        {isLead && <LeadCustomFieldsSection leadId={client.id} rawCustomFields={client.customFields} />}
 
         {/* Activity label */}
         <div className="px-6 pt-4 pb-2 shrink-0">
