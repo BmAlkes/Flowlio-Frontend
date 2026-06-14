@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Trash2, Eye, Building2, DollarSign, Webhook } from "lucide-react";
+import { Loader2, Search, Trash2, Eye, DollarSign, Webhook, Phone } from "lucide-react";
 import { format, isPast, differenceInDays } from "date-fns";
 import { TableSkeleton } from "@/components/skeletons";
 
@@ -167,7 +167,6 @@ export const LeadsTable = () => {
             <tr>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
-              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Industry</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stage</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Temperature</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
@@ -179,7 +178,7 @@ export const LeadsTable = () => {
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center py-16 text-base text-muted-foreground">
+                <td colSpan={8} className="text-center py-16 text-base text-muted-foreground">
                   {search ? "No leads match your search." : "No leads yet. Create your first lead!"}
                 </td>
               </tr>
@@ -213,7 +212,15 @@ export const LeadsTable = () => {
                         </Avatar>
                         <div>
                           <p className="font-semibold text-base text-foreground leading-tight">{lead.name}</p>
-                          <p className="text-sm text-muted-foreground mt-0.5">{lead.email}</p>
+                          {lead.email && !lead.email.includes("@noemail.invalid") && (
+                            <p className="text-sm text-muted-foreground mt-0.5">{lead.email}</p>
+                          )}
+                          {lead.phone && (
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Phone className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                              <p className="text-sm text-muted-foreground">{lead.phone}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -229,17 +236,6 @@ export const LeadsTable = () => {
                         </div>
                       ) : (
                         <span className="text-sm text-muted-foreground/60">Manual</span>
-                      )}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      {lead.businessIndustry ? (
-                        <div className="flex items-center gap-1.5">
-                          <Building2 className="h-4 w-4 text-muted-foreground/50" />
-                          <span className="text-sm text-muted-foreground">{lead.businessIndustry}</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground/40">—</span>
                       )}
                     </td>
 

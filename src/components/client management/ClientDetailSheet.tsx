@@ -18,7 +18,7 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail } from "lucide-react";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -258,12 +258,30 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
-                <p className="text-sm text-muted-foreground truncate">
-                  {client.businessIndustry || t("pipeline.noIndustry")}
-                </p>
-              </div>
+              {!isLead && (
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                  <p className="text-sm text-muted-foreground truncate">
+                    {client.businessIndustry || t("pipeline.noIndustry")}
+                  </p>
+                </div>
+              )}
+              {isLead && (client.phone || (client.email && !client.email.includes("@noemail.invalid"))) && (
+                <div className="flex flex-col gap-1 mt-1.5">
+                  {client.email && !client.email.includes("@noemail.invalid") && (
+                    <div className="flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                      <p className="text-sm text-muted-foreground truncate">{client.email}</p>
+                    </div>
+                  )}
+                  {client.phone && (
+                    <div className="flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                      <p className="text-sm text-muted-foreground">{client.phone}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-center gap-3 mt-3">
                 {editingValue ? (

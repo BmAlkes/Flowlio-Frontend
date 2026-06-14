@@ -98,6 +98,16 @@ function FieldInput({
   );
 }
 
+function cleanWebhookKey(key: string): string {
+  // Elementor format: fields[message][value] → Message
+  const elementorMatch = key.match(/^fields\[([^\]]+)\]\[value\]$/);
+  if (elementorMatch) {
+    return elementorMatch[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  // Generic cleanup: replace underscores/dashes with spaces, capitalize
+  return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function LeadCustomFieldsSection({ leadId }: Props) {
   const { data: fields = [] } = useLeadFields();
   const { data: savedValues = {} } = useLeadCustomValues(leadId);
@@ -197,7 +207,7 @@ export function LeadCustomFieldsSection({ leadId }: Props) {
             </p>
             {rawEntries.map(([key, value]) => (
               <div key={key}>
-                <p className="text-xs text-muted-foreground mb-0.5 font-mono">{key}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">{cleanWebhookKey(key)}</p>
                 <p className="text-sm text-foreground">{String(value)}</p>
               </div>
             ))}

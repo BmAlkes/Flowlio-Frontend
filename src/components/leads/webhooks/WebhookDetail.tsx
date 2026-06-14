@@ -8,6 +8,7 @@ import {
   useWebhookLogs,
   useTestWebhook,
   useRotateWebhookToken,
+  useDeleteWebhookLog,
   WebhookSource,
 } from "@/hooks/useWebhooks";
 import { useLeadFields } from "@/hooks/useLeadFields";
@@ -91,6 +92,7 @@ export const WebhookDetail = () => {
   const saveMapping = useUpdateWebhookMapping();
   const testWebhook = useTestWebhook();
   const rotateToken = useRotateWebhookToken();
+  const deleteLog = useDeleteWebhookLog();
 
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [newExtField, setNewExtField] = useState("");
@@ -350,9 +352,9 @@ export const WebhookDetail = () => {
                       Lead created: <code className="font-mono">{log.leadId}</code>
                     </p>
                   )}
-                  <details className="mt-1.5">
+                  <details className="mt-1.5" open>
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none">
-                      View payload
+                      Payload
                     </summary>
                     <pre className="mt-1.5 text-xs bg-muted/50 rounded-lg p-2 overflow-x-auto text-muted-foreground font-mono">
                       {log.payload && Object.keys(log.payload).length > 0
@@ -361,6 +363,15 @@ export const WebhookDetail = () => {
                     </pre>
                   </details>
                 </div>
+
+                <button
+                  onClick={() => deleteLog.mutate({ logId: log.id, webhookId: log.webhookId })}
+                  disabled={deleteLog.isPending}
+                  className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors shrink-0"
+                  title="Delete log"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </div>
             ))}
           </div>

@@ -154,6 +154,23 @@ export const useTestWebhook = () => {
   });
 };
 
+export const useDeleteWebhookLog = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ logId, webhookId }: { logId: string; webhookId: string }) => {
+      const response = await axios.delete(`/webhooks/logs/${logId}`);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["webhook-logs", variables.webhookId] });
+      toast.success("Log deleted");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete log");
+    },
+  });
+};
+
 export const useRotateWebhookToken = () => {
   const queryClient = useQueryClient();
   return useMutation({
