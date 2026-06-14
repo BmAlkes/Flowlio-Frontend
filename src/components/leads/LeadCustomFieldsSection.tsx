@@ -134,15 +134,6 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
     }
   }
 
-  // Editable custom fields: only show fields that have NO value from the webhook
-  // (fields with webhook values are already shown as read-only above)
-  const webhookFieldIds = new Set(webhookItems.map((_, i) => {
-    // rebuild from rawCustomFields to get the original field IDs
-    return Object.keys(rawCustomFields ?? {})
-      .filter(isUUID)
-      .find((key) => fields.find((f) => f.id === key));
-  }).filter(Boolean));
-
   const fieldsWithWebhookValue = new Set(
     rawCustomFields
       ? Object.keys(rawCustomFields).filter((k) => isUUID(k) && fields.some((f) => f.id === k) && rawCustomFields[k] != null && rawCustomFields[k] !== "")
