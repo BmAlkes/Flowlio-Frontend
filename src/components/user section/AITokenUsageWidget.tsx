@@ -28,8 +28,8 @@ export const AITokenUsageWidget = () => {
   const remaining = isUnlimited ? null : Math.max(0, (tokenLimit ?? 0) - tokensUsed);
 
   return (
-    <div className="relative overflow-hidden border border-border rounded-2xl p-5 bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-      <Aurora opacity={0.5} />
+    <div className="relative overflow-hidden border border-border/60 rounded-2xl p-5 bg-gradient-to-br from-blue-50/40 to-card dark:from-blue-950/20 dark:to-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+      <Aurora />
 
       {isLoading ? (
         <div className="flex items-center gap-4">

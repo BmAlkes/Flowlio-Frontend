@@ -1,38 +1,37 @@
 /**
- * Aurora — animated gradient overlay using the Flowlio blue/indigo/cyan palette.
- * Place it as the first child inside a `relative overflow-hidden` container.
+ * Aurora — animated gradient background using Flowlio's blue/indigo/cyan palette.
+ * Wrap the card in `relative overflow-hidden` and place <Aurora /> as first child.
  */
-export function Aurora({ opacity = 1 }: { opacity?: number }) {
+export function Aurora() {
   return (
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden"
-      style={{ opacity }}
     >
-      {/* Layer 1 — blue, top-right */}
+      {/* Layer 1 — blue, top-right sweep */}
       <div
-        className="absolute -inset-10"
+        className="absolute -inset-12"
         style={{
           background:
-            "radial-gradient(ellipse 65% 55% at 75% 20%, rgba(59,130,246,0.38) 0%, transparent 70%)",
+            "radial-gradient(ellipse 70% 60% at 80% 10%, rgba(59,130,246,0.25) 0%, transparent 65%)",
           animation: "aurora-1 14s ease-in-out infinite",
         }}
       />
       {/* Layer 2 — indigo, bottom-left */}
       <div
-        className="absolute -inset-10"
+        className="absolute -inset-12"
         style={{
           background:
-            "radial-gradient(ellipse 55% 65% at 20% 75%, rgba(99,102,241,0.32) 0%, transparent 70%)",
+            "radial-gradient(ellipse 60% 70% at 15% 80%, rgba(99,102,241,0.22) 0%, transparent 65%)",
           animation: "aurora-2 18s ease-in-out infinite",
         }}
       />
-      {/* Layer 3 — cyan, centre-right */}
+      {/* Layer 3 — cyan accent, centre */}
       <div
-        className="absolute -inset-10"
+        className="absolute -inset-12"
         style={{
           background:
-            "radial-gradient(ellipse 45% 50% at 80% 65%, rgba(34,211,238,0.22) 0%, transparent 70%)",
+            "radial-gradient(ellipse 50% 55% at 60% 50%, rgba(34,211,238,0.15) 0%, transparent 65%)",
           animation: "aurora-3 11s ease-in-out infinite",
         }}
       />

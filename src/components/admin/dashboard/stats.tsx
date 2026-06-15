@@ -55,12 +55,12 @@ export const Stats: FC<{
                 <Link to={item.link} className="block">
                   <div
                     className={cn(
-                      "relative overflow-hidden border border-border rounded-2xl p-5 flex flex-col gap-4",
-                      "bg-card",
+                      "relative overflow-hidden border border-border/60 rounded-2xl p-5 flex flex-col gap-4",
+                      "bg-gradient-to-br from-blue-50/40 to-card dark:from-blue-950/20 dark:to-card",
                       "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                     )}
                   >
-                    <Aurora opacity={0.55} />
+                    <Aurora />
 
                     {isViewerHours ? (
                       <div className="relative z-10 flex items-center justify-between gap-3">
