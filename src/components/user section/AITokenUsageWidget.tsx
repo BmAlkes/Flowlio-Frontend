@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAIOrgUsage } from "@/hooks/useAIOrgUsage";
 import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Aurora } from "@/components/ui/aurora";
 
 function clamp(n: number) { return Math.min(100, Math.max(0, n)); }
 function formatPct(pct: number) {
@@ -27,14 +28,8 @@ export const AITokenUsageWidget = () => {
   const remaining = isUnlimited ? null : Math.max(0, (tokenLimit ?? 0) - tokensUsed);
 
   return (
-    <div className={[
-      "relative overflow-hidden border border-border rounded-2xl p-5",
-      "bg-gradient-to-br from-card via-card to-blue-50/60 dark:to-blue-950/30",
-      "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
-    ].join(" ")}>
-      {/* Same decorative blobs as OngoingTaskCard */}
-      <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-xl" />
+    <div className="relative overflow-hidden border border-border rounded-2xl p-5 bg-card hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+      <Aurora opacity={0.5} />
 
       {isLoading ? (
         <div className="flex items-center gap-4">
@@ -45,7 +40,7 @@ export const AITokenUsageWidget = () => {
           </div>
         </div>
       ) : (
-        <div className="relative flex items-center gap-5 flex-wrap">
+        <div className="relative z-10 flex items-center gap-5 flex-wrap">
 
           {/* Icon — dark pill same as stat cards */}
           <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">

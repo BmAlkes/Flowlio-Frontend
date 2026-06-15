@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { CircularProgress } from "@/components/ui/circularprogress";
+import { Aurora } from "@/components/ui/aurora";
 
 export type Stat = {
   icon: string;
@@ -55,16 +56,14 @@ export const Stats: FC<{
                   <div
                     className={cn(
                       "relative overflow-hidden border border-border rounded-2xl p-5 flex flex-col gap-4",
-                      "bg-gradient-to-br from-card via-card to-blue-50/60 dark:to-blue-950/30",
+                      "bg-card",
                       "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                     )}
                   >
-                    {/* Same decorative blobs as OngoingTaskCard */}
-                    <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-2xl" />
-                    <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-xl" />
+                    <Aurora opacity={0.55} />
 
                     {isViewerHours ? (
-                      <div className="relative flex items-center justify-between gap-3">
+                      <div className="relative z-10 flex items-center justify-between gap-3">
                         <div className="flex flex-col gap-3 flex-1">
                           <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 w-fit shrink-0">
                             <img src={item.icon} className="size-5" alt={item.title} />
@@ -86,7 +85,7 @@ export const Stats: FC<{
                         />
                       </div>
                     ) : (
-                      <div className="relative flex flex-col gap-3">
+                      <div className="relative z-10 flex flex-col gap-3">
                         {/* Icon — same dark pill as OngoingTaskCard */}
                         <div className="flex items-center justify-between">
                           <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">
