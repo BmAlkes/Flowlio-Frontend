@@ -52,6 +52,8 @@ export interface ConfiguredAILimit {
   alertThresholdPercent: number;
   period: string;
   isActive: boolean;
+  isDefault: boolean;   // true = no explicit limit in DB, using 50k default
+  isDemo: boolean;      // true = demo organization
   createdAt: string;
   updatedAt: string;
 }

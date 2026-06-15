@@ -274,20 +274,34 @@ const SuperAdminAIMonitoringPage = () => {
 
       <Card className="shadow-sm border-border">
         <CardHeader>
-          <CardTitle className="text-foreground">
-            Configured Organisation Limits
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({limits.length})
-            </span>
-          </CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle className="text-foreground">
+                All Organisation Limits
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({limits.length})
+                </span>
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                <span className="inline-flex items-center gap-1 mr-3">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Configured manually
+                </span>
+                <span className="inline-flex items-center gap-1 mr-3">
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 inline-block" /> Default (50k)
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" /> Demo account
+                </span>
+              </p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-0 pb-2">
           {limitsLoading ? (
             <TableSkeleton rows={5} columns={7} withActions />
           ) : limits.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">
-              No AI limits configured yet. Use Add Limit to select an
-              organisation and set its monthly token limit.
+              No organisations found.
             </div>
           ) : (
             <div className="overflow-x-auto border-t border-border">
@@ -308,9 +322,24 @@ const SuperAdminAIMonitoringPage = () => {
                     const isExceeded = limit.tokensUsed >= limit.tokenLimit;
 
                     return (
-                      <TableRow key={limit.id}>
+                      <TableRow
+                        key={limit.id ?? limit.organizationId}
+                        className={limit.isDefault ? "opacity-70" : ""}
+                      >
                         <TableCell className="font-medium text-foreground">
-                          {limit.organizationName}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {limit.organizationName}
+                            {limit.isDemo && (
+                              <Badge className="text-[10px] px-1.5 py-0 h-4 bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/30">
+                                Demo
+                              </Badge>
+                            )}
+                            {limit.isDefault && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground">
+                                Default
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="tabular-nums text-foreground">
                           {limit.tokensUsed.toLocaleString()}
@@ -332,7 +361,11 @@ const SuperAdminAIMonitoringPage = () => {
                           {limit.totalRequests.toLocaleString()}
                         </TableCell>
                         <TableCell className="text-foreground">
-                          {limit.alertThresholdPercent}%
+                          {limit.isDefault ? (
+                            <span className="text-xs text-muted-foreground italic">—</span>
+                          ) : (
+                            `${limit.alertThresholdPercent}%`
+                          )}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -345,15 +378,17 @@ const SuperAdminAIMonitoringPage = () => {
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="h-8 w-8 text-red-600 hover:text-red-700"
-                              onClick={() => setRemoveTarget(limit)}
-                              aria-label={`Remove ${limit.organizationName} AI limit`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {!limit.isDefault && (
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8 text-red-600 hover:text-red-700"
+                                onClick={() => setRemoveTarget(limit)}
+                                aria-label={`Remove ${limit.organizationName} AI limit`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
