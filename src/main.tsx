@@ -18,7 +18,10 @@ import "./configs/i18n.config";
 //   });
 // }
 
-// Performance monitoring removed - console logs cleaned up
+// Auto-reload when Vite lazy chunks are stale after a new deploy
+window.addEventListener("vite:preloadError", () => {
+  window.location.reload();
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
