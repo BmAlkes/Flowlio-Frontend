@@ -200,6 +200,7 @@ const LeadsPage = lazy(() => import("./pages/leads.page"));
 const LeadsWebhooksPage = lazy(() => import("./pages/leads-webhooks.page"));
 const LeadsWebhookDetailPage = lazy(() => import("./pages/leads-webhook-detail.page"));
 const SubscriptionsPage = lazy(() => import("./pages/subscriptions.page"));
+const AITokenConfirmPage = lazy(() => import("./pages/ai-token-confirm.page"));
 const ClientMediaCenterPage = lazy(() => import("./pages/clientmediacenter.page"));
 const ClientPortalSettingsPage = lazy(
   () => import("./pages/clientportalsettings.page"),
@@ -474,6 +475,10 @@ const AppRoutes = () => {
         <Route
           element={<LazyWrapper component={SubscriptionsPage} />}
           path="subscription"
+        />
+        <Route
+          element={<LazyWrapper component={AITokenConfirmPage} />}
+          path="ai-tokens/confirm"
         />
         <Route
           element={<LazyWrapper component={ClientMediaCenterPage} />}

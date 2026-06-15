@@ -1,8 +1,9 @@
 import { Skeleton } from "@/components/skeletons/Skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useAIOrgUsage } from "@/hooks/useAIOrgUsage";
-import { Sparkles } from "lucide-react";
+import { Sparkles, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
 
 function clamp(n: number) { return Math.min(100, Math.max(0, n)); }
 function formatPct(pct: number) {
@@ -17,6 +18,7 @@ function barColor(pct: number) {
 
 export const AITokenUsageWidget = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data, isLoading } = useAIOrgUsage();
 
   const tokensUsed = data?.currentMonth?.totalTokens ?? 0;
@@ -69,6 +71,15 @@ export const AITokenUsageWidget = () => {
               <span className="text-sm font-medium text-muted-foreground ml-1.5">tokens</span>
             </p>
           </div>
+
+          {/* Buy more */}
+          <button
+            onClick={() => navigate("/dashboard/subscription")}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            Buy tokens
+          </button>
 
           {/* Progress section */}
           <div className="flex-1 min-w-[180px] space-y-2">

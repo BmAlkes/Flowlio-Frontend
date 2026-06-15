@@ -30,6 +30,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { DetailsPageSkeleton, CardSkeleton, ErrorState } from "@/components/skeletons";
+import { TokenTopupSection } from "@/components/user section/TokenTopupSection";
 
 const SubscriptionsPage = () => {
   const navigate = useNavigate();
@@ -729,6 +730,10 @@ const SubscriptionsPage = () => {
               </Button>
             </Box>
           )}
+        {/* AI Token Top-up */}
+        <Box className="mt-8 max-w-4xl w-full">
+          <TokenTopupSection />
+        </Box>
       </Center>
 
       {/* Plan Features Modal */}

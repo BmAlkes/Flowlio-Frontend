@@ -45,6 +45,8 @@ import {
   useSetAILimit,
 } from "@/hooks/useAIMonitoring";
 import { useGetPaidOrganizations } from "@/hooks/useFetchPaidOrganizations";
+import { useTokenPackages } from "@/hooks/useAITokenTopup";
+import { Zap, Star, Sparkles } from "lucide-react";
 
 interface LimitFormState {
   mode: "create" | "edit";
@@ -75,6 +77,47 @@ function UsageBar({ pct }: { pct: number }) {
         {clamped}%
       </span>
     </div>
+  );
+}
+
+const PKG_ICONS: Record<string, typeof Zap> = {
+  tokens_50k: Zap,
+  tokens_100k: Star,
+  tokens_250k: Sparkles,
+};
+
+function TokenPackagesInfo() {
+  const { data: packages = [], isLoading } = useTokenPackages();
+  if (isLoading || packages.length === 0) return null;
+  return (
+    <Card className="shadow-sm border-border">
+      <CardHeader>
+        <CardTitle className="text-foreground text-base">
+          Available Token Packages (self-service)
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Organisations can purchase these packages from their Subscription page to increase their monthly token limit.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {packages.map((pkg) => {
+            const Icon = PKG_ICONS[pkg.id] ?? Zap;
+            return (
+              <div key={pkg.id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 shrink-0">
+                  <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground text-sm">{pkg.label}</p>
+                  <p className="text-xs text-muted-foreground">${pkg.price} {pkg.currency} · one-time</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -226,6 +269,8 @@ const SuperAdminAIMonitoringPage = () => {
           </Button>
         </div>
       </Box>
+
+      <TokenPackagesInfo />
 
       <Card className="shadow-sm border-border">
         <CardHeader>
