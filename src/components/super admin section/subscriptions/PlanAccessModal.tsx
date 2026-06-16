@@ -3,7 +3,7 @@ import { GeneralModal } from "@/components/common/generalmodal";
 import { Stack } from "@/components/ui/stack";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Flex } from "@/components/ui/flex";
 import { Box } from "@/components/ui/box";
@@ -13,17 +13,46 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Users,
+  FolderKanban,
+  HardDrive,
+  CheckSquare,
+  UserCheck,
+  Webhook,
+  FileText,
+  FileSignature,
+  Sparkles,
+  Bot,
+  HeadphonesIcon,
+  CalendarDays,
+  Timer,
+  BarChart2,
+  Link2,
+  Paintbrush,
+} from "lucide-react";
 
 export type PlanAccessSettings = {
   maxUsers: number;
   maxProjects: number;
   maxStorage: number;
   maxTasks: number;
+  maxLeads: number;
+  maxClients: number;
+  maxWebhooks: number;
+  maxInvoices: number;
+  maxProposals: number;
+  aiTokenLimit: number;
   aiAssist: boolean;
   prioritySupport: boolean;
   calendarAccess: boolean;
   taskManagement: boolean;
   timeTracking: boolean;
+  analyticsAccess: boolean;
+  apiAccess: boolean;
+  paymentLinks: boolean;
+  proposalsAccess: boolean;
+  whitelabel: boolean;
 };
 
 interface PlanAccessModalProps {
@@ -35,6 +64,62 @@ interface PlanAccessModalProps {
   isSaving?: boolean;
 }
 
+interface LimitFieldProps {
+  id: keyof PlanAccessSettings;
+  label: string;
+  icon: React.ReactNode;
+  value: number;
+  onChange: (field: keyof PlanAccessSettings, value: number) => void;
+  hint?: string;
+}
+
+const LimitField: FC<LimitFieldProps> = ({ id, label, icon, value, onChange, hint }) => (
+  <Box>
+    <Flex className="items-center gap-2 mb-1.5">
+      <span className="text-muted-foreground">{icon}</span>
+      <Label htmlFor={id as string} className="text-sm font-medium">
+        {label}
+      </Label>
+    </Flex>
+    <Input
+      id={id as string}
+      type="number"
+      min="0"
+      value={value}
+      onChange={(e) => onChange(id, parseInt(e.target.value) || 0)}
+      className="h-9"
+    />
+    {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
+  </Box>
+);
+
+interface FeatureToggleProps {
+  id: keyof PlanAccessSettings;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  checked: boolean;
+  onChange: (field: keyof PlanAccessSettings, value: boolean) => void;
+}
+
+const FeatureToggle: FC<FeatureToggleProps> = ({ id, label, description, icon, checked, onChange }) => (
+  <Flex className="items-start justify-between gap-3 p-3 rounded-lg border border-border bg-muted/30">
+    <Flex className="items-start gap-3 flex-1 min-w-0">
+      <span className="text-muted-foreground mt-0.5 shrink-0">{icon}</span>
+      <Box className="min-w-0">
+        <p className="text-sm font-medium leading-none">{label}</p>
+        <p className="text-xs text-muted-foreground mt-1">{description}</p>
+      </Box>
+    </Flex>
+    <Switch
+      id={id as string}
+      checked={checked}
+      onCheckedChange={(c) => onChange(id, c)}
+      className="shrink-0 mt-0.5"
+    />
+  </Flex>
+);
+
 export const PlanAccessModal: FC<PlanAccessModalProps> = ({
   open,
   onOpenChange,
@@ -43,10 +128,8 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
   onSave,
   isSaving = false,
 }) => {
-  const [settings, setSettings] =
-    React.useState<PlanAccessSettings>(accessSettings);
+  const [settings, setSettings] = React.useState<PlanAccessSettings>(accessSettings);
 
-  // Update local state when accessSettings prop changes
   React.useEffect(() => {
     setSettings(accessSettings);
   }, [accessSettings]);
@@ -54,244 +137,84 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
   const handleSave = async () => {
     try {
       await onSave(settings);
-      // Only close modal if save was successful
       onOpenChange(false);
-    } catch (error) {
-      // Error handling is done in parent component (toast notifications)
-      // Don't close modal on error so user can retry or fix issues
-      console.error("Failed to save access settings:", error);
+    } catch {
+      // parent handles toast, modal stays open so user can retry
     }
   };
 
-  const handleChange = (
-    field: keyof PlanAccessSettings,
-    value: number | boolean
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleNum = (field: keyof PlanAccessSettings, value: number) => {
+    setSettings((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBool = (field: keyof PlanAccessSettings, value: boolean) => {
+    setSettings((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <GeneralModal
       open={open}
       onOpenChange={onOpenChange}
-      contentProps={{
-        className: "max-w-2xl max-h-[90vh] overflow-y-auto",
-      }}
+      contentProps={{ className: "max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" }}
     >
-      <DialogHeader>
-        <DialogTitle>Configure Plan Access - {planName}</DialogTitle>
+      <DialogHeader className="shrink-0">
+        <DialogTitle>Configure Plan — {planName}</DialogTitle>
         <DialogDescription>
-          Set user limits and feature access for this subscription plan.
+          Set service limits and feature access. Use <strong>0</strong> for unlimited on numeric fields.
         </DialogDescription>
       </DialogHeader>
 
-      <div className="overflow-y-auto max-h-[calc(90vh-200px)] pr-2">
-        <Stack className="gap-6 mt-4">
-          {/* User Limits Section */}
+      <div className="overflow-y-auto flex-1 pr-1 mt-4">
+        <Stack className="gap-8">
+
+          {/* ── Service Limits ── */}
           <Box>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              User Limits
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Service Limits
+              <span className="ml-2 text-xs normal-case font-normal">(0 = unlimited)</span>
             </h3>
-            <Stack className="gap-4">
-              <Box>
-                <Label htmlFor="maxUsers" className="mb-2 block">
-                  Maximum Users
-                </Label>
-                <Input
-                  id="maxUsers"
-                  type="number"
-                  min="0"
-                  defaultValue={0}
-                  value={settings.maxUsers}
-                  onChange={(e) =>
-                    handleChange("maxUsers", parseInt(e.target.value) || 0)
-                  }
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Maximum number of users allowed (e.g., 0, 2, 6, 8, etc.)
-                </p>
-              </Box>
-
-              <Box>
-                <Label htmlFor="maxProjects" className="mb-2 block">
-                  Maximum Projects
-                </Label>
-                <Input
-                  id="maxProjects"
-                  type="number"
-                  min="0"
-                  defaultValue={0}
-                  value={settings.maxProjects}
-                  onChange={(e) =>
-                    handleChange("maxProjects", parseInt(e.target.value) || 0)
-                  }
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Maximum number of projects allowed
-                </p>
-              </Box>
-
-              <Box>
-                <Label htmlFor="maxStorage" className="mb-2 block">
-                  Maximum Storage (GB)
-                </Label>
-                <Input
-                  id="maxStorage"
-                  type="number"
-                  min="0"
-                  defaultValue={0}
-                  value={settings.maxStorage}
-                  onChange={(e) =>
-                    handleChange("maxStorage", parseInt(e.target.value) || 0)
-                  }
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Maximum storage space in gigabytes
-                </p>
-              </Box>
-
-              <Box>
-                <Label htmlFor="maxTasks" className="mb-2 block">
-                  Maximum Tasks per User
-                </Label>
-                <Input
-                  id="maxTasks"
-                  type="number"
-                  min="0"
-                  defaultValue={0}
-                  value={settings.maxTasks}
-                  onChange={(e) =>
-                    handleChange("maxTasks", parseInt(e.target.value) || 0)
-                  }
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Maximum number of tasks each user can create
-                </p>
-              </Box>
-            </Stack>
+            <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+              <LimitField id="maxUsers" label="Max Users" icon={<Users size={14} />} value={settings.maxUsers} onChange={handleNum} />
+              <LimitField id="maxProjects" label="Max Projects" icon={<FolderKanban size={14} />} value={settings.maxProjects} onChange={handleNum} />
+              <LimitField id="maxTasks" label="Max Tasks per User" icon={<CheckSquare size={14} />} value={settings.maxTasks} onChange={handleNum} />
+              <LimitField id="maxStorage" label="Storage (GB)" icon={<HardDrive size={14} />} value={settings.maxStorage} onChange={handleNum} />
+              <LimitField id="maxLeads" label="Max Leads" icon={<UserCheck size={14} />} value={settings.maxLeads} onChange={handleNum} />
+              <LimitField id="maxClients" label="Max Clients" icon={<Users size={14} />} value={settings.maxClients} onChange={handleNum} />
+              <LimitField id="maxWebhooks" label="Max Webhooks" icon={<Webhook size={14} />} value={settings.maxWebhooks} onChange={handleNum} />
+              <LimitField id="maxInvoices" label="Max Invoices" icon={<FileText size={14} />} value={settings.maxInvoices} onChange={handleNum} />
+              <LimitField id="maxProposals" label="Max Proposals" icon={<FileSignature size={14} />} value={settings.maxProposals} onChange={handleNum} />
+              <LimitField id="aiTokenLimit" label="AI Token Limit / month" icon={<Sparkles size={14} />} value={settings.aiTokenLimit} onChange={handleNum} hint="e.g. 50000, 100000" />
+            </div>
           </Box>
 
-          {/* Feature Access Section */}
+          {/* ── Feature Access ── */}
           <Box>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
               Feature Access
             </h3>
-            <Stack className="gap-4">
-              <Flex className="items-center gap-3">
-                <Checkbox
-                  id="aiAssist"
-                  checked={settings.aiAssist}
-                  onCheckedChange={(checked) =>
-                    handleChange("aiAssist", checked === true)
-                  }
-                />
-                <Label htmlFor="aiAssist" className="cursor-pointer flex-1">
-                  AI Assist
-                  <span className="text-xs text-muted-foreground block">
-                    Access to AI-powered assistance features
-                  </span>
-                </Label>
-              </Flex>
-
-              <Flex className="items-center gap-3">
-                <Checkbox
-                  id="prioritySupport"
-                  checked={settings.prioritySupport}
-                  onCheckedChange={(checked) =>
-                    handleChange("prioritySupport", checked === true)
-                  }
-                />
-                <Label
-                  htmlFor="prioritySupport"
-                  className="cursor-pointer flex-1"
-                >
-                  Priority Support
-                  <span className="text-xs text-muted-foreground block">
-                    Priority customer support access
-                  </span>
-                </Label>
-              </Flex>
-
-              <Flex className="items-center gap-3">
-                <Checkbox
-                  id="calendarAccess"
-                  checked={settings.calendarAccess}
-                  onCheckedChange={(checked) =>
-                    handleChange("calendarAccess", checked === true)
-                  }
-                />
-                <Label
-                  htmlFor="calendarAccess"
-                  className="cursor-pointer flex-1"
-                >
-                  Calendar Access
-                  <span className="text-xs text-muted-foreground block">
-                    Access to calendar and event management features
-                  </span>
-                </Label>
-              </Flex>
-
-              <Flex className="items-center gap-3">
-                <Checkbox
-                  id="taskManagement"
-                  checked={settings.taskManagement}
-                  onCheckedChange={(checked) =>
-                    handleChange("taskManagement", checked === true)
-                  }
-                />
-                <Label
-                  htmlFor="taskManagement"
-                  className="cursor-pointer flex-1"
-                >
-                  Task Management
-                  <span className="text-xs text-muted-foreground block">
-                    Access to task creation and management features
-                  </span>
-                </Label>
-              </Flex>
-
-              <Flex className="items-center gap-3">
-                <Checkbox
-                  id="timeTracking"
-                  checked={settings.timeTracking}
-                  onCheckedChange={(checked) =>
-                    handleChange("timeTracking", checked === true)
-                  }
-                />
-                <Label htmlFor="timeTracking" className="cursor-pointer flex-1">
-                  Time Tracking
-                  <span className="text-xs text-muted-foreground block">
-                    Access to time tracking and reporting features
-                  </span>
-                </Label>
-              </Flex>
-            </Stack>
+            <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+              <FeatureToggle id="aiAssist" label="AI Assist" description="AI-powered assistance features" icon={<Bot size={14} />} checked={settings.aiAssist} onChange={handleBool} />
+              <FeatureToggle id="prioritySupport" label="Priority Support" description="Priority customer support" icon={<HeadphonesIcon size={14} />} checked={settings.prioritySupport} onChange={handleBool} />
+              <FeatureToggle id="calendarAccess" label="Calendar" description="Calendar & event management" icon={<CalendarDays size={14} />} checked={settings.calendarAccess} onChange={handleBool} />
+              <FeatureToggle id="taskManagement" label="Task Management" description="Task creation and management" icon={<CheckSquare size={14} />} checked={settings.taskManagement} onChange={handleBool} />
+              <FeatureToggle id="timeTracking" label="Time Tracking" description="Time tracking and reporting" icon={<Timer size={14} />} checked={settings.timeTracking} onChange={handleBool} />
+              <FeatureToggle id="analyticsAccess" label="Analytics & Reports" description="Reports and analytics dashboard" icon={<BarChart2 size={14} />} checked={settings.analyticsAccess} onChange={handleBool} />
+              <FeatureToggle id="apiAccess" label="API / Webhooks" description="API access and webhook integrations" icon={<Webhook size={14} />} checked={settings.apiAccess} onChange={handleBool} />
+              <FeatureToggle id="paymentLinks" label="Payment Links" description="Create and manage payment links" icon={<Link2 size={14} />} checked={settings.paymentLinks} onChange={handleBool} />
+              <FeatureToggle id="proposalsAccess" label="Proposals" description="Create and send proposals" icon={<FileSignature size={14} />} checked={settings.proposalsAccess} onChange={handleBool} />
+              <FeatureToggle id="whitelabel" label="White-label" description="Remove Flowlio branding" icon={<Paintbrush size={14} />} checked={settings.whitelabel} onChange={handleBool} />
+            </div>
           </Box>
+
         </Stack>
       </div>
 
-      <DialogFooter className="mt-6">
-        <Button
-          variant="outline"
-          className="cursor-pointer"
-          onClick={() => onOpenChange(false)}
-          disabled={isSaving}
-        >
+      <DialogFooter className="mt-6 shrink-0">
+        <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
           Cancel
         </Button>
-        <Button
-          className="cursor-pointer hover:bg-gray-600 hover:text-white/80"
-          onClick={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? "Saving..." : "Save Access Settings"}
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save Settings"}
         </Button>
       </DialogFooter>
     </GeneralModal>

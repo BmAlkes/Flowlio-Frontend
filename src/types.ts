@@ -98,15 +98,28 @@ export interface UserRecentTicketsResponse extends Partial<ApiResponse> {
 }
 
 export interface PlanFeature {
+  // Numeric limits (0 or null = unlimited)
   maxUsers: number;
   maxProjects: number;
   maxStorage: number;
   maxTasks: number;
+  maxLeads?: number | null;
+  maxClients?: number | null;
+  maxWebhooks?: number | null;
+  maxInvoices?: number | null;
+  maxProposals?: number | null;
+  aiTokenLimit?: number | null;
+  // Boolean features
   aiAssist: boolean;
   prioritySupport: boolean;
   calendarAccess?: boolean;
   taskManagement?: boolean;
   timeTracking?: boolean;
+  analyticsAccess?: boolean;
+  apiAccess?: boolean;
+  paymentLinks?: boolean;
+  proposalsAccess?: boolean;
+  whitelabel?: boolean;
   customFeatures?: string[];
   [key: string]: any;
 }

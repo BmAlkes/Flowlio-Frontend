@@ -60,11 +60,22 @@ const initialAccessSettings: PlanAccessSettings = {
   maxProjects: 0,
   maxStorage: 0,
   maxTasks: 0,
+  maxLeads: 0,
+  maxClients: 0,
+  maxWebhooks: 0,
+  maxInvoices: 0,
+  maxProposals: 0,
+  aiTokenLimit: 0,
   aiAssist: false,
   prioritySupport: false,
   calendarAccess: false,
   taskManagement: false,
   timeTracking: false,
+  analyticsAccess: false,
+  apiAccess: false,
+  paymentLinks: false,
+  proposalsAccess: false,
+  whitelabel: false,
 };
 
 const initialPlanState: PlanState = {
@@ -231,16 +242,28 @@ export const SubscriptionsHeader = () => {
               : ""; // Empty string - user will type their custom name independently
 
           // Load access settings from plan features
+          const f = plan.features;
           const accessSettings: PlanAccessSettings = {
-            maxUsers: plan.features?.maxUsers ?? 1,
-            maxProjects: plan.features?.maxProjects ?? 1,
-            maxStorage: plan.features?.maxStorage ?? 1,
-            maxTasks: plan.features?.maxTasks ?? 1,
-            aiAssist: plan.features?.aiAssist ?? false,
-            prioritySupport: plan.features?.prioritySupport ?? false,
-            calendarAccess: plan.features?.calendarAccess ?? false,
-            taskManagement: plan.features?.taskManagement ?? false,
-            timeTracking: plan.features?.timeTracking ?? false,
+            maxUsers: f?.maxUsers ?? 0,
+            maxProjects: f?.maxProjects ?? 0,
+            maxStorage: f?.maxStorage ?? 0,
+            maxTasks: f?.maxTasks ?? 0,
+            maxLeads: f?.maxLeads ?? 0,
+            maxClients: f?.maxClients ?? 0,
+            maxWebhooks: f?.maxWebhooks ?? 0,
+            maxInvoices: f?.maxInvoices ?? 0,
+            maxProposals: f?.maxProposals ?? 0,
+            aiTokenLimit: f?.aiTokenLimit ?? 0,
+            aiAssist: f?.aiAssist ?? false,
+            prioritySupport: f?.prioritySupport ?? false,
+            calendarAccess: f?.calendarAccess ?? false,
+            taskManagement: f?.taskManagement ?? false,
+            timeTracking: f?.timeTracking ?? false,
+            analyticsAccess: f?.analyticsAccess ?? false,
+            apiAccess: f?.apiAccess ?? false,
+            paymentLinks: f?.paymentLinks ?? false,
+            proposalsAccess: f?.proposalsAccess ?? false,
+            whitelabel: f?.whitelabel ?? false,
           };
 
           updatedPlans[planKey] = {
@@ -450,11 +473,22 @@ export const SubscriptionsHeader = () => {
           maxProjects: accessSettings.maxProjects,
           maxStorage: accessSettings.maxStorage,
           maxTasks: accessSettings.maxTasks,
+          maxLeads: accessSettings.maxLeads || null,
+          maxClients: accessSettings.maxClients || null,
+          maxWebhooks: accessSettings.maxWebhooks || null,
+          maxInvoices: accessSettings.maxInvoices || null,
+          maxProposals: accessSettings.maxProposals || null,
+          aiTokenLimit: accessSettings.aiTokenLimit || null,
           aiAssist: accessSettings.aiAssist,
           prioritySupport: accessSettings.prioritySupport,
           calendarAccess: accessSettings.calendarAccess,
           taskManagement: accessSettings.taskManagement,
           timeTracking: accessSettings.timeTracking,
+          analyticsAccess: accessSettings.analyticsAccess,
+          apiAccess: accessSettings.apiAccess,
+          paymentLinks: accessSettings.paymentLinks,
+          proposalsAccess: accessSettings.proposalsAccess,
+          whitelabel: accessSettings.whitelabel,
           customFeatures: [],
         } as PlanFeature;
 
@@ -661,12 +695,23 @@ export const SubscriptionsHeader = () => {
         maxProjects: accessSettings.maxProjects,
         maxStorage: accessSettings.maxStorage,
         maxTasks: accessSettings.maxTasks,
+        maxLeads: accessSettings.maxLeads || null,
+        maxClients: accessSettings.maxClients || null,
+        maxWebhooks: accessSettings.maxWebhooks || null,
+        maxInvoices: accessSettings.maxInvoices || null,
+        maxProposals: accessSettings.maxProposals || null,
+        aiTokenLimit: accessSettings.aiTokenLimit || null,
         aiAssist: accessSettings.aiAssist,
         prioritySupport: accessSettings.prioritySupport,
         calendarAccess: accessSettings.calendarAccess,
         taskManagement: accessSettings.taskManagement,
         timeTracking: accessSettings.timeTracking,
-        customFeatures: [], // Initialize custom features array
+        analyticsAccess: accessSettings.analyticsAccess,
+        apiAccess: accessSettings.apiAccess,
+        paymentLinks: accessSettings.paymentLinks,
+        proposalsAccess: accessSettings.proposalsAccess,
+        whitelabel: accessSettings.whitelabel,
+        customFeatures: [],
       } as PlanFeature;
 
       // Filter out empty strings and duplicates
