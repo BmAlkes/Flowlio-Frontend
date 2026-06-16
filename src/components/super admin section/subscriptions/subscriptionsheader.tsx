@@ -18,6 +18,7 @@ import { IoTrashSharp } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
 import { SubscribtionTabele } from "./subscribtiontabele";
 import { PlanAccessModal, PlanAccessSettings } from "./PlanAccessModal";
+import { AssignPlanCard } from "./AssignPlanCard";
 import { useUpsertPlan } from "@/hooks/useupsertplan";
 import { useDeleteCustomFeatures } from "@/hooks/usedeletecustomfeatures";
 import { toast } from "sonner";
@@ -1136,6 +1137,10 @@ export const SubscriptionsHeader = () => {
           </Stack>
         ))}
       </Flex>
+
+      <hr className="my-8" />
+
+      <AssignPlanCard />
 
       <hr className="my-8" />
 
