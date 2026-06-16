@@ -19,7 +19,16 @@ import { IPlan } from "@/types";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 import { SubscriptionHistoryModal } from "./SubscriptionHistoryModal";
 import { SubscriptionAuditModal } from "./SubscriptionAuditModal";
-import { AlertTriangle } from "lucide-react";
+import { AssignPlanModal } from "./AssignPlanModal";
+import { OverrideLimitsModal } from "./OverrideLimitsModal";
+import { AlertTriangle, MoreHorizontal, History, CreditCard, SlidersHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
@@ -176,25 +185,43 @@ export const getColumns = (t: any): ColumnDef<Data>[] => [
     id: "actions",
     header: () => <Box className="text-center text-foreground">{t("superadmin.subscriptions.table.actions", "Actions")}</Box>,
     cell: ({ row, table }) => {
-      const organizationId = row.original.id;
-      const handleViewHistory = () => {
-        // Access the table meta to get the onViewHistory callback
-        const meta = table.options.meta as any;
-        if (meta?.onViewHistory) {
-          meta.onViewHistory(organizationId, row.original.companyName);
-        }
-      };
+      const meta = table.options.meta as any;
+      const orgId = row.original.id;
+      const companyName = row.original.companyName;
 
       return (
         <Center>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleViewHistory}
-            className="cursor-pointer"
-          >
-            {t("common.viewHistory", "View History")}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="cursor-pointer h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="cursor-pointer gap-2"
+                onClick={() => meta?.onViewHistory?.(orgId, companyName)}
+              >
+                <History className="h-4 w-4 text-muted-foreground" />
+                {t("common.viewHistory", "View History")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer gap-2"
+                onClick={() => meta?.onAssignPlan?.(orgId, companyName)}
+              >
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                Assign Plan
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer gap-2"
+                onClick={() => meta?.onOverrideLimits?.(orgId, companyName, row.original.subscribtionplan)}
+              >
+                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                Override Limits
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Center>
       );
     },
@@ -210,10 +237,11 @@ export const SubscribtionTabele = ({
   const [date, setDate] = useState<DateRange | undefined>();
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
-  const [selectedOrganizationId, setSelectedOrganizationId] = useState<
-    string | null
-  >(null);
+  const [assignPlanModalOpen, setAssignPlanModalOpen] = useState(false);
+  const [overrideLimitsModalOpen, setOverrideLimitsModalOpen] = useState(false);
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
+  const [selectedPlanName, setSelectedPlanName] = useState<string>("");
   const {
     data: allOrganizationsResponse,
     isLoading: isOrganizationsLoading,
@@ -226,6 +254,19 @@ export const SubscribtionTabele = ({
     setSelectedOrganizationId(organizationId);
     setSelectedCompanyName(companyName);
     setHistoryModalOpen(true);
+  };
+
+  const handleAssignPlan = (organizationId: string, companyName: string) => {
+    setSelectedOrganizationId(organizationId);
+    setSelectedCompanyName(companyName);
+    setAssignPlanModalOpen(true);
+  };
+
+  const handleOverrideLimits = (organizationId: string, companyName: string, planName: string) => {
+    setSelectedOrganizationId(organizationId);
+    setSelectedCompanyName(companyName);
+    setSelectedPlanName(planName);
+    setOverrideLimitsModalOpen(true);
   };
 
   const plansData: Data[] =
@@ -425,6 +466,8 @@ export const SubscribtionTabele = ({
         enableSubscriptionsTable={true}
         meta={{
           onViewHistory: handleViewHistory,
+          onAssignPlan: handleAssignPlan,
+          onOverrideLimits: handleOverrideLimits,
         }}
       />
 
@@ -443,6 +486,27 @@ export const SubscribtionTabele = ({
         open={auditModalOpen}
         onOpenChange={setAuditModalOpen}
       />
+
+      {/* Assign Plan Modal */}
+      {assignPlanModalOpen && selectedOrganizationId && (
+        <AssignPlanModal
+          open={assignPlanModalOpen}
+          onOpenChange={setAssignPlanModalOpen}
+          orgId={selectedOrganizationId}
+          companyName={selectedCompanyName}
+        />
+      )}
+
+      {/* Override Limits Modal */}
+      {overrideLimitsModalOpen && selectedOrganizationId && (
+        <OverrideLimitsModal
+          open={overrideLimitsModalOpen}
+          onOpenChange={setOverrideLimitsModalOpen}
+          orgId={selectedOrganizationId}
+          companyName={selectedCompanyName}
+          currentPlanName={selectedPlanName}
+        />
+      )}
     </Box>
   );
 };
