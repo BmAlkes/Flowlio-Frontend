@@ -201,6 +201,7 @@ const LeadsWebhooksPage = lazy(() => import("./pages/leads-webhooks.page"));
 const LeadsWebhookDetailPage = lazy(() => import("./pages/leads-webhook-detail.page"));
 const SubscriptionsPage = lazy(() => import("./pages/subscriptions.page"));
 const AITokenConfirmPage = lazy(() => import("./pages/ai-token-confirm.page"));
+const PlanPaymentConfirmPage = lazy(() => import("./pages/plan-payment-confirm.page"));
 const ClientMediaCenterPage = lazy(() => import("./pages/clientmediacenter.page"));
 const ClientPortalSettingsPage = lazy(
   () => import("./pages/clientportalsettings.page"),
@@ -671,6 +672,12 @@ const AppRoutes = () => {
         />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
       </Route>
+
+      {/* Public — PayPal redirect after on-demand plan payment */}
+      <Route
+        path="/plan-payment/confirm"
+        element={<LazyWrapper component={PlanPaymentConfirmPage} />}
+      />
 
       {/* Error pages */}
       <Route

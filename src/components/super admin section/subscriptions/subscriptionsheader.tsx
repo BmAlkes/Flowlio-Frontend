@@ -19,6 +19,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { SubscribtionTabele } from "./subscribtiontabele";
 import { PlanAccessModal, PlanAccessSettings } from "./PlanAccessModal";
 import { AssignPlanCard } from "./AssignPlanCard";
+import { PlanPaymentLinkCard } from "./PlanPaymentLinkCard";
 import { useUpsertPlan } from "@/hooks/useupsertplan";
 import { useDeleteCustomFeatures } from "@/hooks/usedeletecustomfeatures";
 import { toast } from "sonner";
@@ -1141,6 +1142,10 @@ export const SubscriptionsHeader = () => {
       <hr className="my-8" />
 
       <AssignPlanCard />
+
+      <Box className="mt-4">
+        <PlanPaymentLinkCard />
+      </Box>
 
       <hr className="my-8" />
 

@@ -27,6 +27,69 @@ export const useAssignPlan = () => {
   });
 };
 
+// ─── Plan Payment Link (On-Demand) ───────────────────────────────────────────
+
+export interface CreatePlanPaymentPayload {
+  orgId: string;
+  planId: string;
+  amount: number;
+  currency?: string;
+  startDate: string;
+  endDate: string;
+  notes?: string;
+  description?: string;
+}
+
+export interface CreatePlanPaymentResult {
+  approvalUrl: string;
+  orderId: string;
+  requestId: string;
+}
+
+export const useCreatePlanPayment = () => {
+  return useMutation<CreatePlanPaymentResult, Error, CreatePlanPaymentPayload>({
+    mutationFn: async (payload) => {
+      const res = await axios.post<{ success: boolean; data: CreatePlanPaymentResult }>(
+        `/superadmin/invoices/plan-payment`,
+        payload
+      );
+      return res.data.data;
+    },
+  });
+};
+
+export interface ConfirmPlanPaymentPayload {
+  orderId: string;
+  orgId: string;
+  planId: string;
+}
+
+export interface ConfirmPlanPaymentResult {
+  invoiceNumber: string;
+  planName: string;
+  orgName: string;
+  amount: number;
+  currency: string;
+}
+
+export const useConfirmPlanPayment = () => {
+  const queryClient = useQueryClient();
+  return useMutation<ConfirmPlanPaymentResult, Error, ConfirmPlanPaymentPayload>({
+    mutationFn: async (payload) => {
+      const res = await axios.post<{ success: boolean; data: ConfirmPlanPaymentResult }>(
+        `/superadmin/invoices/plan-payment/confirm`,
+        payload
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetch all organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-limits", "all"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    },
+  });
+};
+
 // ─── Override Limits ─────────────────────────────────────────────────────────
 
 export interface OverrideLimitsPayload {
