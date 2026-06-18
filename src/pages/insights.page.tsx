@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Footer } from "@/components/footer/footer";
 import { Box } from "@/components/ui/box";
-import { GetSmart } from "@/components/user section/getsmart";
+import { InsightsMetrics } from "@/components/user section/insights/insightsmetrics";
 import { InsightsCards } from "@/components/user section/insights/insightscards";
 import { InsightsHero } from "@/components/user section/insights/insightshero";
 import { Navbar } from "@/components/user section/navbar/navbar";
@@ -69,7 +69,7 @@ export const InsightsPage = () => {
         <InsightsHero />
         <InsightsCards />
       </Box>
-      <GetSmart isInsights={true} />
+      <InsightsMetrics />
       <SubscribeTo />
       <Footer />
     </>
