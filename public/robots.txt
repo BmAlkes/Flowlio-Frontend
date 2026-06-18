@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block authenticated/private areas
+Disallow: /dashboard/
+Disallow: /superadmin/
+Disallow: /clients/
+Disallow: /viewer/
+Disallow: /auth/
+Disallow: /checkout
+Disallow: /plan-payment/
+
+Sitemap: https://flowlioapp.com/sitemap.xml
