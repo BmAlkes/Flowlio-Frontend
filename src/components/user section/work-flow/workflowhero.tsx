@@ -22,13 +22,13 @@ export const WorkflowHero = () => {
       <Center className="px-2">
         <Stack className="text-center max-sm:w-full justify-between items-center">
           <Box className="text-[#F98618] font-semibold max-w-2xl max-sm:w-full text-5xl max-sm:text-3xl  ">
-            Power Your Team
-            <Box className="text-white font-[100]">With a Smarter Wrokflow</Box>
+            From First Lead
+            <Box className="text-white font-[100]">To Final Invoice</Box>
           </Box>
 
           <Box className="w-xl max-sm:w-full font-[200] text-white text-[15px]">
-            Experience a seamless process that connects your tools, teams, and
-            timelines—all in one streamlined platform.
+            Flowlio connects every step of your business into one seamless
+            workflow — no switching tools, no dropped balls.
           </Box>
 
           <Button
@@ -46,7 +46,7 @@ export const WorkflowHero = () => {
               className="size-4"
             />
             <Box className="text-[16px] text-white font-light">
-              Watch How It Works
+              See How It Works
             </Box>
           </Flex>
         </Stack>

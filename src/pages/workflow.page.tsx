@@ -4,6 +4,7 @@ import { SubscribeTo } from "@/components/user section/subscribeto";
 import { Superchared } from "@/components/user section/superchared";
 import { WorkflowdDetails } from "@/components/user section/work-flow/workflowdetails";
 import { WorkflowHero } from "@/components/user section/work-flow/workflowhero";
+import { WorkflowSteps } from "@/components/user section/work-flow/workflowsteps";
 import { useEffect } from "react";
 export const WorkFlowPage = () => {
   useEffect(() => {
@@ -14,6 +15,7 @@ export const WorkFlowPage = () => {
     <>
       <Navbar />
       <WorkflowHero />
+      <WorkflowSteps />
       <WorkflowdDetails />
       <Superchared isWorkFlow={true} />
       <SubscribeTo />
