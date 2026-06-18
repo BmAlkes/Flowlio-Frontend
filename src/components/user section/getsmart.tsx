@@ -12,17 +12,17 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
   const smartDetails = [
     {
       title: "Productivity",
-      description: "5 Ways Dotizion Can Simplify Your Daily Workflow",
+      description: "5 Ways to Cut Admin Time and Focus on Billable Work",
       img: "/home/smart1.png",
     },
     {
-      title: "Team Collaboration",
-      description: "How Smart Workspaces Boost Communication & Output",
+      title: "Client Reporting",
+      description: "The Right Metrics to Share with Clients — and When",
       img: "/home/smart2.png",
     },
     {
-      title: "Automation",
-      description: "Using Dotizion AI to Automate Time-Consuming Tasks",
+      title: "Team Management",
+      description: "How to Track Team Performance Without Micromanaging",
       img: "/home/smart3.png",
     },
   ];
@@ -58,7 +58,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
           >
             Get Smarter, With{" "}
             <span className="text-[#F98618] font-semibold">
-              Dotizion Insights
+              Flowlio Insights
             </span>
           </h1>
 

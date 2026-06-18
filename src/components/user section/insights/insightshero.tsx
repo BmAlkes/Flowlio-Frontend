@@ -21,14 +21,14 @@ export const InsightsHero = () => {
       <Center className="px-2">
         <Stack className="text-center max-sm:w-full justify-between items-center">
           <Box className="text-[#F98618] font-semibold max-w-2xl max-sm:w-full text-5xl max-sm:text-3xl  ">
-            Make Smarter Decisions
+            See Exactly What's
             <Box className="text-white font-[100]">
-              with Actionable Insights
+              Happening in Your Business
             </Box>
           </Box>
           <Box className="w-2xl max-sm:w-full font-[200] text-white text-[15px]">
-            Uncover patterns, track team performance, and drive efficiency with
-            real-time data designed for modern teams.
+            Project progress, team performance, revenue and time — all tracked
+            in one place and updated in real time.
           </Box>
           <Button
             onClick={() => navigate("/pricing")}

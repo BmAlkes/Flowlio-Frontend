@@ -7,25 +7,25 @@ export const InsightsCards = () => {
     {
       title: "All Your Data, One Dashboard",
       description:
-        "Visualize your team’s progress, productivity, and priorities in a single, interactive dashboard. See the full picture at a glance.",
+        "See project progress, task completion, invoice totals and team activity in one place — updated in real time. No spreadsheets, no chasing updates.",
       color: "#DED4FC",
     },
     {
-      title: "Track What Matters Most",
+      title: "Time & Revenue at a Glance",
       description:
-        "Visualize your team’s progress, productivity, and priorities in a single, interactive dashboard. See the full picture at a glance.",
+        "Connect hours logged to projects and billable amounts. Instantly see where your team’s time goes and which clients drive the most revenue.",
       color: "#73D5A4",
     },
     {
-      title: "AI-Powered Insights",
+      title: "Team Performance Reports",
       description:
-        "Let Flowlio surface smart recommendations based on your workflow habits. Identify productivity drops, optimize task loads, and improve team efficiency—all powered by intelligent analysis.",
+        "Track task completion rates, on-time delivery and workload per team member. Spot bottlenecks and overloaded teammates before they affect your deadlines.",
       color: "#333333",
     },
     {
-      title: "Compare & Optimize",
+      title: "Compare & Improve",
       description:
-        "Compare teams, timeframes, or projects to see what’s working—and what’s not. Get clear direction for continuous improvement.",
+        "Compare projects, time periods or team members side by side. Spot what’s working, cut what isn’t and make every decision backed by real numbers.",
       color: "#FF596D",
     },
   ];
