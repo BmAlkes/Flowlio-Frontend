@@ -6,7 +6,7 @@ import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { useFetchPublicPlans } from "@/hooks/usefetchplans";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, ArrowRight } from "lucide-react";
+import { Check, Loader2, ArrowRight, Sparkles, Mail } from "lucide-react";
 import { FC, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
@@ -422,6 +422,72 @@ export const Pricing: FC<PricingProps> = ({
               )}
             </Flex>
           ))}
+
+          {/* ── Enterprise / On-Demand card ── */}
+          <Box className="relative rounded-xl overflow-hidden">
+            {/* Gradient background */}
+            <Box className="absolute inset-0 bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-xl" />
+            {/* Glowing blobs */}
+            <Box className="pointer-events-none absolute -top-6 -right-6 size-28 rounded-full bg-[#F98618]/20 blur-2xl" />
+            <Box className="pointer-events-none absolute -bottom-4 -left-4 size-20 rounded-full bg-indigo-500/20 blur-xl" />
+
+            <Flex className="relative flex-col gap-4 px-6 py-7 max-sm:p-5">
+              {/* Top row */}
+              <Flex className="justify-between items-start w-full">
+                <Flex className="flex-col gap-1">
+                  <Flex className="items-center gap-2">
+                    <Box className="p-1 rounded-md bg-[#F98618]/20">
+                      <Sparkles className="size-3.5 text-[#F98618]" />
+                    </Box>
+                    <Box className="text-xs font-semibold text-[#F98618] uppercase tracking-widest">
+                      On-Demand
+                    </Box>
+                  </Flex>
+                  <Box className="text-[18px] font-semibold text-white mt-0.5">
+                    Custom Plan
+                  </Box>
+                  <Box className="text-[14px] font-light text-white/70 max-w-[16rem]">
+                    Tailored limits, features and pricing built around your business.
+                  </Box>
+                </Flex>
+                <Flex className="flex-col items-end gap-1 shrink-0">
+                  <Box className="text-white/50 text-sm line-through">Fixed price</Box>
+                  <Box className="text-white font-semibold text-lg">Custom</Box>
+                </Flex>
+              </Flex>
+
+              {/* Features row */}
+              <Flex className="flex-wrap gap-x-5 gap-y-1.5">
+                {[
+                  "Unlimited everything",
+                  "Dedicated onboarding",
+                  "Custom integrations",
+                  "SLA & priority support",
+                  "White-label included",
+                  "Custom AI token quota",
+                ].map((f) => (
+                  <Flex key={f} className="items-center gap-1.5">
+                    <Check className="size-3 text-[#F98618] shrink-0" />
+                    <span className="text-white/80 text-xs">{f}</span>
+                  </Flex>
+                ))}
+              </Flex>
+
+              {/* CTA */}
+              <a
+                href="mailto:info@dotvizion.com?subject=Custom Plan Enquiry&body=Hi, I'd like to learn more about a custom Flowlio plan."
+                className="mt-1"
+              >
+                <Button
+                  className="w-full bg-[#F98618] hover:bg-[#F98618]/85 text-white font-semibold cursor-pointer gap-2 shadow-lg shadow-[#F98618]/20"
+                >
+                  <Mail className="size-4" />
+                  Talk to us — info@dotvizion.com
+                  <ArrowRight className="size-4 ml-auto" />
+                </Button>
+              </a>
+            </Flex>
+          </Box>
         </Stack>
       </Flex>
     </Center>
