@@ -6,7 +6,7 @@ import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { useFetchPublicPlans } from "@/hooks/usefetchplans";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, ArrowRight, Sparkles, Mail } from "lucide-react";
+import { Check, Loader2, ArrowRight, Mail } from "lucide-react";
 import { FC, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
@@ -17,7 +17,6 @@ interface PricingProps {
   setSelectedPlan: (plan: number | null) => void;
 }
 
-// Default features when no plan is selected
 const defaultFeatures = [
   {
     icon: Check,
@@ -38,78 +37,60 @@ const defaultFeatures = [
   },
 ];
 
-// Function to format duration from database
 const formatDuration = (plan: any): string => {
-  // Handle both snake_case and camelCase from API
   const durationValue = plan?.durationValue ?? plan?.duration_value;
   const durationType = plan?.durationType ?? plan?.duration_type;
 
-  // Check if durationValue and durationType exist and are valid
   if (
     durationValue !== null &&
     durationValue !== undefined &&
     durationType &&
     durationType.trim() !== ""
   ) {
-    const value = Number(durationValue); // Ensure it's a number
-
-    // Validate the value is a valid number
+    const value = Number(durationValue);
     if (!isNaN(value) && value > 0) {
       const type = durationType.trim().toLowerCase();
-
-      if (type === "days") {
-        return value === 1 ? "1 Day" : `${value} Days`;
-      } else if (type === "monthly") {
-        return value === 1 ? "1 Month" : `${value} Months`;
-      } else if (type === "yearly") {
-        return value === 1 ? "1 Year" : `${value} Years`;
-      }
+      if (type === "days") return value === 1 ? "1 Day" : `${value} Days`;
+      if (type === "monthly") return value === 1 ? "1 Month" : `${value} Months`;
+      if (type === "yearly") return value === 1 ? "1 Year" : `${value} Years`;
     }
   }
 
-  // Fallback to billingCycle if duration is not set
   const billingCycle = plan?.billingCycle ?? plan?.billing_cycle;
-  if (billingCycle) {
-    return billingCycle === "monthly" ? "month" : billingCycle;
-  }
-
-  return "month"; // Default fallback
+  if (billingCycle) return billingCycle === "monthly" ? "month" : billingCycle;
+  return "month";
 };
 
-// Function to convert database features to display format
 const formatPlanFeatures = (planFeatures: any) => {
   if (!planFeatures) return [];
-
   const features = [];
-
-  // Add custom features from database
-  if (
-    planFeatures.customFeatures &&
-    Array.isArray(planFeatures.customFeatures)
-  ) {
+  if (planFeatures.customFeatures && Array.isArray(planFeatures.customFeatures)) {
     features.push(...planFeatures.customFeatures);
   }
-
   return features;
 };
 
-export const Pricing: FC<PricingProps> = ({
-  selectedPlan,
-  setSelectedPlan,
-}) => {
+const ENTERPRISE_FEATURES = [
+  "Unlimited everything",
+  "Dedicated onboarding",
+  "Custom integrations",
+  "SLA & priority support",
+  "White-label included",
+  "Custom AI token quota",
+];
+
+export const Pricing: FC<PricingProps> = ({ selectedPlan, setSelectedPlan }) => {
   const { data: plansResponse, isLoading, isError } = useFetchPublicPlans();
   const navigate = useNavigate();
   const location = useLocation();
   const [isAnimating, setIsAnimating] = useState(false);
   const { setSelectedPlan: setStorePlan } = usePlanSelectionStore();
-  const { data: userData } = useUser(); // Check if user is authenticated
+  const { data: userData } = useUser();
 
-  // Check if user came from signup or signin
   const fromSignup = location.state?.fromSignup;
   const fromSignin = location.state?.fromSignin;
   const pendingAccount = location.state?.pendingAccount;
 
-  // Animation effect when plan changes
   useEffect(() => {
     if (selectedPlan !== null) {
       setIsAnimating(true);
@@ -118,64 +99,26 @@ export const Pricing: FC<PricingProps> = ({
     }
   }, [selectedPlan]);
 
-  // Compute planDetails inside the component using the fetched data
-  const planDetails = [
-    {
-      title:
-        plansResponse?.data?.[0]?.customPlanName ||
-        plansResponse?.data?.[0]?.name ||
-        "Basic Plan",
-      price: plansResponse?.data?.[0]?.price,
-      description: plansResponse?.data?.[0]?.description,
-      duration: formatDuration(plansResponse?.data?.[0]),
-      durationValue: plansResponse?.data?.[0]?.durationValue,
-      durationType: plansResponse?.data?.[0]?.durationType,
-      trialDays: plansResponse?.data?.[0]?.trialDays ?? 0,
-      features: formatPlanFeatures(plansResponse?.data?.[0]?.features),
-    },
-    {
-      title:
-        plansResponse?.data?.[1]?.customPlanName ||
-        plansResponse?.data?.[1]?.name ||
-        "Pro Plan",
-      price: plansResponse?.data?.[1]?.price,
-      description: plansResponse?.data?.[1]?.description,
-      duration: formatDuration(plansResponse?.data?.[1]),
-      durationValue: plansResponse?.data?.[1]?.durationValue,
-      durationType: plansResponse?.data?.[1]?.durationType,
-      trialDays: plansResponse?.data?.[1]?.trialDays ?? 0,
-      features: formatPlanFeatures(plansResponse?.data?.[1]?.features),
-    },
-    {
-      title:
-        plansResponse?.data?.[2]?.customPlanName ||
-        plansResponse?.data?.[2]?.name ||
-        "Enterprise Plan",
-      price: plansResponse?.data?.[2]?.price,
-      description: plansResponse?.data?.[2]?.description,
-      duration: formatDuration(plansResponse?.data?.[2]),
-      durationValue: plansResponse?.data?.[2]?.durationValue,
-      durationType: plansResponse?.data?.[2]?.durationType,
-      trialDays: plansResponse?.data?.[2]?.trialDays ?? 0,
-      features: formatPlanFeatures(plansResponse?.data?.[2]?.features),
-    },
-  ];
+  const planDetails = [0, 1, 2].map((i) => ({
+    title:
+      plansResponse?.data?.[i]?.customPlanName ||
+      plansResponse?.data?.[i]?.name ||
+      ["Basic Plan", "Pro Plan", "Enterprise Plan"][i],
+    price: plansResponse?.data?.[i]?.price,
+    description: plansResponse?.data?.[i]?.description,
+    duration: formatDuration(plansResponse?.data?.[i]),
+    trialDays: plansResponse?.data?.[i]?.trialDays ?? 0,
+    features: formatPlanFeatures(plansResponse?.data?.[i]?.features),
+  }));
 
-  // Handle plan selection (show feature preview)
   const handlePlanSelect = (planIndex: number) => {
-    // Set visual selection for immediate feedback and show feature preview
     setSelectedPlan(planIndex);
   };
 
-  // Handle navigation to checkout
   const handleGetStarted = (planIndex: number) => {
-    // Set visual selection for immediate feedback
     setSelectedPlan(planIndex);
-
-    // Get plan details from API response
     const selectedPlanData = plansResponse?.data?.[planIndex];
     if (selectedPlanData) {
-      // Save plan selection to store
       setStorePlan(planIndex, selectedPlanData.id, {
         name: selectedPlanData.name,
         price: selectedPlanData.price,
@@ -183,33 +126,25 @@ export const Pricing: FC<PricingProps> = ({
       });
     }
 
-    // SIMPLIFIED FLOW: Check authentication first
-    // If user is NOT authenticated, go directly to signup (not checkout)
     if (!userData?.user) {
-      // User not authenticated, go to signup first
       navigate("/auth/signup", {
-        state: {
-          fromPricing: true,
-          selectedPlan: planIndex,
-        },
+        state: { fromPricing: true, selectedPlan: planIndex },
         replace: false,
       });
       return;
     }
 
-    // User is authenticated, go directly to checkout
     navigate("/checkout", {
       state: {
         selectedPlan: planIndex,
         createOrganization: fromSignup || fromSignin || pendingAccount,
-        fromSignup: fromSignup,
-        fromSignin: fromSignin,
-        pendingAccount: pendingAccount,
+        fromSignup,
+        fromSignin,
+        pendingAccount,
       },
     });
   };
 
-  // Show loading state while plans are being fetched
   if (isLoading) {
     return (
       <Center className="flex-col min-h-[60vh] max-md:pb-10">
@@ -217,7 +152,7 @@ export const Pricing: FC<PricingProps> = ({
           <Loader2 className="w-12 h-12 animate-spin text-[#F98618]" />
           <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
             Choose
-            <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
+            <Box className="text-[#F98618] font-semibold"> The Ideal Plan</Box>
           </Flex>
           <Box className="w-lg max-sm:w-full font-[200] text-foreground text-[15px]">
             Loading our pricing plans...
@@ -227,14 +162,13 @@ export const Pricing: FC<PricingProps> = ({
     );
   }
 
-  // Show error state if plans failed to load
   if (isError) {
     return (
       <Center className="flex-col min-h-[60vh] max-md:pb-10">
         <Stack className="text-center justify-center items-center px-4 gap-6">
           <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
             Choose
-            <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
+            <Box className="text-[#F98618] font-semibold"> The Ideal Plan</Box>
           </Flex>
           <Box className="w-lg max-sm:w-full font-[200] text-red-600 text-[15px]">
             Failed to load pricing plans. Please try again later.
@@ -251,22 +185,22 @@ export const Pricing: FC<PricingProps> = ({
   }
 
   return (
-    <Center className="flex-col max-md:pb-10 ">
-      <Stack className="text-center justify-center items-center px-4 max-sm:mt-5">
+    <Center className="flex-col max-md:pb-10 py-10">
+      {/* ── Header ── */}
+      <Stack className="text-center justify-center items-center px-4 max-sm:mt-5 mb-10">
         <Flex className="text-center text-foreground font-[100] max-w-2xl max-sm:w-full text-4xl max-sm:text-3xl">
           Choose
-          <Box className=" text-[#F98618] font-semibold"> The Ideal Plan</Box>
+          <Box className="text-[#F98618] font-semibold"> The Ideal Plan</Box>
         </Flex>
-
         <Box className="w-lg max-sm:w-full font-[200] text-foreground text-[15px]">
           Get access to premium features designed to boost productivity and
           simplify your workflow with seamless performance.
         </Box>
       </Stack>
 
-      <Flex className="p-2 gap-6 max-lg:flex-col mt-5">
-        <Stack className="justify-start items-start border-2 py-12 px-10 border-border rounded-xl max-w-[28rem] min-h-[23rem] max-sm:w-full bg-gradient-to-r from-indigo-500/5 to-white gap-3 relative z-0 overflow-hidden">
-          {/* Dynamic Features Section */}
+      <Flex className="px-4 gap-8 max-lg:flex-col max-w-6xl w-full">
+        {/* ── Left: Feature preview ── */}
+        <Stack className="justify-start items-start border border-border py-10 px-8 rounded-2xl max-w-[26rem] min-h-[22rem] max-lg:max-w-full max-lg:w-full bg-gradient-to-br from-indigo-500/5 via-white to-indigo-500/3 gap-3 relative z-0 overflow-hidden">
           <Box className="w-full flex items-start">
             {selectedPlan !== null && plansResponse?.data?.[selectedPlan] ? (
               <Box
@@ -277,12 +211,12 @@ export const Pricing: FC<PricingProps> = ({
                     : "opacity-100 transform translate-y-0"
                 )}
               >
-                <Box className="text-lg font-semibold text-indigo-600 mb-4 text-center capitalize">
+                <Box className="text-lg font-semibold text-indigo-600 mb-5 text-center capitalize">
                   {plansResponse?.data?.[selectedPlan]?.customPlanName ||
                     plansResponse?.data?.[selectedPlan]?.name}{" "}
                   Features
                 </Box>
-                <Stack className="gap-3">
+                <Stack className="gap-3.5">
                   {(() => {
                     const features = formatPlanFeatures(
                       plansResponse?.data?.[selectedPlan]?.features
@@ -298,15 +232,15 @@ export const Pricing: FC<PricingProps> = ({
                       <Flex
                         key={index}
                         className={cn(
-                          "gap-4 transition-all duration-200",
+                          "gap-3 transition-all duration-200",
                           `animate-in slide-in-from-left-${(index + 1) * 100}`
                         )}
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <Box>
-                          <Check className="size-4 text-indigo-600" />
+                        <Box className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="size-3 text-indigo-600" />
                         </Box>
-                        <h1 className="text-foreground text-[15px]">{feature}</h1>
+                        <span className="text-foreground text-[15px] leading-snug">{feature}</span>
                       </Flex>
                     ));
                   })()}
@@ -321,17 +255,17 @@ export const Pricing: FC<PricingProps> = ({
                     : "opacity-100 transform translate-y-0"
                 )}
               >
-                <Stack className="gap-3">
+                <Stack className="gap-3.5">
                   {defaultFeatures.map((feature, index) => {
                     const IconComponent = feature.icon;
                     return (
-                      <Flex key={index} className="gap-4">
-                        <Box className="flex items-center justify-center w-6 h-6 rounded-full  text-muted-foreground">
-                          <IconComponent className="size-4" />
+                      <Flex key={index} className="gap-3">
+                        <Box className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-muted-foreground shrink-0 mt-0.5">
+                          <IconComponent className="size-3" />
                         </Box>
-                        <h1 className="text-foreground text-[15px]">
+                        <span className="text-foreground text-[15px] leading-snug">
                           {feature.text}
-                        </h1>
+                        </span>
                       </Flex>
                     );
                   })}
@@ -341,62 +275,58 @@ export const Pricing: FC<PricingProps> = ({
           </Box>
         </Stack>
 
-        <Stack className="gap-4 relative z-10">
+        {/* ── Right: Plan cards ── */}
+        <Stack className="gap-4 relative z-10 flex-1 max-lg:w-full">
           {planDetails.map((plan, index) => (
             <Flex
               onClick={() => handlePlanSelect(index)}
               key={index}
-              className={`flex-col justify-between items-center px-6 py-8 rounded-xl gap-5 max-sm:p-5 transition-all duration-300 cursor-pointer ${
+              className={cn(
+                "flex-col justify-between items-center px-6 py-6 rounded-2xl gap-4 max-sm:p-5 transition-all duration-300 cursor-pointer border",
                 selectedPlan === index
-                  ? "bg-gradient-to-r from-indigo-300 to-indigo-300 shadow-lg shadow-blue-500/25 transform scale-105"
-                  : "bg-gradient-to-r from-red-500/5 to-indigo-500/10 hover:shadow-md hover:shadow-gray-300/50"
-              }`}
+                  ? "bg-gradient-to-r from-indigo-400 to-indigo-500 shadow-xl shadow-indigo-500/20 border-indigo-400 scale-[1.02]"
+                  : "bg-gradient-to-r from-slate-50/80 to-indigo-50/50 hover:shadow-md border-border hover:border-indigo-200"
+              )}
             >
               <Flex className="justify-between items-center w-full">
-                <Flex className="items-start gap-2">
-                  <Flex className="items-center gap-2">
-                    <Checkbox
-                      className="rounded-full size-4.5 cursor-pointer mb-6"
-                      checked={selectedPlan === index}
-                      onChange={() => handlePlanSelect(index)}
-                    />
-                    <Flex className="flex-col items-start gap-0">
-                      <Box
-                        className={`text-[18px] font-semibold capitalize ${
-                          selectedPlan === index
-                            ? "text-white"
-                            : "text-[#353333]"
-                        }`}
-                      >
-                        {plan.title}
-                      </Box>
-                      <Box
-                        className={`text-[15px] font-light ${
-                          selectedPlan === index
-                            ? "text-white/90"
-                            : "text-[#353333]"
-                        }`}
-                      >
-                        {plan.description}
-                      </Box>
-                    </Flex>
+                <Flex className="items-start gap-3">
+                  <Checkbox
+                    className="rounded-full size-4.5 cursor-pointer mt-1"
+                    checked={selectedPlan === index}
+                    onChange={() => handlePlanSelect(index)}
+                  />
+                  <Flex className="flex-col items-start gap-0.5">
+                    <Box
+                      className={cn(
+                        "text-lg font-semibold capitalize",
+                        selectedPlan === index ? "text-white" : "text-foreground"
+                      )}
+                    >
+                      {plan.title}
+                    </Box>
+                    <Box
+                      className={cn(
+                        "text-sm font-light",
+                        selectedPlan === index ? "text-white/80" : "text-muted-foreground"
+                      )}
+                    >
+                      {plan.description}
+                    </Box>
                   </Flex>
                 </Flex>
                 <Flex
-                  className={`flex-col items-end ${
+                  className={cn(
+                    "flex-col items-end shrink-0",
                     selectedPlan === index ? "text-white" : "text-foreground"
-                  }`}
+                  )}
                 >
-                  <Flex className="items-baseline">
-                    <h1 className="font-semibold">$ {plan.price}</h1>
-                    <Flex>
-                      <h1 className="font-light">/{plan.duration}</h1>
-                    </Flex>
+                  <Flex className="items-baseline gap-0.5">
+                    <span className="text-xl font-bold">${plan.price}</span>
+                    <span className="text-sm font-light">/{plan.duration}</span>
                   </Flex>
-                  {/* Show Trial badge if trialDays > 0 */}
                   {plan.trialDays > 0 && (
-                    <Box className="mt-1">
-                      <Box className="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    <Box className="mt-1.5">
+                      <Box className="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
                         {plan.trialDays}-Day Trial
                       </Box>
                     </Box>
@@ -404,15 +334,12 @@ export const Pricing: FC<PricingProps> = ({
                 </Flex>
               </Flex>
 
-              {/* Get Started Button - Visible on both desktop and mobile when plan is selected */}
               {selectedPlan === index && (
                 <Button
                   variant="ghost"
-                  className={cn(
-                    "bg-gradient-to-r from-white to-indigo-300 cursor-pointer border border-border px-4 py-2 rounded-lg hover:border-white font-Outfit text-sm text-gray-800 w-full mt-2"
-                  )}
+                  className="bg-white/90 hover:bg-white cursor-pointer border-0 px-4 py-2.5 rounded-xl text-sm text-indigo-700 font-semibold w-full mt-1 shadow-sm"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering the parent onClick
+                    e.stopPropagation();
                     handleGetStarted(index);
                   }}
                 >
@@ -423,71 +350,57 @@ export const Pricing: FC<PricingProps> = ({
             </Flex>
           ))}
 
-          {/* ── Enterprise / On-Demand card ── */}
-          <Box className="relative rounded-xl overflow-hidden">
-            {/* Gradient background */}
-            <Box className="absolute inset-0 bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-xl" />
-            {/* Glowing blobs */}
-            <Box className="pointer-events-none absolute -top-6 -right-6 size-28 rounded-full bg-[#F98618]/20 blur-2xl" />
-            <Box className="pointer-events-none absolute -bottom-4 -left-4 size-20 rounded-full bg-indigo-500/20 blur-xl" />
+          {/* ── Enterprise / On-Demand — same card shape ── */}
+          <Flex
+            className="flex-col px-6 py-6 rounded-2xl gap-4 max-sm:p-5 border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden"
+          >
+            {/* Subtle accent glow */}
+            <Box className="pointer-events-none absolute -top-10 -right-10 size-40 rounded-full bg-[#F98618]/10 blur-3xl" />
 
-            <Flex className="relative flex-col gap-4 px-6 py-7 max-sm:p-5">
-              {/* Top row */}
-              <Flex className="justify-between items-start w-full">
-                <Flex className="flex-col gap-1">
+            <Flex className="justify-between items-start w-full relative">
+              <Flex className="items-start gap-3">
+                <Box className="w-5 h-5 rounded-full bg-[#F98618]/20 flex items-center justify-center mt-1 shrink-0">
+                  <Box className="w-2.5 h-2.5 rounded-full bg-[#F98618]" />
+                </Box>
+                <Flex className="flex-col gap-0.5">
                   <Flex className="items-center gap-2">
-                    <Box className="p-1 rounded-md bg-[#F98618]/20">
-                      <Sparkles className="size-3.5 text-[#F98618]" />
-                    </Box>
-                    <Box className="text-xs font-semibold text-[#F98618] uppercase tracking-widest">
+                    <Box className="text-lg font-semibold text-white">Custom Plan</Box>
+                    <Box className="text-[10px] font-bold text-[#F98618] uppercase tracking-widest bg-[#F98618]/10 px-2 py-0.5 rounded-full">
                       On-Demand
                     </Box>
                   </Flex>
-                  <Box className="text-[18px] font-semibold text-white mt-0.5">
-                    Custom Plan
-                  </Box>
-                  <Box className="text-[14px] font-light text-white/70 max-w-[16rem]">
+                  <Box className="text-sm font-light text-white/60">
                     Tailored limits, features and pricing built around your business.
                   </Box>
                 </Flex>
-                <Flex className="flex-col items-end gap-1 shrink-0">
-                  <Box className="text-white/50 text-sm line-through">Fixed price</Box>
-                  <Box className="text-white font-semibold text-lg">Custom</Box>
-                </Flex>
               </Flex>
-
-              {/* Features row */}
-              <Flex className="flex-wrap gap-x-5 gap-y-1.5">
-                {[
-                  "Unlimited everything",
-                  "Dedicated onboarding",
-                  "Custom integrations",
-                  "SLA & priority support",
-                  "White-label included",
-                  "Custom AI token quota",
-                ].map((f) => (
-                  <Flex key={f} className="items-center gap-1.5">
-                    <Check className="size-3 text-[#F98618] shrink-0" />
-                    <span className="text-white/80 text-xs">{f}</span>
-                  </Flex>
-                ))}
-              </Flex>
-
-              {/* CTA */}
-              <a
-                href="mailto:info@dotvizion.com?subject=Custom Plan Enquiry&body=Hi, I'd like to learn more about a custom Flowlio plan."
-                className="mt-1"
-              >
-                <Button
-                  className="w-full bg-[#F98618] hover:bg-[#F98618]/85 text-white font-semibold cursor-pointer gap-2 shadow-lg shadow-[#F98618]/20"
-                >
-                  <Mail className="size-4" />
-                  Talk to us — info@dotvizion.com
-                  <ArrowRight className="size-4 ml-auto" />
-                </Button>
-              </a>
+              <Box className="text-white font-bold text-lg shrink-0 mt-1">Custom</Box>
             </Flex>
-          </Box>
+
+            {/* Features */}
+            <Flex className="flex-wrap gap-x-4 gap-y-1.5 ml-8">
+              {ENTERPRISE_FEATURES.map((f) => (
+                <Flex key={f} className="items-center gap-1.5">
+                  <Check className="size-3 text-[#F98618] shrink-0" />
+                  <span className="text-white/70 text-sm">{f}</span>
+                </Flex>
+              ))}
+            </Flex>
+
+            {/* CTA */}
+            <a
+              href="mailto:info@dotvizion.com?subject=Custom Plan Enquiry&body=Hi, I'd like to learn more about a custom Flowlio plan."
+              className="ml-8"
+            >
+              <Button
+                className="bg-[#F98618] hover:bg-[#F98618]/85 text-white font-semibold cursor-pointer gap-2 shadow-lg shadow-[#F98618]/20 rounded-xl px-6"
+              >
+                <Mail className="size-4" />
+                Talk to us — info@dotvizion.com
+                <ArrowRight className="size-4 ml-auto" />
+              </Button>
+            </a>
+          </Flex>
         </Stack>
       </Flex>
     </Center>
