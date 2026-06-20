@@ -5,7 +5,7 @@ import {
   ArrowRight, Play, Zap, Shield, Globe2, Bot, TrendingUp, Users,
   Clock,  BarChart3, Calendar, CheckSquare, Star,
   Check, Monitor, Megaphone, Palette, BriefcaseBusiness,
-  ChevronRight, ChevronLeft, Kanban, FileText, Timer, CreditCard, Sparkles,
+  ChevronRight, Kanban, FileText, Timer, CreditCard, Sparkles,
   Building2,
 } from "lucide-react";
 
@@ -617,7 +617,6 @@ const ShowcasePage = () => {
   const [activeCategory, setActiveCategory] = useState<FeatureCategory>("All");
   const [modal, setModal] = useState<ModalState>({ isOpen: false, videoId: "", title: "" });
   const [activeTab, setActiveTab] = useState<DemoTab>("projects");
-  const [moduleIdx, setModuleIdx] = useState(0);
 
   const openModal = (videoId: string, title: string) =>
     setModal({ isOpen: true, videoId, title });
@@ -738,7 +737,7 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           2. EXAMPLE WORKFLOWS — light section, 4 cards
       ══════════════════════════════════════════════════════════════════ */}
-      <section id="workflows" className="py-24 px-6 bg-white">
+      <section id="workflows" className="py-28 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           {/* Header row */}
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-4">
@@ -809,7 +808,7 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           3. VIDEO LIBRARY — dark, filterable
       ══════════════════════════════════════════════════════════════════ */}
-      <section id="videos" className="py-24 px-6 dark-grid" style={{ background: "#060A18" }}>
+      <section id="videos" className="py-28 px-6 dark-grid" style={{ background: "#060A18" }}>
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-10">
@@ -917,10 +916,10 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           4. INTERACTIVE PREVIEW — white, split
       ══════════════════════════════════════════════════════════════════ */}
-      <section id="demo" className="py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start gap-14">
+      <section id="demo" className="py-28 px-6 bg-white">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start gap-16">
           {/* Left */}
-          <div className="flex-none max-w-xs lg:max-w-[300px]">
+          <div className="flex-none max-w-sm lg:max-w-[340px]">
             <span className="pill-badge pill-light mb-5 inline-flex"><Monitor size={9} /> Interactive Preview</span>
             <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-4 leading-tight" style={{ letterSpacing: "-0.02em" }}>
               Explore Flowlio before you even create an account
@@ -986,7 +985,7 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           5. INDUSTRY USE CASES — light bg, 6 cards
       ══════════════════════════════════════════════════════════════════ */}
-      <section id="use-cases" className="py-24 px-6" style={{ background: "#F8FAFC" }}>
+      <section id="use-cases" className="py-28 px-6" style={{ background: "#F8FAFC" }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-4">
             <div>
@@ -1003,51 +1002,42 @@ const ShowcasePage = () => {
             </button>
           </div>
 
-          {/* 6 cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {/* 6 cards — 3 per row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {INDUSTRIES.map((ind, idx) => {
               const Icon = ind.icon;
               const uc = useCases[idx] ?? useCases[0];
               return (
                 <div
                   key={ind.id}
-                  className="industry-card"
+                  className="rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl overflow-hidden relative group"
                   style={{
                     background: `linear-gradient(160deg, ${ind.from} 0%, ${ind.to} 100%)`,
                     border: "1px solid rgba(255,255,255,0.08)",
-                    minHeight: 200,
                   }}
                   onClick={() => openModal(uc.videoId, ind.label)}
                 >
-                  <div className="flex-1">
-                    <Icon size={22} color="rgba(255,255,255,0.9)" className="mb-3" />
-                    <h3 className="text-sm font-black text-white leading-tight mb-2">{ind.label}</h3>
-                    <p className="text-xs mb-4 leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-                      {uc.description.substring(0, 70)}…
-                    </p>
-                    <div className="text-2xl font-black text-white">{ind.metric}</div>
-                    <div className="text-xs mb-5" style={{ color: "rgba(255,255,255,0.5)" }}>{ind.metricLabel}</div>
-                    <button
-                      className="text-xs font-bold flex items-center gap-1.5 mb-4"
-                      style={{ color: "rgba(255,255,255,0.8)" }}
-                    >
-                      See workflow <ChevronRight size={11} />
-                    </button>
-                  </div>
-
-                  {/* Mini dashboard preview bar */}
-                  <div className="rounded-t-xl mt-auto overflow-hidden" style={{ background: "rgba(0,0,0,0.25)", padding: "8px 10px 0" }}>
-                    <div className="space-y-1.5">
-                      {[80,60,75].map((w, j) => (
-                        <div key={j} className="rounded" style={{ height: 4, width: `${w}%`, background: "rgba(255,255,255,0.2)" }} />
-                      ))}
-                      <div className="grid grid-cols-3 gap-1 pt-1">
-                        {[0,1,2].map((k) => (
-                          <div key={k} className="rounded" style={{ height: 18, background: "rgba(255,255,255,0.1)" }} />
-                        ))}
-                      </div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
+                      <Icon size={20} color="rgba(255,255,255,0.9)" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-black text-white leading-none">{ind.metric}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{ind.metricLabel}</div>
                     </div>
                   </div>
+
+                  <h3 className="text-base font-bold text-white leading-tight mb-2">{ind.label}</h3>
+                  <p className="text-sm mb-5 leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    {uc.description.substring(0, 100)}…
+                  </p>
+
+                  <button
+                    className="text-xs font-bold flex items-center gap-1.5 group-hover:gap-2.5 transition-all"
+                    style={{ color: "rgba(255,255,255,0.8)" }}
+                  >
+                    See workflow <ChevronRight size={11} />
+                  </button>
                 </div>
               );
             })}
@@ -1058,48 +1048,27 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           6. EVERYTHING YOU NEED — dark, module row
       ══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6" style={{ background: "#060A18" }}>
+      <section className="py-28 px-6" style={{ background: "#060A18" }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-14 gap-4">
-            <div>
-              <span className="pill-badge pill-dark mb-4 inline-flex"><Sparkles size={9} /> Why Flowlio</span>
-              <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black text-white mt-3" style={{ letterSpacing: "-0.02em" }}>
-                Everything you need.{" "}
-                <span style={{ color: "#FF6B2B" }}>In perfect flow.</span>
-              </h2>
-              <p className="text-sm text-gray-500 mt-3 max-w-lg">
-                A quick list of the core modules that power your business.
-              </p>
-            </div>
-            {/* Arrow navigation */}
-            <div className="flex items-center gap-2 self-start sm:self-end">
-              <button
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
-                onClick={() => setModuleIdx(Math.max(0, moduleIdx - 1))}
-                aria-label="Previous"
-              >
-                <ChevronLeft size={16} color="rgba(255,255,255,0.6)" />
-              </button>
-              <button
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
-                onClick={() => setModuleIdx(Math.min(MODULES.length - 6, moduleIdx + 1))}
-                aria-label="Next"
-              >
-                <ChevronRight size={16} color="rgba(255,255,255,0.6)" />
-              </button>
-            </div>
+          <div className="text-center mb-14">
+            <span className="pill-badge pill-dark mb-4 inline-flex"><Sparkles size={9} /> Why Flowlio</span>
+            <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black text-white mt-3" style={{ letterSpacing: "-0.02em" }}>
+              Everything you need.{" "}
+              <span style={{ color: "#FF6B2B" }}>In perfect flow.</span>
+            </h2>
+            <p className="text-sm text-gray-500 mt-3 max-w-lg mx-auto">
+              A quick list of the core modules that power your business.
+            </p>
           </div>
 
-          {/* Module cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {/* Module cards — 3 columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {MODULES.map((mod) => {
               const Icon = mod.icon;
               return (
                 <div
                   key={mod.label}
-                  className="p-5 rounded-2xl group cursor-pointer transition-all"
+                  className="flex items-start gap-4 p-6 rounded-2xl group cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
                   style={{
                     background: "rgba(255,255,255,0.03)",
                     border: "1px solid rgba(255,255,255,0.07)",
@@ -1113,11 +1082,13 @@ const ShowcasePage = () => {
                     (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
                   }}
                 >
-                  <div className="module-icon-wrap" style={{ background: `${mod.color}18`, border: `1px solid ${mod.color}30` }}>
+                  <div className="module-icon-wrap flex-shrink-0" style={{ background: `${mod.color}18`, border: `1px solid ${mod.color}30` }}>
                     <Icon size={20} color={mod.color} />
                   </div>
-                  <div className="text-sm font-bold text-white mb-1.5">{mod.label}</div>
-                  <div className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>{mod.desc}</div>
+                  <div>
+                    <div className="text-base font-bold text-white mb-1">{mod.label}</div>
+                    <div className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{mod.desc}</div>
+                  </div>
                 </div>
               );
             })}
@@ -1128,36 +1099,36 @@ const ShowcasePage = () => {
       {/* ══════════════════════════════════════════════════════════════════
           7. TRUST & SCALE — dark, icon row
       ══════════════════════════════════════════════════════════════════ */}
-      <section className="py-16 px-6" style={{ background: "#04070F", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <section className="py-20 px-6" style={{ background: "#04070F", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
-            <div>
-              <div className="pill-badge pill-dark mb-3 inline-flex"><Shield size={9} /> Trust & Scale</div>
-              <h3 className="text-2xl sm:text-3xl font-black text-white mt-3" style={{ letterSpacing: "-0.015em" }}>
-                Enterprise grade.{" "}
-                <span style={{ color: "rgba(255,255,255,0.45)" }}>Startup friendly.</span>
-              </h3>
-            </div>
+          <div className="text-center mb-12">
+            <div className="pill-badge pill-dark mb-3 inline-flex"><Shield size={9} /> Trust & Scale</div>
+            <h3 className="text-2xl sm:text-3xl font-black text-white mt-3" style={{ letterSpacing: "-0.015em" }}>
+              Enterprise grade.{" "}
+              <span style={{ color: "rgba(255,255,255,0.45)" }}>Startup friendly.</span>
+            </h3>
+          </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-6">
-              {[
-                { icon: TrendingUp, label: "99.99%", sub: "Uptime",            color: "#10B981" },
-                { icon: Zap,        label: "Real-time", sub: "Data Sync",      color: "#4F8EF7" },
-                { icon: Globe2,     label: "Google",    sub: "Calendar",       color: "#FBBF24" },
-                { icon: Bot,        label: "AI Powered", sub: "Smart Insights", color: "#8B5CF6" },
-                { icon: Shield,     label: "Bank-level", sub: "Security",      color: "#F87171" },
-                { icon: Users,      label: "Scales",    sub: "with you",       color: "#FF6B2B" },
-              ].map((t) => {
-                const Icon = t.icon;
-                return (
-                  <div key={t.label} className="flex flex-col items-center text-center gap-1.5">
-                    <Icon size={20} color={t.color} />
-                    <div className="text-sm font-bold text-white">{t.label}</div>
-                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.sub}</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+            {[
+              { icon: TrendingUp, label: "99.99%", sub: "Uptime",            color: "#10B981" },
+              { icon: Zap,        label: "Real-time", sub: "Data Sync",      color: "#4F8EF7" },
+              { icon: Globe2,     label: "Google",    sub: "Calendar",       color: "#FBBF24" },
+              { icon: Bot,        label: "AI Powered", sub: "Smart Insights", color: "#8B5CF6" },
+              { icon: Shield,     label: "Bank-level", sub: "Security",      color: "#F87171" },
+              { icon: Users,      label: "Scales",    sub: "with you",       color: "#FF6B2B" },
+            ].map((t) => {
+              const Icon = t.icon;
+              return (
+                <div key={t.label} className="flex flex-col items-center text-center gap-2 p-5 rounded-2xl transition-all duration-200 hover:bg-white/[0.03]" style={{ border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1" style={{ background: `${t.color}15` }}>
+                    <Icon size={18} color={t.color} />
                   </div>
-                );
-              })}
-            </div>
+                  <div className="text-sm font-bold text-white">{t.label}</div>
+                  <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{t.sub}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1166,30 +1137,31 @@ const ShowcasePage = () => {
           8. CTA BANNER — orange gradient
       ══════════════════════════════════════════════════════════════════ */}
       <section
-        className="py-14 px-6"
+        className="py-20 px-6 relative overflow-hidden"
         style={{ background: "linear-gradient(135deg, #FF6B2B 0%, #FF4500 50%, #E83A00 100%)" }}
       >
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white mb-2" style={{ letterSpacing: "-0.015em" }}>
-              Ready to streamline your workflow?
-            </h2>
-            <p className="text-sm text-white/75">
-              Join thousands of teams already using Flowlio to get more done.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
+        {/* Decorative glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)", filter: "blur(60px)" }} />
+
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-8 relative">
+          <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
+            Ready to streamline your workflow?
+          </h2>
+          <p className="text-base text-white/70 max-w-lg">
+            Join thousands of teams already using Flowlio to get more done.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => navigate("/pricing")}
-              className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-              style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(8px)" }}
+              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-white transition-all hover:scale-105"
+              style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(8px)" }}
             >
               Get started for free <ArrowRight size={14} />
             </button>
             <button
               onClick={() => openModal(OVERVIEW_VIDEO_ID, "Flowlio Product Tour")}
-              className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm transition-all hover:bg-white/10"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}
+              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm transition-all hover:bg-white/15"
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", color: "#fff" }}
             >
               Book a demo
             </button>
