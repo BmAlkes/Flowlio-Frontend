@@ -3,259 +3,146 @@ import { Center } from "@/components/ui/center";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
 import {
-  Calendar,
-  Clock,
-  Users,
-  CheckSquare,
-  BarChart3,
-  RefreshCw,
+  UserCheck,
+  FolderKanban,
+  FileText,
+  ArrowRight,
+  Shield,
 } from "lucide-react";
+import { useNavigate } from "react-router";
+
+const phases = [
+  {
+    icon: UserCheck,
+    accent: "#1797B9",
+    label: "Capture",
+    title: "Win new clients",
+    description:
+      "Leads arrive from your website via webhook and land in your pipeline. Qualify them, attach notes and convert to a full client record in one click.",
+  },
+  {
+    icon: FolderKanban,
+    accent: "#F98618",
+    label: "Deliver",
+    title: "Run every project",
+    description:
+      "Create projects, break them into tasks, assign your team and track progress on a kanban board. Time tracking runs in the background so every hour is logged.",
+  },
+  {
+    icon: FileText,
+    accent: "#1D6B52",
+    label: "Get paid",
+    title: "Invoice and grow",
+    description:
+      "Turn tracked hours into professional invoices. Send them directly to the client, collect payment online and review your numbers in real-time reports.",
+  },
+];
 
 export const PurposeAndHowItWorks = () => {
+  const navigate = useNavigate();
+
   return (
-    <Box
-      className="w-full bg-gradient-to-b from-muted/50 to-white py-16 px-4"
-      style={{
-        listStyle: "none",
-      }}
-    >
+    <Box className="w-full py-20 px-4">
       <Center className="max-w-6xl mx-auto">
-        <Stack className="space-y-16">
-          {/* Purpose Section */}
-          <Box className="w-full">
-            <Center className="text-center mb-8 flex-col">
-              <Box className="max-sm:text-3xl text-foreground mb-3 text-5xl font-[100]">
-                Purpose of{" "}
-                <span className="text-[#F98618] font-semibold ">
-                  Flowlio Application
-                </span>
-              </Box>
-              <Box className="text-lg text-muted-foreground max-w-3xl">
-                Understanding what Flowlio does and why we need your data
-              </Box>
+        <Stack className="w-full gap-20">
+
+          {/* ── How it works ── */}
+          <Box>
+            <Center className="flex-col text-center mb-14 gap-4">
+              <p className="text-sm font-semibold tracking-widest uppercase text-[#F98618]">
+                How it works
+              </p>
+              <h2 className="max-sm:text-3xl text-foreground text-5xl leading-tight">
+                <span className="font-[100]">Three phases,</span>{" "}
+                <span className="text-[#F98618] font-semibold">one platform</span>
+              </h2>
+              <p className="text-muted-foreground max-w-xl">
+                Everything your team needs to go from first enquiry to final
+                payment — without switching tools.
+              </p>
             </Center>
 
-            <Box className="bg-card rounded-xl shadow-lg p-8 max-sm:p-6 border border-border">
-              <Stack className="space-y-6">
-                <Box className="text-base text-foreground leading-relaxed">
-                  <strong className="text-foreground">Flowlio</strong> is a
-                  comprehensive work management and productivity platform
-                  designed to help individuals, teams, and organizations
-                  streamline their workflow processes. The primary purpose of
-                  our application is to:
-                </Box>
+            <Box className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-0 rounded-2xl overflow-hidden border border-border">
+              {phases.map((phase, i) => (
+                <Flex
+                  key={phase.label}
+                  className={`flex-col p-8 sm:p-10 gap-5 bg-card relative group transition-colors duration-300 hover:bg-muted/40 ${
+                    i < phases.length - 1 ? "lg:border-r border-b lg:border-b-0 border-border" : ""
+                  }`}
+                >
+                  {/* Accent top bar on hover */}
+                  <Box
+                    className="absolute top-0 left-0 right-0 h-[3px] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ backgroundColor: phase.accent }}
+                  />
 
-                <Box className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <Flex className="items-start gap-3 p-4 bg-blue-50 rounded-lg">
-                    <CheckSquare className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
-                    <Box>
-                      <Box className="font-semibold text-foreground mb-1">
-                        Task & Project Management
-                      </Box>
-                      <Box className="text-sm text-foreground">
-                        Enable users to create, manage, and track tasks and
-                        projects in one centralized platform
-                      </Box>
-                    </Box>
-                  </Flex>
-
-                  <Flex className="items-start gap-3 p-4 bg-green-50 rounded-lg">
-                    <Clock className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
-                    <Box>
-                      <Box className="font-semibold text-foreground mb-1">
-                        Time Tracking
-                      </Box>
-                      <Box className="text-sm text-foreground">
-                        Provide time tracking capabilities to monitor work hours
-                        and improve productivity
-                      </Box>
-                    </Box>
-                  </Flex>
-
-                  <Flex className="items-start gap-3 p-4 bg-purple-50 rounded-lg">
-                    <RefreshCw className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
-                    <Box>
-                      <Box className="font-semibold text-foreground mb-1">
-                        Calendar Synchronization
-                      </Box>
-                      <Box className="text-sm text-foreground">
-                        Offer bidirectional synchronization with Google Calendar
-                        to keep events synchronized
-                      </Box>
-                    </Box>
-                  </Flex>
-
-                  <Flex className="items-start gap-3 p-4 bg-orange-50 rounded-lg">
-                    <Users className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
-                    <Box>
-                      <Box className="font-semibold text-foreground mb-1">
-                        Team Collaboration
-                      </Box>
-                      <Box className="text-sm text-foreground">
-                        Facilitate team collaboration through project
-                        management, task assignment, and deadline tracking
-                      </Box>
-                    </Box>
-                  </Flex>
-
-                  <Flex className="items-start gap-3 p-4 bg-indigo-50 rounded-lg md:col-span-2">
-                    <BarChart3 className="text-[#1797B9] size-6 flex-shrink-0 mt-1" />
-                    <Box>
-                      <Box className="font-semibold text-foreground mb-1">
-                        AI-Enhanced Insights
-                      </Box>
-                      <Box className="text-sm text-foreground">
-                        Deliver AI-enhanced insights and recommendations to
-                        optimize workflow efficiency
-                      </Box>
-                    </Box>
-                  </Flex>
-                </Box>
-
-                <Box className="mt-6 p-5 bg-blue-50 rounded-lg border-l-4 border-[#1797B9]">
-                  <Box className="text-sm text-gray-800 leading-relaxed">
-                    <strong className="text-foreground">
-                      Google Calendar Integration Purpose:
-                    </strong>{" "}
-                    Flowlio requests access to your Google Calendar data
-                    (events, dates, times, calendar metadata) exclusively to
-                    provide bidirectional calendar synchronization. This
-                    integration allows you to create calendar events in Flowlio
-                    that automatically sync to your Google Calendar, and vice
-                    versa, ensuring your schedule stays synchronized across both
-                    platforms. We do not share, sell, or use your calendar data
-                    for any purpose other than providing this synchronization
-                    service.
+                  {/* Icon */}
+                  <Box
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${phase.accent}15` }}
+                  >
+                    <phase.icon className="h-5 w-5" style={{ color: phase.accent }} />
                   </Box>
-                </Box>
 
-                <Box className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border text-center">
-                  For detailed information about how we handle your data, please
-                  review our{" "}
+                  {/* Label */}
+                  <p
+                    className="text-xs font-bold tracking-widest uppercase"
+                    style={{ color: phase.accent }}
+                  >
+                    {phase.label}
+                  </p>
+
+                  {/* Title */}
+                  <h3 className="text-2xl font-semibold text-foreground leading-tight -mt-2">
+                    {phase.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-[15px] text-muted-foreground leading-relaxed">
+                    {phase.description}
+                  </p>
+                </Flex>
+              ))}
+            </Box>
+
+            {/* CTA */}
+            <Center className="mt-10">
+              <Button
+                onClick={() => navigate("/pricing")}
+                className="h-12 px-8 rounded-full bg-[#1797B9] hover:bg-[#1797B9]/85 text-white cursor-pointer gap-2 text-sm font-medium"
+              >
+                Start your free trial
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Center>
+          </Box>
+
+          {/* ── Data transparency note ── */}
+          <Box className="max-w-3xl mx-auto w-full">
+            <Flex className="gap-4 p-5 rounded-xl bg-muted/40 border border-border items-start">
+              <Box className="p-2 rounded-lg bg-[#1797B9]/10 shrink-0 mt-0.5">
+                <Shield className="h-4 w-4 text-[#1797B9]" />
+              </Box>
+              <Box>
+                <p className="text-sm text-foreground leading-relaxed">
+                  <span className="font-semibold">Your data stays yours.</span>{" "}
+                  Flowlio integrates with Google Calendar for bidirectional event
+                  sync. We only access your calendar data to keep events
+                  synchronised — nothing is shared with third parties. Read our{" "}
                   <Link
                     to="/privacy-policy"
                     className="text-[#1797B9] hover:underline font-medium"
                   >
                     Privacy Policy
-                  </Link>
-                  .
-                </Box>
-              </Stack>
-            </Box>
+                  </Link>{" "}
+                  for full details.
+                </p>
+              </Box>
+            </Flex>
           </Box>
 
-          {/* How It Works Section */}
-          <Box className="w-full">
-            <Center className="flex-col text-center mb-8">
-              <Box className="max-sm:text-3xl text-foreground mb-3 text-5xl font-[100] leading-tight">
-                How{" "}
-                <span className="text-[#F98618] font-semibold "> Flowlio</span>{" "}
-                Works
-              </Box>
-              <Box className="text-lg text-muted-foreground max-w-3xl">
-                Simple steps to get started and maximize your productivity
-              </Box>
-            </Center>
-
-            <Box className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Step 1 */}
-              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
-                <Center className="mb-4">
-                  <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
-                    1
-                  </Box>
-                </Center>
-                <Box className="text-center">
-                  <Box className="text-xl font-semibold text-foreground mb-2">
-                    Sign Up & Connect
-                  </Box>
-                  <Box className="text-sm text-muted-foreground leading-relaxed">
-                    Create your Flowlio account and connect your Google Calendar
-                    for seamless synchronization. No credit card required to get
-                    started.
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* Step 2 */}
-              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
-                <Center className="mb-4">
-                  <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
-                    2
-                  </Box>
-                </Center>
-                <Box className="text-center">
-                  <Box className="text-xl font-semibold text-foreground mb-2">
-                    Create & Manage
-                  </Box>
-                  <Box className="text-sm text-muted-foreground leading-relaxed">
-                    Create tasks, projects, and calendar events. Flowlio
-                    automatically syncs your events with Google Calendar in
-                    real-time, keeping everything up to date.
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* Step 3 */}
-              <Box className="bg-card rounded-xl shadow-md p-6 border border-border hover:shadow-lg transition-shadow">
-                <Center className="mb-4">
-                  <Box className="w-16 h-16 rounded-full bg-[#1797B9] text-white flex items-center justify-center text-2xl font-bold">
-                    3
-                  </Box>
-                </Center>
-                <Box className="text-center">
-                  <Box className="text-xl font-semibold text-foreground mb-2">
-                    Track & Optimize
-                  </Box>
-                  <Box className="text-sm text-muted-foreground leading-relaxed">
-                    Track your time, monitor productivity, and get AI-powered
-                    insights to optimize your workflow and achieve better
-                    results.
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Additional Features */}
-            <Box className="mt-12 bg-gradient-to-r from-[#1797B9] to-[#392AE2] rounded-xl p-8 text-white">
-              <Center className="text-center mb-6">
-                <Box className="text-2xl font-bold mb-2">
-                  Key Features That Make Flowlio Powerful
-                </Box>
-              </Center>
-              <Box className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Box className="text-center">
-                  <Calendar className="size-8 mx-auto mb-2" />
-                  <Box className="font-semibold mb-1">Bidirectional Sync</Box>
-                  <Box className="text-sm text-blue-100">
-                    Events sync both ways between Flowlio and Google Calendar
-                  </Box>
-                </Box>
-                <Box className="text-center">
-                  <CheckSquare className="size-8 mx-auto mb-2" />
-                  <Box className="font-semibold mb-1">Task Management</Box>
-                  <Box className="text-sm text-blue-100">
-                    Organize tasks with projects, deadlines, and priorities
-                  </Box>
-                </Box>
-                <Box className="text-center">
-                  <Clock className="size-8 mx-auto mb-2" />
-                  <Box className="font-semibold mb-1">Time Tracking</Box>
-                  <Box className="text-sm text-blue-100">
-                    Monitor work hours and analyze productivity patterns
-                  </Box>
-                </Box>
-                <Box className="text-center">
-                  <BarChart3 className="size-8 mx-auto mb-2" />
-                  <Box className="font-semibold mb-1">AI Insights</Box>
-                  <Box className="text-sm text-blue-100">
-                    Get smart recommendations to improve your workflow
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
         </Stack>
       </Center>
     </Box>
