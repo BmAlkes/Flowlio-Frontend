@@ -13,91 +13,111 @@ import {
 const metrics = [
   {
     icon: FolderKanban,
-    color: "#1797B9",
-    bg: "bg-[#1797B9]/10",
+    accent: "#1797B9",
     title: "Project Completion Rate",
     description:
       "See which projects are on track and which are falling behind — updated in real time. Catch delays before the client does.",
+    span: "col-span-1",
   },
   {
     icon: Clock,
-    color: "#F98618",
-    bg: "bg-[#F98618]/10",
+    accent: "#F98618",
     title: "Billable Hours vs. Budget",
     description:
       "Compare hours logged against estimated time per project. Spot scope creep early and protect your margins on every engagement.",
+    span: "col-span-1 lg:col-span-2",
   },
   {
     icon: FileText,
-    color: "#00A400",
-    bg: "bg-[#00A400]/10",
+    accent: "#1D6B52",
     title: "Revenue & Invoice Totals",
     description:
       "Track monthly revenue, outstanding invoices and payment history in one view. Know exactly what's been paid and what's still owed.",
+    span: "col-span-1 lg:col-span-2",
   },
   {
     icon: Users,
-    color: "#9400FF",
-    bg: "bg-[#9400FF]/10",
+    accent: "#6E42C1",
     title: "Team Workload",
     description:
       "See task distribution across your team. Identify who's at capacity, who has room for more and where bottlenecks are forming.",
+    span: "col-span-1",
   },
   {
     icon: UserCheck,
-    color: "#FF596D",
-    bg: "bg-[#FF596D]/10",
+    accent: "#D14B59",
     title: "Lead Conversion Rate",
     description:
       "Know how many leads become paying clients and how long conversion takes on average. Measure the health of your pipeline.",
+    span: "col-span-1",
   },
   {
     icon: TrendingUp,
-    color: "#00C2FF",
-    bg: "bg-[#00C2FF]/10",
+    accent: "#0E7490",
     title: "Client Activity",
     description:
       "See which clients are most active, what was last delivered, upcoming deadlines and open proposals — all in one place.",
+    span: "col-span-1",
   },
 ];
 
 export const InsightsMetrics = () => {
   return (
-    <Center className="relative p-8 sm:p-8 mb-12">
-      <Box className="relative z-10 max-w-5xl w-full my-14">
+    <Center className="relative px-4 sm:px-8 mb-16">
+      <Box className="relative z-10 max-w-5xl w-full mt-14">
 
-        {/* Heading */}
-        <Flex className="items-start justify-start text-start flex-col gap-6 ml-6 mb-10">
-          <h2 className="font-[100] sm:text-5xl text-3xl max-lg:w-full max-sm:text-center">
-            Measure Everything{" "}
-            <span className="text-[#F98618] font-semibold">That Matters</span>
-          </h2>
-          <p className="text-base text-foreground font-light leading-6 max-w-[40rem] max-md:w-full">
-            Six metrics your business can't afford to ignore — all tracked
-            automatically inside Flowlio, no manual reports needed.
+        {/* ── Heading ── */}
+        <Box className="ml-2 sm:ml-6 mb-12">
+          <p className="text-sm font-semibold tracking-widest uppercase mb-4" style={{ color: "#F98618" }}>
+            What you can measure
           </p>
-        </Flex>
+          <h2 className="text-4xl sm:text-5xl text-foreground leading-tight">
+            <span className="font-[100]">The numbers that</span>
+            <br className="hidden sm:block" />
+            <span className="font-semibold" style={{ color: "#F98618" }}> drive your business</span>
+          </h2>
+        </Box>
 
-        {/* Metrics grid */}
-        <div className="grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-sm:grid-cols-1 px-4 sm:px-6">
+        {/* ── Bento grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 px-0 sm:px-2">
           {metrics.map((m) => (
-            <Flex
+            <Box
               key={m.title}
-              className="flex-col items-start gap-3 p-6 rounded-2xl border border-border bg-card hover:shadow-md transition-shadow duration-200"
+              className={`group relative rounded-2xl p-6 sm:p-7 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${m.span}`}
+              style={{ backgroundColor: `${m.accent}0A` }}
             >
-              <Box className={`p-2.5 rounded-xl ${m.bg} shrink-0`}>
-                <m.icon
-                  className="h-5 w-5"
-                  style={{ color: m.color }}
-                />
-              </Box>
-              <h3 className="text-base font-semibold text-foreground leading-tight">
-                {m.title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-light">
-                {m.description}
-              </p>
-            </Flex>
+              {/* Accent bar */}
+              <Box
+                className="absolute left-0 top-0 w-1 h-full rounded-l-2xl"
+                style={{ backgroundColor: m.accent }}
+              />
+
+              {/* Decorative corner glow */}
+              <Box
+                className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
+                style={{ backgroundColor: m.accent }}
+              />
+
+              <Flex className="flex-col items-start gap-4 relative">
+                {/* Icon */}
+                <Box
+                  className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${m.accent}18` }}
+                >
+                  <m.icon className="h-5 w-5" style={{ color: m.accent }} />
+                </Box>
+
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-foreground leading-snug">
+                  {m.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-[15px] text-muted-foreground leading-relaxed">
+                  {m.description}
+                </p>
+              </Flex>
+            </Box>
           ))}
         </div>
 
