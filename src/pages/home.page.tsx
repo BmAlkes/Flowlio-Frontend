@@ -1,6 +1,6 @@
 import { Footer } from "@/components/footer/footer";
 import { Box } from "@/components/ui/box";
-import { GetSmart } from "@/components/user section/getsmart";
+import { InsightsMetrics } from "@/components/user section/insights/insightsmetrics";
 import { Hero } from "@/components/user section/hero";
 import { ManageSmarter } from "@/components/user section/managesmarter";
 import { ManageTask } from "@/components/user section/managetask";
@@ -28,7 +28,7 @@ const HomePage = () => {
       <TeamMember2 />
       <ManageTask />
       <ManageSmarter />
-      <GetSmart />
+      <InsightsMetrics />
       <PurposeAndHowItWorks />
       <SubscribeTo />
       <Footer />
