@@ -51,29 +51,11 @@ const PROGRESS_STAGES = [
   "Completed",
 ];
 
-const STAGE_EMOJI: Record<string, string> = {
-  "New Lead": "🔵",
-  "Contacted": "🟣",
-  "Qualified": "🟡",
-  "Proposal Sent": "🟠",
-  "Contract Signed": "🟢",
-  "Project In Progress": "🔷",
-  "Completed": "✅",
-  "Inactive": "⚫",
-  "Lost": "🔴",
-};
-
-
-const STAGE_TEXT: Record<string, string> = {
-  "New Lead": "text-blue-600 dark:text-blue-400",
-  "Contacted": "text-violet-600 dark:text-violet-400",
-  "Qualified": "text-yellow-600 dark:text-yellow-400",
-  "Proposal Sent": "text-amber-600 dark:text-amber-400",
-  "Contract Signed": "text-emerald-600 dark:text-emerald-400",
-  "Project In Progress": "text-indigo-600 dark:text-indigo-400",
-  "Completed": "text-green-600 dark:text-green-400",
-  "Inactive": "text-gray-500 dark:text-gray-400",
-  "Lost": "text-rose-600 dark:text-rose-400",
+const STAGE_DOT: Record<string, string> = {
+  "New Lead": "bg-blue-500", "Contacted": "bg-violet-500", "Qualified": "bg-yellow-500",
+  "Proposal Sent": "bg-amber-500", "Contract Signed": "bg-emerald-500",
+  "Project In Progress": "bg-indigo-500", "Completed": "bg-green-500",
+  "Inactive": "bg-gray-400", "Lost": "bg-rose-500",
 };
 
 const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
@@ -85,49 +67,14 @@ const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
 
 const TEMPERATURES: {
   value: LeadTemperature;
-  emoji: string;
   label: string;
-  ring: string;
-  activeText: string;
-  activeBg: string;
-  badge: string;
+  dot: string;
+  active: string;
 }[] = [
-  {
-    value: "Hot",
-    emoji: "🔥",
-    label: "Hot",
-    ring: "ring-orange-400",
-    activeText: "text-orange-700 dark:text-orange-300",
-    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
-    badge: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-500/30",
-  },
-  {
-    value: "Warm",
-    emoji: "🟠",
-    label: "Warm",
-    ring: "ring-amber-400",
-    activeText: "text-amber-700 dark:text-amber-300",
-    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
-    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500/30",
-  },
-  {
-    value: "Cold",
-    emoji: "🔵",
-    label: "Cold",
-    ring: "ring-sky-400",
-    activeText: "text-sky-700 dark:text-sky-300",
-    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
-    badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-500/30",
-  },
-  {
-    value: "Lost",
-    emoji: "⚫",
-    label: "Lost",
-    ring: "ring-gray-400",
-    activeText: "text-gray-700 dark:text-gray-300",
-    activeBg: "bg-white dark:bg-gray-800 shadow-sm",
-    badge: "bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800/40 dark:text-gray-300 dark:border-gray-600/40",
-  },
+  { value: "Hot",  label: "Hot",  dot: "bg-orange-500", active: "bg-muted font-medium" },
+  { value: "Warm", label: "Warm", dot: "bg-amber-400",  active: "bg-muted font-medium" },
+  { value: "Cold", label: "Cold", dot: "bg-sky-500",    active: "bg-muted font-medium" },
+  { value: "Lost", label: "Lost", dot: "bg-gray-400",   active: "bg-muted font-medium" },
 ];
 
 interface ClientDetailSheetProps {
@@ -237,7 +184,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
   const formattedValue = formatValue(client.leadValue);
   const currentTemp = insights?.temperature;
-  const tempConfig = TEMPERATURES.find((t) => t.value === currentTemp);
+  const tempCfg = TEMPERATURES.find((t) => t.value === currentTemp);
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -249,9 +196,9 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
           {/* Client identity */}
           <div className="flex items-start gap-4 mb-6">
             <div className="relative shrink-0">
-              <Avatar className={`h-16 w-16 rounded-2xl ring-[2.5px] ring-offset-2 ring-offset-background ${tempConfig?.ring ?? "ring-border/40"}`}>
+              <Avatar className="h-14 w-14 rounded-xl">
                 <AvatarImage src={client.image} />
-                <AvatarFallback className="rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold text-lg">
+                <AvatarFallback className="rounded-xl bg-muted text-muted-foreground font-medium text-base">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -259,11 +206,12 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
             <div className="flex-1 min-w-0 pt-0.5">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="font-bold text-xl text-foreground leading-snug truncate">
+                <h2 className="font-semibold text-lg text-foreground leading-snug truncate">
                   {client.name}
                 </h2>
-                {currentTemp && tempConfig && (
-                  <span className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${tempConfig.badge}`}>
+                {currentTemp && tempCfg && (
+                  <span className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <span className={`w-2 h-2 rounded-full ${tempCfg.dot}`} />
                     {currentTemp}
                   </span>
                 )}
@@ -373,7 +321,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-1 p-1 bg-muted/50 dark:bg-muted/20 rounded-xl">
+            <div className="flex gap-1 p-1 bg-muted/40 rounded-lg">
               {TEMPERATURES.map((temp) => {
                 const isActive = currentTemp === temp.value;
                 return (
@@ -381,14 +329,12 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     key={temp.value}
                     onClick={() => handleTemperatureChange(temp.value)}
                     disabled={updateTemperature.isPending}
-                    className={`h-10 rounded-lg text-xs font-semibold transition-all duration-150 disabled:opacity-50 flex flex-col items-center justify-center gap-0.5 ${
-                      isActive
-                        ? `${temp.activeBg} ${temp.activeText}`
-                        : "text-muted-foreground hover:text-foreground"
+                    className={`flex-1 h-8 rounded text-xs font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 ${
+                      isActive ? temp.active : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <span className="text-base leading-none">{temp.emoji}</span>
-                    <span>{t(`pipeline.temperatures.${temp.value}`)}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${temp.dot}`} />
+                    {t(`pipeline.temperatures.${temp.value}`)}
                   </button>
                 );
               })}
@@ -430,17 +376,15 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               >
                 <SelectTrigger size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm leading-none">{STAGE_EMOJI[currentStatus]}</span>
-                    <span className={STAGE_TEXT[currentStatus] ?? ""}>
-                      <SelectValue />
-                    </span>
+                    <span className={`w-2 h-2 rounded-full ${STAGE_DOT[currentStatus] ?? "bg-gray-400"}`} />
+                    <SelectValue />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((stage) => (
                     <SelectItem key={stage} value={stage} className="text-sm">
                       <div className="flex items-center gap-2">
-                        <span>{STAGE_EMOJI[stage]}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[stage] ?? "bg-gray-400"}`} />
                         {t(`pipeline.clientStatuses.${stage}` as any)}
                       </div>
                     </SelectItem>
