@@ -286,7 +286,7 @@ function DroppableColumn({
           {React.Children.count(children)}
         </span>
       </Box>
-      <Box className="flex-1 overflow-y-auto p-2">{children}</Box>
+      <Box className="flex-1 overflow-y-auto overflow-x-hidden p-2 w-full">{children}</Box>
     </Flex>
   );
 }

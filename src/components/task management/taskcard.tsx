@@ -55,7 +55,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing overflow-hidden min-w-0 ${
+      className={`bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing overflow-hidden w-full max-w-full ${
         isDragging ? "shadow-lg" : ""
       }`}
     >
@@ -73,7 +73,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
 
       {/* Description */}
       {task.description && (
-        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+        <p className="text-muted-foreground text-sm mb-3 line-clamp-2 break-words">
           {task.description}
         </p>
       )}
