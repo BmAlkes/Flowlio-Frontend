@@ -14,7 +14,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Trash2, MoreHorizontal, DollarSign, Phone } from "lucide-react";
+import { Loader2, Search, MoreHorizontal, DollarSign, Phone } from "lucide-react";
 import { useBulkLeadAction } from "@/hooks/useLeadExtras";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
