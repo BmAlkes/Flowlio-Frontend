@@ -511,15 +511,23 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     return (
                       <button
                         key={tag.id}
-                        onClick={() => {
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           const currentIds = (client.tags ?? []).map((t: any) => t.id);
                           const newIds = active ? currentIds.filter((id: string) => id !== tag.id) : [...currentIds, tag.id];
-                          setLeadTags.mutate({ leadId: client.id, tagIds: newIds });
+                          setLeadTags.mutate({ leadId: client.id, tagIds: newIds }, {
+                            onSuccess: () => toast.success(active ? `Removed "${tag.name}"` : `Added "${tag.name}"`),
+                            onError: (err) => toast.error("Failed to update tags", { description: (err as any)?.message }),
+                          });
                         }}
-                        className={`text-xs px-2.5 py-1 rounded-full border-transparent font-medium transition-all ${
-                          active ? "text-white ring-2 ring-offset-1 ring-offset-background" : "text-white opacity-40 hover:opacity-70"
-                        }`}
-                        style={{ backgroundColor: tag.color, ...(active ? { ringColor: tag.color } : {}) }}
+                        className="text-xs px-2.5 py-1.5 rounded-full font-medium cursor-pointer transition-all border-2"
+                        style={{
+                          backgroundColor: active ? tag.color : "transparent",
+                          borderColor: tag.color,
+                          color: active ? "#fff" : tag.color,
+                        }}
                       >
                         {tag.name}
                       </button>

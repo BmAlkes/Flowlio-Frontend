@@ -165,6 +165,7 @@ export const LeadsTable = () => {
               </th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Name</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Source</th>
+              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Tags</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Assigned</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Stage</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Temp</th>
@@ -176,7 +177,7 @@ export const LeadsTable = () => {
           </thead>
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
-              <tr><td colSpan={10} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
+              <tr><td colSpan={11} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
             ) : (
               leads.map((lead: any) => {
                 const dot = STAGE_DOT[lead.status] ?? "bg-gray-400";
@@ -217,22 +218,25 @@ export const LeadsTable = () => {
                     </td>
 
                     <td className="px-3 py-3">
-                      <div>
-                        <span className="text-xs text-muted-foreground">{lead.webhookName ?? "Manual"}</span>
-                        {lead.tags && lead.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {lead.tags.map((tag: any) => (
-                              <span
-                                key={tag.id}
-                                className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
-                                style={{ backgroundColor: tag.color }}
-                              >
-                                {tag.name}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs text-muted-foreground">{lead.webhookName ?? "Manual"}</span>
+                    </td>
+
+                    <td className="px-3 py-3">
+                      {lead.tags && lead.tags.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {lead.tags.map((tag: any) => (
+                            <span
+                              key={tag.id}
+                              className="text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
+                              style={{ backgroundColor: tag.color }}
+                            >
+                              {tag.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/40">—</span>
+                      )}
                     </td>
 
                     <td className="px-3 py-3">
