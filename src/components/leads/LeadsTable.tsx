@@ -216,7 +216,22 @@ export const LeadsTable = () => {
                     </td>
 
                     <td className="px-3 py-3">
-                      <span className="text-xs text-muted-foreground">{lead.webhookName ?? "Manual"}</span>
+                      <div>
+                        <span className="text-xs text-muted-foreground">{lead.webhookName ?? "Manual"}</span>
+                        {lead.tags && lead.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {lead.tags.map((tag: any) => (
+                              <span
+                                key={tag.id}
+                                className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-3 py-3">

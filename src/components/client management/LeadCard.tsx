@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DollarSign, Clock, AlertCircle, GripVertical, Pin, Bell } from "lucide-react";
+import { DollarSign, Clock, GripVertical, Bell } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
 import { useTranslation } from "react-i18next";
@@ -14,25 +14,12 @@ interface LeadCardProps {
   onCardClick?: () => void;
 }
 
+const TEMP_DOT: Record<string, string> = {
+  Hot: "bg-orange-500", Warm: "bg-amber-400", Cold: "bg-sky-500", Lost: "bg-gray-400",
+};
+
 const TEMP_BORDER: Record<string, string> = {
-  Hot: "border-l-orange-400",
-  Warm: "border-l-amber-400",
-  Cold: "border-l-sky-400",
-  Lost: "border-l-gray-400",
-};
-
-const TEMP_BADGE: Record<string, string> = {
-  Hot: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-900/20 dark:border-orange-500/20",
-  Warm: "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-500/20",
-  Cold: "text-sky-600 bg-sky-50 border-sky-200 dark:text-sky-400 dark:bg-sky-900/20 dark:border-sky-500/20",
-  Lost: "text-gray-600 bg-gray-100 border-gray-300 dark:text-gray-400 dark:bg-gray-800/40 dark:border-gray-600/40",
-};
-
-const TEMP_EMOJI: Record<string, string> = {
-  Hot: "🔥",
-  Warm: "🟠",
-  Cold: "🔵",
-  Lost: "⚫",
+  Hot: "border-l-orange-400", Warm: "border-l-amber-400", Cold: "border-l-sky-400", Lost: "border-l-gray-400",
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
@@ -53,25 +40,16 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
     opacity: isDragging ? 0.2 : 1,
   };
 
-  const getInitials = (name: string) =>
-    name.split(" ").map((n) => n[0]).join("").toUpperCase();
+  const initials = (lead.name || "?").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   const formatValue = (val: any) => {
     if (!val || Number(val) === 0) return null;
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(Number(val));
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(val));
   };
 
-  const showStaleAlert =
-    lead.lastInteractionAt &&
-    differenceInDays(new Date(), new Date(lead.lastInteractionAt)) > 7;
-
-  const followUpDate = lead.followUpAt ? new Date(lead.followUpAt) : null;
-  const followUpOverdue = followUpDate ? differenceInDays(new Date(), followUpDate) >= 0 : false;
-  const followUpDaysLeft = followUpDate ? differenceInDays(followUpDate, new Date()) : null;
+  const followUp = lead.followUpAt ? new Date(lead.followUpAt) : null;
+  const followUpOverdue = followUp ? differenceInDays(new Date(), followUp) >= 0 : false;
+  const followUpDays = followUp ? differenceInDays(followUp, new Date()) : null;
 
   const temp = insights?.temperature;
   const formattedValue = formatValue(lead.leadValue);
@@ -82,97 +60,60 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       ref={setNodeRef}
       style={style}
       className={`
-        relative bg-white dark:bg-gray-900 rounded-xl border border-border/50
-        border-l-[3px] ${borderClass}
+        relative bg-card rounded-lg border border-border/50 border-l-[3px] ${borderClass}
         group transition-all duration-150
-        ${isOverlay
-          ? "shadow-2xl ring-1 ring-black/8 scale-[1.03] cursor-grabbing rotate-[0.5deg]"
-          : "hover:shadow-md hover:-translate-y-px cursor-pointer"
-        }
+        ${isOverlay ? "shadow-xl scale-[1.02] cursor-grabbing" : "hover:shadow-sm cursor-pointer"}
       `}
       {...attributes}
       onClick={onCardClick}
     >
-      {/* Drag handle */}
-      <div
-        {...listeners}
-        onClick={(e) => e.stopPropagation()}
-        className="absolute top-3 right-3 p-1 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10"
-      >
-        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30" />
+      <div {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-2.5 right-2.5 p-0.5 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <GripVertical className="h-3 w-3 text-muted-foreground/30" />
       </div>
 
-      <div className="p-3.5 pr-8">
-        {/* Top */}
-        <Flex className="items-start gap-3 mb-3">
-          <Avatar className="h-9 w-9 rounded-xl shrink-0">
+      <div className="p-3">
+        <Flex className="items-center gap-2.5 mb-2">
+          <Avatar className="h-7 w-7 rounded-lg shrink-0">
             <AvatarImage src={lead.image} />
-            <AvatarFallback className="rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold">
-              {getInitials(lead.name || "UN")}
-            </AvatarFallback>
+            <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-[10px] font-medium">{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <h4 className="text-[14px] font-semibold text-foreground truncate leading-tight">
-              {lead.name}
-            </h4>
-            <p className="text-[12px] text-muted-foreground/70 truncate mt-0.5 leading-tight">
-              {lead.businessIndustry || "General"}
-            </p>
+            <h4 className="text-sm font-medium text-foreground truncate">{lead.name}</h4>
+            <p className="text-[11px] text-muted-foreground truncate">{lead.businessIndustry || "General"}</p>
           </div>
         </Flex>
 
-        {/* Temperature + value row */}
-        <Flex className="items-center justify-between mb-3">
-          {temp && TEMP_BADGE[temp] ? (
-            <div className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-semibold ${TEMP_BADGE[temp]}`}>
-              {insights?.isManualTemperature && <Pin className="h-2 w-2 shrink-0" />}
-              <span>{TEMP_EMOJI[temp]}</span>
-              <span>{temp}</span>
-            </div>
-          ) : (
-            <div />
-          )}
-
+        <Flex className="items-center justify-between mb-2">
+          {temp ? (
+            <Flex className="items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${TEMP_DOT[temp] ?? "bg-gray-400"}`} />
+              <span className="text-[11px] font-medium text-muted-foreground">{temp}</span>
+            </Flex>
+          ) : <div />}
           {formattedValue ? (
-            <div className="flex items-center gap-1">
-              <DollarSign className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-[13px] font-bold text-foreground">{formattedValue}</span>
-            </div>
+            <Flex className="items-center gap-0.5">
+              <DollarSign className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs font-medium">{formattedValue}</span>
+            </Flex>
           ) : (
-            <span className="text-[11px] text-muted-foreground/55 font-medium">{t("pipeline.noValue")}</span>
+            <span className="text-[11px] text-muted-foreground/40">{t("pipeline.noValue")}</span>
           )}
         </Flex>
 
-        {/* Footer */}
-        <div className="pt-2.5 border-t border-border/30 space-y-1.5">
-          <Flex className="items-center justify-between">
-            {showStaleAlert ? (
-              <Flex className="items-center gap-1 text-[10px] font-bold text-rose-500 uppercase tracking-wide">
-                <AlertCircle className="h-2.5 w-2.5" />
-                <span>{t("pipeline.followUpAlert")}</span>
-              </Flex>
-            ) : (
-              <div />
-            )}
-            {lead.lastInteractionAt ? (
-              <Flex className="items-center gap-1 text-[11px] text-muted-foreground/60">
-                <Clock className="h-3 w-3" />
-                <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
-              </Flex>
-            ) : (
-              <span className="text-[11px] text-muted-foreground/50">{t("pipeline.noContactYet")}</span>
-            )}
-          </Flex>
-
-          {followUpDate && (
-            <Flex className={`items-center gap-1 text-[10px] font-semibold ${followUpOverdue ? "text-rose-500" : "text-indigo-500"}`}>
-              <Bell className="h-2.5 w-2.5 shrink-0" />
+        <div className="pt-2 border-t border-border/30 flex items-center justify-between">
+          {lead.lastInteractionAt ? (
+            <Flex className="items-center gap-1 text-[11px] text-muted-foreground/60">
+              <Clock className="h-2.5 w-2.5" />
+              <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
+            </Flex>
+          ) : (
+            <span className="text-[11px] text-muted-foreground/40">{t("pipeline.noContactYet")}</span>
+          )}
+          {followUp && (
+            <Flex className={`items-center gap-1 text-[10px] font-medium ${followUpOverdue ? "text-rose-500" : "text-foreground"}`}>
+              <Bell className="h-2.5 w-2.5" />
               <span>
-                {followUpOverdue
-                  ? t("pipeline.followUpOverdue")
-                  : followUpDaysLeft === 0
-                  ? t("pipeline.followUpToday")
-                  : t("pipeline.followUpInDays", { count: followUpDaysLeft ?? 0 })}
+                {followUpOverdue ? t("pipeline.followUpOverdue") : followUpDays === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: followUpDays ?? 0 })}
               </span>
             </Flex>
           )}
