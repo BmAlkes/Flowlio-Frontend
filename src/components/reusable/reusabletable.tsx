@@ -143,7 +143,7 @@ export const ReusableTable = <TData,>({
           }
         : {
             pageIndex: 0,
-            pageSize: 10, // default page size
+            pageSize: 25,
           },
     },
     enableRowSelection: true,
@@ -327,7 +327,7 @@ export const ReusableTable = <TData,>({
         </Table>
       </Box>
 
-      {/* Pagination Controls */}
+      {/* Pagination Controls — server-side */}
       {pagination && (
         <Flex className="items-center justify-between mt-4 px-2">
           <Box className="text-sm text-muted-foreground">
@@ -365,6 +365,45 @@ export const ReusableTable = <TData,>({
               onClick={() => pagination.onPageChange(pagination.pageIndex + 1)}
               disabled={pagination.pageIndex >= (pagination.pageCount ?? 1) - 1}
               className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Flex>
+        </Flex>
+      )}
+
+      {/* Pagination Controls — client-side */}
+      {!pagination && table.getPageCount() > 1 && (
+        <Flex className="items-center justify-between mt-4 px-2">
+          <Box className="text-sm text-muted-foreground">
+            Showing{" "}
+            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}{" "}
+            to{" "}
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}{" "}
+            of {table.getFilteredRowModel().rows.length} results
+          </Box>
+          <Flex className="items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="h-8 w-8 p-0 cursor-pointer"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Box className="text-sm text-muted-foreground">
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            </Box>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="h-8 w-8 p-0 cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
