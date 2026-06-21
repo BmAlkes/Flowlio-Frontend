@@ -38,7 +38,7 @@ import {
 import { format } from "date-fns";
 
 const FEATURES = [
-  { value: "", label: "All features" },
+  { value: "all", label: "All features" },
   { value: "conversation", label: "Conversation" },
   { value: "image_generation", label: "Image Generation" },
   { value: "task_generation", label: "Task Generation" },
@@ -111,8 +111,8 @@ export const AILogsSection = () => {
         {/* Filters */}
         <Flex className="gap-3 mb-4 flex-wrap">
           <Select
-            value={filters.feature ?? ""}
-            onValueChange={(v) => updateFilter("feature", v)}
+            value={filters.feature || "all"}
+            onValueChange={(v) => updateFilter("feature", v === "all" ? "" : v)}
           >
             <SelectTrigger className="w-[160px] h-9">
               <SelectValue placeholder="All features" />
@@ -125,14 +125,14 @@ export const AILogsSection = () => {
           </Select>
 
           <Select
-            value={filters.status ?? ""}
-            onValueChange={(v) => updateFilter("status", v)}
+            value={filters.status || "all"}
+            onValueChange={(v) => updateFilter("status", v === "all" ? "" : v)}
           >
             <SelectTrigger className="w-[140px] h-9">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="success">Success</SelectItem>
               <SelectItem value="error">Error</SelectItem>
               <SelectItem value="rate_limited">Rate Limited</SelectItem>
