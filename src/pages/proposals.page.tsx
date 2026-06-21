@@ -53,35 +53,6 @@ const OrgProposalsPage = () => {
   const { data: featureAccess, isLoading: checkingAccess } = useHasFeatureAccess("proposalsAccess");
   const hasAccess = featureAccess?.data?.hasAccess ?? true;
 
-  if (checkingAccess) {
-    return (
-      <Center className="min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </Center>
-    );
-  }
-
-  if (!hasAccess) {
-    return (
-      <Box className="px-2">
-        <Center className="min-h-[60vh] flex-col gap-4 p-8">
-          <div className="p-4 rounded-full bg-red-100">
-            <Lock className="w-12 h-12 text-red-600" />
-          </div>
-          <Stack className="gap-2 text-center max-w-md">
-            <h2 className="text-2xl font-semibold text-foreground">Proposals Not Available</h2>
-            <p className="text-muted-foreground">
-              {featureAccess?.data?.reason || "Proposals is not included in your current plan. Upgrade to access this feature."}
-            </p>
-            <Button onClick={() => navigate("/dashboard/subscription")} className="mt-4">
-              View Plans & Upgrade
-            </Button>
-          </Stack>
-        </Center>
-      </Box>
-    );
-  }
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) => axios.delete(`/proposals/${id}`),
     onSuccess: () => {
@@ -288,6 +259,35 @@ const OrgProposalsPage = () => {
       },
     },
   ];
+
+  if (checkingAccess) {
+    return (
+      <Center className="min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Center>
+    );
+  }
+
+  if (!hasAccess) {
+    return (
+      <Box className="px-2">
+        <Center className="min-h-[60vh] flex-col gap-4 p-8">
+          <div className="p-4 rounded-full bg-red-100">
+            <Lock className="w-12 h-12 text-red-600" />
+          </div>
+          <Stack className="gap-2 text-center max-w-md">
+            <h2 className="text-2xl font-semibold text-foreground">Proposals Not Available</h2>
+            <p className="text-muted-foreground">
+              {featureAccess?.data?.reason || "Proposals is not included in your current plan. Upgrade to access this feature."}
+            </p>
+            <Button onClick={() => navigate("/dashboard/subscription")} className="mt-4">
+              View Plans & Upgrade
+            </Button>
+          </Stack>
+        </Center>
+      </Box>
+    );
+  }
 
   return (
     <PageWrapper className="mt-6">
