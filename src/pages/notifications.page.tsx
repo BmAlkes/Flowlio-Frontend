@@ -1,5 +1,4 @@
 import { PageWrapper } from "@/components/common/pagewrapper";
-import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
