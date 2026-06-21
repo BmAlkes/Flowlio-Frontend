@@ -3,7 +3,6 @@ import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   useNotifications,
   useDeleteNotification,
@@ -12,19 +11,28 @@ import {
   useDeleteAllNotifications,
   type Notification,
 } from "@/hooks/useNotifications";
-import { formatDistanceToNow } from "date-fns";
-import { Trash2, Check, CheckCheck, X } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
+import {
+  Trash2, Check, CheckCheck, Bell, UserCheck, AlertTriangle,
+  CreditCard, Sparkles, Calendar, ChevronLeft, ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Center } from "@/components/ui/center";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ListSkeleton, ErrorState } from "@/components/skeletons";
+
+const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string }> = {
+  lead_followup_due:     { icon: Calendar,       color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-900/20" },
+  lead_followup_overdue: { icon: AlertTriangle,  color: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/20" },
+  lead_assigned:         { icon: UserCheck,       color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-900/20" },
+  ai_threshold_reached:  { icon: Sparkles,        color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-900/20" },
+  ai_quota_exceeded:     { icon: AlertTriangle,  color: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/20" },
+  payment:               { icon: CreditCard,      color: "text-green-600",   bg: "bg-green-50 dark:bg-green-900/20" },
+  default:               { icon: Bell,            color: "text-foreground",  bg: "bg-muted" },
+};
+
+const getTypeConfig = (type: string) =>
+  TYPE_CONFIG[type] ?? TYPE_CONFIG.default;
 
 const NotificationsPage = () => {
   const [page, setPage] = useState(1);
@@ -39,78 +47,45 @@ const NotificationsPage = () => {
 
   const loading = isLoading || isFetching;
 
-  const deleteNotificationMutation = useDeleteNotification();
-  const markAsReadMutation = useMarkNotificationAsRead();
-  const markAllAsReadMutation = useMarkAllNotificationsAsRead();
-  const deleteAllMutation = useDeleteAllNotifications();
+  const deleteOne = useDeleteNotification();
+  const markRead = useMarkNotificationAsRead();
+  const markAllRead = useMarkAllNotificationsAsRead();
+  const deleteAll = useDeleteAllNotifications();
 
   const notifications = data?.data?.notifications || [];
   const pagination = data?.data?.pagination;
+  const unreadCount = pagination?.totalNotifications ?? 0;
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteNotificationMutation.mutateAsync(id);
-      toast.success("Notification deleted");
-    } catch (error) {
-      toast.error("Failed to delete notification: " + error);
-    }
+  const handleDelete = (id: string) =>
+    deleteOne.mutateAsync(id).then(() => toast.success("Deleted")).catch(() => toast.error("Failed"));
+
+  const handleRead = (id: string) =>
+    markRead.mutateAsync(id).catch(() => toast.error("Failed"));
+
+  const handleMarkAllRead = () =>
+    markAllRead.mutateAsync().then(() => toast.success("All marked as read")).catch(() => toast.error("Failed"));
+
+  const handleDeleteAll = () => {
+    if (!confirm("Delete all notifications? This cannot be undone.")) return;
+    deleteAll.mutateAsync().then(() => toast.success("All deleted")).catch(() => toast.error("Failed"));
   };
 
-  const handleMarkAsRead = async (id: string) => {
-    try {
-      await markAsReadMutation.mutateAsync(id);
-    } catch (error) {
-      toast.error("Failed to mark notification as read: " + error);
-    }
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllAsReadMutation.mutateAsync();
-      toast.success("All notifications marked as read");
-    } catch (error) {
-      toast.error("Failed to mark all as read: " + error);
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete all notifications? This cannot be undone."
-      )
-    ) {
-      return;
-    }
-    try {
-      await deleteAllMutation.mutateAsync();
-      toast.success("All notifications deleted");
-    } catch (error) {
-      toast.error("Failed to delete all notifications: " + error);
-    }
-  };
-
-  if (loading && (!data || notifications.length === 0)) {
+  if (loading && notifications.length === 0) {
     return (
       <PageWrapper className="mt-6 px-4">
-        <Stack className="p-3 gap-6">
-          <Flex className="justify-between items-center">
-            <h1 className="text-lg font-medium">Notifications</h1>
-          </Flex>
-          <ListSkeleton rows={8} withAvatar />
-        </Stack>
+        <div className="max-w-2xl mx-auto p-4">
+          <h1 className="text-lg font-semibold mb-6">Notifications</h1>
+          <ListSkeleton rows={6} />
+        </div>
       </PageWrapper>
     );
   }
 
-  if (error && (!data || notifications.length === 0)) {
+  if (error && notifications.length === 0) {
     return (
       <PageWrapper className="mt-6 px-4">
         <Center className="py-20">
-          <ErrorState
-            title="Error loading notifications"
-            message={error.message || "Please try again later."}
-            onRetry={() => refetch()}
-          />
+          <ErrorState title="Error loading notifications" message={error.message} onRetry={() => refetch()} />
         </Center>
       </PageWrapper>
     );
@@ -118,193 +93,183 @@ const NotificationsPage = () => {
 
   return (
     <PageWrapper className="mt-6 px-4">
-      <Stack className="p-3 relative overflow-hidden">
-        <Flex className="justify-between items-center mb-2 max-sm:flex-col max-sm:gap-2">
-          <Flex className="items-center gap-3">
-            <h1 className="text-lg font-medium">Notifications</h1>
-            {pagination && pagination.totalNotifications > 0 && (
-              <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
-                {pagination.totalNotifications}
-              </Badge>
+      <div className="max-w-2xl mx-auto">
+
+        {/* Header */}
+        <Flex className="items-center justify-between mb-6">
+          <Flex className="items-center gap-2.5">
+            <h1 className="text-lg font-semibold">Notifications</h1>
+            {unreadCount > 0 && (
+              <span className="text-xs font-bold bg-foreground text-background px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
             )}
           </Flex>
 
-          <Flex className="gap-2">
-            <Select
-              value={filter}
-              onValueChange={(v: "all" | "unread") => setFilter(v)}
-            >
-              <SelectTrigger className="w-28 h-8 text-xs border-border rounded-full cursor-pointer">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="unread">Unread</SelectItem>
-              </SelectContent>
-            </Select>
+          <Flex className="gap-1.5">
+            {/* Filter toggle */}
+            <div className="flex bg-muted/50 rounded-lg p-0.5 border border-border">
+              {(["all", "unread"] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => { setFilter(f); setPage(1); }}
+                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                    filter === f ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {f === "all" ? "All" : "Unread"}
+                </button>
+              ))}
+            </div>
 
             {notifications.length > 0 && (
               <>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleMarkAllAsRead}
-                  disabled={markAllAsReadMutation.isPending}
-                  className="h-8 text-xs border-border rounded-full cursor-pointer"
+                  variant="ghost" size="sm"
+                  onClick={handleMarkAllRead}
+                  disabled={markAllRead.isPending}
+                  className="h-8 text-xs gap-1"
                 >
-                  <CheckCheck className="w-3 h-3 mr-1" />
-                  Mark All Read
+                  <CheckCheck className="h-3 w-3" /> Read all
                 </Button>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost" size="sm"
                   onClick={handleDeleteAll}
-                  disabled={deleteAllMutation.isPending}
-                  className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive hover:border-destructive rounded-full cursor-pointer"
+                  disabled={deleteAll.isPending}
+                  className="h-8 text-xs text-muted-foreground hover:text-rose-600"
                 >
-                  <Trash2 className="w-3 h-3 mr-1" />
-                  Delete All
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </>
             )}
           </Flex>
         </Flex>
 
-        <Box className="w-full h-0.5 bg-border rounded-full absolute top-14 left-0 max-sm:top-24"></Box>
-
-        <Box className="max-h-[calc(100vh-200px)] overflow-auto scroll space-y-3 mt-5">
-          {loading && notifications.length === 0 ? (
-            <ListSkeleton rows={5} withAvatar />
-          ) : notifications.length === 0 ? (
-            <Center className="py-8">
-              <p className="text-sm text-muted-foreground">
-                {filter === "unread"
-                  ? "No unread notifications"
-                  : "No notifications yet"}
-              </p>
-            </Center>
-          ) : (
-            notifications.map((notification: Notification) => {
-              const dateObj = new Date(notification.createdAt);
-              const timeAgo = formatDistanceToNow(dateObj, {
-                addSuffix: true,
-              });
+        {/* List */}
+        {notifications.length === 0 ? (
+          <Center className="py-20 flex-col gap-3">
+            <Bell className="h-8 w-8 text-muted-foreground/20" />
+            <p className="text-sm text-muted-foreground">
+              {filter === "unread" ? "No unread notifications" : "No notifications yet"}
+            </p>
+          </Center>
+        ) : (
+          <Stack className="gap-1">
+            {notifications.map((n: Notification) => {
+              const cfg = getTypeConfig(n.type);
+              const Icon = cfg.icon;
+              const timeAgo = formatDistanceToNow(new Date(n.createdAt), { addSuffix: true });
 
               return (
-                <Box
-                  key={notification.id}
-                  className={`p-3 rounded-lg border border-border hover:bg-muted transition-colors ${
-                    !notification.read ? "bg-accent/50" : "bg-card"
+                <div
+                  key={n.id}
+                  className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    !n.read ? "bg-blue-50/50 dark:bg-blue-900/10" : "hover:bg-muted/40"
                   }`}
                 >
-                  <Flex className="items-start justify-between gap-3">
-                    <Flex className="items-start gap-3 flex-1">
-                      <Box className="size-2.5 border border-border outline outline-border outline-offset-1 bg-muted rounded-full mt-1.5" />
-                      <Stack className="gap-1 flex-1">
-                        <Flex className="items-center gap-2">
-                          <h2 className="font-medium text-sm text-foreground">
-                            {notification.title}
-                          </h2>
-                          {!notification.read && (
-                            <Badge className="bg-blue-600 text-white text-xs px-1.5 py-0 rounded-full">
-                              New
-                            </Badge>
-                          )}
-                          <p className="text-xs text-muted-foreground">{timeAgo}</p>
-                        </Flex>
-                        <p className="text-sm text-muted-foreground">
-                          {notification.message}
-                        </p>
-                        {notification.data &&
-                          Object.keys(notification.data).length > 0 && (
-                            <Box className="mt-2 space-y-1">
-                              {Object.entries(notification.data)
-                                .filter(([key]) => {
-                                  const lowerKey = key.toLowerCase();
-                                  return (
-                                    !lowerKey.includes("ticketid") &&
-                                    !lowerKey.includes("ticket_id")
-                                  );
-                                })
-                                .map(([key, value]) => (
-                                  <Flex
-                                    key={key}
-                                    className="justify-between text-xs"
-                                  >
-                                      <span className="font-medium text-muted-foreground capitalize">
-                                      {key.replace(/([A-Z])/g, " $1").trim()}:
-                                    </span>
-                                    <span className="text-foreground">
-                                      {String(value)}
-                                    </span>
-                                  </Flex>
-                                ))}
-                            </Box>
-                          )}
-                      </Stack>
-                    </Flex>
-                    <Flex className="gap-1">
-                      {!notification.read && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleMarkAsRead(notification.id)}
-                          disabled={markAsReadMutation.isPending}
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground cursor-pointer"
-                          title="Mark as read"
-                        >
-                          <Check className="w-4 h-4" />
-                        </Button>
+                  {/* Icon */}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${cfg.bg}`}>
+                    <Icon className={`h-4 w-4 ${cfg.color}`} />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <Flex className="items-center gap-2 mb-0.5">
+                      <p className={`text-sm leading-snug ${!n.read ? "font-semibold text-foreground" : "font-medium text-foreground"}`}>
+                        {n.title}
+                      </p>
+                      {!n.read && (
+                        <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(notification.id)}
-                        disabled={deleteNotificationMutation.isPending}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-                        title="Delete notification"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
                     </Flex>
+
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {n.message}
+                    </p>
+
+                    {/* Formatted data — hide raw UUIDs and timestamps */}
+                    {n.data && Object.keys(n.data).length > 0 && (() => {
+                      const entries = Object.entries(n.data).filter(([key]) => {
+                        const k = key.toLowerCase();
+                        return !k.includes("id") && !k.includes("token");
+                      });
+                      if (entries.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5">
+                          {entries.map(([key, value]) => {
+                            let display = String(value);
+                            if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                              try { display = format(new Date(value), "d MMM yyyy"); } catch { /* keep raw */ }
+                            }
+                            const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()).trim();
+                            return (
+                              <span key={key} className="text-xs text-muted-foreground">
+                                <span className="font-medium">{label}:</span> {display}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+
+                    <p className="text-xs text-muted-foreground/60 mt-1">{timeAgo}</p>
+                  </div>
+
+                  {/* Actions */}
+                  <Flex className="gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!n.read && (
+                      <button
+                        onClick={() => handleRead(n.id)}
+                        disabled={markRead.isPending}
+                        className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        title="Mark as read"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(n.id)}
+                      disabled={deleteOne.isPending}
+                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-rose-500 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </Flex>
-                </Box>
+                </div>
               );
-            })
-          )}
-        </Box>
+            })}
+          </Stack>
+        )}
 
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <Flex className="justify-between items-center mt-4 pt-4 border-t border-border">
-            <p className="text-sm text-muted-foreground">
+          <Flex className="items-center justify-between mt-6 pt-4 border-t border-border">
+            <span className="text-xs text-muted-foreground">
               Page {pagination.currentPage} of {pagination.totalPages}
-            </p>
-            <Flex className="gap-2">
+            </span>
+            <Flex className="gap-1">
               <Button
-                variant="outline"
-                size="sm"
+                variant="outline" size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={!pagination.hasPrevPage || isLoading}
-                className="h-8 text-xs rounded-full"
+                className="h-7 w-7 p-0"
               >
-                Previous
+                <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPage((p) => Math.min(pagination.totalPages, p + 1))
-                }
+                variant="outline" size="sm"
+                onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                 disabled={!pagination.hasNextPage || isLoading}
-                className="h-8 text-xs rounded-full"
+                className="h-7 w-7 p-0"
               >
-                Next
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </Flex>
           </Flex>
         )}
-      </Stack>
+
+      </div>
     </PageWrapper>
   );
 };
