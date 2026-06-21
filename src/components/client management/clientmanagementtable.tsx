@@ -370,60 +370,17 @@ export const ClientManagementTable = () => {
         <Box className="text-center text-foreground">{t("table.status")}</Box>
       ),
       cell: ({ row }) => {
-        const status = row.original.status as
-          | "New Lead"
-          | "Contacted"
-          | "Qualified"
-          | "Proposal Sent"
-          | "Contract Signed"
-          | "Project In Progress"
-          | "Completed"
-          | "Inactive"
-          | "Lost";
+        const status = row.original.status as string;
 
-        const statusStyles: Record<
-          typeof status,
-          { text: string; dot: string }
-        > = {
-          "New Lead": {
-            text: "text-white bg-blue-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Contacted": {
-            text: "text-white bg-violet-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Qualified": {
-            text: "text-white bg-yellow-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Proposal Sent": {
-            text: "text-white bg-amber-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Contract Signed": {
-            text: "text-white bg-emerald-600 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Project In Progress": {
-            text: "text-white bg-indigo-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Completed": {
-            text: "text-white bg-green-600 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Inactive": {
-            text: "text-white bg-gray-500 border-none rounded-full",
-            dot: "bg-white",
-          },
-          "Lost": {
-            text: "text-white bg-rose-500 border-none rounded-full",
-            dot: "bg-white",
-          },
+        const statusStyles: Record<string, { text: string; dot: string }> = {
+          Active: { text: "text-white bg-green-600 border-none rounded-full", dot: "bg-white" },
+          Onboarding: { text: "text-white bg-blue-500 border-none rounded-full", dot: "bg-white" },
+          "On Hold": { text: "text-white bg-amber-500 border-none rounded-full", dot: "bg-white" },
+          Inactive: { text: "text-white bg-gray-500 border-none rounded-full", dot: "bg-white" },
+          Completed: { text: "text-white bg-emerald-600 border-none rounded-full", dot: "bg-white" },
+          Churned: { text: "text-white bg-rose-500 border-none rounded-full", dot: "bg-white" },
         };
 
-        // Default style if status is not found
         const defaultStyle = {
           text: "text-white bg-muted/500 border-none rounded-full",
           dot: "bg-white",
@@ -431,19 +388,13 @@ export const ClientManagementTable = () => {
 
         const currentStyle = statusStyles[status] || defaultStyle;
 
-        const statusOptions: Array<{
-          value: typeof status;
-          label: string;
-        }> = [
-          { value: "New Lead", label: translateClientStatus("New Lead") },
-          { value: "Contacted", label: translateClientStatus("Contacted") },
-          { value: "Qualified", label: translateClientStatus("Qualified") },
-          { value: "Proposal Sent", label: translateClientStatus("Proposal Sent") },
-          { value: "Contract Signed", label: translateClientStatus("Contract Signed") },
-          { value: "Project In Progress", label: translateClientStatus("Project In Progress") },
-          { value: "Completed", label: translateClientStatus("Completed") },
+        const statusOptions: Array<{ value: string; label: string }> = [
+          { value: "Active", label: translateClientStatus("Active") },
+          { value: "Onboarding", label: translateClientStatus("Onboarding") },
+          { value: "On Hold", label: translateClientStatus("On Hold") },
           { value: "Inactive", label: translateClientStatus("Inactive") },
-          { value: "Lost", label: translateClientStatus("Lost") },
+          { value: "Completed", label: translateClientStatus("Completed") },
+          { value: "Churned", label: translateClientStatus("Churned") },
         ];
 
         return (

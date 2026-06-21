@@ -28,27 +28,22 @@ import { useAssignLead, useLeadTags, useSetLeadTags } from "@/hooks/useLeadExtra
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
 import { toast } from "sonner";
 
-const STAGES = [
-  "New Lead",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Contract Signed",
-  "Project In Progress",
-  "Completed",
-  "Inactive",
-  "Lost",
+const LEAD_STAGES = [
+  "New Lead", "Contacted", "Qualified", "Proposal Sent",
+  "Contract Signed", "Project In Progress", "Completed", "Inactive", "Lost",
 ];
 
-// Stages that count toward progress (exclude terminal/negative ones)
-const PROGRESS_STAGES = [
-  "New Lead",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Contract Signed",
-  "Project In Progress",
-  "Completed",
+const CLIENT_STAGES = [
+  "Active", "Onboarding", "On Hold", "Inactive", "Completed", "Churned",
+];
+
+const LEAD_PROGRESS_STAGES = [
+  "New Lead", "Contacted", "Qualified", "Proposal Sent",
+  "Contract Signed", "Project In Progress", "Completed",
+];
+
+const CLIENT_PROGRESS_STAGES = [
+  "Onboarding", "Active", "Completed",
 ];
 
 const STAGE_DOT: Record<string, string> = {
@@ -56,6 +51,8 @@ const STAGE_DOT: Record<string, string> = {
   "Proposal Sent": "bg-amber-500", "Contract Signed": "bg-emerald-500",
   "Project In Progress": "bg-indigo-500", "Completed": "bg-green-500",
   "Inactive": "bg-gray-400", "Lost": "bg-rose-500",
+  "Active": "bg-green-600", "Onboarding": "bg-blue-500",
+  "On Hold": "bg-amber-500", "Churned": "bg-rose-500",
 };
 
 const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
@@ -381,11 +378,11 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {STAGES.map((stage) => (
+                  {(isLead ? LEAD_STAGES : CLIENT_STAGES).map((stage) => (
                     <SelectItem key={stage} value={stage} className="text-sm">
                       <div className="flex items-center gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[stage] ?? "bg-gray-400"}`} />
-                        {t(`pipeline.clientStatuses.${stage}` as any)}
+                        {stage}
                       </div>
                     </SelectItem>
                   ))}
@@ -395,18 +392,19 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
             {/* Percentage progress bar */}
             {(() => {
-              const progressIdx = PROGRESS_STAGES.indexOf(currentStatus);
-              const isTerminal = currentStatus === "Lost" || currentStatus === "Inactive";
+              const progressStages = isLead ? LEAD_PROGRESS_STAGES : CLIENT_PROGRESS_STAGES;
+              const progressIdx = progressStages.indexOf(currentStatus);
+              const isTerminal = currentStatus === "Lost" || currentStatus === "Churned" || currentStatus === "Inactive";
               const pct = progressIdx >= 0
-                ? Math.round((progressIdx / (PROGRESS_STAGES.length - 1)) * 100)
+                ? Math.round((progressIdx / (progressStages.length - 1)) * 100)
                 : 0;
               return (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-muted-foreground">
                       {isTerminal
-                        ? t(`pipeline.clientStatuses.${currentStatus}` as any)
-                        : t("pipeline.stepOf", { current: progressIdx + 1, total: PROGRESS_STAGES.length })}
+                        ? currentStatus
+                        : `Step ${progressIdx + 1} of ${progressStages.length}`}
                     </span>
                     <span className={`text-xs font-bold ${isTerminal ? "text-rose-500" : "text-indigo-600 dark:text-indigo-400"}`}>
                       {isTerminal ? "—" : `${pct}%`}

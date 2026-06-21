@@ -19,18 +19,15 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "New Lead": return "bg-blue-500";
-      case "Contacted": return "bg-violet-500";
-      case "Qualified": return "bg-yellow-400";
-      case "Proposal Sent": return "bg-amber-500";
-      case "Contract Signed": return "bg-emerald-500";
-      case "Project In Progress": return "bg-indigo-500";
-      case "Completed": return "bg-green-500";
-      case "Inactive": return "bg-gray-400";
-      case "Lost": return "bg-rose-500";
-      default: return "bg-gray-400";
-    }
+    const colors: Record<string, string> = {
+      "New Lead": "bg-blue-500", "Contacted": "bg-violet-500", "Qualified": "bg-yellow-400",
+      "Proposal Sent": "bg-amber-500", "Contract Signed": "bg-emerald-500",
+      "Project In Progress": "bg-indigo-500", "Completed": "bg-green-500",
+      "Inactive": "bg-gray-400", "Lost": "bg-rose-500",
+      "Active": "bg-green-600", "Onboarding": "bg-blue-500",
+      "On Hold": "bg-amber-500", "Churned": "bg-rose-500",
+    };
+    return colors[status] ?? "bg-gray-400";
   };
 
   const totalValue = items.reduce((acc, item) => acc + (Number(item.leadValue) || 0), 0);

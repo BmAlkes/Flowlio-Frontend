@@ -330,7 +330,7 @@ export const ClientForm = ({
       cpfcnpj: values.cpfcnpj,
       businessIndustry: values.industry,
       address: values.address,
-      status: mode === "create" ? "New Lead" : client?.status || "New Lead",
+      status: mode === "create" ? "Active" : client?.status || "Active",
       socialMediaLinks: JSON.stringify(
         socialMediaLinks.filter((link) => link.url.trim() !== ""),
       ),

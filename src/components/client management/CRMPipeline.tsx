@@ -22,15 +22,12 @@ import { useFetchClients } from "@/hooks/usefetchclients";
 import { Loader2 } from "lucide-react";
 
 const STAGES = [
-  "New Lead",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Contract Signed",
-  "Project In Progress",
-  "Completed",
+  "Active",
+  "Onboarding",
+  "On Hold",
   "Inactive",
-  "Lost",
+  "Completed",
+  "Churned",
 ];
 
 export const CRMPipeline = () => {
