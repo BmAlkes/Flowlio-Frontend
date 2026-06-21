@@ -21,8 +21,8 @@ export function useScrollReveal<T extends HTMLElement>(
   const {
     direction = "up",
     delay = 0,
-    duration = 0.8,
-    distance = 40,
+    duration = 0.7,
+    distance = 30,
     stagger = 0,
   } = options;
 
@@ -32,35 +32,43 @@ export function useScrollReveal<T extends HTMLElement>(
 
     const targets = stagger > 0 ? el.children : el;
 
-    const from: gsap.TweenVars = {
-      opacity: 0,
+    const fromVars: gsap.TweenVars = { opacity: 0 };
+    const toVars: gsap.TweenVars = {
+      opacity: 1,
       duration,
       delay,
-      ease: "power3.out",
+      ease: "power2.out",
       ...(stagger > 0 && { stagger }),
     };
 
     switch (direction) {
       case "up":
-        from.y = distance;
+        fromVars.y = distance;
+        toVars.y = 0;
         break;
       case "left":
-        from.x = distance;
+        fromVars.x = distance;
+        toVars.x = 0;
         break;
       case "right":
-        from.x = -distance;
+        fromVars.x = -distance;
+        toVars.x = 0;
         break;
       case "scale":
-        from.scale = 0.92;
+        fromVars.scale = 0.95;
+        toVars.scale = 1;
         break;
     }
 
-    gsap.from(targets, {
-      ...from,
+    gsap.set(targets, fromVars);
+
+    gsap.to(targets, {
+      ...toVars,
       scrollTrigger: {
         trigger: el,
-        start: "top 85%",
-        once: true,
+        start: "top 90%",
+        end: "top 20%",
+        toggleActions: "play reverse play reverse",
       },
     });
 
