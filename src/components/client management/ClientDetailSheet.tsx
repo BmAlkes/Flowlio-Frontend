@@ -516,12 +516,10 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                           const newIds = active ? currentIds.filter((id: string) => id !== tag.id) : [...currentIds, tag.id];
                           setLeadTags.mutate({ leadId: client.id, tagIds: newIds });
                         }}
-                        className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                          active
-                            ? "border-transparent text-white font-medium"
-                            : "border-border bg-card text-muted-foreground hover:bg-muted"
+                        className={`text-xs px-2.5 py-1 rounded-full border-transparent font-medium transition-all ${
+                          active ? "text-white ring-2 ring-offset-1 ring-offset-background" : "text-white opacity-40 hover:opacity-70"
                         }`}
-                        style={active ? { backgroundColor: tag.color } : undefined}
+                        style={{ backgroundColor: tag.color, ...(active ? { ringColor: tag.color } : {}) }}
                       >
                         {tag.name}
                       </button>
