@@ -68,7 +68,8 @@ export function useScrollReveal<T extends HTMLElement>(
         trigger: el,
         start: "top 90%",
         end: "top 20%",
-        toggleActions: "play reverse play reverse",
+        toggleActions: "play none none none",
+        once: true,
       },
     });
 
