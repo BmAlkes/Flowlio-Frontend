@@ -12,7 +12,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { useFetchClientActivity } from "@/hooks/useFetchClientActivity";
+import { useFetchClientActivity, type ReportPeriod } from "@/hooks/useReports";
+import { ReportControls } from "./ReportControls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -61,8 +62,13 @@ const PIE_COLORS = [
   "#94a3b8",
 ];
 
-const ClientActivityReport: React.FC = () => {
-  const { data, isLoading, error } = useFetchClientActivity();
+interface Props {
+  period: ReportPeriod;
+  onPeriodChange: (p: ReportPeriod) => void;
+}
+
+const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
+  const { data, isLoading, error, refetch, isFetching } = useFetchClientActivity(period);
 
   if (isLoading) {
     return (
@@ -120,6 +126,8 @@ const ClientActivityReport: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <ReportControls period={period} onPeriodChange={onPeriodChange} updatedAt={data?.updatedAt} onRefresh={() => refetch()} isRefreshing={isFetching} />
+
       {/* Export Buttons */}
       <div className="flex justify-end gap-2">
         <Button

@@ -12,18 +12,23 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { useFetchFinancialOverview } from "@/hooks/useFetchFinancialOverview";
+import { useFetchFinancialOverview, type ReportPeriod } from "@/hooks/useReports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieChartIcon, FileDown, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportFinancialCSV, exportFinancialPDF } from "@/utils/reportExport";
-
+import { ReportControls, TrendBadge } from "./ReportControls";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
-const FinancialOverview: React.FC = () => {
-  const { data, isLoading, error } = useFetchFinancialOverview();
+interface Props {
+  period: ReportPeriod;
+  onPeriodChange: (p: ReportPeriod) => void;
+}
+
+const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
+  const { data, isLoading, error, refetch, isFetching } = useFetchFinancialOverview(period);
 
   if (isLoading) {
     return (
@@ -46,7 +51,7 @@ const FinancialOverview: React.FC = () => {
     );
   }
 
-  const { totalRevenue, totalExpenses, netProfit, timeline, categoryBreakdown, projectPerformance } = data;
+  const { totalRevenue, totalExpenses, netProfit, timeline, categoryBreakdown, projectPerformance, comparison } = data;
 
   const revenueNum = Number(totalRevenue) || 0;
   const netProfitNum = Number(netProfit) || 0;
@@ -81,6 +86,8 @@ const FinancialOverview: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <ReportControls period={period} onPeriodChange={onPeriodChange} updatedAt={data?.updatedAt} onRefresh={() => refetch()} isRefreshing={isFetching} />
+
       {/* Export Buttons */}
       <div className="flex justify-end gap-2">
         <Button
@@ -113,7 +120,12 @@ const FinancialOverview: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-muted-foreground">{card.description}</p>
+                {index === 0 && comparison?.revenueChange != null && <TrendBadge change={comparison.revenueChange} />}
+                {index === 1 && comparison?.expensesChange != null && <TrendBadge change={comparison.expensesChange} />}
+                {index === 2 && comparison?.profitChange != null && <TrendBadge change={comparison.profitChange} />}
+              </div>
             </CardContent>
           </Card>
         ))}

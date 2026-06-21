@@ -10,7 +10,8 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { useFetchTeamProductivity } from "@/hooks/useFetchTeamProductivity";
+import { useFetchTeamProductivity, type ReportPeriod } from "@/hooks/useReports";
+import { ReportControls } from "./ReportControls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -28,8 +29,13 @@ import { exportProductivityCSV, exportProductivityPDF } from "@/utils/reportExpo
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-const TeamProductivity: React.FC = () => {
-  const { data: productivityData, isLoading, error } = useFetchTeamProductivity();
+interface Props {
+  period: ReportPeriod;
+  onPeriodChange: (p: ReportPeriod) => void;
+}
+
+const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
+  const { data: productivityData, isLoading, error, refetch, isFetching } = useFetchTeamProductivity(period);
 
   if (isLoading) {
     return (
@@ -66,6 +72,8 @@ const TeamProductivity: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <ReportControls period={period} onPeriodChange={onPeriodChange} updatedAt={productivityData?.updatedAt} onRefresh={() => refetch()} isRefreshing={isFetching} />
+
       {/* Export Buttons */}
       <div className="flex justify-end gap-2">
         <Button

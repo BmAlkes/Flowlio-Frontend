@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import FinancialOverview from "@/components/admin/reports/FinancialOverview";
 import TeamProductivity from "@/components/admin/reports/TeamProductivity";
 import ClientActivityReport from "@/components/admin/reports/ClientActivityReport";
@@ -8,12 +8,14 @@ import { DollarSign, Users, BarChart2, Lock, Loader2 } from "lucide-react";
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
+import type { ReportPeriod } from "@/hooks/useReports";
 
 const ReportsPage: React.FC = () => {
   const { t } = useTranslation();
   const { data: featureAccess, isLoading } = useHasFeatureAccess("analyticsAccess");
   const navigate = useNavigate();
   const hasAccess = featureAccess?.data?.hasAccess ?? true;
+  const [period, setPeriod] = useState<ReportPeriod>("30d");
 
   if (isLoading) {
     return (
@@ -44,36 +46,38 @@ const ReportsPage: React.FC = () => {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">{t('appSidebar.reports')}</h2>
-        <p className="text-muted-foreground">
-          Detailed financial and performance metrics for your organization.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">{t('appSidebar.reports')}</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Financial and performance metrics for your organization.
+          </p>
+        </div>
       </div>
 
       <Tabs defaultValue="financial" className="space-y-4">
         <TabsList className="bg-background border border-border shadow-sm p-1 h-auto">
           <TabsTrigger value="financial" className="flex items-center gap-2 py-2">
             <DollarSign className="w-4 h-4" />
-            Financial Overview
+            Financial
           </TabsTrigger>
           <TabsTrigger value="productivity" className="flex items-center gap-2 py-2">
             <Users className="w-4 h-4" />
-            Team Productivity
+            Team
           </TabsTrigger>
           <TabsTrigger value="client-activity" className="flex items-center gap-2 py-2">
             <BarChart2 className="w-4 h-4" />
-            Client Activity
+            Clients
           </TabsTrigger>
         </TabsList>
         <TabsContent value="financial" className="space-y-4">
-          <FinancialOverview />
+          <FinancialOverview period={period} onPeriodChange={setPeriod} />
         </TabsContent>
         <TabsContent value="productivity" className="space-y-4">
-          <TeamProductivity />
+          <TeamProductivity period={period} onPeriodChange={setPeriod} />
         </TabsContent>
         <TabsContent value="client-activity" className="space-y-4">
-          <ClientActivityReport />
+          <ClientActivityReport period={period} onPeriodChange={setPeriod} />
         </TabsContent>
       </Tabs>
     </div>
