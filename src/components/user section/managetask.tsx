@@ -2,8 +2,11 @@ import { Box } from "../ui/box";
 import { Button } from "../ui/button";
 import { Center } from "../ui/center";
 import { Flex } from "../ui/flex";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const ManageTask = () => {
+  const section1Ref = useScrollReveal<HTMLDivElement>({ direction: "left", distance: 50 });
+  const section2Ref = useScrollReveal<HTMLDivElement>({ direction: "right", distance: 50 });
   return (
     <Box className="w-full h-full relative">
       <img
@@ -15,7 +18,7 @@ export const ManageTask = () => {
       <Box className="relative z-30 overflow-hidden mt-10 px-4">
         <Box className="bg-[url(/home/manageblock1.png)] bg-cover bg-center bg-no-repeat z-10 w-full h-full absolute top-0 left-0" />
 
-        <Flex className="justify-center w-full mx-auto gap-4 items-center max-sm:flex-col relative z-30">
+        <Flex ref={section1Ref} className="justify-center w-full mx-auto gap-4 items-center max-sm:flex-col relative z-30">
           <Center className="items-start gap-6 w-md max-sm:w-full p-2 flex-col text-5xl font-[100] max-sm:text-2xl text-white  ">
             <h1 className="text-foreground max-sm:text-center">
               Manage All Your Team’s
@@ -46,7 +49,7 @@ export const ManageTask = () => {
       <Flex className="relative z-30 w-full h-full max-sm:flex-col-reverse px-4">
         <Box className="bg-[url(/home/managelock2.png)] bg-cover bg-center bg-no-repeat z-10 w-full h-full absolute top-0 left-0" />
 
-        <Flex className=" justify-center w-full mx-auto gap-8 items-center max-sm:flex-col relative z-30 mb-12">
+        <Flex ref={section2Ref} className=" justify-center w-full mx-auto gap-8 items-center max-sm:flex-col relative z-30 mb-12">
           <img
             src="/home/cards2.svg"
             alt="cards"

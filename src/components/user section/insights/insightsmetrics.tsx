@@ -1,6 +1,7 @@
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { Flex } from "@/components/ui/flex";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
   FolderKanban,
   Clock,
@@ -62,12 +63,15 @@ const metrics = [
 ];
 
 export const InsightsMetrics = () => {
+  const headingRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
+  const gridRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.15, stagger: 0.08 });
+
   return (
     <Center className="relative px-4 sm:px-8 mb-16">
       <Box className="relative z-10 max-w-5xl w-full mt-14">
 
         {/* ── Heading ── */}
-        <Box className="ml-2 sm:ml-6 mb-12">
+        <Box ref={headingRef} className="ml-2 sm:ml-6 mb-12">
           <p className="text-sm font-semibold tracking-widest uppercase mb-4" style={{ color: "#F98618" }}>
             What you can measure
           </p>
@@ -79,7 +83,7 @@ export const InsightsMetrics = () => {
         </Box>
 
         {/* ── Bento grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 px-0 sm:px-2">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 px-0 sm:px-2">
           {metrics.map((m) => (
             <Box
               key={m.title}

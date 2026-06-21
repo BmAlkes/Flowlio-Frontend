@@ -1,30 +1,21 @@
 import { Box } from "../ui/box";
 import { Center } from "../ui/center";
 import { Flex } from "../ui/flex";
-import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const TeamMember2 = () => {
-  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    const handleMouseLeave = () => {
-      if (isDragging) {
-        setIsDragging(false);
-      }
-    };
-
-    document.addEventListener("mouseleave", handleMouseLeave);
-    return () => document.removeEventListener("mouseleave", handleMouseLeave);
-  }, [isDragging]);
+  const headingRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
+  const contentRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.2 });
 
   return (
     <Center className="flex-col w-full h-full px-4 py-14 bg-black relative overflow-hidden z-30">
       <Box className="bg-[url(/home/grid.png)] bg-contain bg-center bg-no-repeat z-10 w-full h-[40rem] absolute top-10 max-sm:top-0 left-0"></Box>
 
-      <Center className="p-2 flex-col gap-2 text-5xl font-[100] max-sm:text-2xl text-white text-center  ">
+      <Center ref={headingRef} className="p-2 flex-col gap-2 text-5xl font-[100] max-sm:text-2xl text-white text-center  ">
         <h1>
           A Team That
           <span className="text-[#F98618] font-semibold "> Works </span>
@@ -33,7 +24,7 @@ export const TeamMember2 = () => {
         <h1>Not Just For You</h1>
       </Center>
 
-      <Center className="max-md:flex-col">
+      <Center ref={contentRef} className="max-md:flex-col">
         <img
           src="/home/calenderimg.svg"
           alt="calender"

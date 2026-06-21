@@ -6,9 +6,11 @@ import { Flex } from "../ui/flex";
 import { CiCircleCheck } from "react-icons/ci";
 import { useFetchPublicPlans } from "@/hooks/usefetchplans";
 import { Loader2 } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const ManageSmarter = () => {
   const navigate = useNavigate();
+  const sectionRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
 
   const { data: plansResponse, isLoading, isError } = useFetchPublicPlans();
   const trialDays = plansResponse?.data?.map((plan) => plan.trialDays);
@@ -16,7 +18,7 @@ export const ManageSmarter = () => {
   return (
     <Box className="w-full h-full bg-[#392AE2] p-8 max-sm:px-0">
       <Box className="relative z-30 mt-10 px-4">
-        <Flex className="justify-center w-full mx-auto gap-4 items-center max-md:flex-col relative z-30">
+        <Flex ref={sectionRef} className="justify-center w-full mx-auto gap-4 items-center max-md:flex-col relative z-30">
           <Center className="items-start max-sm:items-center gap-6 w-xl max-sm:w-full p-2 flex-col text-5xl font-[100] max-sm:text-2xl text-white  ">
             <h1 className="text-white max-sm:text-center">
               Start Managing Smarter

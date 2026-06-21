@@ -12,6 +12,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const phases = [
   {
@@ -42,6 +43,8 @@ const phases = [
 
 export const PurposeAndHowItWorks = () => {
   const navigate = useNavigate();
+  const headingRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
+  const cardsRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.15, stagger: 0.12 });
 
   return (
     <Box className="w-full py-20 px-4">
@@ -50,7 +53,7 @@ export const PurposeAndHowItWorks = () => {
 
           {/* ── How it works ── */}
           <Box>
-            <Center className="flex-col text-center mb-14 gap-4">
+            <Center ref={headingRef} className="flex-col text-center mb-14 gap-4">
               <p className="text-sm font-semibold tracking-widest uppercase text-[#F98618]">
                 How it works
               </p>
@@ -64,7 +67,7 @@ export const PurposeAndHowItWorks = () => {
               </p>
             </Center>
 
-            <Box className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-0 rounded-2xl overflow-hidden border border-border">
+            <Box ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:gap-0 rounded-2xl overflow-hidden border border-border">
               {phases.map((phase, i) => (
                 <Flex
                   key={phase.label}
