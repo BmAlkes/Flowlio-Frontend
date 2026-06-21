@@ -187,8 +187,8 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
   const tempCfg = TEMPERATURES.find((t) => t.value === currentTemp);
 
   return (
-    <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={false}>
-      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50" onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()}>
+    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
+      <SheetContent className="sm:max-w-[480px] w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50">
 
         {/* Header */}
         <div className="px-6 pt-7 pb-6 border-b border-border/40 shrink-0">

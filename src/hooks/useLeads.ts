@@ -15,6 +15,7 @@ export interface Lead {
   type: "lead" | "client";
   leadValue?: number;
   temperature?: "Hot" | "Warm" | "Cold" | "Lost" | null;
+  leadTemperature?: "Hot" | "Warm" | "Cold" | "Lost" | null;
   lastInteractionAt?: string | null;
   followUpAt?: string | null;
   position: number;
@@ -22,6 +23,10 @@ export interface Lead {
   socialMediaLinks?: string;
   webhookId?: string | null;
   webhookName?: string | null;
+  assignedTo?: string | null;
+  assignedAt?: string | null;
+  assignedUser?: { id: string; name: string; email: string } | null;
+  tags?: { id: string; name: string; color: string }[];
   createdAt: string;
   updatedAt: string;
 }
