@@ -5,11 +5,12 @@ import { Box } from "@/components/ui/box";
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
+import { Flex } from "@/components/ui/flex";
 import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import { useState } from "react";
-import { Download, CheckCircle2, XCircle, Clock, FileText, Users, Upload, Sparkles, Trash2, Lock, Loader2 } from "lucide-react";
+import { Download, CheckCircle2, XCircle, Clock, FileText, Upload, PenLine, Trash2, Lock, Loader2 } from "lucide-react";
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 import { useNavigate } from "react-router";
 import { generatePdfBlob } from "@/lib/generatePdf";
@@ -66,21 +67,24 @@ const OrgProposalsPage = () => {
     },
   });
 
-  const statusConfig = {
+  const statusConfig: Record<string, { label: string; className: string; icon: typeof Clock; dot: string }> = {
     pending: {
       label: t("proposal.statusPending"),
-      className: "text-white bg-[#F98618] rounded-full",
+      className: "text-orange-700 bg-orange-50 border-orange-200",
       icon: Clock,
+      dot: "bg-orange-500",
     },
     approved: {
       label: t("proposal.statusApproved"),
-      className: "text-white bg-[#00A400] rounded-full",
+      className: "text-green-700 bg-green-50 border-green-200",
       icon: CheckCircle2,
+      dot: "bg-green-500",
     },
     rejected: {
       label: t("proposal.statusRejected"),
-      className: "text-white bg-[#EF5350] rounded-full",
+      className: "text-red-700 bg-red-50 border-red-200",
       icon: XCircle,
+      dot: "bg-red-500",
     },
   };
 
@@ -125,7 +129,6 @@ const OrgProposalsPage = () => {
       URL.revokeObjectURL(url);
       toast.success(t("proposal.downloadSuccess"));
     } catch (err: any) {
-      console.error("PDF download error:", err);
       toast.error(t("proposal.downloadError") + (err?.message ? `: ${err.message}` : ""));
     } finally {
       setDownloadingId(null);
@@ -135,52 +138,49 @@ const OrgProposalsPage = () => {
   const columns: ColumnDef<Proposal>[] = [
     {
       accessorKey: "projectTitle",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colProjectTitle")}</Box>,
+      header: () => <Box className="text-foreground px-3">{t("proposal.colProjectTitle")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-center font-medium">{row.original.projectTitle}</Box>
+        <Box className="px-3 font-medium text-foreground">{row.original.projectTitle}</Box>
       ),
     },
     {
       accessorKey: "clientName",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colClient")}</Box>,
+      header: () => <Box className="text-foreground">{t("proposal.colClient")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-center">{row.original.clientName}</Box>
+        <Box className="text-muted-foreground">{row.original.clientName}</Box>
       ),
     },
     {
       accessorKey: "createdAt",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colSentOn")}</Box>,
+      header: () => <Box className="text-foreground">{t("proposal.colSentOn")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-center text-sm">
+        <Box className="text-sm text-muted-foreground">
           {format(new Date(row.original.createdAt), "MMM d, yyyy")}
         </Box>
       ),
     },
     {
       accessorKey: "status",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colStatus")}</Box>,
+      header: () => <Box className="text-foreground">{t("proposal.colStatus")}</Box>,
       cell: ({ row }) => {
         const cfg = statusConfig[row.original.status] || statusConfig.pending;
-        const Icon = cfg.icon;
         return (
-          <Center>
-            <Box
-              className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold w-28 justify-center ${cfg.className}`}
-            >
-              <Icon className="w-3 h-3" />
+          <Flex className="gap-0">
+            <Box className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border ${cfg.className}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
               {cfg.label}
             </Box>
-          </Center>
+          </Flex>
         );
       },
     },
     {
       accessorKey: "approvedAt",
-      header: () => <Box className="text-center text-foreground">{t("proposal.colResponseDate")}</Box>,
+      header: () => <Box className="text-foreground">{t("proposal.colResponseDate")}</Box>,
       cell: ({ row }) => {
         const date = row.original.approvedAt || row.original.rejectedAt;
         return (
-          <Box className="text-center text-sm text-muted-foreground">
+          <Box className="text-sm text-muted-foreground">
             {date ? format(new Date(date), "MMM d, yyyy") : "—"}
           </Box>
         );
@@ -196,20 +196,20 @@ const OrgProposalsPage = () => {
         const isDeleting = deleteMutation.isPending && confirmDeleteId === proposal.id;
         return (
           <Center>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
-                      className="bg-[#0c89af] hover:bg-[#0a7a9e] border-none w-9 h-9 p-0 rounded-md"
+                      className="w-8 h-8 p-0 rounded-lg border-border hover:bg-muted"
                       onClick={() => handleDownload(proposal)}
                       disabled={isDownloadingThis}
                     >
                       {isDownloadingThis ? (
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <Download className="text-white w-4 h-4" />
+                        <Download className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -221,17 +221,15 @@ const OrgProposalsPage = () => {
                 <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
-                    className="bg-red-500 hover:bg-red-600 border-none h-9 px-2 rounded-md text-white text-xs"
+                    className="bg-red-500 hover:bg-red-600 border-none h-8 px-2.5 rounded-lg text-white text-xs"
                     onClick={() => deleteMutation.mutate(proposal.id)}
                     disabled={isDeleting}
                   >
-                    {isDeleting ? (
-                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
-                    ) : t("proposal.confirmDelete")}
+                    {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t("proposal.confirmDelete")}
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-border h-9 px-2 rounded-md text-xs"
+                    className="border-border h-8 px-2.5 rounded-lg text-xs"
                     onClick={() => setConfirmDeleteId(null)}
                   >
                     {t("common.cancel")}
@@ -243,10 +241,10 @@ const OrgProposalsPage = () => {
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        className="bg-red-50 hover:bg-red-100 border-red-200 w-9 h-9 p-0 rounded-md"
+                        className="w-8 h-8 p-0 rounded-lg border-border hover:bg-red-50 hover:border-red-200"
                         onClick={() => setConfirmDeleteId(proposal.id)}
                       >
-                        <Trash2 className="text-red-500 w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>{t("proposal.tooltipDelete")}</TooltipContent>
@@ -291,75 +289,68 @@ const OrgProposalsPage = () => {
 
   return (
     <PageWrapper className="mt-6">
-      <Stack className="gap-1 p-6 mb-2">
-        <Box className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <Box className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-[#0c89af]/10">
-              <FileText className="w-5 h-5 text-[#0c89af]" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">{t("proposal.pageTitle")}</h1>
-              <p className="text-muted-foreground text-sm">
-                {t("proposal.pageSubtitle")}
-              </p>
-            </div>
-          </Box>
-
-          <Box className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsUploadModalOpen(true)}
-              className="gap-2 rounded-full border-[#0c89af] text-[#0c89af] hover:bg-[#0c89af]/5"
-            >
-              <Upload className="w-4 h-4" />
-              {t("proposal.uploadProposal")}
-            </Button>
-            <Button
-              onClick={() => setIsProposalModalOpen(true)}
-              className="gap-2 rounded-full bg-[#0c89af] hover:bg-[#0a7a9e] text-white"
-            >
-              <Sparkles className="w-4 h-4" />
-              {t("proposal.aiGenerator")}
-            </Button>
-          </Box>
+      {/* ── Header ── */}
+      <Flex className="items-center justify-between px-6 py-5 flex-wrap gap-3">
+        <Box>
+          <h1 className="text-2xl font-semibold text-foreground">{t("proposal.pageTitle")}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{t("proposal.pageSubtitle")}</p>
         </Box>
-      </Stack>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 mb-6">
-        {[
-          { label: t("proposal.statsTotalSent"), value: totalProposals, color: "bg-[#0c89af]/10 text-[#0c89af]" },
-          { label: t("proposal.statsPending"), value: pending, color: "bg-orange-50 text-orange-600" },
-          { label: t("proposal.statsApproved"), value: approved, color: "bg-green-50 text-green-600" },
-          { label: t("proposal.statsRejected"), value: rejected, color: "bg-red-50 text-red-600" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className={`rounded-xl p-4 ${stat.color} border border-current/10`}
+        <Flex className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsUploadModalOpen(true)}
+            className="gap-2 h-9 rounded-lg text-sm"
           >
-            <p className="text-2xl font-bold">{stat.value}</p>
-            <p className="text-xs font-medium opacity-80">{stat.label}</p>
-          </div>
+            <Upload className="w-4 h-4" />
+            {t("proposal.uploadProposal")}
+          </Button>
+          <Button
+            onClick={() => setIsProposalModalOpen(true)}
+            className="gap-2 h-9 rounded-lg bg-foreground hover:bg-foreground/90 text-background text-sm"
+          >
+            <PenLine className="w-4 h-4" />
+            {t("proposal.aiGenerator")}
+          </Button>
+        </Flex>
+      </Flex>
+
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-4 max-sm:grid-cols-2 gap-3 px-6 mb-6">
+        {[
+          { label: t("proposal.statsTotalSent"), value: totalProposals, border: "border-l-slate-400" },
+          { label: t("proposal.statsPending"), value: pending, border: "border-l-orange-400" },
+          { label: t("proposal.statsApproved"), value: approved, border: "border-l-green-500" },
+          { label: t("proposal.statsRejected"), value: rejected, border: "border-l-red-400" },
+        ].map((s) => (
+          <Box
+            key={s.label}
+            className={`rounded-xl border border-border bg-card p-4 border-l-[3px] ${s.border}`}
+          >
+            <p className="text-2xl font-bold text-foreground">{s.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
+          </Box>
         ))}
       </div>
 
+      {/* ── Table ── */}
       {isLoading ? (
-        <Box className="flex justify-center p-10 text-muted-foreground">{t("proposal.loading")}</Box>
+        <Box className="flex justify-center p-10 text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </Box>
       ) : proposals.length === 0 ? (
         <Box className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-          <Users className="w-12 h-12 opacity-30" />
+          <FileText className="w-10 h-10 opacity-20" />
           <p className="text-base font-medium">{t("proposal.emptyTitle")}</p>
-          <p className="text-sm text-center max-w-xs">
-            {t("proposal.emptyDesc")}
-          </p>
+          <p className="text-sm text-center max-w-xs">{t("proposal.emptyDesc")}</p>
         </Box>
       ) : (
-        <Box className="rounded-xl border border-border overflow-hidden mx-6 mb-10 pt-4 bg-card">
+        <Box className="mx-6 mb-10">
           <ReusableTable
             data={proposals}
             columns={columns}
-            searchClassName="rounded-full"
-            filterClassName="rounded-full"
+            searchClassName="rounded-lg"
+            filterClassName="rounded-lg"
           />
         </Box>
       )}
@@ -368,7 +359,6 @@ const OrgProposalsPage = () => {
         isOpen={isProposalModalOpen}
         onClose={() => setIsProposalModalOpen(false)}
       />
-
       <ProposalUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
