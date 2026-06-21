@@ -21,7 +21,7 @@ export interface Webhook {
 export interface WebhookLog {
   id: string;
   webhookId: string;
-  status: "success" | "error";
+  status: "success" | "error" | "failed" | "pending_retry" | "retried_success" | "permanently_failed" | "merged";
   payload: Record<string, any>;
   leadId: string | null;
   error: string | null;
