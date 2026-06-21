@@ -68,7 +68,7 @@ const SOURCE_LABELS: Record<WebhookSource, string> = {
   generic: "Generic / Custom",
 };
 
-// ─── Setup guide content ──────────────────────────────────────────────────────
+// ── Setup guides ──────────────────────────────────────────────────────────────
 
 interface PlatformGuide {
   name: string;
@@ -80,172 +80,63 @@ interface PlatformGuide {
 
 const PLATFORM_GUIDES: PlatformGuide[] = [
   {
-    name: "Elementor (WordPress)",
+    name: "Elementor",
     icon: "🟦",
     steps: [
       "Open your page in Elementor and add a Form widget.",
-      "In each form field, give it a clear ID (e.g. 'name', 'field_phone', 'message').",
-      "In Form → Actions After Submit, add the 'Webhook' action.",
-      "Paste the Flowlio Webhook URL in the Webhook URL field.",
-      "In Flowlio field mapping, use the format shown below as the 'External field name'.",
+      "Give each field a clear ID (e.g. 'name', 'field_phone', 'message').",
+      "In Form → Actions After Submit, add 'Webhook'.",
+      "Paste the Flowlio Webhook URL.",
+      "Use the field format below as the 'External field name'.",
     ],
     fieldFormat: "fields[FIELD_ID][value]",
-    example: "fields[name][value] → Name\nfields[field_phone][value] → Phone\nfields[message][value] → Message (custom)",
+    example: "fields[name][value] → Name\nfields[field_phone][value] → Phone",
   },
   {
-    name: "Contact Form 7 (WordPress)",
+    name: "Contact Form 7",
     icon: "📝",
     steps: [
-      "Install the 'CF7 to Webhook' plugin (free on WordPress.org).",
-      "Open your CF7 form and go to the new 'Webhook' tab.",
+      "Install the 'CF7 to Webhook' plugin.",
+      "Open your CF7 form → 'Webhook' tab.",
       "Paste the Flowlio Webhook URL and save.",
-      "CF7 sends fields using the input name you defined in the form shortcode.",
     ],
-    fieldFormat: "FIELD_NAME (as defined in the shortcode)",
-    example: "your-name → Name\nyour-email → Email\nyour-phone → Phone",
+    fieldFormat: "FIELD_NAME (from shortcode)",
+    example: "your-name → Name\nyour-email → Email",
   },
   {
-    name: "WPForms (WordPress)",
+    name: "WPForms",
     icon: "📋",
     steps: [
-      "Requires WPForms Pro with the Webhooks addon.",
-      "In your form, go to Settings → Webhooks and enable it.",
-      "Paste the Flowlio Webhook URL as the Request URL.",
-      "Set Request Method to POST and Request Format to JSON.",
-      "Add fields using the 'Field Name' / 'Field Value' pairs below.",
+      "Requires WPForms Pro with Webhooks addon.",
+      "Settings → Webhooks → enable, paste URL.",
+      "Set POST + JSON, map field name/value pairs.",
     ],
-    fieldFormat: "Custom field name you define in WPForms webhook settings",
-    example: "name → Name\nphone → Phone\nmessage → Message (custom)",
+    fieldFormat: "Custom field name in WPForms settings",
+    example: "name → Name\nphone → Phone",
   },
   {
-    name: "Facebook Lead Ads",
+    name: "Facebook Ads",
     icon: "📘",
     steps: [
-      "Facebook Lead Ads cannot send webhooks directly to third-party URLs.",
-      "Use a tool like Make.com (formerly Integromat) or Zapier as the bridge.",
-      "In Make.com: create a scenario with 'Facebook Lead Ads' → 'HTTP Request'.",
-      "Set the HTTP module URL to the Flowlio Webhook URL, method POST, body as JSON.",
-      "Map the lead fields (full_name, phone_number, email) to the JSON body keys.",
+      "Use Make.com or Zapier as a bridge.",
+      "Facebook Lead Ads → HTTP Request module.",
+      "POST to Flowlio URL with JSON body.",
     ],
-    fieldFormat: "JSON keys you define in Make.com / Zapier",
-    example: "name → Name\nphone → Phone\nemail → Email",
+    fieldFormat: "JSON keys in Make.com / Zapier",
+    example: "name → Name\nemail → Email",
   },
   {
-    name: "Generic / Custom (any platform)",
+    name: "Generic",
     icon: "🔗",
     steps: [
-      "Send an HTTP POST request to the Flowlio Webhook URL.",
-      "Content-Type can be application/json or application/x-www-form-urlencoded.",
-      "Include the fields in the body using simple key-value pairs.",
-      "In Flowlio field mapping, use the exact key names you send.",
+      "Send HTTP POST to the Flowlio Webhook URL.",
+      "Content-Type: application/json or form-urlencoded.",
+      "Include fields as key-value pairs in the body.",
     ],
-    fieldFormat: "Any key name you send in the POST body",
-    example: 'JSON: { "name": "John", "phone": "123", "message": "Hi" }\nMapped: name → Name, phone → Phone',
+    fieldFormat: "Any key in the POST body",
+    example: '{ "name": "John", "phone": "123" }',
   },
 ];
-
-function SetupGuide({ webhookUrl }: { webhookUrl: string }) {
-  const [open, setOpen] = useState(false);
-  const [activePlatform, setActivePlatform] = useState(0);
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  return (
-    <div className="border border-border rounded-2xl bg-card overflow-hidden">
-      <button
-        className="w-full flex items-center justify-between p-5 hover:bg-muted/30 transition-colors"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-base text-foreground">Setup Guide</p>
-            <p className="text-sm text-muted-foreground">How to connect your forms to this webhook</p>
-          </div>
-        </div>
-        {open ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
-      </button>
-
-      {open && (
-        <div className="border-t border-border">
-          {/* Platform tabs */}
-          <div className="flex gap-1 p-4 overflow-x-auto border-b border-border/60 bg-muted/20">
-            {PLATFORM_GUIDES.map((p, i) => (
-              <button
-                key={p.name}
-                onClick={() => setActivePlatform(i)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
-                  activePlatform === i
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <span>{p.icon}</span>
-                {p.name.split(" (")[0]}
-              </button>
-            ))}
-          </div>
-
-          {/* Guide content */}
-          {(() => {
-            const guide = PLATFORM_GUIDES[activePlatform];
-            return (
-              <div className="p-5 space-y-5">
-                <div>
-                  <h4 className="font-semibold text-base mb-3">
-                    {guide.icon} {guide.name} — Step by step
-                  </h4>
-                  <ol className="space-y-2">
-                    {guide.steps.map((step, i) => (
-                      <li key={i} className="flex gap-3">
-                        <span className="shrink-0 w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center mt-0.5">
-                          {i + 1}
-                        </span>
-                        <p className="text-sm text-foreground leading-relaxed">{step}</p>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                <div className="rounded-xl bg-muted/50 border border-border/60 p-4">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Field format
-                  </p>
-                  <code className="text-sm font-mono text-indigo-600 dark:text-indigo-400">{guide.fieldFormat}</code>
-                </div>
-
-                <div className="rounded-xl bg-emerald-50/60 dark:bg-emerald-900/10 border border-emerald-200/60 dark:border-emerald-500/20 p-4">
-                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-2">
-                    Mapping example
-                  </p>
-                  <pre className="text-sm font-mono text-foreground whitespace-pre-wrap">{guide.example}</pre>
-                </div>
-
-                <div className="rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/20 p-4">
-                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">
-                    Your webhook URL
-                  </p>
-                  <code className="text-sm font-mono text-foreground break-all">{webhookUrl}</code>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={handlePrint}>
-                    <Printer className="h-4 w-4" />
-                    Print / Save as PDF
-                  </Button>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function CopyButton({ value, label }: { value: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -256,14 +147,27 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button
-      onClick={handle}
-      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-    >
-      {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+    <button onClick={handle} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+      {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
     </button>
   );
 }
+
+// ── Status helpers ────────────────────────────────────────────────────────────
+
+const LOG_STATUS: Record<string, { label: string; icon: typeof CheckCircle2; cls: string; bg: string }> = {
+  success:            { label: "Success",   icon: CheckCircle2, cls: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20" },
+  merged:             { label: "Merged",    icon: CheckCircle2, cls: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-500/20" },
+  retried_success:    { label: "Retried OK",icon: CheckCircle2, cls: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20" },
+  error:              { label: "Error",     icon: AlertCircle,  cls: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-500/20" },
+  failed:             { label: "Failed",    icon: AlertCircle,  cls: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-500/20" },
+  pending_retry:      { label: "Retrying…", icon: RefreshCw,    cls: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-500/20" },
+  permanently_failed: { label: "Perm. Fail",icon: AlertCircle,  cls: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-500/20" },
+};
+
+const isFailedStatus = (s: string) => ["error", "failed", "permanently_failed"].includes(s);
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export const WebhookDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -282,6 +186,8 @@ export const WebhookDetail = () => {
   const [newExtField, setNewExtField] = useState("");
   const [newLeadField, setNewLeadField] = useState("");
   const [showRotateConfirm, setShowRotateConfirm] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guidePlatform, setGuidePlatform] = useState(0);
 
   useEffect(() => {
     if (webhook) {
@@ -322,264 +228,259 @@ export const WebhookDetail = () => {
   const logs = logsData?.logs ?? [];
 
   return (
-    <div className="space-y-6 w-full">
-      {/* Back + title */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate("/dashboard/leads/webhooks")}
-          className="flex items-center gap-1.5 text-base text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Webhooks
-        </button>
-        <span className="text-muted-foreground/40">/</span>
-        <h2 className="font-bold text-lg text-foreground">{webhook.name}</h2>
+    <div className="max-w-4xl mx-auto space-y-5">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/dashboard/leads/webhooks")}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <h2 className="font-bold text-xl text-foreground">{webhook.name}</h2>
+          <span className="text-xs text-muted-foreground border border-border rounded-full px-2 py-0.5">
+            {SOURCE_LABELS[webhook.source]}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{webhook.active ? "Active" : "Inactive"}</span>
+          <Switch
+            checked={webhook.active}
+            onCheckedChange={(checked) => updateWebhook.mutate({ id: webhook.id, data: { active: checked } })}
+          />
+        </div>
       </div>
 
-      {/* Two-column layout: left = config, right = guide */}
-      <div className="grid grid-cols-1 xl:grid-cols-[3fr_2fr] gap-6 items-start">
+      {/* ── Webhook URL + actions (compact) ── */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Webhook URL</p>
+        <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/50 border border-border/50 mb-3">
+          <code className="text-xs font-mono text-foreground flex-1 break-all leading-relaxed">{receiveUrl}</code>
+          <CopyButton value={receiveUrl} label="URL" />
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline" size="sm"
+            className="rounded-lg gap-1.5 h-8 text-xs"
+            onClick={() => testWebhook.mutate(webhook.id)}
+            disabled={testWebhook.isPending}
+          >
+            {testWebhook.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
+            Send Test
+          </Button>
+          <Button
+            variant="outline" size="sm"
+            className="rounded-lg gap-1.5 h-8 text-xs text-amber-600 border-amber-300 hover:bg-amber-50"
+            onClick={() => setShowRotateConfirm(true)}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Rotate Token
+          </Button>
+        </div>
+      </div>
 
-        {/* ── LEFT COLUMN ── */}
-        <div className="space-y-6">
-
-          {/* Info card */}
-          <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h3 className="font-bold text-xl text-foreground">{webhook.name}</h3>
-                <p className="text-base text-muted-foreground mt-0.5">{SOURCE_LABELS[webhook.source]}</p>
-              </div>
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-muted/60 border border-border/60">
-                <span className="text-base font-semibold text-muted-foreground">
-                  {webhook.active ? "Active" : "Inactive"}
-                </span>
-                <Switch
-                  checked={webhook.active}
-                  onCheckedChange={(checked) =>
-                    updateWebhook.mutate({ id: webhook.id, data: { active: checked } })
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Webhook URL */}
-            <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                Webhook URL
-              </p>
-              <div className="flex items-center gap-2 p-4 rounded-xl bg-muted/50 border border-border/50">
-                <code className="text-sm font-mono text-foreground flex-1 break-all">{receiveUrl}</code>
-                <CopyButton value={receiveUrl} label="URL" />
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Use this URL as the webhook endpoint in your form / integration.
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button
-                variant="outline"
-                className="rounded-full flex items-center gap-2 h-10 px-5 text-base"
-                onClick={() => testWebhook.mutate(webhook.id)}
-                disabled={testWebhook.isPending}
-              >
-                {testWebhook.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
-                Send Test
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full flex items-center gap-2 h-10 px-5 text-base text-amber-600 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                onClick={() => setShowRotateConfirm(true)}
-              >
-                <RefreshCw className="h-4 w-4" />
-                Rotate Token
-              </Button>
-            </div>
+      {/* ── Setup Guide (collapsible, full width) ── */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <button
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+          onClick={() => setGuideOpen((v) => !v)}
+        >
+          <div className="flex items-center gap-2.5">
+            <BookOpen className="h-4 w-4 text-indigo-500" />
+            <span className="text-sm font-semibold text-foreground">Setup Guide</span>
+            <span className="text-xs text-muted-foreground">— how to connect your forms</span>
           </div>
+          {guideOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        </button>
 
-          {/* Field Mapping */}
-          <div className="border border-border rounded-2xl p-6 bg-card space-y-5">
+        {guideOpen && (
+          <div className="border-t border-border">
+            <div className="flex gap-1 p-3 overflow-x-auto border-b border-border/50 bg-muted/20">
+              {PLATFORM_GUIDES.map((p, i) => (
+                <button
+                  key={p.name}
+                  onClick={() => setGuidePlatform(i)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                    guidePlatform === i
+                      ? "bg-indigo-600 text-white"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  <span>{p.icon}</span> {p.name}
+                </button>
+              ))}
+            </div>
+            {(() => {
+              const g = PLATFORM_GUIDES[guidePlatform];
+              return (
+                <div className="p-4 space-y-3">
+                  <ol className="space-y-1.5">
+                    {g.steps.map((step, i) => (
+                      <li key={i} className="flex gap-2 text-sm">
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                        <span className="text-foreground leading-relaxed">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="grid grid-cols-2 gap-3 max-sm:grid-cols-1">
+                    <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Field format</p>
+                      <code className="text-xs font-mono text-indigo-600 dark:text-indigo-400">{g.fieldFormat}</code>
+                    </div>
+                    <div className="rounded-lg bg-emerald-50/60 dark:bg-emerald-900/10 border border-emerald-200/60 dark:border-emerald-500/20 p-3">
+                      <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">Example</p>
+                      <pre className="text-xs font-mono text-foreground whitespace-pre-wrap">{g.example}</pre>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <Button variant="ghost" size="sm" className="gap-1.5 h-7 text-xs" onClick={() => window.print()}>
+                      <Printer className="h-3 w-3" /> Print
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+
+      {/* ── Field Mapping ── */}
+      <div className="rounded-xl border border-border bg-card p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg">Field Mapping</h3>
-            <p className="text-base text-muted-foreground mt-0.5">
-              Map the field names sent by your form to lead fields
-            </p>
+            <h3 className="font-semibold text-sm">Field Mapping</h3>
+            <p className="text-xs text-muted-foreground">Map external field names to lead fields</p>
           </div>
           <Button
-            className="rounded-full px-5 h-10 text-base"
+            size="sm"
+            className="rounded-lg h-8 text-xs"
             onClick={() => saveMapping.mutate({ id: webhook.id, mapping })}
             disabled={saveMapping.isPending}
           >
-            {saveMapping.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Mapping"}
+            {saveMapping.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save Mapping"}
           </Button>
         </div>
 
-        {/* Existing mappings */}
-        {Object.keys(mapping).length > 0 ? (
-          <div className="space-y-2">
-            <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">
-              <span>External field name</span>
-              <span />
-              <span>Lead field</span>
-              <span />
-            </div>
+        {Object.keys(mapping).length > 0 && (
+          <div className="space-y-1.5">
             {Object.entries(mapping).map(([extField, leadField]) => {
-              const leadFieldLabel = allLeadFields.find((f) => f.id === leadField)?.label ?? leadField;
+              const label = allLeadFields.find((f) => f.id === leadField)?.label ?? leadField;
               return (
-                <div key={extField} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
-                  <div className="px-4 py-2.5 rounded-xl bg-muted/50 border border-border text-base font-mono">
-                    {extField}
-                  </div>
-                  <span className="text-muted-foreground text-base font-bold">→</span>
-                  <div className="px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-500/30 text-base text-indigo-700 dark:text-indigo-300 font-medium">
-                    {leadFieldLabel}
-                  </div>
-                  <button
-                    onClick={() => removeMapping(extField)}
-                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 text-rose-600 border border-rose-200 dark:border-rose-500/30 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
+                <div key={extField} className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-1.5 rounded-lg bg-muted/50 border border-border text-xs font-mono truncate">{extField}</div>
+                  <span className="text-muted-foreground text-xs font-bold shrink-0">→</span>
+                  <div className="flex-1 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200/60 dark:border-indigo-500/20 text-xs text-indigo-700 dark:text-indigo-300 font-medium truncate">{label}</div>
+                  <button onClick={() => removeMapping(extField)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-rose-50 text-rose-500 transition-colors shrink-0">
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               );
             })}
           </div>
-        ) : (
-          <p className="text-base text-muted-foreground/60 italic">No mappings yet. Add your first below.</p>
         )}
 
-        {/* Add new mapping row */}
-        <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-end pt-4 border-t border-border/50">
-          <div>
-            <label className="text-sm font-semibold text-muted-foreground block mb-1.5">External field name</label>
+        {Object.keys(mapping).length === 0 && (
+          <p className="text-xs text-muted-foreground italic">No mappings yet.</p>
+        )}
+
+        <div className="flex items-end gap-2 pt-3 border-t border-border/50">
+          <div className="flex-1">
+            <label className="text-xs text-muted-foreground mb-1 block">External field</label>
             <Input
-              className="rounded-xl text-base font-mono h-11"
+              className="rounded-lg text-xs font-mono h-8"
               placeholder="e.g. fields[name][value]"
               value={newExtField}
               onChange={(e) => setNewExtField(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addMapping()}
             />
           </div>
-          <span className="text-muted-foreground text-lg font-bold pb-2">→</span>
-          <div>
-            <label className="text-sm font-semibold text-muted-foreground block mb-1.5">Lead field</label>
+          <span className="text-muted-foreground text-xs font-bold pb-1.5">→</span>
+          <div className="flex-1">
+            <label className="text-xs text-muted-foreground mb-1 block">Lead field</label>
             <Select value={newLeadField} onValueChange={setNewLeadField}>
-              <SelectTrigger className="rounded-xl text-base h-11">
-                <SelectValue placeholder="Select lead field" />
-              </SelectTrigger>
+              <SelectTrigger className="rounded-lg text-xs h-8"><SelectValue placeholder="Select field" /></SelectTrigger>
               <SelectContent>
-                {allLeadFields.map((f) => (
-                  <SelectItem key={f.id} value={f.id} className="text-base">{f.label}</SelectItem>
-                ))}
+                {allLeadFields.map((f) => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <button
             onClick={addMapping}
             disabled={!newExtField.trim() || !newLeadField}
-            className="flex items-center justify-center h-11 w-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white transition-colors self-end"
+            className="flex items-center justify-center h-8 w-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white transition-colors shrink-0"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* Logs */}
-      <div className="border border-border rounded-2xl p-6 bg-card space-y-4">
-        <h3 className="font-bold text-lg">Recent Calls</h3>
+      {/* ── Recent Calls ── */}
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+        <h3 className="font-semibold text-sm">Recent Calls</h3>
 
         {logs.length === 0 ? (
-          <p className="text-base text-muted-foreground/60 italic">No calls received yet.</p>
+          <p className="text-xs text-muted-foreground italic py-4 text-center">No calls received yet.</p>
         ) : (
-          <div className="space-y-3">
-            {logs.map((log) => (
-              <div
-                key={log.id}
-                className={`flex items-start gap-3 p-4 rounded-xl border ${
-                  log.status === "success"
-                    ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-900/10"
-                    : "border-rose-200 dark:border-rose-500/20 bg-rose-50/50 dark:bg-rose-900/10"
-                }`}
-              >
-                {log.status === "success"
-                  ? <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                  : <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />}
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className={`text-sm font-bold ${log.status === "success" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}`}>
-                      {log.status === "success" ? "Success" : "Error"}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {format(new Date(log.createdAt), "d MMM yyyy HH:mm:ss")}
-                    </span>
-                    {log.ip && <span className="text-sm text-muted-foreground/60">{log.ip}</span>}
+          <div className="space-y-2">
+            {logs.map((log) => {
+              const st = LOG_STATUS[log.status] ?? LOG_STATUS.error;
+              const Icon = st.icon;
+              return (
+                <div key={log.id} className={`flex items-start gap-2.5 p-3 rounded-lg border ${st.bg}`}>
+                  <Icon className={`h-4 w-4 shrink-0 mt-0.5 ${st.cls}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-xs font-bold ${st.cls}`}>{st.label}</span>
+                      <span className="text-xs text-muted-foreground">{format(new Date(log.createdAt), "d MMM HH:mm")}</span>
+                      {log.ip && <span className="text-xs text-muted-foreground/50">{log.ip}</span>}
+                    </div>
+                    {log.error && <p className="text-xs text-rose-600 mt-0.5">{log.error}</p>}
+                    {log.leadId && <p className="text-xs text-emerald-600 mt-0.5">Lead: <code className="font-mono">{log.leadId.slice(0, 8)}</code></p>}
+                    <details className="mt-1.5">
+                      <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground select-none">Payload</summary>
+                      <pre className="mt-1 text-[11px] bg-muted/60 rounded-lg p-2 overflow-x-auto text-muted-foreground font-mono max-h-40">
+                        {log.payload && Object.keys(log.payload).length > 0
+                          ? JSON.stringify(log.payload, null, 2)
+                          : "(empty)"}
+                      </pre>
+                    </details>
                   </div>
-                  {log.error && (
-                    <p className="text-sm text-rose-600 dark:text-rose-400 mt-1">{log.error}</p>
-                  )}
-                  {log.leadId && (
-                    <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
-                      Lead created: <code className="font-mono text-xs">{log.leadId}</code>
-                    </p>
-                  )}
-                  <details className="mt-2" open>
-                    <summary className="text-sm text-muted-foreground cursor-pointer hover:text-foreground select-none font-medium">
-                      Payload
-                    </summary>
-                    <pre className="mt-2 text-xs bg-muted/60 rounded-xl p-3 overflow-x-auto text-muted-foreground font-mono">
-                      {log.payload && Object.keys(log.payload).length > 0
-                        ? JSON.stringify(log.payload, null, 2)
-                        : "(payload not stored or empty)"}
-                    </pre>
-                  </details>
-                </div>
-
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  {log.status === "error" || log.status === "failed" || log.status === "permanently_failed" ? (
+                  <div className="flex gap-1 shrink-0">
+                    {isFailedStatus(log.status) && (
+                      <button
+                        onClick={() => retryLog.mutate(
+                          { logId: log.id, webhookId: log.webhookId },
+                          { onSuccess: () => toast.success("Retry sent"), onError: (e: any) => toast.error(e?.message ?? "Retry failed") }
+                        )}
+                        disabled={retryLog.isPending}
+                        className="h-7 w-7 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-500 transition-colors"
+                        title="Retry"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                     <button
-                      onClick={() => retryLog.mutate(
-                        { logId: log.id, webhookId: log.webhookId },
-                        { onSuccess: () => toast.success("Retry sent"), onError: (e: any) => toast.error(e?.message ?? "Retry failed") }
-                      )}
-                      disabled={retryLog.isPending}
-                      className="h-9 w-9 flex items-center justify-center rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 text-blue-500 border border-blue-200 dark:border-blue-500/20 transition-colors"
-                      title="Retry this webhook"
+                      onClick={() => deleteLog.mutate({ logId: log.id, webhookId: log.webhookId })}
+                      disabled={deleteLog.isPending}
+                      className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-500 transition-colors"
+                      title="Delete"
                     >
-                      <RefreshCw className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
-                  ) : null}
-                  <button
-                    onClick={() => deleteLog.mutate({ logId: log.id, webhookId: log.webhookId })}
-                    disabled={deleteLog.isPending}
-                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 text-rose-500 border border-rose-200 dark:border-rose-500/20 transition-colors"
-                    title="Delete log"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {logsData && logsData.total > logs.length && (
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-xs text-muted-foreground text-center">
             Showing {logs.length} of {logsData.total} calls
           </p>
         )}
       </div>
-
-        </div> {/* END left column */}
-
-        {/* ── RIGHT COLUMN — Setup Guide (sticky on desktop) ── */}
-        <div className="xl:sticky xl:top-6">
-          <SetupGuide webhookUrl={receiveUrl} />
-        </div>
-
-      </div> {/* END grid */}
 
       {/* Rotate token confirm */}
       <AlertDialog open={showRotateConfirm} onOpenChange={setShowRotateConfirm}>
@@ -587,7 +488,7 @@ export const WebhookDetail = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Rotate token?</AlertDialogTitle>
             <AlertDialogDescription>
-              A new token will be generated. The old webhook URL will stop working immediately — you must update your integration.
+              A new token will be generated. The old URL stops working immediately.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
