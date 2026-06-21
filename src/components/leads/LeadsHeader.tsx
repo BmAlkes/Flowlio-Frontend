@@ -7,17 +7,22 @@ import { Flex } from "@/components/ui/flex";
 import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
 import { GeneralModal, useGeneralModalDisclosure } from "@/components/common/generalmodal";
-import { CirclePlus, LayoutGrid, List, Settings2, Webhook } from "lucide-react";
+import { CirclePlus, LayoutGrid, List, Settings2, Webhook, Download, Tag } from "lucide-react";
 import { LeadsPipeline } from "./LeadsPipeline";
 import { LeadsTable } from "./LeadsTable";
 import { CreateLeadDialog } from "./CreateLeadDialog";
 import { LeadFieldsManager } from "./LeadFieldsManager";
+import { LeadTagsManager } from "./LeadTagsManager";
+import { useExportLeads } from "@/hooks/useLeadExtras";
+import { toast } from "sonner";
 
 export const LeadsHeader = () => {
   const navigate = useNavigate();
   const [view, setView] = useState<"table" | "pipeline">("table");
   const [showCreate, setShowCreate] = useState(false);
   const fieldsModal = useGeneralModalDisclosure();
+  const tagsModal = useGeneralModalDisclosure();
+  const exportLeads = useExportLeads();
 
   return (
     <PageWrapper className="mt-6">
@@ -63,6 +68,30 @@ export const LeadsHeader = () => {
 
           <Button
             variant="outline"
+            className="rounded-full px-5 py-5 flex items-center gap-2 text-sm"
+            onClick={() => tagsModal.onOpenChange(true)}
+          >
+            <Tag className="w-4 h-4" />
+            Tags
+          </Button>
+
+          <Button
+            variant="outline"
+            className="rounded-full px-5 py-5 flex items-center gap-2 text-sm"
+            onClick={() => {
+              exportLeads.mutate({}, {
+                onSuccess: () => toast.success("Leads exported successfully"),
+                onError: (e) => toast.error("Export failed", { description: e.message }),
+              });
+            }}
+            disabled={exportLeads.isPending}
+          >
+            <Download className="w-4 h-4" />
+            {exportLeads.isPending ? "Exporting…" : "Export"}
+          </Button>
+
+          <Button
+            variant="outline"
             className="bg-black text-white border border-border rounded-full px-5 py-5 flex items-center gap-2 hover:bg-muted/50"
             onClick={() => fieldsModal.onOpenChange(true)}
           >
@@ -89,6 +118,12 @@ export const LeadsHeader = () => {
       <GeneralModal {...fieldsModal}>
         <Box className="p-1">
           <LeadFieldsManager />
+        </Box>
+      </GeneralModal>
+
+      <GeneralModal {...tagsModal} contentProps={{ className: "max-w-lg" }}>
+        <Box className="p-1">
+          <LeadTagsManager />
         </Box>
       </GeneralModal>
     </PageWrapper>

@@ -1,6 +1,7 @@
 import { Box } from "@/components/ui/box";
 import { PageWrapper } from "@/components/common/pagewrapper";
 import { WebhooksList } from "@/components/leads/webhooks/WebhooksList";
+import { LeadRoutingRules } from "@/components/leads/LeadRoutingRules";
 import { Webhook, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router";
 
@@ -31,6 +32,10 @@ const LeadsWebhooksPage = () => {
             </div>
           </div>
           <WebhooksList />
+
+          <hr className="my-8 border-border" />
+
+          <LeadRoutingRules />
         </div>
       </PageWrapper>
     </Box>

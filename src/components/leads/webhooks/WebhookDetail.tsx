@@ -12,6 +12,7 @@ import {
   WebhookSource,
 } from "@/hooks/useWebhooks";
 import { useLeadFields } from "@/hooks/useLeadFields";
+import { useRetryWebhookLog } from "@/hooks/useLeadExtras";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -275,6 +276,7 @@ export const WebhookDetail = () => {
   const testWebhook = useTestWebhook();
   const rotateToken = useRotateWebhookToken();
   const deleteLog = useDeleteWebhookLog();
+  const retryLog = useRetryWebhookLog();
 
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [newExtField, setNewExtField] = useState("");
@@ -535,14 +537,29 @@ export const WebhookDetail = () => {
                   </details>
                 </div>
 
-                <button
-                  onClick={() => deleteLog.mutate({ logId: log.id, webhookId: log.webhookId })}
-                  disabled={deleteLog.isPending}
-                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 text-rose-500 border border-rose-200 dark:border-rose-500/20 transition-colors shrink-0"
-                  title="Delete log"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  {log.status === "error" || log.status === "failed" || log.status === "permanently_failed" ? (
+                    <button
+                      onClick={() => retryLog.mutate(
+                        { logId: log.id, webhookId: log.webhookId },
+                        { onSuccess: () => toast.success("Retry sent"), onError: (e: any) => toast.error(e?.message ?? "Retry failed") }
+                      )}
+                      disabled={retryLog.isPending}
+                      className="h-9 w-9 flex items-center justify-center rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 text-blue-500 border border-blue-200 dark:border-blue-500/20 transition-colors"
+                      title="Retry this webhook"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={() => deleteLog.mutate({ logId: log.id, webhookId: log.webhookId })}
+                    disabled={deleteLog.isPending}
+                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 text-rose-500 border border-rose-200 dark:border-rose-500/20 transition-colors"
+                    title="Delete log"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
