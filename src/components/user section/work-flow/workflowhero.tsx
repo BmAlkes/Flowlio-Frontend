@@ -1,3 +1,5 @@
+import { useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { Box } from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
@@ -8,6 +10,17 @@ import { useNavigate } from "react-router";
 
 export const WorkflowHero = () => {
   const navigate = useNavigate();
+  const headRef = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.from(headRef.current, { opacity: 0, y: 25, duration: 0.8 })
+      .from(subRef.current, { opacity: 0, y: 15, duration: 0.6 }, "-=0.3")
+      .from(ctaRef.current, { opacity: 0, y: 10, duration: 0.5 }, "-=0.2");
+    return () => { tl.kill(); };
+  }, []);
 
   return (
     <Box className="relative w-full h-[26rem] z-[40] bg-[#161616] overflow-hidden">
@@ -21,23 +34,29 @@ export const WorkflowHero = () => {
 
       <Center className="px-2">
         <Stack className="text-center max-sm:w-full justify-between items-center">
-          <Box className="text-[#F98618] font-semibold max-w-2xl max-sm:w-full text-5xl max-sm:text-3xl  ">
-            From First Lead
-            <Box className="text-white font-[100]">To Final Invoice</Box>
-          </Box>
+          <div ref={headRef}>
+            <Box className="text-[#F98618] font-semibold max-w-2xl max-sm:w-full text-5xl max-sm:text-3xl  ">
+              From First Lead
+              <Box className="text-white font-[100]">To Final Invoice</Box>
+            </Box>
+          </div>
 
-          <Box className="w-xl max-sm:w-full font-[200] text-white text-[15px]">
-            Flowlio connects every step of your business into one seamless
-            workflow — no switching tools, no dropped balls.
-          </Box>
+          <div ref={subRef}>
+            <Box className="w-xl max-sm:w-full font-[200] text-white text-[15px]">
+              Flowlio connects every step of your business into one seamless
+              workflow — no switching tools, no dropped balls.
+            </Box>
+          </div>
 
-          <Button
-            onClick={() => navigate("/pricing")}
-            className="p-2 mt-2 h-12 w-36 rounded-3xl bg-[#1797B9] cursor-pointer hover:bg-[#1797B9]/80"
-          >
-            Get Started
-            <ArrowRight />
-          </Button>
+          <div ref={ctaRef}>
+            <Button
+              onClick={() => navigate("/pricing")}
+              className="p-2 mt-2 h-12 w-36 rounded-3xl bg-[#1797B9] cursor-pointer hover:bg-[#1797B9]/80"
+            >
+              Get Started
+              <ArrowRight />
+            </Button>
+          </div>
 
           <Flex className="mt-4 max-sm:flex-col">
             <img

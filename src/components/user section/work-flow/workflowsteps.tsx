@@ -2,6 +2,7 @@ import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
   UserCheck,
   Users,
@@ -65,9 +66,12 @@ const steps = [
 ];
 
 export const WorkflowSteps = () => {
+  const headingRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
+  const stepsDesktopRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.1, stagger: 0.1 });
+  const stepsMobileRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.1, stagger: 0.08 });
   return (
     <Box className="w-full bg-card py-16 px-4">
-      <Center className="flex-col gap-3 mb-12 text-center">
+      <Center ref={headingRef} className="flex-col gap-3 mb-12 text-center">
         <Box className="text-sm font-semibold text-[#F98618] uppercase tracking-widest">
           The Flowlio Workflow
         </Box>
@@ -83,7 +87,7 @@ export const WorkflowSteps = () => {
 
       <Center className="max-w-6xl mx-auto">
         {/* Desktop: horizontal steps */}
-        <Flex className="w-full items-start justify-between gap-2 max-lg:hidden">
+        <Flex ref={stepsDesktopRef} className="w-full items-start justify-between gap-2 max-lg:hidden">
           {steps.map((step, index) => (
             <Flex key={step.number} className="flex-1 items-start gap-2">
               <Stack className="flex-1 items-center text-center gap-3">
@@ -118,7 +122,7 @@ export const WorkflowSteps = () => {
         </Flex>
 
         {/* Mobile: vertical steps */}
-        <Stack className="w-full gap-0 lg:hidden">
+        <Stack ref={stepsMobileRef} className="w-full gap-0 lg:hidden">
           {steps.map((step, index) => (
             <Flex key={step.number} className="items-start gap-4">
               {/* Left line */}

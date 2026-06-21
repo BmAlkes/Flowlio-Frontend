@@ -1,12 +1,17 @@
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const WorkflowdDetails = () => {
+  const s1 = useScrollReveal<HTMLDivElement>({ direction: "left", distance: 40 });
+  const s2 = useScrollReveal<HTMLDivElement>({ direction: "right", distance: 40 });
+  const s3 = useScrollReveal<HTMLDivElement>({ direction: "left", distance: 40 });
+  const s4 = useScrollReveal<HTMLDivElement>({ direction: "right", distance: 40 });
   return (
     <Center className="max-w-6xl max-lg:w-full flex-col mx-auto h-full overflow-hidden bg-card px-2 py-12">
       {/* Section 1 — Leads & Clients */}
-      <Center className={`gap-8 py-12 px-4 max-sm:flex-col max-sm:items-start`}>
+      <Center ref={s1} className={`gap-8 py-12 px-4 max-sm:flex-col max-sm:items-start`}>
         <Box className="flex-1 max-w-md">
           <Box className={cn(`text-5xl text-gray-800 mb-4`)}>
             <span className="text-gray-800 font-[100]">Capture Leads,</span>
@@ -27,6 +32,7 @@ export const WorkflowdDetails = () => {
 
       {/* Section 2 — Projects & Tasks */}
       <Center
+        ref={s2}
         className={`gap-8 py-12 px-4 max-sm:flex-col-reverse max-sm:items-stretch`}
       >
         <Box className="flex-1 flex justify-center max-sm:mt-4">
@@ -49,6 +55,7 @@ export const WorkflowdDetails = () => {
 
       {/* Section 3 — Time Tracking & Invoicing */}
       <Center
+        ref={s3}
         className={`gap-8 py-12 px-4 max-sm:flex-col max-sm:items-stretch`}
       >
         <Box className="flex-1 max-w-md">
@@ -72,6 +79,7 @@ export const WorkflowdDetails = () => {
 
       {/* Section 4 — Analytics & AI */}
       <Center
+        ref={s4}
         className={`gap-8 py-12 px-4 max-sm:flex-col-reverse max-sm:items-stretch`}
       >
         <Box className="flex-1 flex justify-center max-sm:mt-4">

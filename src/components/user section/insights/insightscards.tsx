@@ -1,8 +1,11 @@
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export const InsightsCards = () => {
+  const row1Ref = useScrollReveal<HTMLDivElement>({ direction: "up", stagger: 0.15 });
+  const row2Ref = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.1, stagger: 0.15 });
   const insightsDetails = [
     {
       title: "All Your Data, One Dashboard",
@@ -33,7 +36,7 @@ export const InsightsCards = () => {
   return (
     <Center className="w-full h-full px-4 flex-col gap-10 absolute z-40 top-100 max-md:top-160">
       <Box className="flex flex-col gap-6 w-full items-center">
-        <Center className="flex-col md:flex-row gap-6 w-full">
+        <Center ref={row1Ref} className="flex-col md:flex-row gap-6 w-full">
           {insightsDetails.slice(0, 2).map((insight, index) => (
             <Center
               key={index}
@@ -51,7 +54,7 @@ export const InsightsCards = () => {
           ))}
         </Center>
 
-        <Center className="flex-col md:flex-row gap-6 w-full">
+        <Center ref={row2Ref} className="flex-col md:flex-row gap-6 w-full">
           {insightsDetails.slice(2, 4).map((insight, index) => (
             <Center
               key={index + 2}

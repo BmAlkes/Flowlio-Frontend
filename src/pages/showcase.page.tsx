@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router";
+import { gsap } from "gsap";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
   ArrowRight, Play, Zap, Shield, Globe2, Bot, TrendingUp, Users,
   Clock,  BarChart3, Calendar, CheckSquare, Star,
@@ -618,6 +620,13 @@ const ShowcasePage = () => {
   const [modal, setModal] = useState<ModalState>({ isOpen: false, videoId: "", title: "" });
   const [activeTab, setActiveTab] = useState<DemoTab>("projects");
 
+  const heroTextRef = useRef<HTMLDivElement>(null);
+  const workflowCardsRef = useScrollReveal<HTMLDivElement>({ direction: "up", stagger: 0.1 });
+  const videoGridRef = useScrollReveal<HTMLDivElement>({ direction: "up", stagger: 0.06 });
+  const demoRef = useScrollReveal<HTMLDivElement>({ direction: "up" });
+  const industryRef = useScrollReveal<HTMLDivElement>({ direction: "up", stagger: 0.08 });
+  const modulesRef = useScrollReveal<HTMLDivElement>({ direction: "up", stagger: 0.08 });
+
   const openModal = (videoId: string, title: string) =>
     setModal({ isOpen: true, videoId, title });
   const closeModal = () =>
@@ -628,7 +637,13 @@ const ShowcasePage = () => {
       ? features
       : features.filter((f) => f.category === activeCategory);
 
-  useEffect(() => { scrollTo(0, 0); }, []);
+  useEffect(() => {
+    scrollTo(0, 0);
+    if (heroTextRef.current) {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.from(heroTextRef.current.children, { opacity: 0, y: 20, duration: 0.7, stagger: 0.12 });
+    }
+  }, []);
 
   return (
     <>
@@ -658,7 +673,7 @@ const ShowcasePage = () => {
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 py-16">
           {/* Left — text */}
-          <div className="flex-1 max-w-xl">
+          <div ref={heroTextRef} className="flex-1 max-w-xl">
             <div className="pill-badge pill-dark mb-6">
               <Star size={9} fill="currentColor" /> Video Showcase
             </div>
@@ -756,7 +771,7 @@ const ShowcasePage = () => {
           </div>
 
           {/* 4 workflow cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div ref={workflowCardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
               { title: "From lead to paid invoice", desc: "The complete process from new lead to project delivery and invoice payment.", pills: ["CRM","Projects","Invoices"], uc: useCases[0], color: { from: "#1e1060", to: "#3b0764" } },
               { title: "Managing a remote team", desc: "Assign tasks, track time, collaborate and keep everyone aligned.", pills: ["Tasks","Time Tracking","Reports"], uc: useCases[1], color: { from: "#052e16", to: "#064e3b" } },
@@ -848,7 +863,7 @@ const ShowcasePage = () => {
           {filtered.length === 0 ? (
             <p className="text-center py-20 text-gray-500">No videos in this category yet.</p>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto">
+            <div ref={videoGridRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto">
               {filtered.map((feat, i) => {
                 const isFeatured = i === 0 || i === 4;
                 const hasReal = !feat.videoId.includes("_VIDEO_") && !feat.videoId.startsWith("USECASE");
@@ -917,7 +932,7 @@ const ShowcasePage = () => {
           4. INTERACTIVE PREVIEW — white, split
       ══════════════════════════════════════════════════════════════════ */}
       <section id="demo" className="py-28 px-6 bg-white">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start gap-16">
+        <div ref={demoRef} className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start gap-16">
           {/* Left */}
           <div className="flex-none max-w-sm lg:max-w-[340px]">
             <span className="pill-badge pill-light mb-5 inline-flex"><Monitor size={9} /> Interactive Preview</span>
@@ -1003,7 +1018,7 @@ const ShowcasePage = () => {
           </div>
 
           {/* 6 cards — 3 per row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div ref={industryRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {INDUSTRIES.map((ind, idx) => {
               const Icon = ind.icon;
               const uc = useCases[idx] ?? useCases[0];
@@ -1062,7 +1077,7 @@ const ShowcasePage = () => {
           </div>
 
           {/* Module cards — 3 columns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div ref={modulesRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {MODULES.map((mod) => {
               const Icon = mod.icon;
               return (
