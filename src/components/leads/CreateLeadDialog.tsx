@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { useCreateLead } from "@/hooks/useLeads";
+import { useCheckDuplicate } from "@/hooks/useLeadExtras";
+import { useState } from "react";
 import { useLeadFields } from "@/hooks/useLeadFields";
 import {
   Select,
@@ -48,6 +50,8 @@ interface Props {
 export const CreateLeadDialog = ({ open, onClose }: Props) => {
   const { mutate: createLead, isPending } = useCreateLead();
   const { data: fields = [] } = useLeadFields();
+  const checkDuplicate = useCheckDuplicate();
+  const [dupWarning, setDupWarning] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -111,9 +115,35 @@ export const CreateLeadDialog = ({ open, onClose }: Props) => {
                   <FormItem>
                     <FormLabel>Email *</FormLabel>
                     <FormControl>
-                      <Input className="rounded-full" type="email" placeholder="john@example.com" {...field} />
+                      <Input
+                        className="rounded-full"
+                        type="email"
+                        placeholder="john@example.com"
+                        {...field}
+                        onBlur={(e) => {
+                          field.onBlur();
+                          const email = e.target.value.trim();
+                          if (email && email.includes("@")) {
+                            checkDuplicate.mutate({ email }, {
+                              onSuccess: (res) => {
+                                setDupWarning(res.isDuplicate
+                                  ? `A lead with this email already exists: ${res.existingLead?.name}`
+                                  : null);
+                              },
+                            });
+                          } else {
+                            setDupWarning(null);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
+                    {dupWarning && (
+                      <div className="flex items-center gap-1.5 mt-1 text-xs text-amber-600">
+                        <AlertTriangle className="h-3 w-3 shrink-0" />
+                        {dupWarning}
+                      </div>
+                    )}
                   </FormItem>
                 )}
               />

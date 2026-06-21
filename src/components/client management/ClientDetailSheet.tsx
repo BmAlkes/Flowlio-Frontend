@@ -18,12 +18,15 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users } from "lucide-react";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useConvertLead } from "@/hooks/useLeads";
 import { LeadCustomFieldsSection } from "@/components/leads/LeadCustomFieldsSection";
+import { useAssignLead, useLeadTags, useSetLeadTags } from "@/hooks/useLeadExtras";
+import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
+import { toast } from "sonner";
 
 const STAGES = [
   "New Lead",
@@ -143,6 +146,14 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
   const cancelFollowUp = useSetFollowUp();
   const { data: insights } = useLeadInsights(client?.id ?? "");
   const convertLead = useConvertLead();
+  const assignLead = useAssignLead();
+  const setLeadTags = useSetLeadTags();
+  const { data: membersResp } = useGetCurrentOrgUserMembers();
+  const { data: allTags = [] } = useLeadTags();
+  const members = (membersResp?.data?.userMembers ?? []).map((m) => ({
+    id: m.user?.id ?? m.id,
+    name: m.user?.name ?? `${m.firstname} ${m.lastname}`.trim(),
+  }));
 
   const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
   const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
@@ -512,9 +523,75 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
           </div>
         </div>
 
+        {/* Assign to + Tags (leads only) */}
+        {isLead && (
+          <div className="px-6 pt-4 pb-1 shrink-0 space-y-3">
+            {/* Assign to */}
+            <div>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                Assigned to
+              </span>
+              <Select
+                value={client.assignedTo ?? "unassigned"}
+                onValueChange={(v) => {
+                  const userId = v === "unassigned" ? null : v;
+                  assignLead.mutate({ leadId: client.id, userId }, {
+                    onSuccess: () => toast.success(userId ? "Lead assigned" : "Assignment removed"),
+                  });
+                }}
+              >
+                <SelectTrigger className="h-9 text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SelectValue placeholder="Unassigned" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Tags */}
+            {allTags.length > 0 && (
+              <div>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                  Tags
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {allTags.map((tag) => {
+                    const active = (client.tags ?? []).some((t: any) => t.id === tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        onClick={() => {
+                          const currentIds = (client.tags ?? []).map((t: any) => t.id);
+                          const newIds = active ? currentIds.filter((id: string) => id !== tag.id) : [...currentIds, tag.id];
+                          setLeadTags.mutate({ leadId: client.id, tagIds: newIds });
+                        }}
+                        className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                          active
+                            ? "border-transparent text-white font-medium"
+                            : "border-border bg-card text-muted-foreground hover:bg-muted"
+                        }`}
+                        style={active ? { backgroundColor: tag.color } : undefined}
+                      >
+                        {tag.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Convert to Client (leads only) */}
         {isLead && (
-          <div className="px-6 pt-4 pb-2 shrink-0">
+          <div className="px-6 pt-3 pb-2 shrink-0">
             <button
               onClick={() =>
                 convertLead.mutate(client.id, {

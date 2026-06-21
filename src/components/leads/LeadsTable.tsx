@@ -24,7 +24,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, Trash2, Eye, DollarSign, Webhook, Phone } from "lucide-react";
+import { Loader2, Search, Trash2, Eye, DollarSign, Webhook, Phone, CheckSquare } from "lucide-react";
+import { useBulkLeadAction } from "@/hooks/useLeadExtras";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import { format, isPast, differenceInDays } from "date-fns";
 import { TableSkeleton } from "@/components/skeletons";
 
@@ -111,12 +114,40 @@ export const LeadsTable = () => {
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useLeads({ search, webhookId: webhookId !== "all" ? webhookId : undefined });
   const { data: webhooks = [] } = useWebhooks();
   const deleteLead = useDeleteLead();
+  const bulkAction = useBulkLeadAction();
 
   const leads = data?.data ?? [];
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selected.size === leads.length) setSelected(new Set());
+    else setSelected(new Set(leads.map((l: any) => l.id)));
+  };
+
+  const handleBulk = (action: "set_status" | "set_temperature" | "delete", payload?: any) => {
+    bulkAction.mutate(
+      { leadIds: Array.from(selected), action, payload },
+      {
+        onSuccess: (res) => {
+          toast.success(`${res.affected ?? selected.size} leads updated`);
+          setSelected(new Set());
+        },
+        onError: (e) => toast.error("Bulk action failed", { description: e.message }),
+      }
+    );
+  };
 
   const openDetail = (lead: any) => {
     setSelectedLead(lead);
@@ -127,6 +158,43 @@ export const LeadsTable = () => {
 
   return (
     <div className="space-y-4">
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-500/30">
+          <CheckSquare className="h-4 w-4 text-indigo-600 shrink-0" />
+          <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">{selected.size} selected</span>
+          <div className="flex items-center gap-1.5 ml-auto">
+            <Select onValueChange={(v) => handleBulk("set_temperature", { temperature: v })}>
+              <SelectTrigger className="h-7 text-xs w-auto gap-1 rounded-lg border-indigo-200">
+                <SelectValue placeholder="Set temp" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Hot">🔥 Hot</SelectItem>
+                <SelectItem value="Warm">🟠 Warm</SelectItem>
+                <SelectItem value="Cold">🔵 Cold</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50"
+              onClick={() => handleBulk("delete")}
+              disabled={bulkAction.isPending}
+            >
+              <Trash2 className="h-3 w-3 mr-1" /> Delete
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => setSelected(new Set())}
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative max-w-sm flex-1 min-w-[200px]">
@@ -165,7 +233,14 @@ export const LeadsTable = () => {
         <table className="w-full">
           <thead className="bg-muted/40 border-b border-border">
             <tr>
-              <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
+              <th className="pl-5 pr-2 py-4 w-8">
+                <Checkbox
+                  checked={leads.length > 0 && selected.size === leads.length}
+                  onCheckedChange={toggleAll}
+                  className="rounded"
+                />
+              </th>
+              <th className="text-left px-3 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stage</th>
               <th className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Temperature</th>
@@ -178,7 +253,7 @@ export const LeadsTable = () => {
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-16 text-base text-muted-foreground">
+                <td colSpan={9} className="text-center py-16 text-base text-muted-foreground">
                   {search ? "No leads match your search." : "No leads yet. Create your first lead!"}
                 </td>
               </tr>
@@ -199,10 +274,17 @@ export const LeadsTable = () => {
                 return (
                   <tr
                     key={lead.id}
-                    className="hover:bg-muted/20 transition-colors cursor-pointer"
+                    className={`hover:bg-muted/20 transition-colors cursor-pointer ${selected.has(lead.id) ? "bg-indigo-50/50 dark:bg-indigo-900/10" : ""}`}
                     onClick={() => openDetail(lead)}
                   >
-                    <td className="px-5 py-4">
+                    <td className="pl-5 pr-2 py-4" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selected.has(lead.id)}
+                        onCheckedChange={() => toggleSelect(lead.id)}
+                        className="rounded"
+                      />
+                    </td>
+                    <td className="px-3 py-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 rounded-xl shrink-0">
                           <AvatarImage src={lead.image} />
