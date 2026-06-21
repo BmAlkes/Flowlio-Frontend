@@ -165,6 +165,7 @@ export const LeadsTable = () => {
               </th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Name</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Source</th>
+              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Assigned</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Stage</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Temp</th>
               <th className="text-left px-3 py-3 font-medium text-muted-foreground">Value</th>
@@ -175,7 +176,7 @@ export const LeadsTable = () => {
           </thead>
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
-              <tr><td colSpan={9} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
+              <tr><td colSpan={10} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
             ) : (
               leads.map((lead: any) => {
                 const dot = STAGE_DOT[lead.status] ?? "bg-gray-400";
@@ -235,6 +236,14 @@ export const LeadsTable = () => {
                     </td>
 
                     <td className="px-3 py-3">
+                      {lead.assignedUser ? (
+                        <span className="text-xs font-medium text-foreground">{lead.assignedUser.name}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/40">—</span>
+                      )}
+                    </td>
+
+                    <td className="px-3 py-3">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
                         <span className="text-sm">{lead.status}</span>
@@ -242,7 +251,7 @@ export const LeadsTable = () => {
                     </td>
 
                     <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
-                      <TempPicker leadId={lead.id} current={lead.temperature} />
+                      <TempPicker leadId={lead.id} current={lead.temperature ?? lead.leadTemperature} />
                     </td>
 
                     <td className="px-3 py-3">
