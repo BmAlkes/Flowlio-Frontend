@@ -82,28 +82,28 @@ export const AILogsSection = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             <Box className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900">
               <p className="text-xs text-muted-foreground">Total Requests</p>
-              <p className="text-xl font-bold text-foreground">{data.summary.totalRequests.toLocaleString()}</p>
+              <p className="text-xl font-bold text-foreground">{(data.summary.totalRequests ?? 0).toLocaleString()}</p>
             </Box>
             <Box className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900">
               <Flex className="items-center gap-1">
                 <Zap className="h-3 w-3 text-purple-500" />
                 <p className="text-xs text-muted-foreground">Total Tokens</p>
               </Flex>
-              <p className="text-xl font-bold text-foreground">{data.summary.totalTokens.toLocaleString()}</p>
+              <p className="text-xl font-bold text-foreground">{(data.summary.totalTokens ?? 0).toLocaleString()}</p>
             </Box>
             <Box className="p-3 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900">
               <Flex className="items-center gap-1">
                 <Clock className="h-3 w-3 text-green-500" />
                 <p className="text-xs text-muted-foreground">Avg Response</p>
               </Flex>
-              <p className="text-xl font-bold text-foreground">{Math.round(data.summary.avgDurationMs)}ms</p>
+              <p className="text-xl font-bold text-foreground">{Math.round(data.summary.avgDurationMs ?? 0)}ms</p>
             </Box>
             <Box className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900">
               <Flex className="items-center gap-1">
                 <AlertTriangle className="h-3 w-3 text-red-500" />
                 <p className="text-xs text-muted-foreground">Error Rate</p>
               </Flex>
-              <p className="text-xl font-bold text-foreground">{data.summary.errorRate.toFixed(1)}%</p>
+              <p className="text-xl font-bold text-foreground">{(data.summary.errorRate ?? 0).toFixed(1)}%</p>
             </Box>
           </div>
         )}
@@ -187,7 +187,7 @@ export const AILogsSection = () => {
                         <TableCell>
                           <Badge variant="outline" className="text-xs font-normal">{log.feature}</Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-right font-mono">{log.tokensUsed.toLocaleString()}</TableCell>
+                        <TableCell className="text-sm text-right font-mono">{(log.tokensUsed ?? 0).toLocaleString()}</TableCell>
                         <TableCell className="text-sm text-right text-muted-foreground">
                           {log.durationMs ? `${log.durationMs}ms` : "—"}
                         </TableCell>

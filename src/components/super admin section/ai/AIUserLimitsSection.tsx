@@ -108,14 +108,14 @@ export const AIUserLimitsSection = () => {
                         <TableCell className="text-sm text-muted-foreground">{u.userEmail}</TableCell>
                         <TableCell className="text-sm text-right font-mono">
                           {u.monthlyLimit ? (
-                            <span>{u.monthlyLimit.toLocaleString()}</span>
+                            <span>{(u.monthlyLimit ?? 0).toLocaleString()}</span>
                           ) : (
                             <Badge variant="outline" className="text-xs">Org default</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-sm text-right">
                           <Flex className="items-center justify-end gap-2">
-                            <span className="font-mono">{u.tokensUsedThisMonth.toLocaleString()}</span>
+                            <span className="font-mono">{(u.tokensUsedThisMonth ?? 0).toLocaleString()}</span>
                             {usagePct !== null && (
                               <Badge className={`text-xs ${usagePct >= 90 ? "bg-red-100 text-red-700" : usagePct >= 70 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"}`}>
                                 {usagePct}%

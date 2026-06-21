@@ -66,10 +66,18 @@ export const useAILogs = (filters: AILogsFilters = {}) => {
   return useQuery<AILogsResponse>({
     queryKey: ["ai-logs", filters],
     queryFn: async () => {
-      const res = await axios.get<{ success: boolean; data: AILogsResponse }>(
-        `/superadmin/ai/logs?${params.toString()}`
-      );
-      return res.data.data;
+      const res = await axios.get(`/superadmin/ai/logs?${params.toString()}`);
+      const d = res.data?.data ?? res.data;
+      return {
+        logs: d?.logs ?? [],
+        pagination: d?.pagination ?? { page: 1, limit: 50, total: 0, totalPages: 1 },
+        summary: {
+          totalTokens: d?.summary?.totalTokens ?? 0,
+          totalRequests: d?.summary?.totalRequests ?? 0,
+          avgDurationMs: d?.summary?.avgDurationMs ?? 0,
+          errorRate: d?.summary?.errorRate ?? 0,
+        },
+      } as AILogsResponse;
     },
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
@@ -89,10 +97,18 @@ export const useMyAILogs = (filters: Omit<AILogsFilters, "orgId" | "userId"> = {
   return useQuery<AILogsResponse>({
     queryKey: ["ai-my-logs", filters],
     queryFn: async () => {
-      const res = await axios.get<{ success: boolean; data: AILogsResponse }>(
-        `/ai/my-usage-logs?${params.toString()}`
-      );
-      return res.data.data;
+      const res = await axios.get(`/ai/my-usage-logs?${params.toString()}`);
+      const d = res.data?.data ?? res.data;
+      return {
+        logs: d?.logs ?? [],
+        pagination: d?.pagination ?? { page: 1, limit: 25, total: 0, totalPages: 1 },
+        summary: {
+          totalTokens: d?.summary?.totalTokens ?? 0,
+          totalRequests: d?.summary?.totalRequests ?? 0,
+          avgDurationMs: d?.summary?.avgDurationMs ?? 0,
+          errorRate: d?.summary?.errorRate ?? 0,
+        },
+      } as AILogsResponse;
     },
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
@@ -113,10 +129,8 @@ export const useAIUserLimits = () => {
   return useQuery<AIUserLimit[]>({
     queryKey: ["ai-user-limits"],
     queryFn: async () => {
-      const res = await axios.get<{ success: boolean; data: AIUserLimit[] }>(
-        "/ai/user-limits"
-      );
-      return res.data.data ?? [];
+      const res = await axios.get("/ai/user-limits");
+      return res.data?.data ?? res.data ?? [];
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
