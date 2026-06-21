@@ -55,13 +55,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
+      className={`bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing overflow-hidden min-w-0 ${
         isDragging ? "shadow-lg" : ""
       }`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <h4 className="font-medium text-foreground text-sm leading-tight line-clamp-1">
+      <div className="flex items-start justify-between gap-2 mb-3 min-w-0">
+        <h4 className="font-medium text-foreground text-sm leading-tight line-clamp-2 min-w-0 break-words">
           {task.title}
         </h4>
         {task.visibility === "private" ? (
@@ -79,10 +79,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
       )}
 
       {/* Project Info */}
-      <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
-        <span className="font-medium">{task.projectName}</span>
-        <span>•</span>
-        <span>{task.projectNumber}</span>
+      <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground min-w-0">
+        <span className="font-medium truncate min-w-0">{task.projectName}</span>
+        <span className="shrink-0">•</span>
+        <span className="shrink-0">{task.projectNumber}</span>
       </div>
 
       {/* Footer */}
