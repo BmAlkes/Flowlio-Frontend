@@ -47,6 +47,8 @@ import {
 import { useGetPaidOrganizations } from "@/hooks/useFetchPaidOrganizations";
 import { useTokenPackages } from "@/hooks/useAITokenTopup";
 import { Zap, Star, Sparkles } from "lucide-react";
+import { AILogsSection } from "@/components/super admin section/ai/AILogsSection";
+import { AIUserLimitsSection } from "@/components/super admin section/ai/AIUserLimitsSection";
 
 interface LimitFormState {
   mode: "create" | "edit";
@@ -543,6 +545,11 @@ const SuperAdminAIMonitoringPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* ── Per-User Token Limits ── */}
+      <AIUserLimitsSection />
+
+      {/* ── AI Usage Logs ── */}
+      <AILogsSection />
     </Stack>
   );
 };
