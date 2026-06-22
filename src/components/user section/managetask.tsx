@@ -41,7 +41,7 @@ export const ManageTask = () => {
           <img
             src="/home/cards.svg"
             alt="cards"
-            className="size-130 z-40 max-sm:size-90"
+            className="size-130 z-40 max-sm:size-72 max-sm:mx-auto"
           />
         </Flex>
       </Box>
@@ -53,7 +53,7 @@ export const ManageTask = () => {
           <img
             src="/home/cards2.svg"
             alt="cards"
-            className="size-120 z-40 max-sm:size-90"
+            className="size-120 z-40 max-sm:size-72 max-sm:mx-auto"
           />
           <Center className="items-start gap-6 w-md max-sm:w-full p-2 flex-col text-5xl font-[100] max-sm:text-2xl text-white  ">
             <h1 className="text-foreground max-sm:text-center">

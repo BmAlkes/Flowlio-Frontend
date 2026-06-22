@@ -12,7 +12,7 @@ export const TeamMember2 = () => {
   const contentRef = useScrollReveal<HTMLDivElement>({ direction: "up", delay: 0.2 });
 
   return (
-    <Center className="flex-col w-full h-full px-4 py-14 bg-black relative overflow-hidden z-30">
+    <Center className="flex-col w-full h-full px-4 max-sm:px-2 py-14 bg-black relative overflow-hidden z-30">
       <Box className="bg-[url(/home/grid.png)] bg-contain bg-center bg-no-repeat z-10 w-full h-[40rem] absolute top-10 max-sm:top-0 left-0"></Box>
 
       <Center ref={headingRef} className="p-2 flex-col gap-2 text-5xl font-[100] max-sm:text-2xl text-white text-center  ">
@@ -28,12 +28,12 @@ export const TeamMember2 = () => {
         <img
           src="/home/calenderimg.svg"
           alt="calender"
-          className="size-120 z-20"
+          className="size-120 max-sm:size-72 z-20"
         />
         <Box className="bg-[#4E43C3] w-md h-[22rem] max-lg:w-full max-md:h-full p-2 max-sm:mt-10 z-20 rounded-2xl">
           <Center className="bg-[#6255FA] flex-col w-full h-full p-4 rounded-2xl overflow-hidden">
             <Center className="gap-5 flex-col text-start items-start w-full max-sm:mt-10">
-              <Flex className="gap-0 w-60">
+              <Flex className="gap-0 w-60 max-sm:w-full">
                 <h1 className="text-white font-[100] text-5xl max-sm:text-3xl">
                   Meet the Minds Behind
                   <span className="text-[#F98618] text-5xl max-sm:text-3xl font-semibold ml-1">

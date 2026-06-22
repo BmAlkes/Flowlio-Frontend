@@ -135,7 +135,7 @@ export const Superchared = ({ isWorkFlow }: SupercharedProps) => {
 
           <Center
             ref={scrollRef}
-            className="overflow-hidden min-w-[1200px] gap-8 p-18 group cursor-grab"
+            className="overflow-hidden min-w-0 gap-4 sm:gap-8 p-4 sm:p-18 group cursor-grab"
           >
             {allCards.map((card, i) => (
               <Flex

@@ -79,13 +79,13 @@ export const Hero = () => {
             </Button>
           </div>
 
-          <div ref={imageRef} className="relative max-sm:mt-10 w-full gap-0 px-2">
+          <div ref={imageRef} className="relative max-sm:mt-10 w-full gap-0 px-2 overflow-hidden">
             <img
               src="/home/robo.svg"
               alt="hero"
-              className="size-34 absolute right-16 -top-18"
+              className="size-34 absolute right-16 -top-18 max-sm:hidden"
             />
-            <img src="/home/dash.png" alt="hero" className="w-4xl mt-8" />
+            <img src="/home/dash.png" alt="hero" className="w-full max-w-4xl mt-8" />
             <img
               src="/home/brain.svg"
               alt="hero"

@@ -41,7 +41,7 @@ export const InsightsCards = () => {
             <Center
               key={index}
               className={cn(
-                "bg-[url(/insights/bg.svg)] bg-cover bg-center w-[30rem] max-sm:w-full h-70 rounded-lg flex-col px-20 leading-5 text-start items-start gap-4",
+                "bg-[url(/insights/bg.svg)] bg-cover bg-center w-[30rem] max-sm:w-full h-70 rounded-lg flex-col px-6 sm:px-20 leading-5 text-start items-start gap-4",
                 (index === 2 || index === 3) && "text-white"
               )}
               style={{ backgroundColor: insight.color }}

@@ -60,7 +60,7 @@ export const ManageSmarter = () => {
           <img
             src="/home/smart.png"
             alt="cards"
-            className="size-100 z-40 max-lg:size-70"
+            className="size-100 z-40 max-lg:size-70 max-sm:size-56"
           />
         </Flex>
       </Box>
