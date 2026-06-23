@@ -79,7 +79,7 @@ export const Hero = () => {
             </Button>
           </div>
 
-          <div ref={imageRef} className="relative max-sm:mt-10 w-full gap-0 px-2 overflow-hidden">
+          <div ref={imageRef} className="relative max-sm:mt-10 w-full gap-0 px-2">
             <img
               src="/home/robo.svg"
               alt="hero"
