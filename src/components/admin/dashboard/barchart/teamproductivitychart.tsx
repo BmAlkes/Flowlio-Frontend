@@ -12,7 +12,7 @@ import { Flex } from "@/components/ui/flex";
 import { Stack } from "@/components/ui/stack";
 import { Box, type BoxProps } from "@/components/ui/box";
 import { ComponentWrapper } from "@/components/common/componentwrapper";
-import { useFetchTeamProductivity } from "@/hooks/useFetchTeamProductivity";
+import { useFetchTeamProductivity } from "@/hooks/useReports";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { ChartSkeleton, ErrorState } from "@/components/skeletons";
 

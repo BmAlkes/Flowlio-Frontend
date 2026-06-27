@@ -1,9 +1,7 @@
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { FinancialOverviewData } from "@/hooks/useFetchFinancialOverview";
-import { TeamProductivityItem } from "@/hooks/useFetchTeamProductivity";
-import { ClientActivityReport } from "@/hooks/useFetchClientActivity";
+import { FinancialOverviewData, TeamProductivityItem, ClientActivityReport } from "@/hooks/useReports";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
