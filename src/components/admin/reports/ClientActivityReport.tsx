@@ -1,66 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 import { useFetchClientActivity, type ReportPeriod } from "@/hooks/useReports";
-import { ReportControls } from "./ReportControls";
+import { ReportControls, TrendBadge } from "./ReportControls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Briefcase, Clock, FileDown, FileText } from "lucide-react";
+import { Users, Briefcase, Clock, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  exportClientActivityCSV,
-  exportClientActivityPDF,
-} from "@/utils/reportExport";
+import { exportClientActivityCSV, exportClientActivityPDF } from "@/utils/reportExport";
+import { useNavigate } from "react-router";
 
-const PROJECT_COLORS: Record<string, string> = {
-  active: "#3b82f6",
-  ongoing: "#3b82f6",
-  completed: "#10b981",
-  delayed: "#ef4444",
-  pending: "#f59e0b",
-  unknown: "#94a3b8",
+const TOOLTIP_STYLE = {
+  backgroundColor: "hsl(var(--card))",
+  borderRadius: "8px",
+  border: "1px solid hsl(var(--border))",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  color: "hsl(var(--foreground))",
 };
 
-const STATUS_BADGE_COLORS: Record<string, string> = {
-  "New Lead": "bg-blue-100 text-blue-700",
-  "Contacted": "bg-violet-100 text-violet-700",
-  "Qualified": "bg-yellow-100 text-yellow-700",
-  "Proposal Sent": "bg-amber-100 text-amber-700",
-  "Contract Signed": "bg-emerald-100 text-emerald-700",
-  "Project In Progress": "bg-indigo-100 text-indigo-700",
-  "Completed": "bg-green-100 text-green-700",
-  "Inactive": "bg-slate-100 text-slate-600",
-  "Lost": "bg-rose-100 text-rose-700",
+const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#94a3b8"];
+
+const STATUS_DOT: Record<string, string> = {
+  Active: "bg-green-600", Onboarding: "bg-blue-500", "On Hold": "bg-amber-500",
+  Inactive: "bg-gray-400", Completed: "bg-emerald-600", Churned: "bg-rose-500",
+  "New Lead": "bg-blue-400", "Contract Signed": "bg-emerald-500",
+  "Project In Progress": "bg-indigo-500", Lost: "bg-rose-400",
 };
 
-const PIE_COLORS = [
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#94a3b8",
-];
+const fmtTime = (item: { timeTracked?: { hours: number; minutes: number; totalMinutes: number } | null; hoursTracked?: number }) => {
+  const tt = item.timeTracked;
+  if (tt?.totalMinutes) {
+    if (tt.hours > 0) return `${tt.hours}h ${tt.minutes}m`;
+    if (tt.minutes > 0) return `${tt.minutes}m`;
+  }
+  const h = Math.floor(item.hoursTracked ?? 0);
+  const m = Math.round(((item.hoursTracked ?? 0) - h) * 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return "—";
+};
 
 interface Props {
   period: ReportPeriod;
@@ -68,55 +53,40 @@ interface Props {
 }
 
 const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
+  const navigate = useNavigate();
   const { data, isLoading, error, refetch, isFetching } = useFetchClientActivity(period);
+  const [showAll, setShowAll] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28 w-full" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-[350px] w-full" />
-          <Skeleton className="h-[350px] w-full" />
-        </div>
-        <Skeleton className="h-[400px] w-full" />
+  if (isLoading) return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-4">{[1,2,3].map((i) => <Skeleton key={i} className="h-24 w-full" />)}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Skeleton className="h-[300px] w-full" />
+        <Skeleton className="h-[300px] w-full" />
       </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="flex items-center justify-center h-[400px] text-red-500">
-        Error loading client activity data.
-      </div>
-    );
-  }
-
-  const { clientStats, projectStatusSummary } = data;
-
-  // Summary stats
-  const totalClients = clientStats.length;
-  const totalProjects = clientStats.reduce(
-    (sum, c) => sum + c.projects.total,
-    0,
+      <Skeleton className="h-[320px] w-full" />
+    </div>
   );
-  // Aggregate using totalMinutes from new timeTracked object
-  const grandTotalMinutes = clientStats.reduce(
-    (sum, c) => sum + (c.timeTracked?.totalMinutes ?? c.hoursTracked * 60),
-    0
-  );
-  const grandHours = Math.floor(grandTotalMinutes / 60);
-  const grandMins = Math.round(grandTotalMinutes % 60);
-  const totalTimeLabel =
-    grandHours > 0
-      ? `${grandHours}h ${grandMins}m`
-      : `${grandMins}m`;
 
-  // Chart data for top 8 clients by projects
-  const topClientChartData = clientStats.slice(0, 8).map((c) => ({
+  if (error || !data) return (
+    <div className="flex flex-col items-center justify-center h-60 gap-2 text-muted-foreground">
+      <AlertTriangle className="h-8 w-8 text-rose-400" />
+      <p className="text-sm">Could not load client data. Try refreshing.</p>
+    </div>
+  );
+
+  const { clientStats, projectStatusSummary, totals } = data;
+
+  const totalClients  = totals?.totalClients  ?? clientStats.length;
+  const totalProjects = totals?.totalProjects  ?? clientStats.reduce((s, c) => s + c.projects.total, 0);
+  const grandMin = clientStats.reduce((s, c) => s + (c.timeTracked?.totalMinutes ?? (c.hoursTracked ?? 0) * 60), 0);
+  const grandH = Math.floor(grandMin / 60);
+  const grandM = Math.round(grandMin % 60);
+  const timeLabel = grandH > 0 ? `${grandH}h ${grandM}m` : `${grandM}m`;
+
+  const chartClients = showAll ? clientStats : clientStats.slice(0, 10);
+
+  const chartData = chartClients.map((c) => ({
     name: c.client.name.split(" ")[0],
     Active: c.projects.active,
     Completed: c.projects.completed,
@@ -125,284 +95,179 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
   }));
 
   return (
-    <div className="space-y-6">
-      <ReportControls period={period} onPeriodChange={onPeriodChange} updatedAt={data?.updatedAt} onRefresh={() => refetch()} isRefreshing={isFetching} />
+    <div className="space-y-5">
+      <ReportControls
+        period={period}
+        onPeriodChange={onPeriodChange}
+        updatedAt={data.updatedAt}
+        onRefresh={() => refetch()}
+        isRefreshing={isFetching}
+        onExportCSV={() => exportClientActivityCSV(data)}
+        onExportPDF={() => exportClientActivityPDF(data)}
+      />
 
-      {/* Export Buttons */}
-      <div className="flex justify-end gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={() => exportClientActivityCSV(data)}
-        >
-          <FileDown className="w-4 h-4" />
-          Export CSV
-        </Button>
-        <Button
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={() => exportClientActivityPDF(data)}
-        >
-          <FileText className="w-4 h-4" />
-          Export PDF
-        </Button>
-      </div>
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="p-3 rounded-xl bg-blue-500/10">
-              <Users className="w-6 h-6 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Clients</p>
-              <p className="text-2xl font-bold">{totalClients}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="p-3 rounded-xl bg-green-500/10">
-              <Briefcase className="w-6 h-6 text-green-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Projects</p>
-              <p className="text-2xl font-bold">{totalProjects}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="p-3 rounded-xl bg-purple-500/10">
-              <Clock className="w-6 h-6 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Total Time Tracked
-              </p>
-              <p className="text-2xl font-bold">{totalTimeLabel}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Project Distribution by Client */}
-        <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Projects per Client
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[350px]">
-            {topClientChartData.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                No project data available
+      {/* KPI summary */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: "Total Clients", value: totalClients, icon: Users, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+          { label: "Total Projects", value: totalProjects, icon: Briefcase, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
+          { label: "Time Tracked", value: timeLabel, icon: Clock, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20" },
+        ].map((s) => (
+          <Card key={s.label} className="border border-border bg-card">
+            <CardContent className="pt-4 pb-3 flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${s.bg}`}>
+                <s.icon className={`h-5 w-5 ${s.color}`} />
               </div>
+              <div>
+                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-xl font-bold">{s.value}</p>
+              </div>
+              {s.label === "Total Clients" && totals && <TrendBadge change={null} />}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Projects per client bar */}
+        <Card className="border border-border bg-card">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-semibold">Projects per Client</CardTitle>
+            {clientStats.length > 10 && (
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={() => setShowAll(!showAll)}>
+                {showAll ? <><ChevronUp className="h-3 w-3" /> Show less</> : <><ChevronDown className="h-3 w-3" /> Show all ({clientStats.length})</>}
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            {chartData.length === 0 ? (
+              <div className="flex items-center justify-center h-60 text-muted-foreground text-sm">No project data for this period.</div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={topClientChartData}
-                  layout="vertical"
-                  margin={{ left: 10 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    horizontal={false}
-                    opacity={0.3}
-                  />
-                  <XAxis type="number" axisLine={false} tickLine={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    axisLine={false}
-                    tickLine={false}
-                    width={70}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(255,255,255,0.95)",
-                      borderRadius: "8px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      color: "#000",
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="Active" stackId="a" fill="#3b82f6" />
-                  <Bar dataKey="Completed" stackId="a" fill="#10b981" />
-                  <Bar dataKey="Delayed" stackId="a" fill="#ef4444" />
-                  <Bar
-                    dataKey="Pending"
-                    stackId="a"
-                    fill="#f59e0b"
-                    radius={[0, 4, 4, 0]}
-                  />
+              <ResponsiveContainer width="100%" height={Math.max(220, chartClients.length * 36)}>
+                <BarChart data={chartData} layout="vertical" margin={{ left: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={68} tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="Active"    stackId="s" fill="#3b82f6" />
+                  <Bar dataKey="Completed" stackId="s" fill="#10b981" />
+                  <Bar dataKey="Delayed"   stackId="s" fill="#ef4444" />
+                  <Bar dataKey="Pending"   stackId="s" fill="#f59e0b" radius={[0,4,4,0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
 
-        {/* Overall Project Status Pie */}
-        <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Overall Project Status Distribution
-            </CardTitle>
+        {/* Project status donut */}
+        <Card className="border border-border bg-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Project Status Distribution</CardTitle>
           </CardHeader>
-          <CardContent className="h-[350px]">
+          <CardContent>
             {projectStatusSummary.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                No project status data
-              </div>
+              <div className="flex items-center justify-center h-60 text-muted-foreground text-sm">No status data.</div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={projectStatusSummary}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={110}
-                    paddingAngle={4}
-                    dataKey="count"
-                    nameKey="status"
-                    label={({ status, count }) => `${status}: ${count}`}
-                    labelLine={false}
-                  >
-                    {projectStatusSummary.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          PROJECT_COLORS[entry.status] ??
-                          PIE_COLORS[index % PIE_COLORS.length]
-                        }
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(255,255,255,0.95)",
-                      borderRadius: "8px",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      color: "#000",
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="flex items-center gap-4">
+                <ResponsiveContainer width="55%" height={230}>
+                  <PieChart>
+                    <Pie data={projectStatusSummary} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="count" nameKey="status">
+                      {projectStatusSummary.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex-1 space-y-1.5">
+                  {projectStatusSummary.map((s, i) => (
+                    <div key={s.status} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                        <span className="text-muted-foreground capitalize truncate max-w-[80px]">{s.status}</span>
+                      </div>
+                      <span className="font-semibold tabular-nums">{s.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Detailed Client Table */}
-      <Card className="border border-border shadow-sm bg-card/50 backdrop-blur-md">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Client Activity Details
-          </CardTitle>
+      {/* Client table — simplified */}
+      <Card className="border border-border bg-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold">Client Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border border-border overflow-hidden">
+          <div className="rounded-lg border border-border overflow-hidden">
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader className="bg-muted/40">
                 <TableRow>
                   <TableHead>Client</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Active</TableHead>
-                  <TableHead className="text-center">Completed</TableHead>
-                  <TableHead className="text-center">Delayed</TableHead>
-                  <TableHead className="text-center">Total Projects</TableHead>
-                  <TableHead className="text-center">Tasks Done</TableHead>
-                  <TableHead className="text-right">Hours</TableHead>
+                  <TableHead className="text-center">Projects</TableHead>
+                  <TableHead className="text-center">Tasks</TableHead>
+                  <TableHead className="text-right">Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {clientStats.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={8}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      No client data found.
-                    </TableCell>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No clients for this period.</TableCell>
                   </TableRow>
                 ) : (
-                  clientStats.map((item) => (
-                    <TableRow key={item.client.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <Avatar className="h-8 w-8">
+                  clientStats.map((item) => {
+                    const dot = STATUS_DOT[item.client.status] ?? "bg-gray-400";
+                    const taskPct = item.tasks.total > 0 ? Math.round((item.tasks.completed / item.tasks.total) * 100) : 0;
+                    return (
+                      <TableRow
+                        key={item.client.id}
+                        className="cursor-pointer hover:bg-muted/30"
+                        onClick={() => navigate("/dashboard/client-management")}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-2.5">
+                            <Avatar className="h-7 w-7">
                               <AvatarImage src={item.client.image || ""} />
-                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                                {item.client.name.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
+                              <AvatarFallback className="text-[10px] bg-muted">{item.client.name.slice(0,2).toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            {(item.client as any).isOnline && (
-                              <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background" title="Online" />
-                            )}
+                            <div>
+                              <p className="font-medium text-sm leading-none">{item.client.name}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{item.client.email}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium leading-none">
-                              {item.client.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {item.client.email}
-                            </p>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${dot}`} />
+                            <span className="text-xs">{item.client.status}</span>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            STATUS_BADGE_COLORS[item.client.status] ??
-                            "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {item.client.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center text-blue-600 font-medium">
-                        {item.projects.active}
-                      </TableCell>
-                      <TableCell className="text-center text-green-600 font-medium">
-                        {item.projects.completed}
-                      </TableCell>
-                      <TableCell className="text-center text-red-500 font-medium">
-                        {item.projects.delayed}
-                      </TableCell>
-                      <TableCell className="text-center font-semibold">
-                        {item.projects.total}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="text-xs text-muted-foreground">
-                          {item.tasks.completed}/{item.tasks.total}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {(() => {
-                          const tt = item.timeTracked;
-                          if (tt) {
-                            if (tt.hours > 0) return `${tt.hours}h ${tt.minutes}m`;
-                            if (tt.minutes > 0) return `${tt.minutes}m`;
-                            return '< 1m';
-                          }
-                          // fallback for old data
-                          const h = Math.floor(item.hoursTracked);
-                          const m = Math.round((item.hoursTracked - h) * 60);
-                          if (h > 0) return `${h}h ${m}m`;
-                          if (m > 0) return `${m}m`;
-                          return '—';
-                        })()}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="text-xs space-x-1">
+                            <span className="text-blue-600 font-medium">{item.projects.active}</span>
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-green-600 font-medium">{item.projects.completed}</span>
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-rose-500 font-medium">{item.projects.delayed}</span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/60 mt-0.5">active · done · late</p>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-xs tabular-nums">{item.tasks.completed}/{item.tasks.total}</span>
+                            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-green-500 rounded-full" style={{ width: `${taskPct}%` }} />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right text-sm font-medium">{fmtTime(item as any)}</TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
