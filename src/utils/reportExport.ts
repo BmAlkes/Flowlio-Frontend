@@ -126,7 +126,7 @@ export const exportFinancialPDF = (data: FinancialOverviewData) => {
     startY: y,
     head: [["Month", "Revenue ($)", "Expenses ($)", "Net ($)"]],
     body: data.timeline.map((t) => [
-      t.month,
+      t.date ?? t.month ?? "",
       Number(t.revenue).toLocaleString(),
       Number(t.expenses).toLocaleString(),
       (Number(t.revenue) - Number(t.expenses)).toLocaleString(),
