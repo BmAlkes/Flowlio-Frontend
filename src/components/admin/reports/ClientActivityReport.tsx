@@ -75,7 +75,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
     </div>
   );
 
-  const { clientStats, projectStatusSummary, totals } = data;
+  const { clientStats, projectStatusSummary, totals, comparison } = data;
 
   const totalClients  = totals?.totalClients  ?? clientStats.length;
   const totalProjects = totals?.totalProjects  ?? clientStats.reduce((s, c) => s + c.projects.total, 0);
@@ -122,7 +122,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
                 <p className="text-xs text-muted-foreground">{s.label}</p>
                 <p className="text-xl font-bold">{s.value}</p>
               </div>
-              {s.label === "Total Clients" && totals && <TrendBadge change={null} />}
+              {s.label === "Total Clients" && <TrendBadge change={comparison?.clientChange ?? null} />}
             </CardContent>
           </Card>
         ))}

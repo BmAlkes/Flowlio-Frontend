@@ -33,11 +33,13 @@ export interface FinancialOverviewData {
   totalRevenue: number;
   totalExpenses: number;
   netProfit: number;
-  timeline: { month: string; revenue: number; expenses: number }[];
+  granularity?: "daily" | "weekly" | "monthly";
+  timeline: { month?: string; date?: string; revenue: number; expenses: number }[];
   categoryBreakdown: { category: string; amount: number }[];
   projectPerformance: { id: string; name: string; budget: string | number; spent: number }[];
   period?: PeriodRange;
   comparison?: ReportComparison;
+  totals?: { avgMargin: number | null };
   updatedAt?: string;
 }
 
@@ -65,6 +67,11 @@ export interface TeamProductivityItem {
   pendingTasks: number;
   previousCompletedTasks?: number;
   completionChange?: number | null;
+  workload?: {
+    minutesLogged: number;
+    capacityMinutes: number;
+    utilizationPct: number;
+  };
 }
 
 export interface TeamProductivityResponse {
@@ -112,6 +119,11 @@ export interface ClientActivityReport {
   statusDistribution: { status: string; count: number }[];
   projectStatusSummary: { status: string; count: number }[];
   period?: PeriodRange;
+  comparison?: {
+    newClientsThisPeriod: number;
+    newClientsPreviousPeriod: number;
+    clientChange: number | null;
+  };
   totals?: {
     totalClients: number;
     totalProjects: number;

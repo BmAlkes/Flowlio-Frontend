@@ -53,12 +53,19 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
   const {
     totalRevenue, totalExpenses, netProfit,
     timeline, categoryBreakdown, projectPerformance, comparison,
+    granularity, totals,
   } = data;
 
   const revenue = Number(totalRevenue) || 0;
   const expenses = Number(totalExpenses) || 0;
   const profit = Number(netProfit) || 0;
-  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+  const margin = totals?.avgMargin != null ? totals.avgMargin : (revenue > 0 ? (profit / revenue) * 100 : 0);
+
+  // Normalise timeline: backend now sends `date` instead of `month`
+  const normalisedTimeline = timeline.map((t) => ({
+    ...t,
+    label: t.date ?? t.month ?? "",
+  }));
 
   const kpis = [
     {
@@ -99,7 +106,9 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
     },
   ];
 
-  const periodLabel = { "7d": "Daily", "30d": "Weekly", "90d": "Monthly", "ytd": "Monthly", "all": "Monthly" }[period] ?? "Monthly";
+  const granularityLabel = granularity
+    ? { daily: "Daily", weekly: "Weekly", monthly: "Monthly" }[granularity]
+    : ({ "7d": "Daily", "30d": "Weekly", "90d": "Monthly", "ytd": "Monthly", "all": "Monthly" }[period] ?? "Monthly");
 
   const totalExpensePie = categoryBreakdown.reduce((s, c) => s + c.amount, 0);
 
@@ -142,19 +151,19 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
         <Card className="border border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">
-              {periodLabel} Revenue vs Expenses
+              {granularityLabel} Revenue vs Expenses
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {timeline.length === 0 ? (
+            {normalisedTimeline.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-60 text-muted-foreground text-sm">
                 No timeline data for this period.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={timeline} barGap={4}>
+                <BarChart data={normalisedTimeline} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmt(v)} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [`$${v.toLocaleString()}`, ""]} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />

@@ -170,12 +170,13 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                   <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("hours")}>
                     Hours <SortIcon k="hours" />
                   </TableHead>
+                  <TableHead className="text-right">Utilization</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sorted.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                       No data for this period.
                     </TableCell>
                   </TableRow>
@@ -213,6 +214,21 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                           </div>
                         </TableCell>
                         <TableCell className="text-right text-sm font-medium">{hours}h</TableCell>
+                        <TableCell className="text-right">
+                          {m.workload ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className={`text-xs font-semibold ${m.workload.utilizationPct >= 90 ? "text-rose-600" : m.workload.utilizationPct >= 60 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                {m.workload.utilizationPct}%
+                              </span>
+                              <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${m.workload.utilizationPct >= 90 ? "bg-rose-500" : m.workload.utilizationPct >= 60 ? "bg-amber-400" : "bg-blue-400"}`}
+                                  style={{ width: `${Math.min(m.workload.utilizationPct, 100)}%` }}
+                                />
+                              </div>
+                            </div>
+                          ) : <span className="text-muted-foreground/40 text-xs">—</span>}
+                        </TableCell>
                       </TableRow>
                     );
                   })
