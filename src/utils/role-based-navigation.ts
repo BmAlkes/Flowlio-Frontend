@@ -8,7 +8,7 @@ import { SquareKanban, UserPen, Clock, Users } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, Bell, MessageCircleMore } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
-import { BadgeDollarSign } from "lucide-react";
+import { BadgeDollarSign, TrendingUp } from "lucide-react";
 import { FolderOpen, ListTodo, FileText } from "lucide-react";
 
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
@@ -205,6 +205,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/reports",
     title: "reports",
     icon: React.createElement(TbReportSearch),
+  },
+  {
+    url: "/dashboard/revenue",
+    title: "revenue",
+    icon: React.createElement(TrendingUp),
   },
   {
     url: "/dashboard/project",

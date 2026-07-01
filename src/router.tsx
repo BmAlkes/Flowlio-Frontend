@@ -207,6 +207,7 @@ const ClientPortalSettingsPage = lazy(
   () => import("./pages/clientportalsettings.page"),
 );
 const ReportsPage = lazy(() => import("./pages/reports.page"));
+const RevenuePage = lazy(() => import("./pages/revenue.page"));
 const ProjectTemplatesPage = lazy(() => import("./pages/projecttemplates.page"));
 
 const ClientProjectsPage = lazy(() => import("./pages/clientprojects.page"));
@@ -492,6 +493,14 @@ const AppRoutes = () => {
             </AdminManagerOrOrgOwnerRoute>
           }
           path="reports"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={RevenuePage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="revenue"
         />
         <Route
           element={
