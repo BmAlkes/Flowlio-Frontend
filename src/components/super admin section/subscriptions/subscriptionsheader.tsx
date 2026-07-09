@@ -631,8 +631,8 @@ export const SubscriptionsHeader = () => {
       errors.push("Subheading is required");
     }
 
-    if (!plan.price || parseFloat(plan.price) <= 0) {
-      errors.push("Valid price is required");
+    if (plan.price === "" || plan.price === undefined || plan.price === null || isNaN(parseFloat(plan.price)) || parseFloat(plan.price) < 0) {
+      errors.push("Valid price is required (use 0 for free plans)");
     }
 
     if (plan.features.length === 0) {
