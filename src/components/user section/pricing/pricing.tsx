@@ -53,7 +53,7 @@ const formatPlanFeatures = (planFeatures: any): string[] => {
   return planFeatures.customFeatures;
 };
 
-export const Pricing: FC<PricingProps> = ({ selectedPlan, setSelectedPlan }) => {
+export const Pricing: FC<PricingProps> = ({ selectedPlan: _selectedPlan, setSelectedPlan }) => {
   const { data: plansResponse, isLoading, isError } = useFetchPublicPlans();
   const navigate = useNavigate();
   const location = useLocation();
@@ -252,7 +252,7 @@ interface PlanCardProps {
 
 const PlanCard: FC<PlanCardProps> = ({
   icon, iconBg, name, tagline, price, duration,
-  features, trialDays, cta, ctaStyle, onCta, isPopular, footer,
+  features, trialDays: _trialDays, cta, ctaStyle, onCta, isPopular, footer,
 }) => {
   const isCustom = price === "Custom";
 
