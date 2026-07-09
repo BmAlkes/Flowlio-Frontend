@@ -26,7 +26,7 @@ import {
 } from "@/hooks/usePayPalPayment";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
 import type { IPlan } from "@/types";
-import { useSubscriptionStatus } from "@/hooks/usesubscription";
+import { useSubscriptionStatus, useActivateFreePlan } from "@/hooks/usesubscription";
 import { AlertCircle } from "lucide-react";
 
 // Function to convert database features to display format
@@ -67,6 +67,24 @@ const CheckoutPage = () => {
   });
   const createSubscriptionMutation = useCreatePayPalSubscription();
   const activateSubscriptionMutation = useActivatePayPalSubscription();
+  const activateFreePlanMutation = useActivateFreePlan();
+
+  // Detect free plan ($0)
+  const isFreePlan = selectedPlan ? Number(selectedPlan.price) === 0 : false;
+
+  const handleActivateFreePlan = async () => {
+    if (!selectedPlan) return;
+    setIsProcessing(true);
+    try {
+      await activateFreePlanMutation.mutateAsync({ planId: selectedPlan.id });
+      toast.success(`"${selectedPlan.name}" plan activated!`);
+      navigate("/dashboard", { replace: true });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to activate plan");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBackendDemoMode, setIsBackendDemoMode] = useState<boolean | null>(
     null
@@ -796,25 +814,43 @@ const CheckoutPage = () => {
                         </ul>
                       </Box>
                     )}
-                  {/* PayPal Buttons - Only show when fully configured */}
-                  <Box className="mb-4 bg-card rounded-lg p-4 border border-border">
-                    <PayPalButtons
-                      createSubscription={handlePayPalCreateSubscription}
-                      onApprove={handlePayPalApprove}
-                      onError={handlePayPalError}
-                      onCancel={() => {
-                        toast.info("Payment cancelled");
-                        setIsProcessing(false);
-                      }}
-                      disabled={isProcessing}
-                      style={{
-                        layout: "vertical",
-                        color: "blue",
-                        shape: "rect",
-                        label: "paypal",
-                      }}
-                    />
-                  </Box>
+                  {/* Free plan — bypass PayPal */}
+                  {isFreePlan ? (
+                    <Box className="mb-4">
+                      <button
+                        onClick={handleActivateFreePlan}
+                        disabled={isProcessing}
+                        className="w-full py-3.5 rounded-xl bg-[#1797B9] hover:bg-[#1797B9]/90 text-white font-bold text-sm transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {isProcessing ? (
+                          <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Activating…</>
+                        ) : (
+                          `Activate ${selectedPlan?.name ?? "Free"} Plan — $0`
+                        )}
+                      </button>
+                      <p className="text-xs text-muted-foreground text-center mt-2">No payment required</p>
+                    </Box>
+                  ) : (
+                    /* PayPal Buttons - Only show when fully configured */
+                    <Box className="mb-4 bg-card rounded-lg p-4 border border-border">
+                      <PayPalButtons
+                        createSubscription={handlePayPalCreateSubscription}
+                        onApprove={handlePayPalApprove}
+                        onError={handlePayPalError}
+                        onCancel={() => {
+                          toast.info("Payment cancelled");
+                          setIsProcessing(false);
+                        }}
+                        disabled={isProcessing}
+                        style={{
+                          layout: "vertical",
+                          color: "blue",
+                          shape: "rect",
+                          label: "paypal",
+                        }}
+                      />
+                    </Box>
+                  )}
 
                   {/* PayPal Info Box for Sandbox */}
                   {/* <Box className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">

@@ -82,6 +82,28 @@ export const useSubscriptionGuard = (
   };
 };
 
+export interface ActivateFreeResult {
+  orgId: string;
+  planId: string;
+  planName: string;
+  periodStart: string;
+  periodEnd: string;
+  status: string;
+}
+
+export const useActivateFreePlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<ActivateFreeResult>, ErrorWithMessage, { planId: string }>({
+    mutationFn: async ({ planId }) => {
+      const response = await axios.post("/subscriptions/activate-free", { planId });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
+    },
+  });
+};
+
 export const useCancelSubscription = () => {
   const queryClient = useQueryClient();
 
