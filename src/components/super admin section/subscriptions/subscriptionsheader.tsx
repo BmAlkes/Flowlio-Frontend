@@ -431,6 +431,8 @@ export const SubscriptionsHeader = () => {
     const updatedPlan = {
       ...currentPlan,
       accessSettings: settings,
+      // Force price "0" for free plan (readOnly field doesn't update state)
+      price: planKey === "free" ? "0" : currentPlan.price,
     };
 
     // Update local state
@@ -440,7 +442,7 @@ export const SubscriptionsHeader = () => {
     }));
 
     // Check if plan has required data to save
-    if (!updatedPlan.id && (!updatedPlan.subheading || !updatedPlan.price)) {
+    if (!updatedPlan.id && (!updatedPlan.subheading || (updatedPlan.price === "" || updatedPlan.price === undefined))) {
       toast.info(
         "Access settings saved locally. Please complete plan details and click Save to persist to database."
       );
@@ -669,7 +671,12 @@ export const SubscriptionsHeader = () => {
   };
 
   const handleSavePlan = async (planKey: PlanKey) => {
-    const plan = plans[planKey];
+    // For the free plan, force price to "0" in state before saving
+    let plan = plans[planKey];
+    if (planKey === "free" && (!plan.price || plan.price === "")) {
+      plan = { ...plan, price: "0" };
+      setPlans((prev) => ({ ...prev, free: plan }));
+    }
 
     // Check if any other plan is currently being saved
     const isAnyPlanSaving = Object.values(savingPlans).some(
