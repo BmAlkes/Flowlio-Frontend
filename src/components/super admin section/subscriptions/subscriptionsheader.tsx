@@ -30,12 +30,13 @@ import { useTranslation } from "react-i18next";
 import { CardSkeleton } from "@/components/skeletons";
 
 const PLAN_LIST = [
-  { key: "basic", label: "Basic" },
+  { key: "free",     label: "Free"     },
+  { key: "basic",    label: "Basic"    },
   { key: "standard", label: "Standard" },
-  { key: "premium", label: "Premium" },
+  { key: "premium",  label: "Premium"  },
 ];
 
-type PlanKey = "basic" | "standard" | "premium";
+type PlanKey = "free" | "basic" | "standard" | "premium";
 
 type PlanState = {
   id?: string; // Plan ID from database (for updates)
@@ -103,25 +104,28 @@ export const SubscriptionsHeader = () => {
   const fetchedPlans = plansResponse?.data || [];
 
   const [plans, setPlans] = useState<PlansState>({
-    basic: { ...initialPlanState },
+    free:     { ...initialPlanState },
+    basic:    { ...initialPlanState },
     standard: { ...initialPlanState },
-    premium: { ...initialPlanState },
+    premium:  { ...initialPlanState },
   });
 
   // Add individual loading states for each plan
   const [savingPlans, setSavingPlans] = useState<Record<PlanKey, boolean>>({
-    basic: false,
+    free:     false,
+    basic:    false,
     standard: false,
-    premium: false,
+    premium:  false,
   });
 
   // Track original features from database to distinguish between saved and new features
   const [originalFeatures, setOriginalFeatures] = useState<
     Record<PlanKey, string[]>
   >({
-    basic: [],
+    free:     [],
+    basic:    [],
     standard: [],
-    premium: [],
+    premium:  [],
   });
 
   // Modal state for plan access configuration
@@ -146,6 +150,7 @@ export const SubscriptionsHeader = () => {
 
         // Try to match slug to one of our plan keys
         if (
+          planSlug === "free" ||
           planSlug === "basic" ||
           planSlug === "standard" ||
           planSlug === "premium"
@@ -155,6 +160,7 @@ export const SubscriptionsHeader = () => {
           // Fallback to matching by name
           const planNameLower = (plan.name || "").toLowerCase();
           if (
+            planNameLower === "free" ||
             planNameLower === "basic" ||
             planNameLower === "standard" ||
             planNameLower === "premium"
@@ -897,7 +903,12 @@ export const SubscriptionsHeader = () => {
             className="w-[350px] max-md:w-full max-md:flex-1 min-h-[400px] bg-card rounded-md border border-border flex-1 overflow-hidden gap-0"
           >
             <Flex className="items-center justify-between bg-muted border-b border-border p-3">
-              <h1 className="text-foreground text-xl font-medium">{plan.label}</h1>
+              <Flex className="items-center gap-2">
+                <h1 className="text-foreground text-xl font-medium">{plan.label}</h1>
+                {plan.key === "free" && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded-full">$0</span>
+                )}
+              </Flex>
               <button
                 type="button"
                 onClick={() =>
@@ -953,6 +964,9 @@ export const SubscriptionsHeader = () => {
               />
               <label htmlFor="price" className="mt-3">
                 Set Price
+                {plan.key === "free" && (
+                  <span className="ml-2 text-xs font-normal text-green-600">Must be $0 for free plan</span>
+                )}
               </label>
               <Flex className="relative items-center h-16">
                 <span className="absolute left-3 text-muted-foreground font-outfit font-semibold text-2xl flex items-center h-full ">
@@ -962,14 +976,15 @@ export const SubscriptionsHeader = () => {
                   type="number"
                   placeholder="00.00"
                   className={`bg-background h-full border border-border placeholder:text-muted-foreground shadow-none placeholder:text-2xl pl-8 focus:text-foreground text-2xl text-start flex items-center`}
-                  value={plans[plan.key as PlanKey].price}
+                  value={plan.key === "free" ? "0" : plans[plan.key as PlanKey].price}
                   onChange={(e) =>
-                    handleInputChange(
+                    plan.key !== "free" && handleInputChange(
                       plan.key as PlanKey,
                       "price",
                       e.target.value
                     )
                   }
+                  readOnly={plan.key === "free"}
                   min="0"
                   step="1"
                   prefix="$"
