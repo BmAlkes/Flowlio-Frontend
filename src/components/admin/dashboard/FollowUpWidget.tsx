@@ -169,7 +169,7 @@ export const FollowUpWidget = () => {
   const hasUrgent = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) > 0;
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card p-5 w-full">
+    <div className="rounded-2xl p-5 w-full bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.07] shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

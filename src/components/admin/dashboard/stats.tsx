@@ -18,6 +18,33 @@ export type Stat = {
   link: string;
 };
 
+const CARD_ACCENTS = [
+  {
+    blob1: "bg-violet-500/10 dark:bg-violet-500/8",
+    blob2: "bg-purple-500/10 dark:bg-purple-500/8",
+    icon: "bg-violet-50 dark:bg-violet-900/30",
+    dot: "bg-violet-500",
+  },
+  {
+    blob1: "bg-blue-500/10 dark:bg-blue-500/8",
+    blob2: "bg-cyan-500/10 dark:bg-cyan-500/8",
+    icon: "bg-blue-50 dark:bg-blue-900/30",
+    dot: "bg-blue-500",
+  },
+  {
+    blob1: "bg-amber-500/10 dark:bg-amber-500/8",
+    blob2: "bg-orange-500/10 dark:bg-orange-500/8",
+    icon: "bg-amber-50 dark:bg-amber-900/30",
+    dot: "bg-amber-500",
+  },
+  {
+    blob1: "bg-emerald-500/10 dark:bg-emerald-500/8",
+    blob2: "bg-teal-500/10 dark:bg-teal-500/8",
+    icon: "bg-emerald-50 dark:bg-emerald-900/30",
+    dot: "bg-emerald-500",
+  },
+];
+
 export const Stats: FC<{
   className?: string;
   classNameDescription?: string;
@@ -46,6 +73,7 @@ export const Stats: FC<{
     <div className={cn("grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4", className)}>
       {stats.map((item, index) => {
         const isViewerHours = location.pathname === "/viewer" && index === 3;
+        const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
 
         return (
           <TooltipProvider key={index}>
@@ -54,19 +82,20 @@ export const Stats: FC<{
                 <Link to={item.link} className="block">
                   <div
                     className={cn(
-                      "relative overflow-hidden border border-border rounded-2xl p-5 flex flex-col gap-4",
-                      "bg-gradient-to-br from-card via-card to-blue-50/60 dark:to-blue-950/30",
-                      "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                      "relative overflow-hidden rounded-2xl p-5 flex flex-col gap-4",
+                      "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
+                      "border border-slate-200/60 dark:border-white/[0.07]",
+                      "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+                      "hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
                     )}
                   >
-                    {/* Same decorative blobs as OngoingTaskCard */}
-                    <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-2xl" />
-                    <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-xl" />
+                    <div className={cn("pointer-events-none absolute -top-8 -right-8 size-36 rounded-full blur-2xl", accent.blob1)} />
+                    <div className={cn("pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full blur-xl", accent.blob2)} />
 
                     {isViewerHours ? (
                       <div className="relative flex items-center justify-between gap-3">
                         <div className="flex flex-col gap-3 flex-1">
-                          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 w-fit shrink-0">
+                          <div className={cn("p-2.5 rounded-xl w-fit shrink-0", accent.icon)}>
                             <img src={item.icon} className="size-5" alt={item.title} />
                           </div>
                           <div>
@@ -87,17 +116,15 @@ export const Stats: FC<{
                       </div>
                     ) : (
                       <div className="relative flex flex-col gap-3">
-                        {/* Icon — same dark pill as OngoingTaskCard */}
                         <div className="flex items-center justify-between">
-                          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">
+                          <div className={cn("p-2.5 rounded-xl shrink-0", accent.icon)}>
                             <img src={item.icon} className="size-5" alt={item.title} />
                           </div>
-                          <span className="text-xs text-muted-foreground border border-border rounded-full px-3 py-1">
+                          <span className="text-xs text-muted-foreground border border-border/60 rounded-full px-3 py-1 bg-muted/30">
                             {item.description}
                           </span>
                         </div>
 
-                        {/* Count + title */}
                         <div>
                           <p className="text-3xl font-bold text-foreground leading-none">
                             {item.count}
@@ -107,7 +134,8 @@ export const Stats: FC<{
                               </span>
                             )}
                           </p>
-                          <p className="text-sm font-medium text-muted-foreground mt-1.5">
+                          <p className="text-sm font-medium text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                            <span className={cn("inline-block size-1.5 rounded-full", accent.dot)} />
                             {item.title}
                           </p>
                         </div>

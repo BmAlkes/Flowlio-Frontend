@@ -1,91 +1,138 @@
-import { ComponentWrapper } from "@/components/common/componentwrapper";
-import { Box, type BoxProps } from "@/components/ui/box";
-import { Stack } from "@/components/ui/stack";
-import { Flex } from "@/components/ui/flex";
+import { type BoxProps } from "@/components/ui/box";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import { useFetchOrganizationActivities } from "@/hooks/useFetchOrganizationActivities";
-// import { useDeleteActivity } from "@/hooks/useDeleteActivity";
 import { formatDistanceToNow } from "date-fns";
-import { Center } from "@/components/ui/center";
 import { useTranslation } from "react-i18next";
 import { ListSkeleton } from "@/components/skeletons";
+
+const AVATAR_COLORS = [
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-emerald-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-cyan-500",
+  "bg-indigo-500",
+  "bg-pink-500",
+];
+
+function getAvatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+const ACTIVITY_ICONS: Record<string, string> = {
+  task: "✓",
+  client: "+",
+  project: "◈",
+  time: "◷",
+  comment: "◌",
+};
+
+function getActivityIcon(activity: string) {
+  const lower = activity.toLowerCase();
+  if (lower.includes("task")) return ACTIVITY_ICONS.task;
+  if (lower.includes("client")) return ACTIVITY_ICONS.client;
+  if (lower.includes("project")) return ACTIVITY_ICONS.project;
+  if (lower.includes("time") || lower.includes("hour")) return ACTIVITY_ICONS.time;
+  if (lower.includes("comment")) return ACTIVITY_ICONS.comment;
+  return "·";
+}
 
 export const RecentActivities: FC<BoxProps> = ({ className, ...props }) => {
   const { t } = useTranslation();
   const { data: activitiesResponse, isLoading, isFetching } =
     useFetchOrganizationActivities();
-  // const { mutate: deleteActivity } = useDeleteActivity();
 
   const activitiesContent = activitiesResponse?.data?.activities || [];
   const loading = isLoading || isFetching;
 
   return (
-    <ComponentWrapper className={cn("rounded-lg", className)} {...props}>
-      <Stack className="p-3 relative overflow-hidden">
-        <Flex className="justify-between items-center mb-2">
-          <h1 className="text-lg font-medium">
-            {" "}
-            {t("dashboard.recentActivities")}
-          </h1>
-          {/* Clear All Activities button - Commented out as requested */}
-          {/* {activitiesContent.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 border-red-200 text-xs"
-              onClick={() => {
-                activitiesContent.forEach((activity) => {
-                  deleteActivity({
-                    id: activity.id,
-                    source: "recent",
-                  });
-                });
-                toast.success("Clearing all activities...");
-              }}
-              disabled={isLoading}
-            >
-              Clear All Activities
-            </Button>
-          )} */}
-        </Flex>
+    <div
+      className={cn(
+        "rounded-2xl p-5",
+        "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
+        "border border-slate-200/60 dark:border-white/[0.07]",
+        "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+        className
+      )}
+      {...(props as React.HTMLAttributes<HTMLDivElement>)}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-base font-semibold text-foreground">
+          {t("dashboard.recentActivities")}
+        </h1>
+        <Link
+          to="#"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          View all
+        </Link>
+      </div>
 
-        <Box className="w-full h-0.5 bg-muted rounded-full absolute top-14 left-0"></Box>
-        <Box className="max-h-[21rem] overflow-auto scroll space-y-5 mt-5">
-          {loading ? (
-            <ListSkeleton rows={5} />
-          ) : activitiesContent.length > 0 ? (
-            activitiesContent.map(({ id, activity, date, user }) => {
-              const dateObj = typeof date === "string" ? new Date(date) : date;
-              const timeAgo = formatDistanceToNow(dateObj, { addSuffix: true });
+      <div className="max-h-[21rem] overflow-auto scroll space-y-3">
+        {loading ? (
+          <ListSkeleton rows={5} />
+        ) : activitiesContent.length > 0 ? (
+          activitiesContent.map(({ id, activity, date, user }) => {
+            const dateObj = typeof date === "string" ? new Date(date) : date;
+            const timeAgo = formatDistanceToNow(dateObj, { addSuffix: true });
+            const avatarColor = getAvatarColor(user);
+            const initials = getInitials(user);
+            const icon = getActivityIcon(activity);
 
-              return (
-                <Link key={id} to={"#"} className="group block">
-                  <Flex className="items-start pl-1">
-                    <Box className="size-2.5 group-hover:size-3.5 transition-all ease-in border outline outline-slate-300 group-hover:outline-slate-400 outline-offset-1 bg-slate-200 group-hover:bg-primary rounded-full mt-[6.5px]" />
-                    <Stack className="gap-0">
-                      <Flex>
-                        <h2 className="font-medium text-[13px]">{user}</h2>
-                        <p className="text-xs text-slate-500 ml-2">{timeAgo}</p>
-                      </Flex>
-                      <p className="text-sm text-slate-500 group-hover:text-foreground">
-                        {activity}
-                      </p>
-                    </Stack>
-                  </Flex>
-                </Link>
-              );
-            })
-          ) : (
-            <Center className="py-8">
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard.noRecentActivities")}
-              </p>
-            </Center>
-          )}
-        </Box>
-      </Stack>
-    </ComponentWrapper>
+            return (
+              <Link key={id} to={"#"} className="group block">
+                <div className="flex items-start gap-3">
+                  {/* Colored avatar */}
+                  <div
+                    className={cn(
+                      "size-9 rounded-xl flex items-center justify-center shrink-0 text-white text-xs font-bold",
+                      avatarColor
+                    )}
+                  >
+                    {initials}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-semibold text-foreground truncate">{user}</span>
+                      <span className="text-xs text-muted-foreground shrink-0">{timeAgo}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors truncate mt-0.5">
+                      {activity}
+                    </p>
+                  </div>
+
+                  {/* Activity type icon */}
+                  <div className="size-7 rounded-full border border-border/60 flex items-center justify-center shrink-0 bg-muted/30 text-muted-foreground text-xs">
+                    {icon}
+                  </div>
+                </div>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.noRecentActivities")}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

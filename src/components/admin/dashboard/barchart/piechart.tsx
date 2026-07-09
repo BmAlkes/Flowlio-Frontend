@@ -1,10 +1,7 @@
 import { type FC } from "react";
 import { cn } from "@/lib/utils";
-import { Box, type BoxProps } from "@/components/ui/box";
+import { type BoxProps } from "@/components/ui/box";
 import { PieChart, Pie, Cell } from "recharts";
-import { ComponentWrapper } from "@/components/common/componentwrapper";
-import { Stack } from "@/components/ui/stack";
-import { Flex } from "@/components/ui/flex";
 
 type ProjectStatusPieChartProps = {
   data: { name: string; value: number; icon: string; color: string }[];
@@ -14,47 +11,70 @@ type ProjectStatusPieChartProps = {
 export const ProjectStatusPieChart: FC<
   BoxProps & ProjectStatusPieChartProps
 > = ({ className, data, title, ...props }) => {
-  return (
-    <ComponentWrapper
-      className={cn("px-6 py-4 max-md:w-full", className)}
-      {...props}
-    >
-      <Stack className="gap-2 w-full">
-        <Flex className="items-center justify-between">
-          <h1 className="text-lg font-medium">{title}</h1>
-        </Flex>
+  const total = data.reduce((sum, d) => sum + d.value, 0);
 
-        <Box className="w-full flex flex-col justify-center items-center">
-          <PieChart className="w-full" width={220} height={300}>
+  return (
+    <div
+      className={cn(
+        "rounded-2xl px-6 py-5 max-md:w-full",
+        "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
+        "border border-slate-200/60 dark:border-white/[0.07]",
+        "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+        className
+      )}
+      {...(props as React.HTMLAttributes<HTMLDivElement>)}
+    >
+      <h1 className="text-base font-semibold text-foreground mb-4">{title}</h1>
+
+      <div className="flex flex-col items-center">
+        {/* Donut chart with center label */}
+        <div className="relative">
+          <PieChart width={220} height={220}>
             <Pie
-              data={data}
+              data={total === 0 ? [{ name: "Empty", value: 1, icon: "", color: "#e2e8f0" }] : data}
               cx="50%"
               cy="50%"
-              outerRadius={110}
-              paddingAngle={0}
+              innerRadius={72}
+              outerRadius={100}
+              paddingAngle={total === 0 ? 0 : 3}
               dataKey="value"
+              strokeWidth={0}
             >
-              {data.map((entry, index) => (
+              {(total === 0 ? [{ color: "#e2e8f0" }] : data).map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
           </PieChart>
 
-          <div className=" w-full">
-            <div className="flex justify-center gap-6">
-              {data.map((item, index) => (
-                <Flex key={index} className="flex-col items-center gap-1">
-                  <img src={item.icon} alt={item.name} />
-                  <h1>{item.value} %</h1>
-                  <h1 className="text-[12px] text-muted-foreground flex-col">
-                    {item.name}
-                  </h1>
-                </Flex>
-              ))}
-            </div>
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-3xl font-bold text-foreground leading-none">{total}</span>
+            <span className="text-[11px] text-muted-foreground mt-1 font-medium">Total Projects</span>
           </div>
-        </Box>
-      </Stack>
-    </ComponentWrapper>
+        </div>
+
+        {/* Legend */}
+        <div className="w-full space-y-2.5 mt-2">
+          {data.map((item, index) => {
+            const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+            return (
+              <div key={index} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="size-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm text-muted-foreground truncate">{item.name}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-sm font-semibold text-foreground">{item.value}</span>
+                  <span className="text-xs text-muted-foreground w-9 text-right">({pct}%)</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 };

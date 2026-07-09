@@ -101,7 +101,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
   // Show loading state
   if (isLoading) {
     return (
-      <ComponentWrapper className={cn("p-4 relative", className)} {...props}>
+      <ComponentWrapper className={cn("p-4 relative bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border-slate-200/60 dark:border-white/[0.07] shadow-lg !border", className)} {...props}>
         <Flex className="max-lg:flex-col items-center justify-between mb-4">
           <Flex className="justify-between max-md:justify-start max-lg:w-full gap-2">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
@@ -118,7 +118,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
   // Show error state
   if (error) {
     return (
-      <ComponentWrapper className={cn("p-4 relative", className)} {...props}>
+      <ComponentWrapper className={cn("p-4 relative bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border-slate-200/60 dark:border-white/[0.07] shadow-lg !border", className)} {...props}>
         <ErrorState
           title={t("dashboard.failedToLoadProjectData")}
           message={error.message}
@@ -130,7 +130,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
   // Show empty state
   if (chartData.length === 0) {
     return (
-      <ComponentWrapper className={cn("p-4 relative", className)} {...props}>
+      <ComponentWrapper className={cn("p-4 relative bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border-slate-200/60 dark:border-white/[0.07] shadow-lg !border", className)} {...props}>
         <Stack className="gap-5">
           <Flex className="max-lg:flex-col items-center justify-between">
             <Flex className="justify-between max-md:justify-start max-lg:w-full">

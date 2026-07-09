@@ -36,16 +36,17 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
     <Link to={"/dashboard/task-management"} className="block">
       <div
         className={cn(
-          "relative overflow-hidden border border-border rounded-2xl p-5 flex flex-col gap-5",
-          "bg-gradient-to-br from-card via-card to-blue-50/60 dark:to-blue-950/30",
-          "hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
+          "relative overflow-hidden rounded-2xl p-5 flex flex-col gap-5",
+          "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
+          "border border-slate-200/60 dark:border-white/[0.07]",
+          "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+          "hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200",
           className
         )}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}
       >
-        {/* ── Decorative background shapes ── */}
-        <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/10 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-xl" />
+        <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/8 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/8 blur-xl" />
 
         {/* ── Top row ── */}
         <div className="flex items-start justify-between gap-3">
