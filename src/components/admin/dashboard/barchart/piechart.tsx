@@ -17,9 +17,9 @@ export const ProjectStatusPieChart: FC<
     <div
       className={cn(
         "rounded-2xl px-6 py-5 max-md:w-full",
-        "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
-        "border border-slate-200/60 dark:border-white/[0.07]",
-        "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+        "bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl",
+        "border border-white/70 dark:border-white/[0.09]",
+        "shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60",
         className
       )}
       {...(props as React.HTMLAttributes<HTMLDivElement>)}

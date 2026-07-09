@@ -37,9 +37,9 @@ export const OngoingTaskCard: FC<OngoingTaskCardProps> = ({
       <div
         className={cn(
           "relative overflow-hidden rounded-2xl p-5 flex flex-col gap-5",
-          "bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl",
-          "border border-slate-200/60 dark:border-white/[0.07]",
-          "shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50",
+          "bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl",
+          "border border-white/70 dark:border-white/[0.09]",
+          "shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60",
           "hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200",
           className
         )}

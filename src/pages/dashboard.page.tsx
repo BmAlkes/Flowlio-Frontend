@@ -10,6 +10,7 @@ import { useFetchOrganizationTotalClients } from "@/hooks/useFetchOrganizationTo
 import { useFetchOrganizationActiveProjects } from "@/hooks/useFetchOrganizationActiveProjects";
 import { useFetchOrganizationWeeklyHoursTracked } from "@/hooks/useFetchOrganizationWeeklyHoursTracked";
 import { useFetchOrganizationPendingTasks } from "@/hooks/useFetchOrganizationPendingTasks";
+import { useFetchOrganizationCompletedTasks } from "@/hooks/useFetchOrganizationCompletedTasks";
 import {
   useFetchProjectStatusData,
   transformToPieChartData,
@@ -42,7 +43,6 @@ const DashboardPage = () => {
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const queryClient = useQueryClient();
 
-  // Check if demo user needs to change password
   useEffect(() => {
     if (
       userProfile?.data?.demoOrgInfo?.isDemo &&
@@ -50,31 +50,34 @@ const DashboardPage = () => {
     ) {
       setShowPasswordChangeModal(true);
     } else {
-      // If password has been changed, hide the modal
       setShowPasswordChangeModal(false);
     }
   }, [userProfile]);
 
-  // Fetch real data for stats
   const { data: totalClientsResponse, isLoading: isLoadingClients, isFetching: isFetchingClients } = useFetchOrganizationTotalClients();
   const { data: activeProjectsResponse, isLoading: isLoadingProjects, isFetching: isFetchingProjects } = useFetchOrganizationActiveProjects();
-  const { data: weeklyHoursResponse, isLoading: isLoadingHours, isFetching: isFetchingHours } =
-    useFetchOrganizationWeeklyHoursTracked();
+  const { data: weeklyHoursResponse, isLoading: isLoadingHours, isFetching: isFetchingHours } = useFetchOrganizationWeeklyHoursTracked();
   const { data: pendingTasksResponse, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useFetchOrganizationPendingTasks();
+  const { data: completedTasksResponse } = useFetchOrganizationCompletedTasks();
   const { data: projectStatusResponse, isLoading: isLoadingStatus, isFetching: isFetchingStatus } = useFetchProjectStatusData();
   const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
   const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
 
-  // Aggregated loading flag — show skeleton while any stats hook is in flight
   const isAnyLoading =
     isLoadingClients || isLoadingProjects || isLoadingHours || isLoadingTasks || isLoadingStatus ||
     isFetchingClients || isFetchingProjects || isFetchingHours || isFetchingTasks || isFetchingStatus;
 
-  // Extract values from responses
   const totalClients = totalClientsResponse?.data?.totalClients ?? 0;
   const activeProjects = activeProjectsResponse?.data?.activeProjects ?? 0;
   const weeklyHours = weeklyHoursResponse?.data?.weeklyHours ?? 0;
   const pendingTasks = pendingTasksResponse?.data?.pendingTasks ?? 0;
+  const completedTasks = completedTasksResponse?.data?.completedTasks ?? 0;
+
+  // Greeting based on time of day
+  const hour = new Date().getHours();
+  const greetingKey =
+    hour < 12 ? "greetingMorning" : hour < 18 ? "greetingAfternoon" : "greetingEvening";
+  const firstName = userProfile?.data?.name?.split(" ")[0] || "";
 
   const stats: Stat[] = [
     {
@@ -92,7 +95,7 @@ const DashboardPage = () => {
       count: String(activeProjects),
     },
     {
-      link: "/dashboard/time-tracking", // Add route for time tracking
+      link: "/dashboard/time-tracking",
       title: t("dashboard.hoursTracked"),
       description: t("dashboard.timeLoggedDesc"),
       icon: img3,
@@ -105,89 +108,88 @@ const DashboardPage = () => {
       icon: img4,
       count: String(pendingTasks),
     },
+    {
+      link: "/dashboard/task-management",
+      title: t("dashboard.tasksCompleted"),
+      description: t("dashboard.tasksCompletedDesc"),
+      icon: img2,
+      count: String(completedTasks),
+    },
   ];
 
-  // Transform project status data for pie chart
   const pieChartData = projectStatusResponse?.data
     ? transformToPieChartData(projectStatusResponse.data)
     : [
-        {
-          name: t("dashboard.ongoing"),
-          value: 0,
-          icon: Img2,
-          color: "#FFE000",
-        },
-        {
-          name: t("dashboard.delayed"),
-          value: 0,
-          icon: Img3,
-          color: "#F50057",
-        },
-        {
-          name: t("dashboard.finished"),
-          value: 0,
-          icon: Img1,
-          color: "#3f53b5",
-        },
+        { name: t("dashboard.ongoing"), value: 0, icon: Img2, color: "#6366f1" },
+        { name: t("dashboard.delayed"), value: 0, icon: Img3, color: "#f43f5e" },
+        { name: t("dashboard.finished"), value: 0, icon: Img1, color: "#10b981" },
       ];
 
-  // issue fixed
   return (
     <SkeletonWrapper
       isLoading={isAnyLoading}
       skeleton={<DashboardSkeleton />}
     >
-      {/* Background blobs — visible through glass cards */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-violet-500/5 dark:bg-violet-500/6 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 right-0 w-80 h-80 bg-cyan-500/5 dark:bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 left-0 w-64 h-64 bg-emerald-500/4 dark:bg-emerald-500/5 rounded-full blur-3xl" />
+      {/* Gradient background — makes glassmorphism visible */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-20 right-1/3 w-[600px] h-[400px] bg-blue-400/20 dark:bg-blue-500/15 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/4 w-[500px] h-[400px] bg-violet-400/15 dark:bg-violet-500/12 rounded-full blur-[100px]" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-400/15 dark:bg-cyan-500/10 rounded-full blur-[80px]" />
+        <div className="absolute top-1/3 left-0 w-72 h-72 bg-emerald-400/12 dark:bg-emerald-500/10 rounded-full blur-[80px]" />
       </div>
-      <Stack className="pt-5 gap-3 px-2">
-      {hasAIAssist && <AITokenUsageWidget />}
-      <Stats stats={stats} />
-      <Flex className="max-[950px]:flex-col items-start gap-3">
-        <Stack className="w-full gap-3">
-          <BarChartComponent />
-          <OngoingTasks />
-          {(userProfile?.data?.role === "superadmin" ||
-            userProfile?.data?.role === "subadmin" ||
-            userProfile?.data?.isOrganizationOwner ||
-            userProfile?.data?.isOrganizationManager) && (
-            <TeamProductivityChart />
-          )}
-        </Stack>
 
-        <Stack className="max-[950px]:w-full items-start gap-3">
-          <ProjectStatusPieChart
-            className="w-full"
-            data={pieChartData}
-            title={t("dashboard.projectStatus")}
-          />
-          <FollowUpWidget />
-          <RecentActivities className="w-full" />
-        </Stack>
-      </Flex>
+      <Stack className="pt-5 gap-4 px-2">
 
-      <TimeModal />
+        {/* Greeting header */}
+        <div className="px-1">
+          <h1 className="text-2xl font-bold text-foreground">
+            {t(`dashboard.${greetingKey}`)}{firstName ? `, ${firstName}` : ""} 👋
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {t("dashboard.greetingSubtitle")}
+          </p>
+        </div>
 
-      <DemoPasswordChangeModal
-        open={showPasswordChangeModal}
-        onOpenChange={(open) => {
-          // Close modal immediately when password is changed
-          setShowPasswordChangeModal(false);
-          if (!open) {
-            // Refetch user profile after password change to update the state
-            queryClient.invalidateQueries({ queryKey: ["user-profile"] });
-            refetch();
-          }
-        }}
-      />
+        {hasAIAssist && <AITokenUsageWidget />}
+        <Stats stats={stats} />
+        <Flex className="max-[950px]:flex-col items-start gap-3">
+          <Stack className="w-full gap-3">
+            <BarChartComponent />
+            <OngoingTasks />
+            {(userProfile?.data?.role === "superadmin" ||
+              userProfile?.data?.role === "subadmin" ||
+              userProfile?.data?.isOrganizationOwner ||
+              userProfile?.data?.isOrganizationManager) && (
+              <TeamProductivityChart />
+            )}
+          </Stack>
 
-      {/* AI Bot Floating Button */}
-      <DashboardAIBot />
-    </Stack>
+          <Stack className="max-[950px]:w-full items-start gap-3">
+            <ProjectStatusPieChart
+              className="w-full"
+              data={pieChartData}
+              title={t("dashboard.projectStatus")}
+            />
+            <FollowUpWidget />
+            <RecentActivities className="w-full" />
+          </Stack>
+        </Flex>
+
+        <TimeModal />
+
+        <DemoPasswordChangeModal
+          open={showPasswordChangeModal}
+          onOpenChange={(open) => {
+            setShowPasswordChangeModal(false);
+            if (!open) {
+              queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+              refetch();
+            }
+          }}
+        />
+
+        <DashboardAIBot />
+      </Stack>
     </SkeletonWrapper>
   );
 };

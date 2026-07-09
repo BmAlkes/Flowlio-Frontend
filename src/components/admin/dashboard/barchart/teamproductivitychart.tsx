@@ -32,7 +32,7 @@ export const TeamProductivityChart: FC<BoxProps> = ({ className, ...props }) => 
 
   if (isLoading) {
     return (
-      <div className={cn("rounded-2xl p-5 bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.07] shadow-lg", className)}
+      <div className={cn("rounded-2xl p-5 bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl", className)}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}>
         <div className="flex gap-2 mb-4">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
@@ -45,7 +45,7 @@ export const TeamProductivityChart: FC<BoxProps> = ({ className, ...props }) => 
 
   if (error) {
     return (
-      <div className={cn("rounded-2xl p-5 bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.07] shadow-lg", className)}
+      <div className={cn("rounded-2xl p-5 bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl", className)}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}>
         <ErrorState title="Failed to load productivity data" message={error.message} />
       </div>
@@ -54,7 +54,7 @@ export const TeamProductivityChart: FC<BoxProps> = ({ className, ...props }) => 
 
   if (chartData.length === 0) {
     return (
-      <div className={cn("rounded-2xl p-5 bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/[0.07] shadow-lg", className)}
+      <div className={cn("rounded-2xl p-5 bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl", className)}
         {...(props as React.HTMLAttributes<HTMLDivElement>)}>
         <h1 className="text-base font-semibold mb-4">Team Productivity</h1>
         <p className="text-muted-foreground text-sm text-center py-8">No productivity data available</p>

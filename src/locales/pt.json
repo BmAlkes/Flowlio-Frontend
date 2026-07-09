@@ -349,7 +349,13 @@
     "followUpsToday_label": "Hoje",
     "followUpsTomorrow_label": "Amanhã",
     "followUpsDaysLeft": "em {{count}}d · {{date}}",
-    "followUpsDaysAgo": "{{count}}d atrás"
+    "followUpsDaysAgo": "{{count}}d atrás",
+    "greetingMorning": "Bom dia",
+    "greetingAfternoon": "Boa tarde",
+    "greetingEvening": "Boa noite",
+    "greetingSubtitle": "Veja o que está acontecendo com o seu negócio hoje.",
+    "tasksCompleted": "Tarefas Concluídas",
+    "tasksCompletedDesc": "Concluídas este mês"
   },
   "projects": {
     "title": "Projetos",

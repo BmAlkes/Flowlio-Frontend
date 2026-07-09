@@ -230,7 +230,13 @@
     "followUpsToday_label": "היום",
     "followUpsTomorrow_label": "מחר",
     "followUpsDaysLeft": "בעוד {{count}}י · {{date}}",
-    "followUpsDaysAgo": "לפני {{count}}י"
+    "followUpsDaysAgo": "לפני {{count}}י",
+    "greetingMorning": "בוקר טוב",
+    "greetingAfternoon": "צהריים טובים",
+    "greetingEvening": "ערב טוב",
+    "greetingSubtitle": "הנה מה שקורה עם העסק שלך היום.",
+    "tasksCompleted": "משימות שהושלמו",
+    "tasksCompletedDesc": "הושלמו החודש"
   },
   "projects": {
     "title": "פרויקטים",
