@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/user section/navbar/navbar";
 import { Pricing } from "@/components/user section/pricing/pricing";
+import { Footer } from "@/components/footer/footer";
 import { useEffect, useState } from "react";
 
 export const PricingPage = () => {
@@ -12,6 +13,7 @@ export const PricingPage = () => {
     <>
       <Navbar selectedPlan={selectedPlan} />
       <Pricing selectedPlan={selectedPlan} setSelectedPlan={setSelectedPlan} />
+      <Footer />
     </>
   );
 };
