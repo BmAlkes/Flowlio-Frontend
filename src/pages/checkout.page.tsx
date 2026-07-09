@@ -68,23 +68,6 @@ const CheckoutPage = () => {
   const createSubscriptionMutation = useCreatePayPalSubscription();
   const activateSubscriptionMutation = useActivatePayPalSubscription();
   const activateFreePlanMutation = useActivateFreePlan();
-
-  // Detect free plan ($0)
-  const isFreePlan = selectedPlan ? Number(selectedPlan.price) === 0 : false;
-
-  const handleActivateFreePlan = async () => {
-    if (!selectedPlan) return;
-    setIsProcessing(true);
-    try {
-      await activateFreePlanMutation.mutateAsync({ planId: selectedPlan.id });
-      toast.success(`"${selectedPlan.name}" plan activated!`);
-      navigate("/dashboard", { replace: true });
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || "Failed to activate plan");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBackendDemoMode, setIsBackendDemoMode] = useState<boolean | null>(
     null
@@ -130,6 +113,23 @@ const CheckoutPage = () => {
       : planIdToUse
         ? plansArray.find((p: IPlan) => p.id === planIdToUse) || null
         : null;
+
+  // Detect free plan ($0) and handler — must be after selectedPlan declaration
+  const isFreePlan = selectedPlan ? Number(selectedPlan.price) === 0 : false;
+
+  const handleActivateFreePlan = async () => {
+    if (!selectedPlan) return;
+    setIsProcessing(true);
+    try {
+      await activateFreePlanMutation.mutateAsync({ planId: selectedPlan.id });
+      toast.success(`"${selectedPlan.name}" plan activated!`);
+      navigate("/dashboard", { replace: true });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to activate plan");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
   const planDetails = useMemo(() => {
