@@ -23,9 +23,17 @@ export const AUTOMATIONS: AutomationDefinition[] = [
   },
 ];
 
+export interface RunAutomationResult {
+  tasksFound: number;
+  emailsSent: number;
+  emailsFailed: number;
+  errors: string[];
+}
+
 interface RunAutomationResponse {
   success: boolean;
   message: string;
+  data: RunAutomationResult;
 }
 
 export const useRunAutomation = () => {
@@ -35,7 +43,11 @@ export const useRunAutomation = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Automation ran successfully");
+      if (data.data.emailsFailed > 0) {
+        toast.error(data.message || "Automation completed with failures");
+      } else {
+        toast.success(data.message || "Automation ran successfully");
+      }
     },
     onError: (error: any) => {
       const errorMessage =
