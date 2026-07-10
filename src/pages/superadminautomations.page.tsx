@@ -87,63 +87,40 @@ const SuperAdminAutomationsPage = () => {
                   </Button>
                 </Flex>
 
-                {result &&
-                  (() => {
-                    const skipped = result.errors.filter((e) =>
-                      e.toLowerCase().includes("skipping email"),
-                    );
-                    const failures = result.errors.filter(
-                      (e) => !e.toLowerCase().includes("skipping email"),
-                    );
-
-                    return (
-                      <Box
-                        className={`mt-4 rounded-lg border p-3 text-sm ${
-                          failures.length > 0
-                            ? "border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-900/20"
-                            : "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-900/20"
-                        }`}
-                      >
-                        <Flex className="items-center gap-2 font-medium">
-                          {failures.length > 0 ? (
-                            <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
-                          ) : (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                          )}
-                          Last run: {result.tasksFound} task(s) found,{" "}
-                          {result.emailsSent} email(s) sent,{" "}
-                          {result.emailsFailed} failed
-                        </Flex>
-                        {result.tasksFound === 0 && (
-                          <p className="text-muted-foreground mt-1">
-                            No matching tasks — nothing to notify. If you
-                            expected a task to be found, check it isn't
-                            already marked as notified.
-                          </p>
-                        )}
-                        {failures.length > 0 && (
-                          <ul className="mt-2 list-disc pl-5 space-y-0.5 text-rose-700 dark:text-rose-400">
-                            {failures.map((err, i) => (
-                              <li key={i}>{err}</li>
-                            ))}
-                          </ul>
-                        )}
-                        {skipped.length > 0 && (
-                          <details className="mt-2 text-muted-foreground">
-                            <summary className="cursor-pointer select-none">
-                              {skipped.length} task(s) skipped — no assignee
-                              or project manager to notify
-                            </summary>
-                            <ul className="mt-1.5 list-disc pl-5 space-y-0.5">
-                              {skipped.map((msg, i) => (
-                                <li key={i}>{msg}</li>
-                              ))}
-                            </ul>
-                          </details>
-                        )}
-                      </Box>
-                    );
-                  })()}
+                {result && (
+                  <Box
+                    className={`mt-4 rounded-lg border p-3 text-sm ${
+                      result.errors.length > 0
+                        ? "border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-900/20"
+                        : "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-900/20"
+                    }`}
+                  >
+                    <Flex className="items-center gap-2 font-medium">
+                      {result.errors.length > 0 ? (
+                        <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      )}
+                      Last run: {result.tasksFound} task(s) found,{" "}
+                      {result.emailsSent} email(s) sent, {result.emailsFailed}{" "}
+                      failed
+                    </Flex>
+                    {result.tasksFound === 0 && (
+                      <p className="text-muted-foreground mt-1">
+                        No matching tasks — nothing to notify. If you expected
+                        a task to be found, check it isn't already marked as
+                        notified.
+                      </p>
+                    )}
+                    {result.errors.length > 0 && (
+                      <ul className="mt-2 list-disc pl-5 space-y-0.5 text-rose-700 dark:text-rose-400">
+                        {result.errors.map((err, i) => (
+                          <li key={i}>{err}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           );
