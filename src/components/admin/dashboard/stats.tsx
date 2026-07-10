@@ -21,68 +21,73 @@ export type Stat = {
 
 const CARD_ACCENTS = [
   {
-    blob1: "bg-violet-500/15 dark:bg-violet-500/12",
-    blob2: "bg-purple-500/10 dark:bg-purple-500/10",
-    icon: "bg-violet-100/80 dark:bg-violet-900/40",
+    glow: "bg-violet-400/25 dark:bg-violet-500/20",
+    icon: "bg-violet-100 dark:bg-violet-900/50",
     dot: "bg-violet-500",
     sparkColor: "#8b5cf6",
-    sparkPath: "M0,35 C40,28 80,18 120,15 C150,12 165,8 180,2",
+    sparkLine: "M0,34 C40,26 80,16 120,13 C150,10 165,6 180,1",
   },
   {
-    blob1: "bg-blue-500/15 dark:bg-blue-500/12",
-    blob2: "bg-cyan-500/10 dark:bg-cyan-500/10",
-    icon: "bg-blue-100/80 dark:bg-blue-900/40",
+    glow: "bg-blue-400/25 dark:bg-blue-500/20",
+    icon: "bg-blue-100 dark:bg-blue-900/50",
     dot: "bg-blue-500",
     sparkColor: "#3b82f6",
-    sparkPath: "M0,30 C35,25 65,32 95,18 C125,8 155,12 180,4",
+    sparkLine: "M0,28 C35,22 65,30 95,16 C125,6 155,10 180,3",
   },
   {
-    blob1: "bg-amber-500/15 dark:bg-amber-500/12",
-    blob2: "bg-orange-500/10 dark:bg-orange-500/10",
-    icon: "bg-amber-100/80 dark:bg-amber-900/40",
+    glow: "bg-amber-400/25 dark:bg-amber-500/20",
+    icon: "bg-amber-100 dark:bg-amber-900/50",
     dot: "bg-amber-500",
     sparkColor: "#f59e0b",
-    sparkPath: "M0,38 C55,30 100,18 130,12 C155,8 170,4 180,2",
+    sparkLine: "M0,36 C55,28 100,16 130,10 C155,6 170,3 180,1",
   },
   {
-    blob1: "bg-rose-500/15 dark:bg-rose-500/12",
-    blob2: "bg-pink-500/10 dark:bg-pink-500/10",
-    icon: "bg-rose-100/80 dark:bg-rose-900/40",
+    glow: "bg-rose-400/25 dark:bg-rose-500/20",
+    icon: "bg-rose-100 dark:bg-rose-900/50",
     dot: "bg-rose-500",
     sparkColor: "#ef4444",
-    sparkPath: "M0,5 C30,10 70,14 100,20 C130,24 155,30 180,37",
+    sparkLine: "M0,4 C30,8 70,12 100,18 C130,23 155,29 180,36",
   },
   {
-    blob1: "bg-emerald-500/15 dark:bg-emerald-500/12",
-    blob2: "bg-teal-500/10 dark:bg-teal-500/10",
-    icon: "bg-emerald-100/80 dark:bg-emerald-900/40",
+    glow: "bg-emerald-400/25 dark:bg-emerald-500/20",
+    icon: "bg-emerald-100 dark:bg-emerald-900/50",
     dot: "bg-emerald-500",
     sparkColor: "#10b981",
-    sparkPath: "M0,40 C30,32 65,22 95,14 C125,8 155,4 180,0",
+    sparkLine: "M0,38 C30,30 65,20 95,12 C125,6 155,3 180,0",
   },
 ];
 
-const Sparkline: FC<{ path: string; color: string }> = ({ path, color }) => (
-  <svg
-    viewBox="0 0 180 42"
-    className="absolute bottom-0 right-0 w-32 h-12 opacity-[0.18] pointer-events-none"
-    fill="none"
-    preserveAspectRatio="none"
-  >
-    <path
-      d={path}
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d={`${path} L180,42 L0,42 Z`}
-      fill={color}
-      opacity="0.25"
-    />
-  </svg>
-);
+const SparkChart: FC<{ linePath: string; color: string; index: number }> = ({
+  linePath,
+  color,
+  index,
+}) => {
+  const gradId = `spark-grad-${index}`;
+  const areaPath = `${linePath} L180,40 L0,40 Z`;
+  return (
+    <svg
+      viewBox="0 0 180 40"
+      className="w-full h-9"
+      fill="none"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#${gradId})`} />
+      <path
+        d={linePath}
+        stroke={color}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
 
 export const Stats: FC<{
   className?: string;
@@ -121,25 +126,26 @@ export const Stats: FC<{
                 <Link to={item.link} className="block">
                   <div
                     className={cn(
-                      "relative overflow-hidden rounded-2xl p-5 flex flex-col gap-4",
-                      "bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl",
-                      "border border-white/70 dark:border-white/[0.09]",
-                      "shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60",
+                      "relative overflow-hidden rounded-2xl flex flex-col",
+                      "bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl",
+                      "border border-white/80 dark:border-white/[0.09]",
+                      "shadow-xl shadow-slate-100/80 dark:shadow-slate-950/60",
                       "hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200"
                     )}
                   >
-                    {/* Colored blobs */}
-                    <div className={cn("pointer-events-none absolute -top-8 -right-8 size-36 rounded-full blur-2xl", accent.blob1)} />
-                    <div className={cn("pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full blur-xl", accent.blob2)} />
-
-                    {/* Sparkline background */}
-                    <Sparkline path={accent.sparkPath} color={accent.sparkColor} />
+                    {/* Corner glow accent */}
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute -top-6 -right-6 size-28 rounded-full blur-2xl",
+                        accent.glow
+                      )}
+                    />
 
                     {isViewerHours ? (
-                      <div className="relative flex items-center justify-between gap-3">
+                      <div className="relative p-5 flex items-center justify-between gap-3">
                         <div className="flex flex-col gap-3 flex-1">
-                          <div className={cn("p-2.5 rounded-xl w-fit shrink-0", accent.icon)}>
-                            <img src={item.icon} className="size-5" alt={item.title} />
+                          <div className={cn("p-2 rounded-lg w-fit", accent.icon)}>
+                            <img src={item.icon} className="size-4" alt={item.title} />
                           </div>
                           <div>
                             <p className="font-semibold text-foreground">{item.title}</p>
@@ -158,31 +164,47 @@ export const Stats: FC<{
                         />
                       </div>
                     ) : (
-                      <div className="relative flex flex-col gap-3">
-                        <div className="flex items-center justify-between">
-                          <div className={cn("p-2.5 rounded-xl shrink-0", accent.icon)}>
-                            <img src={item.icon} className="size-5" alt={item.title} />
+                      <>
+                        {/* Card body */}
+                        <div className="relative px-4 pt-4 pb-2 flex flex-col gap-2">
+                          {/* Label row */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/70">
+                              {item.title}
+                            </span>
+                            <div className={cn("p-1.5 rounded-md", accent.icon)}>
+                              <img src={item.icon} className="size-3.5" alt={item.title} />
+                            </div>
                           </div>
-                          <span className="text-xs text-muted-foreground border border-border/50 rounded-full px-3 py-1 bg-background/30 backdrop-blur-sm">
-                            {item.description}
-                          </span>
-                        </div>
 
-                        <div>
-                          <p className="text-3xl font-bold text-foreground leading-none">
+                          {/* Hero metric */}
+                          <p className="text-[2.4rem] font-black text-foreground leading-none tracking-tight">
                             {item.count}
                             {index === 2 && (
-                              <span className={cn("text-lg font-medium ml-1.5 text-muted-foreground", (isSuperAdmin || isViewer) && "hidden")}>
+                              <span className={cn("text-base font-medium ml-1 text-muted-foreground", (isSuperAdmin || isViewer) && "hidden")}>
                                 {t("dashboard.hoursAbbreviation")}
                               </span>
                             )}
                           </p>
-                          <p className="text-sm font-medium text-muted-foreground mt-1.5 flex items-center gap-1.5">
-                            <span className={cn("inline-block size-1.5 rounded-full shrink-0", accent.dot)} />
-                            {item.title}
-                          </p>
                         </div>
-                      </div>
+
+                        {/* Sparkline — dedicated visible area */}
+                        <div className="px-4 pb-1">
+                          <SparkChart
+                            linePath={accent.sparkLine}
+                            color={accent.sparkColor}
+                            index={index}
+                          />
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-4 pb-4 flex items-center gap-1.5">
+                          <span className={cn("size-1.5 rounded-full shrink-0", accent.dot)} />
+                          <span className="text-[11px] text-muted-foreground truncate">
+                            {item.description}
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
                 </Link>

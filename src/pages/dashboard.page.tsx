@@ -153,7 +153,7 @@ const DashboardPage = () => {
         {hasAIAssist && <AITokenUsageWidget />}
         <Stats stats={stats} />
         <Flex className="max-[950px]:flex-col items-start gap-3">
-          <Stack className="w-full gap-3">
+          <Stack className="flex-1 min-w-0 gap-3">
             <BarChartComponent />
             <OngoingTasks />
             {(userProfile?.data?.role === "superadmin" ||
@@ -164,7 +164,7 @@ const DashboardPage = () => {
             )}
           </Stack>
 
-          <Stack className="max-[950px]:w-full items-start gap-3">
+          <Stack className="w-[300px] shrink-0 max-[950px]:w-full items-start gap-3">
             <ProjectStatusPieChart
               className="w-full"
               data={pieChartData}
