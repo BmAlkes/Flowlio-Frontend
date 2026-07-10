@@ -206,9 +206,8 @@ export interface CreateTaskRequest {
   actualHours?: number;
   attachments?: Array<{
     id: string;
-    file: string; // Base64 or Blob URL for first-time upload
+    file: string; // Base64 payload; backend generates the permanent storage URL
     name: string;
-    url: string;
     size: number;
     type: string;
   }>;

@@ -339,7 +339,6 @@ export const CreateTask = ({
           id: crypto.randomUUID(),
           file: await convertFileToBase64(uploadedFile),
           name: uploadedFile.name,
-          url: URL.createObjectURL(uploadedFile),
           size: uploadedFile.size,
           type: uploadedFile.type,
         };

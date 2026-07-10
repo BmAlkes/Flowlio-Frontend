@@ -13,7 +13,6 @@ export interface CreateTaskRequest {
     id: string;
     file: string;
     name: string;
-    url: string;
     size: number;
     type: string;
   }>;
