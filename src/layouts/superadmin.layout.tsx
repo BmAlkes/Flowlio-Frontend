@@ -16,6 +16,7 @@ import {
   Bell,
   Mail,
   Bot,
+  Zap,
 } from "lucide-react";
 import { useUser } from "@/providers/user.provider";
 
@@ -59,6 +60,11 @@ export const navItems: NavItem[] = [
     title: "aiMonitoring",
     url: "/superadmin/ai-monitoring",
     icon: <Bot />,
+  },
+  {
+    title: "automations",
+    url: "/superadmin/automations",
+    icon: <Zap />,
   },
   {
     title: "supportTickets",

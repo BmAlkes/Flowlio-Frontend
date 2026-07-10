@@ -136,6 +136,9 @@ const SuperAdminDemoAccountsPage = lazy(
 const SuperAdminAIMonitoringPage = lazy(
   () => import("./pages/superadminaimonitoring.page"),
 );
+const SuperAdminAutomationsPage = lazy(
+  () => import("./pages/superadminautomations.page"),
+);
 const SuperAdminCompaniesPage = lazy(
   () => import("./pages/superadmincompanies.page"),
 );
@@ -574,6 +577,10 @@ const AppRoutes = () => {
         <Route
           path="ai-monitoring"
           element={<LazyWrapper component={SuperAdminAIMonitoringPage} />}
+        />
+        <Route
+          path="automations"
+          element={<LazyWrapper component={SuperAdminAutomationsPage} />}
         />
         <Route
           path="users"
