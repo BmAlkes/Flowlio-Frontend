@@ -20,8 +20,8 @@ export interface UpdateTaskRequest {
   actualHours?: number;
   attachments?: Array<{
     id: string;
+    file: string;
     name: string;
-    url: string;
     size: number;
     type: string;
   }>;
