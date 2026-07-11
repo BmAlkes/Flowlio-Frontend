@@ -32,6 +32,7 @@ import { useTranslation } from "react-i18next";
 import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
 import { DashboardSkeleton, SkeletonWrapper } from "@/components/skeletons";
 import { FollowUpWidget } from "@/components/admin/dashboard/FollowUpWidget";
+import { ProjectRiskAlertsWidget } from "@/components/admin/dashboard/ProjectRiskAlertsWidget";
 import { AITokenUsageWidget } from "@/components/user section/AITokenUsageWidget";
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 
@@ -170,6 +171,12 @@ const DashboardPage = () => {
               data={pieChartData}
               title={t("dashboard.projectStatus")}
             />
+            {(userProfile?.data?.role === "superadmin" ||
+              userProfile?.data?.role === "subadmin" ||
+              userProfile?.data?.isOrganizationOwner ||
+              userProfile?.data?.isOrganizationManager) && (
+              <ProjectRiskAlertsWidget />
+            )}
             <FollowUpWidget />
             <RecentActivities className="w-full" />
           </Stack>
