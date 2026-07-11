@@ -72,7 +72,9 @@
     "support": "תמיכה",
     "aiAssistant": "עוזר בינה מלאכותית",
     "reports": "דוחות ואנליטיקה",
-    "revenue": "הכנסות"
+    "revenue": "הכנסות",
+    "financial": "כספים",
+    "workspace": "סביבת עבודה"
   },
   "settings": {
     "title": "הגדרות",

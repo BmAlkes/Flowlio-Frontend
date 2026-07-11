@@ -202,16 +202,6 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(SquareKanban),
   },
   {
-    url: "/dashboard/reports",
-    title: "reports",
-    icon: React.createElement(TbReportSearch),
-  },
-  {
-    url: "/dashboard/revenue",
-    title: "revenue",
-    icon: React.createElement(TrendingUp),
-  },
-  {
     url: "/dashboard/project",
     title: "projects",
     icon: React.createElement(GroupIcon),
@@ -220,11 +210,6 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/task-management",
     title: "tasksManagement",
     icon: React.createElement(TaskManagementIcon),
-  },
-  {
-    url: "/dashboard/user-management",
-    title: "userManagement",
-    icon: React.createElement(LuUsers),
   },
   {
     url: "/dashboard/client-management",
@@ -237,11 +222,6 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(Users),
   },
   {
-    url: "/dashboard/client-management/media-center",
-    title: "mediaCenter",
-    icon: React.createElement(TbReportSearch),
-  },
-  {
     url: "/dashboard/calender",
     title: "calendar",
     icon: React.createElement(IoCalendarOutline),
@@ -252,29 +232,68 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(Clock),
   },
   {
-    url: "/dashboard/ai-assist",
-    title: "aiAssistance",
-    icon: React.createElement(LuWandSparkles),
+    url: "/dashboard/user-management",
+    title: "userManagement",
+    icon: React.createElement(LuUsers),
   },
   {
-    url: "/dashboard/comments",
-    title: "comments",
-    icon: React.createElement(MessageCircleMore),
+    url: "/dashboard/revenue",
+    title: "financial",
+    icon: React.createElement(TrendingUp),
+    subItems: [
+      {
+        url: "/dashboard/revenue",
+        title: "revenue",
+        icon: React.createElement(TrendingUp),
+      },
+      {
+        url: "/dashboard/invoice",
+        title: "invoices",
+        icon: React.createElement(TbInvoice),
+      },
+      {
+        url: "/dashboard/payment-links",
+        title: "paymentLinks",
+        icon: React.createElement(TbReportSearch),
+      },
+      {
+        url: "/dashboard/proposals",
+        title: "proposals",
+        icon: React.createElement(FileText),
+      },
+      {
+        url: "/dashboard/subscription",
+        title: "mySubscriptions",
+        icon: React.createElement(BadgeDollarSign),
+      },
+    ],
   },
   {
-    url: "/dashboard/payment-links",
-    title: "paymentLinks",
+    url: "/dashboard/reports",
+    title: "workspace",
     icon: React.createElement(TbReportSearch),
-  },
-  {
-    url: "/dashboard/invoice",
-    title: "invoices",
-    icon: React.createElement(TbInvoice),
-  },
-  {
-    url: "/dashboard/subscription",
-    title: "mySubscriptions",
-    icon: React.createElement(BadgeDollarSign),
+    subItems: [
+      {
+        url: "/dashboard/reports",
+        title: "reports",
+        icon: React.createElement(TbReportSearch),
+      },
+      {
+        url: "/dashboard/client-management/media-center",
+        title: "mediaCenter",
+        icon: React.createElement(TbReportSearch),
+      },
+      {
+        url: "/dashboard/comments",
+        title: "comments",
+        icon: React.createElement(MessageCircleMore),
+      },
+      {
+        url: "/dashboard/ai-assist",
+        title: "aiAssistance",
+        icon: React.createElement(LuWandSparkles),
+      },
+    ],
   },
   {
     url: "/dashboard/support",
@@ -290,11 +309,6 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/settings",
     title: "settings",
     icon: React.createElement(IoSettingsOutline),
-  },
-  {
-    url: "/dashboard/proposals",
-    title: "proposals",
-    icon: React.createElement(FileText),
   },
 ];
 

@@ -73,7 +73,9 @@
     "aiAssistant": "Assistente de IA",
     "reports": "Relatórios e Análises",
     "revenue": "Receita",
-    "subscriptions": "Assinaturas"
+    "subscriptions": "Assinaturas",
+    "financial": "Financeiro",
+    "workspace": "Espaço de Trabalho"
   },
   "superadmin": {
     "companies": {

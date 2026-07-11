@@ -75,7 +75,9 @@
     "automations": "Automatizaciones",
     "reports": "Informes y Análisis",
     "revenue": "Ingresos",
-    "subscriptions": "Suscripciones"
+    "subscriptions": "Suscripciones",
+    "financial": "Financiero",
+    "workspace": "Espacio de Trabajo"
   },
   "superadmin": {
     "companies": {
