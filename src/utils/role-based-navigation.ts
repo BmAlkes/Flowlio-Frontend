@@ -247,6 +247,11 @@ const userOrgOwnerNavItems: NavItem[] = [
         icon: React.createElement(TrendingUp),
       },
       {
+        url: "/dashboard/reports",
+        title: "reports",
+        icon: React.createElement(TbReportSearch),
+      },
+      {
         url: "/dashboard/invoice",
         title: "invoices",
         icon: React.createElement(TbInvoice),
@@ -261,23 +266,13 @@ const userOrgOwnerNavItems: NavItem[] = [
         title: "proposals",
         icon: React.createElement(FileText),
       },
-      {
-        url: "/dashboard/subscription",
-        title: "mySubscriptions",
-        icon: React.createElement(BadgeDollarSign),
-      },
     ],
   },
   {
-    url: "/dashboard/reports",
+    url: "/dashboard/client-management/media-center",
     title: "workspace",
     icon: React.createElement(TbReportSearch),
     subItems: [
-      {
-        url: "/dashboard/reports",
-        title: "reports",
-        icon: React.createElement(TbReportSearch),
-      },
       {
         url: "/dashboard/client-management/media-center",
         title: "mediaCenter",
@@ -309,6 +304,18 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/settings",
     title: "settings",
     icon: React.createElement(IoSettingsOutline),
+    subItems: [
+      {
+        url: "/dashboard/settings",
+        title: "generalSettings",
+        icon: React.createElement(IoSettingsOutline),
+      },
+      {
+        url: "/dashboard/subscription",
+        title: "mySubscriptions",
+        icon: React.createElement(BadgeDollarSign),
+      },
+    ],
   },
 ];
 

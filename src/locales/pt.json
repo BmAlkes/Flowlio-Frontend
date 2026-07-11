@@ -75,7 +75,8 @@
     "revenue": "Receita",
     "subscriptions": "Assinaturas",
     "financial": "Financeiro",
-    "workspace": "Espaço de Trabalho"
+    "workspace": "Espaço de Trabalho",
+    "generalSettings": "Geral"
   },
   "superadmin": {
     "companies": {
