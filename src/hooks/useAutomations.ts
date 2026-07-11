@@ -17,7 +17,7 @@ export const AUTOMATIONS: AutomationDefinition[] = [
     key: "task-overdue",
     title: "Task Overdue",
     description:
-      "Notifies the assignee and project manager by email when a task passes its due date, falling back to the organization owner if neither is set. Runs once per day and never re-notifies the same task.",
+      "Notifies the assignee and project manager by email when a task passes its due date, falling back to the organization owner if neither is set. Runs once per day and repeats every 7 days while the task stays overdue.",
     schedule: "Daily at 08:00 UTC",
     templateKey: "task_overdue",
   },
