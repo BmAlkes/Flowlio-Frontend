@@ -80,9 +80,18 @@ export const ProjectRiskAlertsPanel = () => {
                   </button>
                 </div>
                 {alert.reasons.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                  <p className="text-xs text-muted-foreground mt-2">
                     {alert.reasons.join(" · ")}
                   </p>
+                )}
+                {alert.overdueTaskTitles && alert.overdueTaskTitles.length > 0 && (
+                  <ul className="mt-1.5 list-disc pl-4 space-y-0.5">
+                    {alert.overdueTaskTitles.map((title, i) => (
+                      <li key={i} className="text-xs text-muted-foreground truncate">
+                        {title}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </motion.div>
             );
