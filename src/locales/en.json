@@ -78,7 +78,8 @@
     "revenue": "Revenue",
     "subscriptions": "Subscriptions",
     "financial": "Financial",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "generalSettings": "General"
   },
   "superadmin": {
     "companies": {
