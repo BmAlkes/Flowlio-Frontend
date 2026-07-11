@@ -4,7 +4,7 @@ import { Box } from "@/components/ui/box";
 
 const ProjectsPage = () => {
   return (
-    <Box className="px-2">
+    <Box className="px-2 pt-5">
       <ProjectRiskAlertsPanel />
       <ProjectHeader />
     </Box>
