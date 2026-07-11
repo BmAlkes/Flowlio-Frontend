@@ -19,8 +19,16 @@ interface AlertRowProps {
   isPending: boolean;
 }
 
+const overdueSummary = (titles: string[] | null) => {
+  if (!titles || titles.length === 0) return null;
+  const shown = titles.slice(0, 2).join(", ");
+  const remaining = titles.length - 2;
+  return remaining > 0 ? `${shown} +${remaining} more` : shown;
+};
+
 const AlertRow = ({ alert, onDismiss, onNavigate, isPending }: AlertRowProps) => {
   const risk = riskLabel(alert.riskScore);
+  const overdueText = overdueSummary(alert.overdueTaskTitles);
 
   return (
     <motion.div
@@ -56,10 +64,16 @@ const AlertRow = ({ alert, onDismiss, onNavigate, isPending }: AlertRowProps) =>
           <X className="h-4 w-4" />
         </button>
       </div>
-      {alert.reasons.length > 0 && (
+      {overdueText ? (
         <p className="text-xs text-muted-foreground mt-1.5 truncate">
-          {alert.reasons.join(" · ")}
+          Overdue: {overdueText}
         </p>
+      ) : (
+        alert.reasons.length > 0 && (
+          <p className="text-xs text-muted-foreground mt-1.5 truncate">
+            {alert.reasons.join(" · ")}
+          </p>
+        )
       )}
     </motion.div>
   );

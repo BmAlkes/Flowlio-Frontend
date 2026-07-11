@@ -11,6 +11,7 @@ export interface ProjectRiskAlert {
   delayRisk: number;
   budgetRisk: number;
   reasons: string[];
+  overdueTaskTitles: string[] | null;
   createdAt: string;
 }
 
