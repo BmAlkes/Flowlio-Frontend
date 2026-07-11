@@ -101,15 +101,15 @@ const SuperAdminAutomationsPage = () => {
                       ) : (
                         <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       )}
-                      Last run: {result.tasksFound} task(s) found,{" "}
-                      {result.emailsSent} email(s) sent, {result.emailsFailed}{" "}
-                      failed
+                      Last run: {result.itemsFound} {automation.itemLabel}{" "}
+                      found, {result.emailsSent} email(s) sent,{" "}
+                      {result.emailsFailed} failed
                     </Flex>
-                    {result.tasksFound === 0 && (
+                    {result.itemsFound === 0 && (
                       <p className="text-muted-foreground mt-1">
-                        No matching tasks — nothing to notify. If you expected
-                        a task to be found, check it isn't already marked as
-                        notified.
+                        No matching {automation.itemLabel} — nothing to
+                        notify. If you expected one to be found, check it
+                        isn't already marked as notified.
                       </p>
                     )}
                     {result.errors.length > 0 && (
