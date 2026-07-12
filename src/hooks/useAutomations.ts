@@ -2,7 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { axios } from "@/configs/axios.config";
 
-export type AutomationKey = "task-overdue" | "project-risk";
+export type AutomationKey =
+  | "task-overdue"
+  | "project-risk"
+  | "lead-followup"
+  | "weekly-summary";
 
 export interface AutomationDefinition {
   key: AutomationKey;
@@ -33,6 +37,24 @@ export const AUTOMATIONS: AutomationDefinition[] = [
     templateKey: "project_risk",
     itemLabel: "project(s)",
   },
+  {
+    key: "lead-followup",
+    title: "Lead Follow-up Overdue",
+    description:
+      "Notifies the lead's assignee (or organization owner as fallback) by email when a scheduled follow-up date passes without action. Repeats every 7 days while still overdue; resolves naturally once the follow-up is rescheduled or the lead is closed.",
+    schedule: "Daily at 10:00 UTC",
+    templateKey: "lead_follow_up",
+    itemLabel: "lead(s)",
+  },
+  {
+    key: "weekly-summary",
+    title: "Weekly Summary",
+    description:
+      "Sends a weekly activity digest (active projects, tasks completed, hours worked, highlights, recommendations) to all owners and admins of organizations that had activity in the past 7 days. Organizations with no activity are skipped.",
+    schedule: "Weekly, Monday at 08:00 UTC",
+    templateKey: "weekly_summary",
+    itemLabel: "organization(s)",
+  },
 ];
 
 export interface RunAutomationResult {
@@ -42,10 +64,12 @@ export interface RunAutomationResult {
   errors: string[];
 }
 
-// Raw shapes differ per automation (tasksFound vs projectsFound) — normalize to itemsFound.
+// Raw shapes differ per automation (tasksFound / projectsFound / leadsFound / organizationsFound) — normalize to itemsFound.
 interface RawRunAutomationResult {
   tasksFound?: number;
   projectsFound?: number;
+  leadsFound?: number;
+  organizationsFound?: number;
   emailsSent: number;
   emailsFailed: number;
   errors: string[];
@@ -73,7 +97,12 @@ export const useRunAutomation = () => {
       return {
         ...response.data,
         data: {
-          itemsFound: raw.tasksFound ?? raw.projectsFound ?? 0,
+          itemsFound:
+            raw.tasksFound ??
+            raw.projectsFound ??
+            raw.leadsFound ??
+            raw.organizationsFound ??
+            0,
           emailsSent: raw.emailsSent,
           emailsFailed: raw.emailsFailed,
           errors: raw.errors,
