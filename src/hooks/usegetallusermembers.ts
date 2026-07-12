@@ -5,7 +5,7 @@ import {
   type ErrorWithMessage,
 } from "@/configs/axios.config";
 
-interface UserMember {
+export interface UserMember {
   id: string;
   firstname: string;
   lastname: string;
@@ -24,6 +24,8 @@ interface UserMember {
   lastLoginAt: string | null;
   loginAttempts: number;
   lockedUntil: string | null;
+  /** True only for the synthetic organization-owner entry injected by the backend */
+  isOrgOwner?: boolean;
   user: {
     id: string;
     name: string;
