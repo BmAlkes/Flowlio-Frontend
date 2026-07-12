@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { CirclePlus } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
+import type { UserMember } from "@/hooks/usegetallusermembers";
 import { useTranslation } from "react-i18next";
 
 export const UserManagementHeader = () => {
@@ -22,7 +23,9 @@ export const UserManagementHeader = () => {
 
   const loading = isLoading || isFetching;
 
-  const userMembers = userMembersData?.data?.userMembers || [];
+  const userMembers = (userMembersData?.data?.userMembers || []).filter(
+    (member: UserMember) => !member.isOrgOwner,
+  );
 
   return (
     <PageWrapper className="mt-6">
