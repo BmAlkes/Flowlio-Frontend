@@ -295,23 +295,6 @@ a,
   direction: rtl;
 }
 
-/* Don't reverse flex containers - keep layout intact */
-[dir="rtl"] .flex,
-[dir="rtl"] [class*="flex"],
-[dir="rtl"] .grid,
-[dir="rtl"] [class*="grid"] {
-  direction: ltr; /* Keep flex/grid in LTR for proper layout */
-}
-
-/* Keep buttons, icons, and images in natural position */
-[dir="rtl"] button,
-[dir="rtl"] svg,
-[dir="rtl"] img,
-[dir="rtl"] [class*="icon"],
-[dir="rtl"] [class*="avatar"] {
-  direction: ltr;
-}
-
 /* RTL scrollbar adjustments */
 [dir="rtl"] .classic-scroll::-webkit-scrollbar-thumb {
   background: #73b1c2;

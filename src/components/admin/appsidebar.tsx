@@ -140,7 +140,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
             "  py-5 rounded-md",
             state === "collapsed" && !isMobile
               ? "py-2 inset-0 bg-transparent"
-              : "justify-start! ml-2",
+              : "justify-start! ms-2",
           )}
         />
 
@@ -148,7 +148,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <SidebarTrigger
-                className={`ml-auto -mr-6 cursor-pointer  ${
+                className={`ms-auto -me-6 cursor-pointer  ${
                   state === "collapsed" ? "rotate-180 -mt-12" : " -mt-16"
                 }`}
               />
@@ -244,7 +244,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                 {renderIcon(
                                   item.icon,
                                   `${
-                                    state === "collapsed" ? "ml-1" : undefined
+                                    state === "collapsed" ? "ms-1" : undefined
                                   } `,
                                 )}
                                 <span
@@ -260,7 +260,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                 </span>
                               </Center>
                               {(state === "expanded" || is768) && (
-                                <ChevronRight className="ml-1 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 " />
+                                <ChevronRight className="ms-1 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 " />
                               )}
                             </Link>
                           </CollapsibleTrigger>
@@ -272,7 +272,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                               : ""
                           }
                         >
-                          <SidebarMenuSub className="border-none pr-0">
+                          <SidebarMenuSub className="border-none pe-0">
                             {item.subItems.map((subItem, index) => {
                               const isSubItemActive =
                                 normalizePath(subItem.url) === currentPath;
@@ -292,7 +292,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                                   {/* Left-side indicator */}
                                   <Box
                                     className={cn(
-                                      "absolute -left-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full",
+                                      "absolute -start-3.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full",
                                       isSubItemActive
                                         ? "bg-foreground w-2 h-2"
                                         : "border border-muted-foreground bg-background",
@@ -360,7 +360,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                             } ${
                               state === "collapsed" && !is768
                                 ? "m-auto"
-                                : "ml-2"
+                                : "ms-2"
                             } ${
                               index === 0 && state !== "collapsed"
                                 ? "transform rotate-180"
@@ -405,7 +405,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
             >
               {isLoggingOut ? (
                 <Center>
-                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader className="me-2 h-4 w-4 animate-spin" />
                   {t("common.loggingOut")}
                 </Center>
               ) : (
