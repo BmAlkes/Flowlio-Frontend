@@ -790,7 +790,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
 
                   {/* Reply input for this comment */}
                   {replyTo === comment.id && (
-                    <Box className="ml-6 bg-card p-2 rounded border">
+                    <Box className="ms-6 bg-card p-2 rounded border">
                       <Input
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
@@ -826,10 +826,10 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
 
                   {/* Render replies */}
                   {comment.replies && comment.replies.length > 0 && (
-                    <Box className="ml-6 space-y-2">
+                    <Box className="ms-6 space-y-2">
                       {comment.replies.map((reply) => (
                         <Box key={reply.id} className="flex items-start gap-2">
-                          <Flex className="flex-1 items-start justify-between bg-card p-2 rounded shadow-sm text-sm border-l-2 border-primary/30">
+                          <Flex className="flex-1 items-start justify-between bg-card p-2 rounded shadow-sm text-sm border-s-2 border-primary/30">
                             <Stack className="flex-1">
                               <Box className="flex items-center gap-2 mb-1">
                                 <span className="font-medium text-xs text-foreground">

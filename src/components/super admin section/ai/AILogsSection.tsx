@@ -168,10 +168,10 @@ export const AILogsSection = () => {
                     <TableHead className="text-xs">User</TableHead>
                     <TableHead className="text-xs">Organisation</TableHead>
                     <TableHead className="text-xs">Feature</TableHead>
-                    <TableHead className="text-xs text-right">Tokens</TableHead>
-                    <TableHead className="text-xs text-right">Duration</TableHead>
+                    <TableHead className="text-xs text-end">Tokens</TableHead>
+                    <TableHead className="text-xs text-end">Duration</TableHead>
                     <TableHead className="text-xs text-center">Status</TableHead>
-                    <TableHead className="text-xs text-right">Date</TableHead>
+                    <TableHead className="text-xs text-end">Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -187,8 +187,8 @@ export const AILogsSection = () => {
                         <TableCell>
                           <Badge variant="outline" className="text-xs font-normal">{log.feature}</Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-right font-mono">{(log.tokensUsed ?? 0).toLocaleString()}</TableCell>
-                        <TableCell className="text-sm text-right text-muted-foreground">
+                        <TableCell className="text-sm text-end font-mono">{(log.tokensUsed ?? 0).toLocaleString()}</TableCell>
+                        <TableCell className="text-sm text-end text-muted-foreground">
                           {log.durationMs ? `${log.durationMs}ms` : "—"}
                         </TableCell>
                         <TableCell className="text-center">
@@ -196,7 +196,7 @@ export const AILogsSection = () => {
                             {log.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-right text-muted-foreground">
+                        <TableCell className="text-sm text-end text-muted-foreground">
                           {format(new Date(log.createdAt), "MMM d, HH:mm")}
                         </TableCell>
                       </TableRow>

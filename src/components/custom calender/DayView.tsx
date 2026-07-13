@@ -104,9 +104,9 @@ export const DayView: React.FC<DayViewProps> = ({
         {showNowLine && (
           <div
             className="absolute z-20 pointer-events-none flex items-center"
-            style={{ top: nowTopPx, left: 64, right: 0 }}
+            style={{ top: nowTopPx, insetInlineStart: 64, insetInlineEnd: 0 }}
           >
-            <div className="w-2 h-2 rounded-full bg-red-500 -ml-1 shrink-0" />
+            <div className="w-2 h-2 rounded-full bg-red-500 -ms-1 shrink-0" />
             <div className="flex-1 h-px bg-red-500 opacity-80" />
           </div>
         )}
@@ -116,7 +116,7 @@ export const DayView: React.FC<DayViewProps> = ({
             <React.Fragment key={hour}>
               {/* Time label */}
               <div
-                className="flex items-start justify-end pr-3 pt-1 bg-background select-none"
+                className="flex items-start justify-end pe-3 pt-1 bg-background select-none"
                 style={{ minHeight: ROW_HEIGHT }}
               >
                 <span className="text-[10px] text-muted-foreground/60 font-medium tabular-nums">
@@ -127,7 +127,7 @@ export const DayView: React.FC<DayViewProps> = ({
               {/* Day column */}
               <div
                 className={cn(
-                  "relative border-t border-l border-border/40",
+                  "relative border-t border-s border-border/40",
                   isToday
                     ? "bg-blue-50/30 dark:bg-blue-950/10"
                     : isWeekend
@@ -163,13 +163,13 @@ export const DayView: React.FC<DayViewProps> = ({
                       <div
                         key={eventId}
                         className={cn(
-                          "absolute inset-x-0.5 top-0.5 rounded-md z-10 p-1.5 cursor-pointer border-l-[3px] transition-shadow duration-150",
+                          "absolute inset-x-0.5 top-0.5 rounded-md z-10 p-1.5 cursor-pointer border-s-[3px] transition-shadow duration-150",
                           hoveredEventId === eventId && "shadow-md"
                         )}
                         style={{
                           height: `${(event.endHour - event.startHour) * ROW_HEIGHT - 4}px`,
                           background: colors.bg,
-                          borderLeftColor: colors.text,
+                          borderInlineStartColor: colors.text,
                           color: colors.text,
                         }}
                         onMouseEnter={() => {
@@ -199,7 +199,7 @@ export const DayView: React.FC<DayViewProps> = ({
 
                         {hoveredEventId === eventId && (
                           <Button
-                            className="absolute top-0.5 right-0.5 w-5 h-5 p-0 bg-transparent border-none rounded"
+                            className="absolute top-0.5 end-0.5 w-5 h-5 p-0 bg-transparent border-none rounded"
                             variant="ghost"
                             size="icon"
                             onClick={(e) => {

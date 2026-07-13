@@ -67,7 +67,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       {...attributes}
       onClick={onCardClick}
     >
-      <div {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-2.5 right-2.5 p-0.5 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      <div {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-2.5 end-2.5 p-0.5 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <GripVertical className="h-3 w-3 text-muted-foreground/30" />
       </div>
 

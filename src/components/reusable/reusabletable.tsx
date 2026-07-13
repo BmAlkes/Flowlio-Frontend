@@ -190,14 +190,14 @@ export const ReusableTable = <TData,>({
         {enableGlobalFilter && (
           <Flex className="justify-between max-sm:items-start flex-col lg:flex-row items-center w-full gap-4">
             <Flex className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-muted-foreground font-light" />
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-muted-foreground font-light" />
               <Input
                 type="search"
                 placeholder={t("horizontalnavbar.search")}
                 value={globalFilter}
                 onChange={(event) => setGlobalFilter(event.target.value)}
                 className={cn(
-                  "w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-background h-10 placeholder:text-muted-foreground placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0",
+                  "w-full md:w-115 lg:w-80 xl:w-[400px] py-4 ps-10 bg-background h-10 placeholder:text-muted-foreground placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0",
                   searchClassName
                 )}
               />
@@ -354,7 +354,7 @@ export const ReusableTable = <TData,>({
               disabled={pagination.pageIndex === 0}
               className="h-8 w-8 p-0"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
             <Box className="text-sm text-muted-foreground">
               Page {pagination.pageIndex + 1} of {pagination.pageCount ?? 1}
@@ -366,7 +366,7 @@ export const ReusableTable = <TData,>({
               disabled={pagination.pageIndex >= (pagination.pageCount ?? 1) - 1}
               className="h-8 w-8 p-0"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Button>
           </Flex>
         </Flex>
@@ -393,7 +393,7 @@ export const ReusableTable = <TData,>({
               disabled={!table.getCanPreviousPage()}
               className="h-8 w-8 p-0 cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
             </Button>
             <Box className="text-sm text-muted-foreground">
               Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
@@ -405,7 +405,7 @@ export const ReusableTable = <TData,>({
               disabled={!table.getCanNextPage()}
               className="h-8 w-8 p-0 cursor-pointer"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 rtl:rotate-180" />
             </Button>
           </Flex>
         </Flex>

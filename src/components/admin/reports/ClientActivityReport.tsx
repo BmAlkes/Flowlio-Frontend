@@ -210,7 +210,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
                   <TableHead>Status</TableHead>
                   <TableHead className="text-center">Projects</TableHead>
                   <TableHead className="text-center">Tasks</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
+                  <TableHead className="text-end">Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -264,7 +264,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-sm font-medium">{fmtTime(item as any)}</TableCell>
+                        <TableCell className="text-end text-sm font-medium">{fmtTime(item as any)}</TableCell>
                       </TableRow>
                     );
                   })

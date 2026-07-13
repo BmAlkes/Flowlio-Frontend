@@ -318,14 +318,14 @@ const OrgProposalsPage = () => {
       {/* ── Stats ── */}
       <div className="grid grid-cols-4 max-sm:grid-cols-2 gap-3 px-6 mb-6">
         {[
-          { label: t("proposal.statsTotalSent"), value: totalProposals, border: "border-l-slate-400" },
-          { label: t("proposal.statsPending"), value: pending, border: "border-l-orange-400" },
-          { label: t("proposal.statsApproved"), value: approved, border: "border-l-green-500" },
-          { label: t("proposal.statsRejected"), value: rejected, border: "border-l-red-400" },
+          { label: t("proposal.statsTotalSent"), value: totalProposals, border: "border-s-slate-400" },
+          { label: t("proposal.statsPending"), value: pending, border: "border-s-orange-400" },
+          { label: t("proposal.statsApproved"), value: approved, border: "border-s-green-500" },
+          { label: t("proposal.statsRejected"), value: rejected, border: "border-s-red-400" },
         ].map((s) => (
           <Box
             key={s.label}
-            className={`rounded-xl border border-border bg-card p-4 border-l-[3px] ${s.border}`}
+            className={`rounded-xl border border-border bg-card p-4 border-s-[3px] ${s.border}`}
           >
             <p className="text-2xl font-bold text-foreground">{s.value}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>

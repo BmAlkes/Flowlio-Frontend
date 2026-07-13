@@ -68,7 +68,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   const [showPlatforms, setShowPlatforms] = useState(true);
 
   return (
-    <Flex className="w-[300px] shrink-0 bg-card flex-col gap-1 items-start border-r border-border h-full">
+    <Flex className="w-[300px] shrink-0 bg-card flex-col gap-1 items-start border-e border-border h-full">
       {/* Mini Calendar */}
       <Stack className="w-full px-3 pt-4 pb-2">
         <Button
@@ -131,7 +131,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                 <button
                   key={cal.id}
                   onClick={() => onToggleCalendarType?.(cal.id)}
-                  className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-left hover:bg-muted/60 ${
+                  className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-start hover:bg-muted/60 ${
                     isActive ? "opacity-100" : "opacity-40"
                   }`}
                 >
@@ -177,7 +177,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
                 <button
                   key={platform.id}
                   onClick={() => onTogglePlatform?.(platform.id)}
-                  className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-left hover:bg-muted/60 ${
+                  className={`flex items-center gap-2.5 w-full px-1.5 py-1.5 rounded-md transition-all text-start hover:bg-muted/60 ${
                     isActive ? "opacity-100" : "opacity-40"
                   }`}
                 >
@@ -211,7 +211,7 @@ export const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
             allMeetings.map((meeting: any, index: number) => (
               <button
                 key={meeting.id || index}
-                className="flex items-center gap-2 w-full px-1.5 py-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
+                className="flex items-center gap-2 w-full px-1.5 py-1.5 rounded-md hover:bg-muted/60 transition-colors text-start"
                 onClick={() => navigateToMeetingWeek(meeting)}
               >
                 <img

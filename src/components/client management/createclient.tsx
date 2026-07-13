@@ -486,7 +486,7 @@ export const ClientForm = ({
           }
         }}
       >
-        <IoArrowBack />
+        <IoArrowBack className="rtl:rotate-180" />
         <p className="text-foreground">Back</p>
       </Box>
 
@@ -502,16 +502,16 @@ export const ClientForm = ({
             type="submit"
             disabled={isPending || isCompressing}
             variant="default"
-            className="rounded-full px-6 py-5 flex items-center gap-2 absolute top-15 right-5 shadow-lg"
+            className="rounded-full px-6 py-5 flex items-center gap-2 absolute top-15 end-5 shadow-lg"
           >
             {isCompressing ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
                 Compressing...
               </>
             ) : isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
                 {mode === "edit" ? "Updating..." : "Creating..."}
               </>
             ) : mode === "edit" ? (
@@ -554,7 +554,7 @@ export const ClientForm = ({
             ) : (
               <Box className="border-2 border-primary rounded-lg p-4 relative w-50 h-50">
                 <Stack className="gap-2">
-                  <Box className="flex w-full absolute top-0 right-0 p-2">
+                  <Box className="flex w-full absolute top-0 end-0 p-2">
                     <Button variant="outline" size="sm" onClick={removeImage}>
                       X
                     </Button>
@@ -725,7 +725,7 @@ export const ClientForm = ({
                         <FormControl>
                           <div className="relative max-w-md">
                             <Input
-                              className="bg-background rounded-full placeholder:text-muted-foreground w-full pr-12"
+                              className="bg-background rounded-full placeholder:text-muted-foreground w-full pe-12"
                               size="xl"
                               type={showPassword ? "text" : "password"}
                               placeholder="Min. 8 characters"
@@ -734,7 +734,7 @@ export const ClientForm = ({
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                              className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
                             >
                               {showPassword ? (
                                 <EyeOff className="h-5 w-5" />
@@ -868,7 +868,7 @@ export const ClientForm = ({
                     }
                     className="w-full border-dashed border-2 border-border hover:border-gray-400"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 me-2" />
                     Add Social Media Link
                   </Button>
                 </Box>
@@ -937,7 +937,7 @@ export const ClientForm = ({
                                   <Button
                                     variant={"outline"}
                                     className={cn(
-                                      "w-full justify-start text-left font-normal rounded-full h-14 bg-card",
+                                      "w-full justify-start text-start font-normal rounded-full h-14 bg-card",
                                       !formField.value &&
                                         "text-muted-foreground",
                                     )}

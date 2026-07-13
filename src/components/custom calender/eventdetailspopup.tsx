@@ -221,7 +221,7 @@ export const EventDetailsPopup = ({
                 <img
                   src={GoogleMeetIcon}
                   alt="Google Meet"
-                  className="size-6 ml-2"
+                  className="size-6 ms-2"
                 />
               </a>
             </Flex>

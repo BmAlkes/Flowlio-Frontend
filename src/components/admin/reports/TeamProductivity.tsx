@@ -71,10 +71,10 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
   };
 
   const SortIcon = ({ k }: { k: SortKey }) => {
-    if (sortKey !== k) return <span className="opacity-20 ml-1">↕</span>;
+    if (sortKey !== k) return <span className="opacity-20 ms-1">↕</span>;
     return sortDir === "asc"
-      ? <ChevronUp className="inline h-3 w-3 ml-0.5" />
-      : <ChevronDown className="inline h-3 w-3 ml-0.5" />;
+      ? <ChevronUp className="inline h-3 w-3 ms-0.5" />
+      : <ChevronDown className="inline h-3 w-3 ms-0.5" />;
   };
 
   // Single stacked bar chart (tasks) + hours in same chart
@@ -167,10 +167,10 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                   <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("completion")}>
                     Completion <SortIcon k="completion" />
                   </TableHead>
-                  <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("hours")}>
+                  <TableHead className="text-end cursor-pointer select-none" onClick={() => toggleSort("hours")}>
                     Hours <SortIcon k="hours" />
                   </TableHead>
-                  <TableHead className="text-right">Utilization</TableHead>
+                  <TableHead className="text-end">Utilization</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -213,8 +213,8 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-sm font-medium">{hours}h</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-end text-sm font-medium">{hours}h</TableCell>
+                        <TableCell className="text-end">
                           {m.workload ? (
                             <div className="flex items-center justify-end gap-2">
                               <span className={`text-xs font-semibold ${m.workload.utilizationPct >= 90 ? "text-rose-600" : m.workload.utilizationPct >= 60 ? "text-amber-600" : "text-muted-foreground"}`}>

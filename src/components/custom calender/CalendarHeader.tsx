@@ -42,7 +42,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           onClick={onPrev}
           className="cursor-pointer"
         >
-          <ChevronLeft />
+          <ChevronLeft className="rtl:rotate-180" />
         </Button>
 
         <Box className="text-lg font-semibold">
@@ -62,7 +62,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           onClick={onNext}
           className="cursor-pointer"
         >
-          <ChevronRight />
+          <ChevronRight className="rtl:rotate-180" />
         </Button>
       </Flex>
 

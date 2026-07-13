@@ -81,7 +81,7 @@ function TempPicker({ leadId, current }: { leadId: string; current?: string | nu
         {current && (
           <button
             onClick={() => updateTemp.mutate({ clientId: leadId, temperature: null })}
-            className="w-full text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 text-left transition-colors border-t border-border mt-1 pt-1.5"
+            className="w-full text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 text-start transition-colors border-t border-border mt-1 pt-1.5"
           >
             Clear
           </button>
@@ -122,7 +122,7 @@ export const LeadsTable = () => {
       {selected.size > 0 && (
         <div className="flex items-center gap-3 px-4 py-2 rounded-lg border border-border bg-muted/30">
           <span className="text-sm font-medium">{selected.size} selected</span>
-          <div className="flex items-center gap-1.5 ml-auto">
+          <div className="flex items-center gap-1.5 ms-auto">
             <Select onValueChange={(v) => doBulk("set_temperature", { temperature: v })}>
               <SelectTrigger className="h-7 text-xs w-auto gap-1"><SelectValue placeholder="Set temp" /></SelectTrigger>
               <SelectContent>
@@ -140,8 +140,8 @@ export const LeadsTable = () => {
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9 h-9 text-sm" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input className="ps-9 h-9 text-sm" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         {webhooks.length > 0 && (
           <Select value={webhookId} onValueChange={setWebhookId}>
@@ -160,18 +160,18 @@ export const LeadsTable = () => {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="pl-4 pr-1 py-3 w-8">
+              <th className="ps-4 pe-1 py-3 w-8">
                 <Checkbox checked={leads.length > 0 && selected.size === leads.length} onCheckedChange={toggleAll} />
               </th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Name</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Source</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Tags</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Assigned</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Stage</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Temp</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Value</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Follow-up</th>
-              <th className="text-left px-3 py-3 font-medium text-muted-foreground">Added</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Name</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Source</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Tags</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Assigned</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Stage</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Temp</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Value</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Follow-up</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Added</th>
               <th className="w-10" />
             </tr>
           </thead>
@@ -192,7 +192,7 @@ export const LeadsTable = () => {
                     className={`hover:bg-muted/20 transition-colors cursor-pointer ${selected.has(lead.id) ? "bg-muted/30" : ""}`}
                     onClick={() => { setSelectedLead(lead); setSheetOpen(true); }}
                   >
-                    <td className="pl-4 pr-1 py-3" onClick={(e) => e.stopPropagation()}>
+                    <td className="ps-4 pe-1 py-3" onClick={(e) => e.stopPropagation()}>
                       <Checkbox checked={selected.has(lead.id)} onCheckedChange={() => toggle(lead.id)} />
                     </td>
 

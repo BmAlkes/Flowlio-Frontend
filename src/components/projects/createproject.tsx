@@ -513,7 +513,7 @@ export const CreateProject = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 relative">
           <Button
             variant="default"
-            className="rounded-full px-6 py-5 flex items-center gap-2 absolute -top-20 right-0"
+            className="rounded-full px-6 py-5 flex items-center gap-2 absolute -top-20 end-0"
             type="submit"
             disabled={
               isCreating ||
@@ -524,7 +524,7 @@ export const CreateProject = () => {
           >
             {isCreating || isUpdating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
                 {isEditMode ? t("projects.updating...") : t("projects.creating...")}
               </>
             ) : isEditMode ? (
@@ -684,7 +684,7 @@ export const CreateProject = () => {
                 ) : (
                   <Box className="border-2 border-primary rounded-lg p-4 relative">
                     <Stack className="gap-2">
-                      <Box className="flex ml-auto w-full absolute top-0 right-0 p-2">
+                      <Box className="flex ms-auto w-full absolute top-0 end-0 p-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -835,7 +835,7 @@ export const CreateProject = () => {
                             size="lg"
                             variant={"outline"}
                             className={cn(
-                              "justify-start text-left font-normal rounded-full",
+                              "justify-start text-start font-normal rounded-full",
                               !field.value && "text-muted-foreground",
                             )}
                           >
@@ -882,7 +882,7 @@ export const CreateProject = () => {
                             size="lg"
                             variant={"outline"}
                             className={cn(
-                              "justify-start text-left font-normal rounded-full",
+                              "justify-start text-start font-normal rounded-full",
                               !field.value && "text-muted-foreground",
                             )}
                           >
@@ -1091,12 +1091,12 @@ export const CreateProject = () => {
                                   <Button
                                     variant={"outline"}
                                     className={cn(
-                                      "w-full justify-start text-left font-normal rounded-full h-12 bg-card",
+                                      "w-full justify-start text-start font-normal rounded-full h-12 bg-card",
                                       !formField.value &&
                                         "text-muted-foreground",
                                     )}
                                   >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    <CalendarIcon className="me-2 h-4 w-4" />
                                     {formField.value ? (
                                       format(new Date(formField.value), "PPP")
                                     ) : (

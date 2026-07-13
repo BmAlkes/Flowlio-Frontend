@@ -43,7 +43,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
   // Empty cells before first day
   for (let i = 0; i < firstDayWeekday; i++) {
     calendarDays.push(
-      <div key={`empty-${i}`} className="min-h-[110px] bg-muted/20 border-b border-r border-border/40" />
+      <div key={`empty-${i}`} className="min-h-[110px] bg-muted/20 border-b border-e border-border/40" />
     );
   }
 
@@ -61,7 +61,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
       <div
         key={day}
         className={cn(
-          "min-h-[110px] border-b border-r border-border/40 p-1.5 relative",
+          "min-h-[110px] border-b border-e border-border/40 p-1.5 relative",
           isToday
             ? "bg-blue-50/30 dark:bg-blue-950/10"
             : isSunday || cellDate.getDay() === 6
@@ -92,11 +92,11 @@ export const MonthView: React.FC<MonthViewProps> = ({
             return (
               <button
                 key={idx}
-                className="flex items-center gap-1 w-full text-left px-1.5 py-0.5 rounded text-[10px] font-medium truncate border-l-2 transition-opacity hover:opacity-80"
+                className="flex items-center gap-1 w-full text-start px-1.5 py-0.5 rounded text-[10px] font-medium truncate border-s-2 transition-opacity hover:opacity-80"
                 style={{
                   background: colors.bg,
                   color: colors.text,
-                  borderLeftColor: colors.text,
+                  borderInlineStartColor: colors.text,
                 }}
                 title={`${formatHour(event.startHour, currentLanguage)} ${event.title}`}
                 onClick={(e) => {
@@ -152,7 +152,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
       {/* Calendar grid */}
       <div
-        className="grid grid-cols-7 border-t border-l border-border/40"
+        className="grid grid-cols-7 border-t border-s border-border/40"
         ref={gridContainerRef}
       >
         {calendarDays}

@@ -194,10 +194,10 @@ export const ClientManagementTable = () => {
     {
       accessorKey: "name",
       header: () => (
-        <Box className="text-foreground pl-4">{t("table.name")}</Box>
+        <Box className="text-foreground ps-4">{t("table.name")}</Box>
       ),
       cell: ({ row }) => (
-        <Flex className="capitalize pl-4 min-w-[220px] max-sm:w-full gap-3">
+        <Flex className="capitalize ps-4 min-w-[220px] max-sm:w-full gap-3">
           <Avatar className="size-8">
             <AvatarImage
               src={row.original.image || "https://github.com/shadcn.png"}
@@ -988,12 +988,12 @@ export const ClientManagementTable = () => {
               </Box>
 
               {/* Right Column: Interaction Timeline */}
-              <Box className="w-[380px] max-md:w-full p-8 bg-muted/20 h-full flex flex-col border-l border-border/50 max-md:border-l-0">
+              <Box className="w-[380px] max-md:w-full p-8 bg-muted/20 h-full flex flex-col border-s border-border/50 max-md:border-s-0">
                 <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                   <span className="w-2 h-6 bg-indigo-600 rounded-full" />
                   Activity Timeline
                 </h3>
-                <Box className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <Box className="flex-1 overflow-y-auto pe-2 custom-scrollbar">
                   <ClientTimeline clientId={selectedClient.id} />
                 </Box>
               </Box>
