@@ -2,9 +2,14 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { useUnlockBodyOnClose } from "@/hooks/useUnlockBodyOnClose";
 
-function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+function AlertDialog({
+  open,
+  ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+  useUnlockBodyOnClose(open);
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" open={open} {...props} />;
 }
 
 function AlertDialogTrigger({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
