@@ -286,7 +286,7 @@ const TimeTrackingPage = () => {
       {
         id: "index",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">#</span>
+          <span className="font-semibold px-2 py-2 text-start block">#</span>
         ),
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground px-2 py-2 block">
@@ -298,12 +298,12 @@ const TimeTrackingPage = () => {
       {
         accessorKey: "projectName",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">
+          <span className="font-semibold px-2 py-2 text-start block">
             {t("timeTracking.project")}
           </span>
         ),
         cell: ({ row }) => (
-          <span className="font-medium px-2 py-2 text-left block">
+          <span className="font-medium px-2 py-2 text-start block">
             {row.original.projectName}
           </span>
         ),
@@ -311,10 +311,10 @@ const TimeTrackingPage = () => {
       {
         accessorKey: "taskTitle",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">{t("timeTracking.task")}</span>
+          <span className="font-semibold px-2 py-2 text-start block">{t("timeTracking.task")}</span>
         ),
         cell: ({ row }) => (
-          <span className="font-medium px-2 py-2 text-left block">
+          <span className="font-medium px-2 py-2 text-start block">
             {row.original.taskTitle}
           </span>
         ),
@@ -322,7 +322,7 @@ const TimeTrackingPage = () => {
       {
         accessorKey: "startTime",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">
+          <span className="font-semibold px-2 py-2 text-start block">
             {t("timeTracking.startTime")}
           </span>
         ),
@@ -339,7 +339,7 @@ const TimeTrackingPage = () => {
       {
         accessorKey: "endTime",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">
+          <span className="font-semibold px-2 py-2 text-start block">
             {t("timeTracking.endTime")}
           </span>
         ),
@@ -357,7 +357,7 @@ const TimeTrackingPage = () => {
       {
         accessorKey: "duration",
         header: () => (
-          <span className="font-semibold px-2 py-2 text-left block">
+          <span className="font-semibold px-2 py-2 text-start block">
             {t("timeTracking.duration")}
           </span>
         ),
@@ -571,7 +571,7 @@ const TimeTrackingPage = () => {
                   size="sm"
                   className="cursor-pointer"
                 >
-                  <Square className="w-3.5 h-3.5 mr-1.5" />
+                  <Square className="w-3.5 h-3.5 me-1.5" />
                   {endTaskMutation.isPending ? t("timeTracking.stopping") : t("timeTracking.stopTracking")}
                 </Button>
               </div>
@@ -632,7 +632,7 @@ const TimeTrackingPage = () => {
               disabled={!selectedTask || startTaskMutation.isPending}
               className="cursor-pointer"
             >
-              <Play className="w-4 h-4 mr-2" />
+              <Play className="w-4 h-4 me-2" />
               {startTaskMutation.isPending ? t("timeTracking.starting") : t("timeTracking.startTracking")}
             </Button>
           )}
@@ -711,7 +711,7 @@ const TimeTrackingPage = () => {
             </Select>
           </div>
 
-          <Flex className="gap-2 ml-auto">
+          <Flex className="gap-2 ms-auto">
             <Button
               variant="ghost"
               size="sm"

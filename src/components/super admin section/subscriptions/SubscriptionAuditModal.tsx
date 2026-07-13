@@ -225,22 +225,22 @@ export const SubscriptionAuditModal = ({
                     <table className="w-full">
                       <thead className="bg-muted/50">
                         <tr>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Company Name
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Plan
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Price
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Issue
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Status
                           </th>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                          <th className="px-4 py-3 text-start text-sm font-semibold text-muted-foreground">
                             Actions
                           </th>
                         </tr>
@@ -279,7 +279,7 @@ export const SubscriptionAuditModal = ({
                                   }
                                   className="text-green-600 border-green-200 hover:bg-green-50"
                                 >
-                                  <Check className="h-3 w-3 mr-1" />
+                                  <Check className="h-3 w-3 me-1" />
                                   Reactivate
                                 </Button>
                                 <Button
@@ -294,7 +294,7 @@ export const SubscriptionAuditModal = ({
                                   }
                                   className="text-red-600 border-red-200 hover:bg-red-50"
                                 >
-                                  <X className="h-3 w-3 mr-1" />
+                                  <X className="h-3 w-3 me-1" />
                                   Deactivate
                                 </Button>
                               </Stack>
@@ -436,7 +436,7 @@ export const SubscriptionAuditModal = ({
                 }
               >
                 {(isReactivating || isDeactivating) && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-4 w-4 me-2 animate-spin" />
                 )}
                 {selectedSubscription?.action === "reactivate"
                   ? "Reactivate"

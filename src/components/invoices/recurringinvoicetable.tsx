@@ -32,7 +32,7 @@ const RecurringActions: React.FC<{ template: RecurringInvoice }> = ({ template }
         className={`rounded-full h-8 px-3 ${template.status === 'active' ? 'border-yellow-500 text-yellow-500 hover:bg-yellow-50' : 'border-green-500 text-green-500 hover:bg-green-50'}`}
         disabled={updateMutation.isPending}
       >
-        {template.status === 'active' ? <Pause className="size-3 mr-1" /> : <Play className="size-3 mr-1" />}
+        {template.status === 'active' ? <Pause className="size-3 me-1" /> : <Play className="size-3 me-1" />}
         {template.status === 'active' ? "Pause" : "Resume"}
       </Button>
 
@@ -77,7 +77,7 @@ export const columns: ColumnDef<RecurringInvoice>[] = [
     cell: ({ row }) => (
       <Center>
         <Badge variant="outline" className="capitalize bg-blue-50 text-[#1797b9] border-[#1797b9]/20 px-2 py-0">
-          <Clock className="size-3 mr-1" />
+          <Clock className="size-3 me-1" />
           {row.original.frequency}
         </Badge>
       </Center>
@@ -88,7 +88,7 @@ export const columns: ColumnDef<RecurringInvoice>[] = [
     header: () => <Box className="text-foreground text-center">Next Run</Box>,
     cell: ({ row }) => (
       <Center className="text-sm text-muted-foreground">
-        <Calendar className="size-3 mr-1" />
+        <Calendar className="size-3 me-1" />
         {new Date(row.original.nextRunDate).toLocaleDateString()}
       </Center>
     ),
@@ -127,7 +127,7 @@ export const RecurringInvoiceTable = () => {
       <Center className="py-8">
         <Box className="flex items-center justify-center p-8">
           <Box className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1797b9]"></Box>
-          <Box className="ml-2 text-muted-foreground">Loading templates...</Box>
+          <Box className="ms-2 text-muted-foreground">Loading templates...</Box>
         </Box>
       </Center>
     );

@@ -111,7 +111,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
               {insights.recommendedAction}
             </p>
           </div>
-          <div className="shrink-0 text-right">
+          <div className="shrink-0 text-end">
             <p className="text-[10px] font-bold text-indigo-400 uppercase">{t("pipeline.scoreLabel")}</p>
             <p className="text-lg font-black text-indigo-700 dark:text-indigo-300">
               {insights.score}%
@@ -146,11 +146,11 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
             placeholder={t("activity.logPlaceholder", {
               type: type === "note" && mode === "client" ? "message" : type,
             })}
-            className="min-h-[80px] resize-none pr-12 rounded-lg text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+            className="min-h-[80px] resize-none pe-12 rounded-lg text-sm border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
           />
           <Button
             size="icon"
-            className="absolute bottom-5 right-5 rounded-full h-8 w-8 bg-indigo-600 hover:bg-indigo-700 shadow-md"
+            className="absolute bottom-5 end-5 rounded-full h-8 w-8 bg-indigo-600 hover:bg-indigo-700 shadow-md"
             onClick={handleSubmit}
             disabled={!content.trim() || addInteraction.isPending}
           >
@@ -172,9 +172,9 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
           {t("pipeline.noInteractions")}
         </p>
       ) : (
-        <div className="relative pl-7 space-y-4">
+        <div className="relative ps-7 space-y-4">
           {/* Vertical line — visible indigo */}
-          <div className="absolute left-[9px] top-3 bottom-3 w-0.5 bg-indigo-200 dark:bg-indigo-800 rounded-full" />
+          <div className="absolute start-[9px] top-3 bottom-3 w-0.5 bg-indigo-200 dark:bg-indigo-800 rounded-full" />
 
           <AnimatePresence initial={false}>
             {visibleTimeline.map((item, index) => (
@@ -187,7 +187,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                 className="relative"
               >
                 {/* dot */}
-                <div className={`absolute -left-[26px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-background z-10 ${TYPE_COLOR[item.type] ?? TYPE_COLOR.note}`}>
+                <div className={`absolute -start-[26px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-background z-10 ${TYPE_COLOR[item.type] ?? TYPE_COLOR.note}`}>
                   {TYPE_ICON[item.type] ?? TYPE_ICON.note}
                 </div>
 
@@ -209,7 +209,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <div className="flex items-center gap-2 shrink-0 ms-2">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="w-3.5 h-3.5" />
                         <span>{format(new Date(item.createdAt), "MMM d, h:mm a")}</span>
@@ -236,7 +236,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
 
                     {/* Replies from team */}
                     {item.replies && item.replies.length > 0 && (
-                      <div className="mt-3 space-y-2 border-l-2 border-indigo-200 dark:border-indigo-700 pl-3">
+                      <div className="mt-3 space-y-2 border-s-2 border-indigo-200 dark:border-indigo-700 ps-3">
                         {item.replies.map((reply) => (
                           <div key={reply.id} className="bg-indigo-50/60 dark:bg-indigo-900/10 rounded-lg p-3">
                             <div className="flex items-center gap-2 flex-wrap mb-1">

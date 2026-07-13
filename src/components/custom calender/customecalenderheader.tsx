@@ -283,10 +283,10 @@ export const CustomCalendarHeader = () => {
             {/* Floating time indicator */}
             {hoveredGridTime.visible && viewMode !== "month" && (
               <Box
-                className="absolute w-20 bg-[#1797B9] text-white p-2 rounded-sm font-normal text-sm z-[999] shadow-md text-right pointer-events-none"
+                className="absolute w-20 bg-[#1797B9] text-white p-2 rounded-sm font-normal text-sm z-[999] shadow-md text-end pointer-events-none"
                 style={{
                   top: hoveredGridTime.y + 218, // Center vertically with the line
-                  left: +305, // Align with the left edge
+                  insetInlineStart: 305, // Align with the start edge
                 }}
               >
                 {`${hoveredGridTime.hour

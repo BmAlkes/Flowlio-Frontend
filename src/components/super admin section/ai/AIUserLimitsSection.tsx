@@ -91,8 +91,8 @@ export const AIUserLimitsSection = () => {
                 <TableRow>
                   <TableHead className="text-xs">Name</TableHead>
                   <TableHead className="text-xs">Email</TableHead>
-                  <TableHead className="text-xs text-right">Monthly Limit</TableHead>
-                  <TableHead className="text-xs text-right">Used This Month</TableHead>
+                  <TableHead className="text-xs text-end">Monthly Limit</TableHead>
+                  <TableHead className="text-xs text-end">Used This Month</TableHead>
                   <TableHead className="text-xs text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -106,14 +106,14 @@ export const AIUserLimitsSection = () => {
                       <TableRow key={u.userId}>
                         <TableCell className="text-sm font-medium">{u.userName}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{u.userEmail}</TableCell>
-                        <TableCell className="text-sm text-right font-mono">
+                        <TableCell className="text-sm text-end font-mono">
                           {u.monthlyLimit ? (
                             <span>{(u.monthlyLimit ?? 0).toLocaleString()}</span>
                           ) : (
                             <Badge variant="outline" className="text-xs">Org default</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-sm text-right">
+                        <TableCell className="text-sm text-end">
                           <Flex className="items-center justify-end gap-2">
                             <span className="font-mono">{(u.tokensUsedThisMonth ?? 0).toLocaleString()}</span>
                             {usagePct !== null && (

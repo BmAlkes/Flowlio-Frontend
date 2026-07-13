@@ -257,10 +257,10 @@ export const EventModal: React.FC<EventModalProps> = ({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal bg-background rounded-lg h-10 border border-border text-sm"
+                  className="w-full justify-start text-start font-normal bg-background rounded-lg h-10 border border-border text-sm"
                   type="button"
                 >
-                  <CalendarIcon className="size-4 fill-[#1797B9] mr-2 shrink-0" />
+                  <CalendarIcon className="size-4 fill-[#1797B9] me-2 shrink-0" />
                   {date ? (
                     format(new Date(date), "EEEE, MMMM d", { locale: currentLocale })
                   ) : (
@@ -343,7 +343,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           <div className="mb-5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
               {t("eventModal.platform")}
-              <span className="normal-case ml-1 text-muted-foreground/60">({t("eventModal.optional")})</span>
+              <span className="normal-case ms-1 text-muted-foreground/60">({t("eventModal.optional")})</span>
             </label>
             <Flex className="gap-1.5 flex-wrap">
               {PLATFORMS.map((p) => {
