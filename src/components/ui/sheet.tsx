@@ -3,9 +3,14 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useUnlockBodyOnClose } from "@/hooks/useUnlockBodyOnClose"
 
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />
+function Sheet({
+  open,
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Root>) {
+  useUnlockBodyOnClose(open)
+  return <SheetPrimitive.Root data-slot="sheet" open={open} {...props} />
 }
 
 function SheetTrigger({

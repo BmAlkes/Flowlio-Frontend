@@ -3,11 +3,14 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useUnlockBodyOnClose } from "@/hooks/useUnlockBodyOnClose";
 
 function Dialog({
+  open,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+  useUnlockBodyOnClose(open);
+  return <DialogPrimitive.Root data-slot="dialog" open={open} {...props} />;
 }
 
 function DialogTrigger({
