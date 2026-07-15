@@ -161,7 +161,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
               >
                 <Bell className="font-extralight" />
                 {unreadCount > 0 && (
-                  <Badge className="absolute -top-2 left-5.5 size-6 rounded-full bg-red-500 text-white text-[9px] font-medium border-2 border-border">
+                  <Badge className="absolute -top-2 left-5.5 size-6 rounded-full bg-red-500 text-white text-xs font-medium border-2 border-border">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </Badge>
                 )}

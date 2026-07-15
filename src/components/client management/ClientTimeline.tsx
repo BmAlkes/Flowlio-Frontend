@@ -112,7 +112,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
             </p>
           </div>
           <div className="shrink-0 text-end">
-            <p className="text-[10px] font-bold text-indigo-400 uppercase">{t("pipeline.scoreLabel")}</p>
+            <p className="text-xs font-bold text-indigo-400 uppercase">{t("pipeline.scoreLabel")}</p>
             <p className="text-lg font-black text-indigo-700 dark:text-indigo-300">
               {insights.score}%
             </p>
@@ -168,7 +168,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
           <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
         </div>
       ) : !visibleTimeline?.length ? (
-        <p className="text-center py-10 text-sm text-muted-foreground/60 italic">
+        <p className="text-center py-10 text-sm text-muted-foreground/90 italic">
           {t("pipeline.noInteractions")}
         </p>
       ) : (
@@ -197,7 +197,7 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                     <div className="flex items-center gap-2.5 min-w-0">
                       <Avatar className="h-6 w-6 shrink-0">
                         <AvatarImage src={item.user?.image} />
-                        <AvatarFallback className="text-[9px] font-bold">
+                        <AvatarFallback className="text-xs font-bold">
                           {item.user?.name?.[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -240,15 +240,15 @@ export const ClientTimeline = ({ clientId, mode = "admin" }: ClientTimelineProps
                         {item.replies.map((reply) => (
                           <div key={reply.id} className="bg-indigo-50/60 dark:bg-indigo-900/10 rounded-lg p-3">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
                                 {reply.userName.charAt(0).toUpperCase()}
                               </div>
                               <span className="text-xs font-semibold text-foreground">{reply.userName}</span>
-                              <div className="flex items-center gap-1 text-[10px] text-teal-600 dark:text-teal-400">
+                              <div className="flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400">
                                 <CornerDownRight className="w-3 h-3" />
                                 <span>Reply</span>
                               </div>
-                              <span className="text-[10px] text-muted-foreground">
+                              <span className="text-xs text-muted-foreground">
                                 {format(new Date(reply.createdAt), "MMM d, h:mm a")}
                               </span>
                             </div>

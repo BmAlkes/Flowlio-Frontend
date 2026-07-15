@@ -913,7 +913,7 @@ export const SubscriptionsHeader = () => {
               <Flex className="items-center gap-2">
                 <h1 className="text-foreground text-xl font-medium">{plan.label}</h1>
                 {plan.key === "free" && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded-full">$0</span>
+                  <span className="text-xs font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded-full">$0</span>
                 )}
               </Flex>
               <button
@@ -1077,7 +1077,7 @@ export const SubscriptionsHeader = () => {
                         </span>
                         <button
                           type="button"
-                          className="opacity-70 hover:opacity-100 transition-opacity"
+                          className="opacity-90 hover:opacity-100 transition-opacity"
                           onClick={() =>
                             handleRemoveFeature(plan.key as PlanKey, idx)
                           }

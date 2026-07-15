@@ -1101,7 +1101,7 @@ Description: ${userInput}`,
           </Box>
           <Stack className="gap-0">
             <h3 className="text-white font-semibold text-sm">Flowlio AI</h3>
-            <p className="text-white/80 text-xs">Online</p>
+            <p className="text-white/90 text-xs">Online</p>
           </Stack>
         </Flex>
         <Flex className="gap-1">

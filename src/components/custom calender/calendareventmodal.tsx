@@ -343,7 +343,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           <div className="mb-5">
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
               {t("eventModal.platform")}
-              <span className="normal-case ms-1 text-muted-foreground/60">({t("eventModal.optional")})</span>
+              <span className="normal-case ms-1 text-muted-foreground/90">({t("eventModal.optional")})</span>
             </label>
             <Flex className="gap-1.5 flex-wrap">
               {PLATFORMS.map((p) => {

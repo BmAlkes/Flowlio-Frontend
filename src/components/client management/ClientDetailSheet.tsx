@@ -216,7 +216,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
               {!isLead && (
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                  <Building2 className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
                   <p className="text-sm text-muted-foreground truncate">
                     {client.businessIndustry || t("pipeline.noIndustry")}
                   </p>
@@ -226,13 +226,13 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                 <div className="flex flex-col gap-1 mt-1.5">
                   {client.email && !client.email.includes("@noemail.invalid") && (
                     <div className="flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
                       <p className="text-sm text-muted-foreground truncate">{client.email}</p>
                     </div>
                   )}
                   {client.phone && (
                     <div className="flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
                       <p className="text-sm text-muted-foreground">{client.phone}</p>
                     </div>
                   )}
@@ -268,7 +268,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     <span className="text-base font-bold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
                       {formattedValue}
                     </span>
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/40 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/90 opacity-0 group-hover/val:opacity-100 transition-opacity" />
                   </button>
                 ) : (
                   <button
@@ -279,7 +279,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       {t("pipeline.addValue")}
                     </span>
-                    <Pencil className="h-3 w-3 text-emerald-400/60 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                    <Pencil className="h-3 w-3 text-emerald-400/90 opacity-0 group-hover/val:opacity-100 transition-opacity" />
                   </button>
                 )}
 
@@ -301,7 +301,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("pipeline.temperature")}
                 {insights?.isManualTemperature && (
-                  <span className="ms-2 normal-case font-semibold text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
+                  <span className="ms-2 normal-case font-semibold text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
                     {t("pipeline.temperatureManual")}
                   </span>
                 )}
@@ -436,7 +436,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
                       {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">{format(date, "d MMM yyyy")}</p>
+                    <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
                   </div>
                   <button
                     onClick={() => setShowFollowUp(true)}
@@ -447,7 +447,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                   <button
                     onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null })}
                     disabled={cancelFollowUp.isPending}
-                    className="text-muted-foreground/50 hover:text-rose-500 transition-colors shrink-0"
+                    className="text-muted-foreground/90 hover:text-rose-500 transition-colors shrink-0"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

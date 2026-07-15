@@ -58,7 +58,7 @@ export const ProjectRiskAlertsPanel = () => {
                     </p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <span
-                        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${risk.color}`}
+                        className={`text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${risk.color}`}
                       >
                         {risk.label}
                       </span>

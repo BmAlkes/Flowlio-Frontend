@@ -422,7 +422,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
                   ].map((section) => (
                     <div key={section.label} className="flex items-center gap-2">
                       <div
-                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold ${
                           section.done
                             ? "bg-green-100 text-green-600"
                             : "bg-muted text-muted-foreground"

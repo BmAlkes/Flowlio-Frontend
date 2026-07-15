@@ -235,10 +235,10 @@ export const SendNewsletterModal: FC<SendNewsletterModalProps> = ({
                             
                             {/* Email Footer Simulation */}
                             <Box className="bg-muted/50 p-6 border-t border-border text-center">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+                              <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
                                 Sent via Flowlio Newsletter Service
                               </p>
-                              <p className="text-[10px] text-muted-foreground mt-2">
+                              <p className="text-xs text-muted-foreground mt-2">
                                 © 2024 Flowlio. All rights reserved.
                               </p>
                             </Box>

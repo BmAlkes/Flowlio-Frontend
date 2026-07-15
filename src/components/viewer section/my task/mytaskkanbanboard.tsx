@@ -209,7 +209,7 @@ function DroppableColumn({
         style={{ backgroundColor: STATUS_COLORS[status] }}
       >
         <span>{t(`tasks.statusValue.${status}`)}</span>
-        <span className="text-xs opacity-80">
+        <span className="text-xs opacity-90">
           {React.Children.count(children)}
         </span>
       </Box>
@@ -288,7 +288,7 @@ function TaskDetailModalContent({
                           <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-white text-[10px] truncate">{attachment.name}</p>
+                          <p className="text-white text-xs truncate">{attachment.name}</p>
                         </div>
                       </div>
                     ))}
@@ -525,7 +525,7 @@ export default function KanbanBoard({ filteredTasks }: KanbanBoardProps) {
                 style={{ backgroundColor: STATUS_COLORS[status] }}
               >
                 <span>{t(`tasks.statusValue.${status}`)}</span>
-                <span className="text-xs opacity-80">0</span>
+                <span className="text-xs opacity-90">0</span>
               </Box>
               <Box className="flex-1 overflow-y-auto p-2">
                 <Box className="animate-pulse space-y-3">

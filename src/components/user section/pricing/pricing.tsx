@@ -104,7 +104,7 @@ export const Pricing: FC<PricingProps> = ({ setSelectedPlan }) => {
 
       {/* ── Header ── */}
       <div className="text-center pt-16 pb-10 px-4">
-        <span className="inline-block text-[10px] font-bold tracking-[0.15em] uppercase text-[#F98618] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full mb-5">
+        <span className="inline-block text-xs font-bold tracking-[0.15em] uppercase text-[#F98618] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full mb-5">
           Simple Pricing
         </span>
         <h1
@@ -139,7 +139,7 @@ export const Pricing: FC<PricingProps> = ({ setSelectedPlan }) => {
             )}
           >
             Yearly billing
-            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">Save 20%</span>
+            <span className="bg-green-100 text-green-700 text-xs font-bold px-1.5 py-0.5 rounded-full">Save 20%</span>
           </button>
         </div>
       </div>
@@ -181,7 +181,7 @@ export const Pricing: FC<PricingProps> = ({ setSelectedPlan }) => {
                 {/* Most Popular badge */}
                 {isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                    <span className="bg-[#F98618] text-white text-[10px] font-black uppercase tracking-[0.12em] px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
+                    <span className="bg-[#F98618] text-white text-xs font-black uppercase tracking-[0.12em] px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
                       Most Popular
                     </span>
                   </div>

@@ -232,7 +232,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
                           <div className="flex items-center gap-2.5">
                             <Avatar className="h-7 w-7">
                               <AvatarImage src={item.client.image || ""} />
-                              <AvatarFallback className="text-[10px] bg-muted">{item.client.name.slice(0,2).toUpperCase()}</AvatarFallback>
+                              <AvatarFallback className="text-xs bg-muted">{item.client.name.slice(0,2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="font-medium text-sm leading-none">{item.client.name}</p>
@@ -254,7 +254,7 @@ const ClientActivityReport: React.FC<Props> = ({ period, onPeriodChange }) => {
                             <span className="text-muted-foreground">·</span>
                             <span className="text-rose-500 font-medium">{item.projects.delayed}</span>
                           </div>
-                          <p className="text-[10px] text-muted-foreground/60 mt-0.5">active · done · late</p>
+                          <p className="text-xs text-muted-foreground/90 mt-0.5">active · done · late</p>
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-2">

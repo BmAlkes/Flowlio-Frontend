@@ -67,7 +67,7 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
                 <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 text-center leading-tight">
                   {label}
                 </span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {format(addDays(new Date(), days), "d MMM")}
                 </span>
               </button>
@@ -80,7 +80,7 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
               <span className="text-xs font-semibold text-indigo-500 text-center leading-tight">
                 {t("pipeline.customDate")}
               </span>
-              <span className="text-[10px] text-muted-foreground">{t("pipeline.freeDate")}</span>
+              <span className="text-xs text-muted-foreground">{t("pipeline.freeDate")}</span>
             </button>
           </div>
         ) : (

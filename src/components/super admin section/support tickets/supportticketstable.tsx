@@ -107,7 +107,7 @@ export const SupportTicketTable = ({
         return (
           <Flex className="items-center gap-2">
             <Avatar className="size-6 border border-border">
-              <AvatarFallback className="bg-muted text-[10px] uppercase">{name.slice(0, 2)}</AvatarFallback>
+              <AvatarFallback className="bg-muted text-xs uppercase">{name.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <span className="text-sm truncate max-w-[120px]">{name}</span>
           </Flex>

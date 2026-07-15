@@ -77,7 +77,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               isToday
                 ? "bg-[#1797B9] text-white shadow-sm"
                 : isSunday
-                ? "text-muted-foreground/50"
+                ? "text-muted-foreground/90"
                 : "text-foreground"
             )}
           >
@@ -92,7 +92,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
             return (
               <button
                 key={idx}
-                className="flex items-center gap-1 w-full text-start px-1.5 py-0.5 rounded text-[10px] font-medium truncate border-s-2 transition-opacity hover:opacity-80"
+                className="flex items-center gap-1 w-full text-start px-1.5 py-0.5 rounded text-xs font-medium truncate border-s-2 transition-opacity hover:opacity-80"
                 style={{
                   background: colors.bg,
                   color: colors.text,
@@ -119,12 +119,12 @@ export const MonthView: React.FC<MonthViewProps> = ({
               >
                 <PlatformIcon platform={event.platform} />
                 <span className="truncate flex-1">{event.title}</span>
-                <span className="shrink-0 opacity-70 hidden sm:inline">{formatHour(event.startHour, currentLanguage)}</span>
+                <span className="shrink-0 opacity-90 hidden sm:inline">{formatHour(event.startHour, currentLanguage)}</span>
               </button>
             );
           })}
           {dayEvents.length > 3 && (
-            <span className="text-[10px] text-muted-foreground px-1.5">
+            <span className="text-xs text-muted-foreground px-1.5">
               +{dayEvents.length - 3} {t("calendar.more")}
             </span>
           )}
@@ -141,8 +141,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
           <div
             key={day}
             className={cn(
-              "text-center py-2 text-[10px] uppercase tracking-widest font-medium select-none",
-              i === 0 ? "text-muted-foreground/50" : "text-muted-foreground"
+              "text-center py-2 text-xs uppercase tracking-widest font-medium select-none",
+              i === 0 ? "text-muted-foreground/90" : "text-muted-foreground"
             )}
           >
             {day}

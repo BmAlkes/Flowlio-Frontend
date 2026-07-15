@@ -60,7 +60,7 @@ function TempPicker({ leadId, current }: { leadId: string; current?: string | nu
               <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
             </>
           ) : (
-            <span className="text-sm text-muted-foreground/40 hover:text-muted-foreground transition-colors">—</span>
+            <span className="text-sm text-muted-foreground/90 hover:text-muted-foreground transition-colors">—</span>
           )}
         </button>
       </PopoverTrigger>
@@ -209,7 +209,7 @@ export const LeadsTable = () => {
                           )}
                           {lead.phone && (
                             <div className="flex items-center gap-1 mt-0.5">
-                              <Phone className="h-2.5 w-2.5 text-muted-foreground/50" />
+                              <Phone className="h-2.5 w-2.5 text-muted-foreground/90" />
                               <p className="text-xs text-muted-foreground">{lead.phone}</p>
                             </div>
                           )}
@@ -227,7 +227,7 @@ export const LeadsTable = () => {
                           {lead.tags.map((tag: any) => (
                             <span
                               key={tag.id}
-                              className="text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
+                              className="text-xs px-1.5 py-0.5 rounded-full text-white font-medium"
                               style={{ backgroundColor: tag.color }}
                             >
                               {tag.name}
@@ -235,7 +235,7 @@ export const LeadsTable = () => {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground/40">—</span>
+                        <span className="text-xs text-muted-foreground/90">—</span>
                       )}
                     </td>
 
@@ -243,7 +243,7 @@ export const LeadsTable = () => {
                       {lead.assignedUser ? (
                         <span className="text-xs font-medium text-foreground">{lead.assignedUser.name}</span>
                       ) : (
-                        <span className="text-xs text-muted-foreground/40">—</span>
+                        <span className="text-xs text-muted-foreground/90">—</span>
                       )}
                     </td>
 
@@ -264,7 +264,7 @@ export const LeadsTable = () => {
                           <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="font-medium">{new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Number(lead.leadValue))}</span>
                         </div>
-                      ) : <span className="text-muted-foreground/40">—</span>}
+                      ) : <span className="text-muted-foreground/90">—</span>}
                     </td>
 
                     <td className="px-3 py-3">
@@ -272,7 +272,7 @@ export const LeadsTable = () => {
                         <span className={`text-xs font-medium ${overdue ? "text-rose-600" : days === 0 ? "text-amber-600" : "text-foreground"}`}>
                           {overdue ? `Overdue` : days === 0 ? "Today" : `${days}d`}
                         </span>
-                      ) : <span className="text-muted-foreground/40">—</span>}
+                      ) : <span className="text-muted-foreground/90">—</span>}
                     </td>
 
                     <td className="px-3 py-3">

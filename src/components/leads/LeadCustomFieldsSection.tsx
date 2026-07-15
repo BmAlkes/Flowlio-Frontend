@@ -224,7 +224,7 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
                       ? draft[field.id] ? "Yes" : "No"
                       : field.type === "date" && draft[field.id]
                       ? format(new Date(draft[field.id]), "d MMM yyyy")
-                      : draft[field.id] ?? <span className="text-muted-foreground/50 italic">—</span>}
+                      : draft[field.id] ?? <span className="text-muted-foreground/90 italic">—</span>}
                   </p>
                 )}
               </div>

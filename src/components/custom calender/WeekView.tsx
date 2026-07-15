@@ -109,8 +109,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
               )}
             >
               <span className={cn(
-                "text-[10px] uppercase tracking-widest font-medium",
-                isWeekend && !isToday ? "text-muted-foreground/50" : "text-muted-foreground"
+                "text-xs uppercase tracking-widest font-medium",
+                isWeekend && !isToday ? "text-muted-foreground/90" : "text-muted-foreground"
               )}>
                 {daysShort[d.getDay()]}
               </span>
@@ -119,7 +119,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                 isToday
                   ? "bg-[#1797B9] text-white shadow-sm"
                   : isWeekend
-                  ? "text-muted-foreground/60 hover:bg-muted"
+                  ? "text-muted-foreground/90 hover:bg-muted"
                   : "text-foreground hover:bg-muted"
               )}>
                 {d.getDate()}
@@ -157,7 +157,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                 className="flex items-start justify-end pe-3 pt-1 bg-background select-none"
                 style={{ minHeight: ROW_HEIGHT }}
               >
-                <span className="text-[10px] text-muted-foreground/60 font-medium tabular-nums">
+                <span className="text-xs text-muted-foreground/90 font-medium tabular-nums">
                   {formatHour(hour, currentLanguage)}
                 </span>
               </div>
@@ -244,7 +244,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
                             {event.title}
                           </span>
                         </Flex>
-                        <span className="text-[10px] opacity-80 leading-tight">
+                        <span className="text-xs opacity-90 leading-tight">
                           {formatHour(event.startHour, currentLanguage)}–{formatHour(event.endHour, currentLanguage)}
                         </span>
 

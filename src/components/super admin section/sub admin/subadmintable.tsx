@@ -135,7 +135,7 @@ export const SubAdminTable = () => {
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center border border-border">
-              <span className="text-[8px] text-muted-foreground text-center px-1 leading-tight">
+              <span className="text-xs text-muted-foreground text-center px-1 leading-tight">
                 Null
               </span>
             </div>

@@ -65,7 +65,7 @@ export const DeleteMediaModal: React.FC<DeleteMediaModalProps> = ({
               <p className="text-sm font-bold text-foreground truncate">
                 {fileName}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black mt-0.5">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-black mt-0.5">
                 {fileType?.split("/")[1] || "FILE"}
               </p>
             </Box>

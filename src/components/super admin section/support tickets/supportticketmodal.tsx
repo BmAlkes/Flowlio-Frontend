@@ -191,7 +191,7 @@ export const SupportTicketModal = ({
                   <p className="text-sm font-semibold text-gray-900">
                     Last Updated
                   </p>
-                  <p className="text-[11.5px] text-gray-700">
+                  <p className="text-xs text-gray-700">
                     {format(ticket.updatedAt, "MMM dd, yyyy 'at' h:mm a")}
                   </p>
                 </Box>

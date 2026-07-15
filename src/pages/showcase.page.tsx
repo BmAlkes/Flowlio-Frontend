@@ -1162,7 +1162,7 @@ const ShowcasePage = () => {
           <h2 className="text-3xl sm:text-4xl xl:text-5xl font-black text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
             Ready to streamline your workflow?
           </h2>
-          <p className="text-base text-white/70 max-w-lg">
+          <p className="text-base text-white/90 max-w-lg">
             Join thousands of teams already using Flowlio to get more done.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">

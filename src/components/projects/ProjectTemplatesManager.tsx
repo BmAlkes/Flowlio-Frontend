@@ -182,7 +182,7 @@ export const ProjectTemplatesManager = () => {
                           }}
                         />
                         <Flex className="items-center gap-2">
-                          <Label className="text-[10px] text-muted-foreground">Est. Hours:</Label>
+                          <Label className="text-xs text-muted-foreground">Est. Hours:</Label>
                           <Input
                             type="number"
                             value={task.estimatedHours || ""}
@@ -290,13 +290,13 @@ export const ProjectTemplatesManager = () => {
                     <AccordionContent>
                       <Stack className="gap-2 pt-2 border-t mt-2">
                         {template.tasks?.map((task: any, i: number) => (
-                          <Flex key={i} className="gap-2 text-sm text-foreground/80 justify-between items-center">
+                          <Flex key={i} className="gap-2 text-sm text-foreground/90 justify-between items-center">
                             <Box className="flex gap-2 items-center">
                               <span className="text-muted-foreground min-w-[1.5rem]">{i + 1}.</span>
                               <span>{task.title}</span>
                             </Box>
                             {task.estimatedHours && (
-                              <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                              <span className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                 {task.estimatedHours}h
                               </span>
                             )}

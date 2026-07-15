@@ -445,7 +445,7 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                                 <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                               </div>
                               <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                <p className="text-white text-[10px] truncate">{attachment.name}</p>
+                                <p className="text-white text-xs truncate">{attachment.name}</p>
                               </div>
                             </div>
                           ))}
@@ -563,11 +563,11 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                     {commentsResponse.data.map((comment) => (
                       <Box key={comment.id} className="bg-muted/60 rounded-xl p-3">
                         <Flex className="gap-2 items-center mb-1">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0c89af] to-cyan-400 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#0c89af] to-cyan-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
                             {comment.userName.charAt(0).toUpperCase()}
                           </div>
                           <span className="text-xs font-semibold text-foreground">{comment.userName}</span>
-                          <span className="text-[10px] text-muted-foreground ms-auto">
+                          <span className="text-xs text-muted-foreground ms-auto">
                             {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
                           </span>
                         </Flex>

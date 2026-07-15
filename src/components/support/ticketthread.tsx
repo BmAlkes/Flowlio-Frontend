@@ -93,7 +93,7 @@ export const TicketThread = ({
                   >
                     <Avatar className="size-8 border border-border flex-shrink-0">
                       <AvatarImage src={msg.sender?.image || ""} />
-                      <AvatarFallback className="bg-blue-100 text-blue-600 text-[10px] font-bold">
+                      <AvatarFallback className="bg-blue-100 text-blue-600 text-xs font-bold">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -106,12 +106,12 @@ export const TicketThread = ({
                     >
                       <div className="flex justify-between items-center gap-4 mb-1">
                         <span
-                          className={`font-bold text-[10px] uppercase tracking-wider opacity-80 ${isMe ? "text-blue-100" : "text-blue-600"}`}
+                          className={`font-bold text-xs uppercase tracking-wider opacity-90 ${isMe ? "text-blue-100" : "text-blue-600"}`}
                         >
                           {msg.senderName} • {msg.senderRole}
                         </span>
                         <span
-                          className={`text-[9px] opacity-70 ${isMe ? "text-blue-100" : "text-muted-foreground"}`}
+                          className={`text-xs opacity-90 ${isMe ? "text-blue-100" : "text-muted-foreground"}`}
                         >
                           {formatDistanceToNow(new Date(msg.createdAt), {
                             addSuffix: true,
