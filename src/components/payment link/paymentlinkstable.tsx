@@ -5,12 +5,13 @@ import { ReusableTable } from "../reusable/reusabletable";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Flex } from "../ui/flex";
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Trash2, CircleCheck } from "lucide-react";
 import {
   useFetchPaymentLinks,
   PaymentLink,
 } from "@/hooks/usefetchpaymentlinks";
 import { useDeletePaymentLink } from "@/hooks/usedeletepaymentlink";
+import { useUpdatePaymentLinkStatus } from "@/hooks/useupdatepaymentlinkstatus";
 import { toast } from "sonner";
 import { TableSkeleton, ErrorState } from "../skeletons";
 
@@ -20,7 +21,8 @@ export type Data = PaymentLink;
 export const PaymentLinksTable = () => {
   const { data: paymentLinksData, isLoading, isFetching, error, refetch } = useFetchPaymentLinks();
   const deletePaymentLinkMutation = useDeletePaymentLink();
- 
+  const updateStatusMutation = useUpdatePaymentLinkStatus();
+
   const loading = isLoading || isFetching;
 
   const columns: ColumnDef<Data>[] = [
@@ -99,9 +101,32 @@ export const PaymentLinksTable = () => {
     },
 
     {
+      accessorKey: "status",
+      header: () => <Box className="text-center text-foreground">Status</Box>,
+      cell: ({ row }) => {
+        const isPaid = row.original.status === "paid";
+        return (
+          <Center>
+            <span
+              className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                isPaid
+                  ? "bg-green-100 text-green-700 dark:bg-green-500/25 dark:text-green-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-500/25 dark:text-amber-300"
+              }`}
+            >
+              {isPaid ? "Paid" : "Unpaid"}
+            </span>
+          </Center>
+        );
+      },
+    },
+
+    {
       accessorKey: "actions",
       header: () => <Box className="text-center text-foreground">Actions</Box>,
       cell: ({ row }) => {
+        const isPaid = row.original.status === "paid";
+
         const handleCopyLink = async () => {
           try {
             await navigator.clipboard.writeText(row.original.paymentLink);
@@ -110,6 +135,13 @@ export const PaymentLinksTable = () => {
             console.error("Failed to copy link:", error);
             toast.error("Failed to copy payment link");
           }
+        };
+
+        const handleToggleStatus = () => {
+          updateStatusMutation.mutate(
+            { id: row.original.id, status: isPaid ? "unpaid" : "paid" },
+            { onSuccess: () => toast.success(isPaid ? "Marked as unpaid" : "Marked as paid") },
+          );
         };
 
         const handleDelete = () => {
@@ -129,6 +161,16 @@ export const PaymentLinksTable = () => {
               <Copy className="w-4 h-4 me-1" />
               Copy Link
             </Button>
+            {!isPaid && (
+              <Button
+                onClick={handleToggleStatus}
+                disabled={updateStatusMutation.isPending}
+                className="bg-green-50 border-none text-green-700 hover:bg-green-100 cursor-pointer rounded-full border-2 border-green-500"
+              >
+                <CircleCheck className="w-4 h-4 me-1" />
+                Mark as Paid
+              </Button>
+            )}
             <Button
               onClick={handleDelete}
               className="bg-red-50 border-none text-red-600 hover:bg-red-100 cursor-pointer rounded-full border-2 border-red-500"

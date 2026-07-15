@@ -42,6 +42,7 @@ const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
 const VerifyEmailPage = lazy(() => import("./pages/verifyemail.page"));
 const VerifyCodePage = lazy(() => import("./pages/verifycode.page"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe.page"));
+const PaymentLinkPublicPage = lazy(() => import("./pages/paymentlinkpublic.page"));
 const AiAssistPage = lazy(() =>
   import("./pages/aiassist.page").then((module) => ({
     default: module.AiAssistPage,
@@ -341,6 +342,12 @@ const AppRoutes = () => {
       <Route
         path="/checkout"
         element={<LazyWrapper component={CheckoutPage} />}
+      />
+
+      {/* Public payment link page - no auth, client-facing */}
+      <Route
+        path="/pay/:id"
+        element={<LazyWrapper component={PaymentLinkPublicPage} />}
       />
 
       {/* Dashboard layout - requires authentication and role-based access */}
