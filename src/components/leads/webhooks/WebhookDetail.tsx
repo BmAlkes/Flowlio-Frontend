@@ -5,7 +5,7 @@ import {
   useWebhook, useUpdateWebhook, useUpdateWebhookMapping, useWebhookLogs,
   useTestWebhook, useRotateWebhookToken, useDeleteWebhookLog, WebhookSource,
 } from "@/hooks/useWebhooks";
-import { useLeadFields } from "@/hooks/useLeadFields";
+import { useLeadFields, useCreateLeadField } from "@/hooks/useLeadFields";
 import { useRetryWebhookLog } from "@/hooks/useLeadExtras";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   ArrowLeft, Copy, Check, Loader2, Plus, Trash2, RefreshCw,
-  PlayCircle, ChevronDown, ChevronUp,
+  PlayCircle, ChevronDown, ChevronUp, X,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -35,8 +35,8 @@ const SOURCE_LABELS: Record<WebhookSource, string> = {
   wordpress: "WordPress", facebook: "Facebook Lead Ads", generic: "Generic",
 };
 
-const GUIDES: { name: string; steps: string[]; format: string; example: string }[] = [
-  { name: "Elementor", steps: ["Add a Form widget, give each field an ID.", "Actions After Submit → add Webhook.", "Paste the URL below."], format: "fields[FIELD_ID][value]", example: "fields[name][value] → Name" },
+const GUIDES: { name: string; steps: string[]; format: string; example: string; warning?: string }[] = [
+  { name: "Elementor", steps: ["Add a Form widget, give each field an ID.", "Actions After Submit → add Webhook.", "Paste the URL below."], format: "fields[FIELD_ID][value]", example: "fields[name][value] → Name", warning: "Don't copy the [field id=\"...\"] shortcode shown next to each field — that's for email templates only. The webhook needs the fields[FIELD_ID][value] format instead (it'll show up automatically below once a submission arrives)." },
   { name: "Contact Form 7", steps: ["Install 'CF7 to Webhook' plugin.", "Webhook tab → paste URL."], format: "your-name, your-email, etc.", example: "your-name → Name" },
   { name: "WPForms", steps: ["Settings → Webhooks → POST + JSON.", "Map fields by name."], format: "Custom key names", example: "name → Name" },
   { name: "Facebook Ads", steps: ["Use Make.com or Zapier as bridge.", "HTTP Request → POST to URL."], format: "JSON keys", example: "full_name → Name" },
@@ -69,6 +69,7 @@ export const WebhookDetail = () => {
   const rotateToken = useRotateWebhookToken();
   const deleteLog = useDeleteWebhookLog();
   const retryLog = useRetryWebhookLog();
+  const createLeadField = useCreateLeadField();
 
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [newExt, setNewExt] = useState("");
@@ -76,6 +77,9 @@ export const WebhookDetail = () => {
   const [rotateOpen, setRotateOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [guideTab, setGuideTab] = useState(0);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [creatingFieldFor, setCreatingFieldFor] = useState<string | null>(null);
+  const [newFieldName, setNewFieldName] = useState("");
 
   useEffect(() => {
     if (webhook) {
@@ -95,6 +99,31 @@ export const WebhookDetail = () => {
   if (isLoading || !webhook) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   const logs = logsData?.logs ?? [];
+  const latestPayload = logs[0]?.payload ?? {};
+  const detectedKeys = Object.keys(latestPayload).filter(
+    (k) => latestPayload[k] != null && latestPayload[k] !== "" && typeof latestPayload[k] !== "object",
+  );
+
+  const handleDetectedFieldChange = (key: string, value: string) => {
+    if (value === "__new__") {
+      setCreatingFieldFor(key);
+      setNewFieldName("");
+      return;
+    }
+    if (value === "__skip__") {
+      removeMap(key);
+      return;
+    }
+    setMapping((p) => ({ ...p, [key]: value }));
+  };
+
+  const handleCreateField = (key: string) => {
+    if (!newFieldName.trim()) return;
+    createLeadField.mutate(
+      { name: newFieldName.trim(), type: "text" },
+      { onSuccess: () => { setCreatingFieldFor(null); setNewFieldName(""); } },
+    );
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-10">
@@ -147,56 +176,117 @@ export const WebhookDetail = () => {
             <ol className="space-y-1 text-sm text-foreground">
               {GUIDES[guideTab].steps.map((s, i) => <li key={i}><span className="text-muted-foreground me-1.5">{i + 1}.</span>{s}</li>)}
             </ol>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground/90">
               <span className="font-medium">Format:</span> <code className="text-foreground">{GUIDES[guideTab].format}</code>
               <span className="mx-2">—</span>
               <span className="font-medium">Example:</span> <code className="text-foreground">{GUIDES[guideTab].example}</code>
             </div>
+            {GUIDES[guideTab].warning && (
+              <div className="text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-lg px-3 py-2">
+                ⚠️ {GUIDES[guideTab].warning}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Field mapping */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <label className="text-sm font-medium">Field Mapping</label>
           <Button size="sm" className="h-7 text-xs" onClick={() => saveMapping.mutate({ id: webhook.id, mapping })} disabled={saveMapping.isPending}>
             {saveMapping.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground/90 mb-3">
+          Fields you don't map still show up on the lead automatically, under "Webhook Data" — you only need to map the ones that should fill Name, Phone, Email, etc.
+        </p>
 
-        {Object.keys(mapping).length > 0 ? (
-          <div className="border border-border rounded-lg divide-y divide-border">
+        {Object.keys(mapping).length > 0 && (
+          <div className="border border-border rounded-lg divide-y divide-border mb-3">
             {Object.entries(mapping).map(([ext, field]) => (
               <div key={ext} className="flex items-center gap-2 px-3 py-2">
                 <code className="text-xs font-mono flex-1 truncate text-foreground">{ext}</code>
-                <span className="text-xs text-muted-foreground">→</span>
+                <span className="text-xs text-muted-foreground/90">→</span>
                 <span className="text-xs font-medium flex-1 truncate">{allFields.find((f) => f.id === field)?.label ?? field}</span>
                 <button onClick={() => removeMap(ext)} className="text-muted-foreground hover:text-rose-500 transition-colors"><Trash2 className="h-3 w-3" /></button>
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">No mappings yet.</p>
         )}
 
-        <div className="flex items-end gap-2 mt-3">
-          <div className="flex-1">
-            <label className="text-xs text-muted-foreground mb-0.5 block">External field</label>
-            <Input className="h-8 text-xs font-mono" placeholder="fields[name][value]" value={newExt} onChange={(e) => setNewExt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addMap()} />
+        {detectedKeys.length > 0 ? (
+          <div>
+            <p className="text-xs font-medium text-muted-foreground/90 mb-1.5">Detected fields (from last submission)</p>
+            <div className="border border-border rounded-lg divide-y divide-border">
+              {detectedKeys.filter((k) => !mapping[k]).map((key) => (
+                <div key={key} className="flex items-center gap-2 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <code className="text-xs font-mono block truncate text-foreground">{key}</code>
+                    <span className="text-xs text-muted-foreground/90 truncate block">{String(latestPayload[key])}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground/90">→</span>
+                  {creatingFieldFor === key ? (
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        autoFocus
+                        className="h-8 text-xs w-32"
+                        placeholder="Field name"
+                        value={newFieldName}
+                        onChange={(e) => setNewFieldName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleCreateField(key)}
+                      />
+                      <Button size="sm" className="h-8 text-xs" disabled={!newFieldName.trim() || createLeadField.isPending} onClick={() => handleCreateField(key)}>
+                        {createLeadField.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Create"}
+                      </Button>
+                      <button onClick={() => setCreatingFieldFor(null)} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
+                    </div>
+                  ) : (
+                    <Select value={mapping[key] ?? "__skip__"} onValueChange={(v) => handleDetectedFieldChange(key, v)}>
+                      <SelectTrigger className="h-8 text-xs w-44"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__skip__">Leave as extra info</SelectItem>
+                        {allFields.map((f) => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}
+                        <SelectItem value="__new__">+ New field…</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-          <span className="text-xs text-muted-foreground pb-1.5">→</span>
-          <div className="flex-1">
-            <label className="text-xs text-muted-foreground mb-0.5 block">Lead field</label>
-            <Select value={newField} onValueChange={setNewField}>
-              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select…" /></SelectTrigger>
-              <SelectContent>{allFields.map((f) => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}</SelectContent>
-            </Select>
+        ) : (
+          <p className="text-xs text-muted-foreground/90 border border-dashed border-border rounded-lg px-3 py-4 text-center">
+            No submission received yet. Click <strong>Test</strong> above, or submit your real form once — the fields it sends will show up here to map.
+          </p>
+        )}
+
+        <button
+          onClick={() => setAdvancedOpen((v) => !v)}
+          className="text-xs text-muted-foreground/90 hover:text-foreground transition-colors mt-3 flex items-center gap-1"
+        >
+          {advancedOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          Advanced: add a field mapping manually
+        </button>
+        {advancedOpen && (
+          <div className="flex items-end gap-2 mt-2">
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground/90 mb-0.5 block">External field</label>
+              <Input className="h-8 text-xs font-mono" placeholder="fields[name][value]" value={newExt} onChange={(e) => setNewExt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addMap()} />
+            </div>
+            <span className="text-xs text-muted-foreground/90 pb-1.5">→</span>
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground/90 mb-0.5 block">Lead field</label>
+              <Select value={newField} onValueChange={setNewField}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select…" /></SelectTrigger>
+                <SelectContent>{allFields.map((f) => <SelectItem key={f.id} value={f.id}>{f.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <button onClick={addMap} disabled={!newExt.trim() || !newField} className="h-8 w-8 flex items-center justify-center rounded bg-foreground text-background disabled:opacity-30 shrink-0">
+              <Plus className="h-4 w-4" />
+            </button>
           </div>
-          <button onClick={addMap} disabled={!newExt.trim() || !newField} className="h-8 w-8 flex items-center justify-center rounded bg-foreground text-background disabled:opacity-30 shrink-0">
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Logs */}

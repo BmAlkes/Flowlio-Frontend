@@ -158,8 +158,8 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
         <div className="border-t border-border/40 px-6 py-4">
           <div className="flex items-center gap-2 mb-3">
             <Webhook className="h-3.5 w-3.5 text-indigo-400" />
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Dados do Webhook
+            <span className="text-xs font-semibold text-muted-foreground/90 uppercase tracking-wider">
+              Webhook Data
             </span>
           </div>
           <div className="space-y-3">
@@ -224,7 +224,7 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
                       ? draft[field.id] ? "Yes" : "No"
                       : field.type === "date" && draft[field.id]
                       ? format(new Date(draft[field.id]), "d MMM yyyy")
-                      : draft[field.id] ?? <span className="text-muted-foreground/50 italic">—</span>}
+                      : draft[field.id] ?? <span className="text-muted-foreground/90 italic">—</span>}
                   </p>
                 )}
               </div>
