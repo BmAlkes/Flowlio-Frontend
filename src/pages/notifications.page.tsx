@@ -112,7 +112,7 @@ const NotificationsPage = () => {
 
   if (loading && allNotifications.length === 0) {
     return (
-      <PageWrapper className="mt-6 px-4">
+      <PageWrapper className="pt-8 px-4">
         <div className="max-w-6xl mx-auto p-4">
           <h1 className="text-2xl font-semibold mb-6">Notifications</h1>
           <ListSkeleton rows={6} />
@@ -123,7 +123,7 @@ const NotificationsPage = () => {
 
   if (error && allNotifications.length === 0) {
     return (
-      <PageWrapper className="mt-6 px-4">
+      <PageWrapper className="pt-8 px-4">
         <Center className="py-20">
           <ErrorState title="Error loading notifications" message={error.message} onRetry={() => refetch()} />
         </Center>
@@ -132,7 +132,7 @@ const NotificationsPage = () => {
   }
 
   return (
-    <PageWrapper className="mt-6 px-4">
+    <PageWrapper className="pt-8 px-4">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
