@@ -5,13 +5,16 @@ import { ReusableTable } from "../reusable/reusabletable";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Flex } from "../ui/flex";
-import { Copy, Trash2, CircleCheck } from "lucide-react";
+import { Copy, Trash2, CircleCheck, Pencil } from "lucide-react";
 import {
   useFetchPaymentLinks,
   PaymentLink,
 } from "@/hooks/usefetchpaymentlinks";
 import { useDeletePaymentLink } from "@/hooks/usedeletepaymentlink";
 import { useUpdatePaymentLinkStatus } from "@/hooks/useupdatepaymentlinkstatus";
+import { useGeneralModalDisclosure } from "../common/generalmodal";
+import { PaymentLinkFormModal } from "./paymentlinkformmodal";
+import { useState } from "react";
 import { toast } from "sonner";
 import { TableSkeleton, ErrorState } from "../skeletons";
 
@@ -22,6 +25,8 @@ export const PaymentLinksTable = () => {
   const { data: paymentLinksData, isLoading, isFetching, error, refetch } = useFetchPaymentLinks();
   const deletePaymentLinkMutation = useDeletePaymentLink();
   const updateStatusMutation = useUpdatePaymentLinkStatus();
+  const editModalProps = useGeneralModalDisclosure();
+  const [editingLink, setEditingLink] = useState<PaymentLink | null>(null);
 
   const loading = isLoading || isFetching;
 
@@ -152,8 +157,20 @@ export const PaymentLinksTable = () => {
           }
         };
 
+        const handleEdit = () => {
+          setEditingLink(row.original);
+          editModalProps.onOpenChange(true);
+        };
+
         return (
           <Center className="space-x-2">
+            <Button
+              onClick={handleEdit}
+              className="bg-muted border-none text-foreground hover:bg-muted/70 cursor-pointer rounded-full border-2 border-border"
+            >
+              <Pencil className="w-4 h-4 me-1" />
+              Edit
+            </Button>
             <Button
               onClick={handleCopyLink}
               className="bg-[#e9eefd] border-none text-foreground hover:bg-[#e9eefd] cursor-pointer rounded-full border-2 border-blue-500"
@@ -215,6 +232,7 @@ export const PaymentLinksTable = () => {
         filterClassName="rounded-full"
         onRowClick={(row) => console.log("Row clicked:", row.original)}
       />
+      <PaymentLinkFormModal modalProps={editModalProps} existing={editingLink} />
     </>
   );
 };
