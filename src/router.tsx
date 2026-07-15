@@ -349,6 +349,11 @@ const AppRoutes = () => {
         path="/pay/:id"
         element={<LazyWrapper component={PaymentLinkPublicPage} />}
       />
+      {/* Alias: backend currently generates /payment/:id links */}
+      <Route
+        path="/payment/:id"
+        element={<LazyWrapper component={PaymentLinkPublicPage} />}
+      />
 
       {/* Dashboard layout - requires authentication and role-based access */}
       <Route
