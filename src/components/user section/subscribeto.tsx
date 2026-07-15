@@ -56,7 +56,7 @@ export const SubscribeTo = () => {
                 placeholder="Enter your email"
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={newsletterMutation.isPending}
-                className="bg-card border-none outline-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none shadow-none rounded-full pr-24 placeholder:text-muted-foreground w-full max-sm:text-sm disabled:opacity-70"
+                className="bg-card border-none outline-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none shadow-none rounded-full pe-24 placeholder:text-muted-foreground w-full max-sm:text-sm disabled:opacity-70"
                 style={{
                   boxShadow: "none !important",
                   outline: "none !important",
@@ -66,7 +66,7 @@ export const SubscribeTo = () => {
               <button
                 type="submit"
                 disabled={newsletterMutation.isPending || !email.trim()}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-[#1797B9] text-white px-12 py-3 rounded-full text-sm font-medium hover:bg-[#1797B9]/80 transition-colors max-sm:px-8 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute end-1 top-1/2 transform -translate-y-1/2 bg-[#1797B9] text-white px-12 py-3 rounded-full text-sm font-medium hover:bg-[#1797B9]/80 transition-colors max-sm:px-8 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {newsletterMutation.isPending ? "Joining..." : "Join"}
               </button>

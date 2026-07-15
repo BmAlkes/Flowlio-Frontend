@@ -201,7 +201,7 @@ const HeroDashboard = ({ stats, greeting }: { stats: { label: string; value: str
     {/* App body */}
     <div className="flex" style={{ height: 290 }}>
       {/* Sidebar */}
-      <div className="flex flex-col py-3 px-2.5 border-r gap-0.5" style={{ width: 130, background: "#07091A", borderColor: "rgba(255,255,255,0.06)" }}>
+      <div className="flex flex-col py-3 px-2.5 border-e gap-0.5" style={{ width: 130, background: "#07091A", borderColor: "rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-1.5 px-2 mb-3">
           <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg,#0D9488,#0F766E)" }}>
             <Zap size={9} color="white" />
@@ -333,7 +333,7 @@ const LaptopMockup = () => (
       </div>
       {/* App in laptop */}
       <div className="flex" style={{ height: 220 }}>
-        <div className="flex flex-col py-2.5 px-2 gap-0.5 border-r" style={{ width: 90, background: "#0C1024", borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="flex flex-col py-2.5 px-2 gap-0.5 border-e" style={{ width: 90, background: "#0C1024", borderColor: "rgba(255,255,255,0.06)" }}>
           {["Dashboard","Projects","CRM","Tasks","Reports"].map((l, i) => (
             <div key={l} className="flex items-center gap-1.5 rounded-lg px-2 py-1.5" style={{ background: i === 0 ? "rgba(13,148,136,0.18)" : "transparent", color: i === 0 ? "#0D9488" : "rgba(255,255,255,0.35)", fontSize: 8 }}>
               <span>{l}</span>
@@ -510,7 +510,7 @@ export const WhatIsFlowlioTemplate = ({ c }: { c: WIFContent }) => {
                     </div>
                     <span className="text-sm font-bold text-gray-800">{f.label}</span>
                   </div>
-                  <p className="text-xs text-gray-500 leading-relaxed ml-7">{f.desc}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed ms-7">{f.desc}</p>
                 </div>
               ))}
             </div>

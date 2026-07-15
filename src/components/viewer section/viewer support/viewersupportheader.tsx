@@ -237,7 +237,7 @@ export const ViewerSupportHeader = () => {
         {/* Left Column: Notifications */}
         <div className="lg:col-span-3 space-y-6">
           <Box className="bg-gradient-to-br from-white to-blue-50/30 dark:from-muted/20 dark:to-muted/5 p-6 rounded-[2rem] border border-blue-100 dark:border-border/50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-blue-200/40 transition-colors"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/20 dark:bg-blue-500/10 blur-3xl rounded-full -me-16 -mt-16 group-hover:bg-blue-200/40 transition-colors"></div>
             
             <Flex className="justify-between items-center mb-6 relative">
               <Flex className="items-center gap-3">

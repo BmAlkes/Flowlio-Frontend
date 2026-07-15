@@ -93,7 +93,7 @@ export const PlanPaymentConfirmPage = () => {
                     <p className="text-xs text-slate-400">Plan activated</p>
                     <p className="text-sm font-semibold text-slate-700">{result.planName}</p>
                   </Box>
-                  <Box className="text-right">
+                  <Box className="text-end">
                     <p className="text-xs text-slate-400">Amount paid</p>
                     <p className="text-sm font-semibold text-slate-700">
                       {result.currency ?? "USD"} {Number(result.amount).toFixed(2)}
@@ -135,7 +135,7 @@ export const PlanPaymentConfirmPage = () => {
                 <h1 className="text-xl font-semibold text-slate-800">Payment could not be confirmed</h1>
                 <p className="text-sm text-slate-500">{errorMsg}</p>
               </Stack>
-              <Box className="rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 w-full text-left">
+              <Box className="rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 w-full text-start">
                 <p className="text-xs text-slate-500">
                   If you completed the payment on PayPal, please contact us at{" "}
                   <a href="mailto:info@dotvizion.com" className="text-[#1797B9] font-medium underline">

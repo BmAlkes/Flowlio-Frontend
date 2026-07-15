@@ -110,7 +110,7 @@ export const PlanPaymentLinkCard = () => {
           <span className="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/30">
             <Link2 className="h-4 w-4 text-[#F98618]" />
           </span>
-          <Box className="text-left">
+          <Box className="text-start">
             <p className="text-sm font-semibold text-foreground">Generate Payment Link</p>
             <p className="text-xs text-muted-foreground">Create a PayPal payment link for a custom plan — client pays online, plan activates automatically</p>
           </Box>
@@ -179,7 +179,7 @@ export const PlanPaymentLinkCard = () => {
                         <SelectItem key={o.id} value={o.id}>
                           {o.name}
                           {o.subscriptionPlan?.name && (
-                            <span className="ml-2 text-xs text-muted-foreground">({o.subscriptionPlan.name})</span>
+                            <span className="ms-2 text-xs text-muted-foreground">({o.subscriptionPlan.name})</span>
                           )}
                         </SelectItem>
                       ))}
@@ -197,7 +197,7 @@ export const PlanPaymentLinkCard = () => {
                       {plans.map((p) => (
                         <SelectItem key={p.id} value={p.id}>
                           {p.customPlanName || p.name}
-                          <span className="ml-2 text-xs text-muted-foreground">${p.price}</span>
+                          <span className="ms-2 text-xs text-muted-foreground">${p.price}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -207,10 +207,10 @@ export const PlanPaymentLinkCard = () => {
                 <Box>
                   <Label className="mb-2 block text-sm">
                     Amount (USD) <span className="text-red-500">*</span>
-                    <span className="text-xs text-muted-foreground font-normal ml-1">(can differ from plan price)</span>
+                    <span className="text-xs text-muted-foreground font-normal ms-1">(can differ from plan price)</span>
                   </Label>
                   <Flex className="relative items-center">
-                    <span className="absolute left-3 text-muted-foreground font-semibold">$</span>
+                    <span className="absolute start-3 text-muted-foreground font-semibold">$</span>
                     <Input
                       type="number"
                       min="0"
@@ -218,7 +218,7 @@ export const PlanPaymentLinkCard = () => {
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="pl-7"
+                      className="ps-7"
                     />
                   </Flex>
                 </Box>
@@ -263,7 +263,7 @@ export const PlanPaymentLinkCard = () => {
                   disabled={createPayment.isPending}
                   className="min-w-[180px] bg-[#F98618] hover:bg-[#F98618]/85 text-white"
                 >
-                  <Link2 className="h-4 w-4 mr-2" />
+                  <Link2 className="h-4 w-4 me-2" />
                   {createPayment.isPending ? "Generating…" : "Generate Payment Link"}
                 </Button>
               </Flex>

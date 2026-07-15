@@ -67,7 +67,7 @@ const AITokenConfirmPage = () => {
               <h1 className="text-2xl font-bold text-foreground">Payment confirmed!</h1>
               <p className="text-muted-foreground mt-1 text-sm">Your tokens have been added to your account.</p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-5 text-left space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-5 text-start space-y-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-indigo-500" />
                 <span className="text-sm font-semibold text-foreground">Tokens added</span>

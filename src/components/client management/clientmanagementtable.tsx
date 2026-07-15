@@ -712,7 +712,7 @@ export const ClientManagementTable = () => {
           <Box className="w-full bg-card rounded-xl border-none overflow-y-auto max-h-[90vh]">
             <Flex className="items-start max-md:flex-col h-full min-h-[600px]">
               {/* Left Column: Profile, Social, Projects */}
-              <Box className="flex-1 p-8 space-y-8 min-w-0 border-r border-border/50 max-md:border-r-0 max-md:border-b">
+              <Box className="flex-1 p-8 space-y-8 min-w-0 border-e border-border/50 max-md:border-e-0 max-md:border-b">
                 <Stack className="items-center">
                   <Box className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-4 ring-4 ring-indigo-50 shadow-lg dark:ring-indigo-900/20">
                     <img

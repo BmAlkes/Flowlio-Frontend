@@ -668,7 +668,7 @@ export const SettingsHeader = () => {
                     placeholder={t("settings.email")}
                     {...register("email")}
                   />
-                  <IoMdLock className="size-6 text-muted-foreground absolute right-4 top-3 " />
+                  <IoMdLock className="size-6 text-muted-foreground absolute end-4 top-3 " />
                 </Flex>
                 {errors.email && (
                   <span className="text-red-500 text-xs">
@@ -724,7 +724,7 @@ export const SettingsHeader = () => {
                 {/* Current Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-background border-border pr-12"
+                    className="bg-background border-border pe-12"
                     size="lg"
                     type={showCurrentPassword ? "text" : "password"}
                     placeholder={t("settings.currentPassword")}
@@ -732,7 +732,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowCurrentPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -751,7 +751,7 @@ export const SettingsHeader = () => {
                 {/* New Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-background border-border pr-12"
+                    className="bg-background border-border pe-12"
                     placeholder={t("settings.newPassword")}
                     type={showNewPassword ? "text" : "password"}
                     size="lg"
@@ -759,7 +759,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowNewPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -778,7 +778,7 @@ export const SettingsHeader = () => {
                 {/* Confirm Password Field with Eye Icon */}
                 <Box className="relative">
                   <Input
-                    className="bg-background border-border pr-12"
+                    className="bg-background border-border pe-12"
                     placeholder={t("settings.confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
                     size="lg"
@@ -786,7 +786,7 @@ export const SettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     tabIndex={-1}
                   >

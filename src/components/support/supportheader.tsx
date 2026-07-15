@@ -445,12 +445,12 @@ const SupportHeader = () => {
           ) : null}
         </Flex>
 
-        <Box className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+        <Box className="space-y-2 max-h-48 overflow-y-auto pe-2 custom-scrollbar">
           {notificationsData?.data?.notifications?.length ? (
             notificationsData.data.notifications.map((n: any) => (
               <Flex
                 key={n.id}
-                className={`items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:translate-x-1 ${n.read ? "bg-muted/30" : "bg-blue-50/50 border-l-4 border-blue-500"}`}
+                className={`items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:translate-x-1 ${n.read ? "bg-muted/30" : "bg-blue-50/50 border-s-4 border-blue-500"}`}
                 onClick={() => handleNotificationClick(n)}
               >
                 <div className="flex-1 min-w-0">
@@ -538,7 +538,7 @@ const SupportHeader = () => {
         )}
 
         {activeTab === "recent" && (
-          <Box className="w-full space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          <Box className="w-full space-y-3 max-h-[500px] overflow-y-auto pe-2 custom-scrollbar">
             {activitiesLoading ? (
               <Center className="h-64">
                 <Loader2 className="size-6 animate-spin text-muted-foreground" />

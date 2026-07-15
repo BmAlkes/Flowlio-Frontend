@@ -159,14 +159,14 @@ export const CustomFieldsManager = ({
               "Adding..."
             ) : (
               <>
-                <Plus className="w-4 h-4 mr-1" /> Add Field
+                <Plus className="w-4 h-4 me-1" /> Add Field
               </>
             )}
           </Button>
         </Flex>
 
         {newFieldType === "select" && (
-          <Box className="mt-2 pl-4 border-l-2 border-border">
+          <Box className="mt-2 ps-4 border-s-2 border-border">
             <Label className="text-xs mb-1.5 block">Options</Label>
             <Flex className="gap-2 mb-2">
               {/* Inline color picker - avoids Radix portal conflicts with parent Dialog */}
@@ -180,7 +180,7 @@ export const CustomFieldsManager = ({
                 />
                 {colorPickerOpen && (
                   <div
-                    className="absolute left-0 top-10 z-[9999] bg-card border border-border rounded-md shadow-lg p-2 w-48"
+                    className="absolute start-0 top-10 z-[9999] bg-card border border-border rounded-md shadow-lg p-2 w-48"
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
                   >

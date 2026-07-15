@@ -69,7 +69,7 @@ export const AITokenUsageWidget = () => {
             </div>
             <p className="text-3xl font-bold text-foreground leading-none">
               {tokensUsed.toLocaleString()}
-              <span className="text-sm font-medium text-muted-foreground ml-1.5">tokens</span>
+              <span className="text-sm font-medium text-muted-foreground ms-1.5">tokens</span>
             </p>
           </div>
 

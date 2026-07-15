@@ -153,7 +153,7 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
                         variant="outline"
                         size="sm"
                         onClick={handleChangeLogo}
-                        className="bg-card hover:bg-muted/50 ml-auto cursor-pointer"
+                        className="bg-card hover:bg-muted/50 ms-auto cursor-pointer"
                       >
                         {t("superadminSettings.changeLogo")}
                       </Button>

@@ -67,7 +67,7 @@ export const TicketThread = ({
       ) : (
         <div
           ref={scrollRef}
-          className={`${isLocked ? "pointer-events-none" : ""} space-y-4 h-[200px] overflow-y-auto pr-2 custom-scrollbar border-y border-border/20 py-2`}
+          className={`${isLocked ? "pointer-events-none" : ""} space-y-4 h-[200px] overflow-y-auto pe-2 custom-scrollbar border-y border-border/20 py-2`}
         >
           {messagesData?.data?.length === 0
             ? !isLocked && (
@@ -134,13 +134,13 @@ export const TicketThread = ({
             value={replyMessage}
             onChange={(e) => setReplyMessage(e.target.value)}
             placeholder="Type your reply here..."
-            className="min-h-[100px] pr-12 focus-visible:ring-blue-500 rounded-xl bg-background border-border group-hover:border-blue-300 transition-colors shadow-sm"
+            className="min-h-[100px] pe-12 focus-visible:ring-blue-500 rounded-xl bg-background border-border group-hover:border-blue-300 transition-colors shadow-sm"
           />
           <Button
             size="sm"
             onClick={handleSendReply}
             disabled={!replyMessage.trim() || createMessageMutation.isPending}
-            className="absolute bottom-3 right-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 h-9 shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+            className="absolute bottom-3 end-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 h-9 shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
           >
             {createMessageMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" />

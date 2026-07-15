@@ -292,7 +292,7 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full min-w-[140px] w-fit h-10 justify-between items-center overflow-hidden">
-                  <h1 className="text-[14px] pl-4 pr-2 capitalize truncate whitespace-nowrap">
+                  <h1 className="text-[14px] ps-4 pe-2 capitalize truncate whitespace-nowrap">
                     {t(`tasks.statusValue.${normalizedStatus}`)}
                   </h1>
                   <Center className="bg-[#3e3e3f] rounded-tr-full rounded-br-full h-10 w-10 shrink-0">
@@ -567,11 +567,11 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                             {comment.userName.charAt(0).toUpperCase()}
                           </div>
                           <span className="text-xs font-semibold text-foreground">{comment.userName}</span>
-                          <span className="text-[10px] text-muted-foreground ml-auto">
+                          <span className="text-[10px] text-muted-foreground ms-auto">
                             {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
                           </span>
                         </Flex>
-                        <p className="text-sm text-foreground leading-relaxed pl-8">{comment.content}</p>
+                        <p className="text-sm text-foreground leading-relaxed ps-8">{comment.content}</p>
                       </Box>
                     ))}
                   </Stack>

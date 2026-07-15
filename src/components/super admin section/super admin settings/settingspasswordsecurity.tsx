@@ -125,7 +125,7 @@ export const SettingsPasswordSecurity = () => {
                         onClick={() =>
                           setShowCurrentPassword(!showCurrentPassword)
                         }
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
+                        className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showCurrentPassword ? (
                           <IoEyeOff size={20} />
@@ -149,7 +149,7 @@ export const SettingsPasswordSecurity = () => {
                   <FormControl>
                     <Box className="relative">
                       <Input
-                        className="bg-card pr-10"
+                        className="bg-card pe-10"
                         placeholder="Enter New Password"
                         type={showNewPassword ? "text" : "password"}
                         size="lg"
@@ -158,7 +158,7 @@ export const SettingsPasswordSecurity = () => {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
+                        className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showNewPassword ? (
                           <IoEyeOff size={20} />
@@ -181,7 +181,7 @@ export const SettingsPasswordSecurity = () => {
                   <FormControl>
                     <Box className="relative">
                       <Input
-                        className="bg-card pr-10"
+                        className="bg-card pe-10"
                         placeholder="Enter Confirm New Password"
                         type={showConfirmPassword ? "text" : "password"}
                         size="lg"
@@ -192,7 +192,7 @@ export const SettingsPasswordSecurity = () => {
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
+                        className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer z-10"
                       >
                         {showConfirmPassword ? (
                           <IoEyeOff size={20} />
@@ -208,7 +208,7 @@ export const SettingsPasswordSecurity = () => {
             />
           </Stack>
           <Button
-            className="flex ml-auto mt-6 w-34 h-10 rounded-full bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-border cursor-pointer"
+            className="flex ms-auto mt-6 w-34 h-10 rounded-full bg-[#1797b9] hover:bg-[#1797b9]/80 hover:text-white text-white border border-border cursor-pointer"
             type="submit"
             disabled={updatePasswordMutation.isPending}
           >

@@ -52,7 +52,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         {...props}
       >
         <Stack className="gap-5">
-          <Flex className="justify-start mr-auto gap-2">
+          <Flex className="justify-start me-auto gap-2">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
@@ -72,7 +72,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         {...props}
       >
         <Stack className="gap-5 items-center">
-          <Flex className="justify-start mr-auto">
+          <Flex className="justify-start me-auto">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
@@ -96,7 +96,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
         {...props}
       >
         <Stack className="gap-5 items-center">
-          <Flex className="justify-start mr-auto">
+          <Flex className="justify-start me-auto">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
               {t("dashboard.ongoingTasksTitle")}
@@ -118,7 +118,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
       {...props}
     >
       <Stack className="gap-5 items-center">
-        <Flex className="justify-start mr-auto">
+        <Flex className="justify-start me-auto">
           <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
           <h1 className="text-lg font-medium">
             {t("dashboard.ongoingTasksTitle")}
@@ -145,15 +145,15 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
           {(emblaApi) => (
             <>
               <Button
-                className="rounded-full shadow-lg absolute bg-background top-0 left-0 inset-y-0 m-auto -translate-x-5"
+                className="rounded-full shadow-lg absolute bg-background top-0 start-0 inset-y-0 m-auto -translate-x-5 rtl:translate-x-5"
                 onClick={() => emblaApi.scrollPrev()}
                 variant="ghost"
                 size="icon"
               >
-                <FaCaretLeft />
+                <FaCaretLeft className="rtl:rotate-180" />
               </Button>
               <Button
-                className="rounded-full shadow-lg absolute bg-background top-0 right-0 inset-y-0 m-auto translate-x-5"
+                className="rounded-full shadow-lg absolute bg-background top-0 end-0 inset-y-0 m-auto translate-x-5 rtl:-translate-x-5"
                 onClick={() => emblaApi.scrollNext()}
                 variant="ghost"
                 size="icon"

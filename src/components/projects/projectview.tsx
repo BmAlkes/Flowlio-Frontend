@@ -383,7 +383,7 @@ export const ProjectView = () => {
             className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300 hover:bg-muted rounded-full hover:p-2"
             onClick={() => navigate(-1)}
           >
-            <IoArrowBack />
+            <IoArrowBack className="rtl:rotate-180" />
             <p className="text-foreground">{t("common.back")}</p>
           </Box>
 
@@ -759,7 +759,7 @@ export const ProjectView = () => {
                               handleOpenInNewTab(project.contractfile!)
                             }
                           >
-                            <EyeIcon className="h-4 w-4 mr-2" />
+                            <EyeIcon className="h-4 w-4 me-2" />
                             Open in New Tab
                           </Button>
                         </Box>
@@ -985,7 +985,7 @@ export const ProjectView = () => {
                   className="w-full justify-start bg-card hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-400 cursor-pointer"
                   onClick={handleEdit}
                 >
-                  <Edit className="h-4 w-4 mr-2" />
+                  <Edit className="h-4 w-4 me-2" />
                   Edit Project
                 </Button>
               )}
@@ -999,7 +999,7 @@ export const ProjectView = () => {
                     setIsSaveTemplateModalOpen(true);
                   }}
                 >
-                  <Copy className="h-4 w-4 mr-2" />
+                  <Copy className="h-4 w-4 me-2" />
                   Save as Template
                 </Button>
               )}
@@ -1009,7 +1009,7 @@ export const ProjectView = () => {
                 className="w-full justify-start bg-card hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800/50 text-blue-700 dark:text-blue-400 cursor-pointer"
                 onClick={openCommentModal}
               >
-                <MessageCircle className="h-4 w-4 mr-2" />
+                <MessageCircle className="h-4 w-4 me-2" />
                 View Comments ({projectComments.length})
               </Button>
             </CardContent>
@@ -1235,7 +1235,7 @@ export const ProjectView = () => {
               >
                 {isSavingTemplate ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 me-2 animate-spin" />
                     Saving...
                   </>
                 ) : (

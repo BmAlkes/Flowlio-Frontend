@@ -250,7 +250,7 @@ export const CreateLeadDialog = ({ open, onClose }: Props) => {
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending} className="rounded-full px-6">
-                {isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</> : "Create Lead"}
+                {isPending ? <><Loader2 className="h-4 w-4 me-2 animate-spin" /> Creating...</> : "Create Lead"}
               </Button>
             </div>
           </form>

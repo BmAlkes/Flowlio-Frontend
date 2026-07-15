@@ -126,14 +126,14 @@ export const PaymentLinksTable = () => {
               onClick={handleCopyLink}
               className="bg-[#e9eefd] border-none text-foreground hover:bg-[#e9eefd] cursor-pointer rounded-full border-2 border-blue-500"
             >
-              <Copy className="w-4 h-4 mr-1" />
+              <Copy className="w-4 h-4 me-1" />
               Copy Link
             </Button>
             <Button
               onClick={handleDelete}
               className="bg-red-50 border-none text-red-600 hover:bg-red-100 cursor-pointer rounded-full border-2 border-red-500"
             >
-              <Trash2 className="w-4 h-4 mr-1" />
+              <Trash2 className="w-4 h-4 me-1" />
               Delete
             </Button>
           </Center>

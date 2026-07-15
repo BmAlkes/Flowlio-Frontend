@@ -121,7 +121,7 @@ export const AiAssistPage = () => {
             <AiAssitSidebar className="hidden sm:block" />
 
             <SidebarInset className="bg-background overflow-auto w-full max-w-full">
-              <Stack className="p-3 h-16 justify-between bg-card w-full ml-auto border-b border-border">
+              <Stack className="p-3 h-16 justify-between bg-card w-full ms-auto border-b border-border">
                 <Flex className="justify-end gap-2 flex-wrap sm:flex-nowrap w-full min-w-0">
                   <Button
                     className="rounded-full h-11 sm:w-32 min-w-0"
@@ -147,7 +147,7 @@ export const AiAssistPage = () => {
                   <SidebarTrigger
                     className={cn(
                       "text-foreground bg-gray-100/20 hover:bg-gray-100/30 hidden max-md:block p-2",
-                      state === "collapsed" ? " rotate-180" : "ml-auto"
+                      state === "collapsed" ? " rotate-180" : "ms-auto"
                     )}
                   />
                 </Flex>

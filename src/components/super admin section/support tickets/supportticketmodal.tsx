@@ -97,12 +97,12 @@ export const SupportTicketModal = ({
         {/* Header Info */}
         <Flex className="items-center gap-4 flex-wrap">
           <Badge className={`${getPriorityColor(ticket.priority)} border`}>
-            <AlertTriangle className="w-3 h-3 mr-1" />
+            <AlertTriangle className="w-3 h-3 me-1" />
             {ticket.priority} Priority
           </Badge>
           <Badge className={`${getStatusColor(ticket.status)} border`}>
             {getStatusIcon(ticket.status)}
-            <span className="ml-1 capitalize">{ticket.status}</span>
+            <span className="ms-1 capitalize">{ticket.status}</span>
           </Badge>
           <Flex className="items-center gap-1 text-sm text-gray-600">
             <Calendar className="w-4 h-4" />
@@ -268,7 +268,7 @@ export const SupportTicketModal = ({
                 onClick={onClose}
                 className="flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                 Back to List
               </Button>
             </Flex>

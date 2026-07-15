@@ -424,7 +424,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <Eraser size={18} />
         </ToolbarButton>
 
-        <Box className="w-px h-6 bg-muted mx-1 self-center ml-auto" />
+        <Box className="w-px h-6 bg-muted mx-1 self-center ms-auto" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}

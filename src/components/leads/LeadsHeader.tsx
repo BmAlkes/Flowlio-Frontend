@@ -36,7 +36,7 @@ export const LeadsHeader = () => {
 
         <Flex className="gap-2 items-center flex-wrap">
           {/* View Toggle */}
-          <Box className="bg-muted/50 p-1 rounded-full border border-border flex items-center mr-2">
+          <Box className="bg-muted/50 p-1 rounded-full border border-border flex items-center me-2">
             <Button
               variant="ghost"
               size="sm"

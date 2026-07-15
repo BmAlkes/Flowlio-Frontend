@@ -271,7 +271,7 @@ export const Pricing: FC<PricingProps> = ({ setSelectedPlan }) => {
               <p className="text-[13px] text-gray-400 mb-5 leading-relaxed">For large organizations.</p>
               <div className="mb-5">
                 <span className="text-4xl font-black text-gray-900">Custom</span>
-                <span className="text-sm text-gray-400 ml-1">/ Month</span>
+                <span className="text-sm text-gray-400 ms-1">/ Month</span>
               </div>
               <a
                 href="mailto:info@dotvizion.com?subject=Enterprise Plan Enquiry"

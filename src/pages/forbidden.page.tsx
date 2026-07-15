@@ -31,7 +31,7 @@ export const ForbiddenPage = () => {
               onClick={() => navigate("/dashboard")}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              <Home className="w-4 h-4 mr-2" />
+              <Home className="w-4 h-4 me-2" />
               Go to Dashboard
             </Button>
 
@@ -40,7 +40,7 @@ export const ForbiddenPage = () => {
               variant="outline"
               className="w-full"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180" />
               Go Back
             </Button>
           </Stack>

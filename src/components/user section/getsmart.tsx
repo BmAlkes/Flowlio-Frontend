@@ -47,7 +47,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
       )}
 
       <Stack className="relative z-10 max-w-5xl max-lg:w-full my-14">
-        <Flex className="items-start justify-start text-start flex-col gap-6 ml-6">
+        <Flex className="items-start justify-start text-start flex-col gap-6 ms-6">
           <h1
             className={cn(
               " font-[100] max-lg:w-full max-sm:text-center",
@@ -79,7 +79,7 @@ export const GetSmart = ({ isInsights = false }: GetSmartProps) => {
             <Flex
               key={index}
               className={cn(
-                "w-full max-w-md flex-col items-start justify-center gap-4 text-center sm:text-left",
+                "w-full max-w-md flex-col items-start justify-center gap-4 text-center sm:text-start",
                 isInsights && "sm:w-80"
               )}
             >

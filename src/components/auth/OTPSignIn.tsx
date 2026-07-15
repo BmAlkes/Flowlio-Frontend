@@ -129,7 +129,7 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
             >
               {canResend ? (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <RefreshCw className="w-4 h-4 me-2" />
                   Resend Code
                 </>
               ) : (
@@ -147,7 +147,7 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
             >
               {isLoading ? (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  <RefreshCw className="w-4 h-4 me-2 animate-spin" />
                   Verifying...
                 </>
               ) : (
@@ -162,7 +162,7 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
               disabled={isLoading}
               className="w-full h-12 cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180" />
               Back to Sign In
             </Button>
           </Stack>

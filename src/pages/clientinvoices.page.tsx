@@ -106,7 +106,7 @@ const ClientInvoicesPage = () => {
             }
             className="hover:bg-blue-50 text-blue-600"
           >
-            <Download className="h-4 w-4 mr-1" />
+            <Download className="h-4 w-4 me-1" />
             {t("common.download")}
           </Button>
         </div>

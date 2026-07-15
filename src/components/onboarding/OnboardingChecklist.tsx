@@ -98,7 +98,7 @@ export function OnboardingChecklist() {
           )}
           <button
             onClick={(e) => { e.stopPropagation(); dismiss(); }}
-            className="p-1 rounded-md hover:bg-muted transition-colors ml-1"
+            className="p-1 rounded-md hover:bg-muted transition-colors ms-1"
           >
             <X className="size-3.5 text-muted-foreground" />
           </button>

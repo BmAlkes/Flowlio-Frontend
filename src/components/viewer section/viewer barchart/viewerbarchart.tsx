@@ -146,7 +146,7 @@ export const ViewerBarChartComponent: FC<
         <h1 className="text-lg font-medium">{t("viewerChart.performance")}</h1>
       </Flex>
       <Flex className="gap-4">
-        <ViewerChartGuides className="gap-4 pt-1 max-md:mr-auto" />
+        <ViewerChartGuides className="gap-4 pt-1 max-md:me-auto" />
       </Flex>
       <ViewerCalendarPopOver
         selected={dateRange}

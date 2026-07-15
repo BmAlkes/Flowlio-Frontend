@@ -178,7 +178,7 @@ export const ProjectExpenses = ({
       <Center className="h-48">
         <Box className="flex items-center justify-center p-8">
           <Box className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></Box>
-          <Box className="ml-2 text-muted-foreground">
+          <Box className="ms-2 text-muted-foreground">
             {t("expenses.loading")}
           </Box>
         </Box>
@@ -198,10 +198,10 @@ export const ProjectExpenses = ({
             <Button
               variant="outline"
               size="sm"
-              className="bg-card/20 border-white/40 text-white hover:bg-card/30 cursor-pointer mr-8 text-xs"
+              className="bg-card/20 border-white/40 text-white hover:bg-card/30 cursor-pointer me-8 text-xs"
               onClick={() => setShowAddForm(true)}
             >
-              <Plus className="h-3 w-3 mr-1" />
+              <Plus className="h-3 w-3 me-1" />
               {t("expenses.addExpense")}
             </Button>
           )}
@@ -264,7 +264,7 @@ export const ProjectExpenses = ({
                     minimumFractionDigits: 2,
                   })}
                   {remaining < 0 && (
-                    <span className="text-xs ml-1 font-normal">(over)</span>
+                    <span className="text-xs ms-1 font-normal">(over)</span>
                   )}
                 </p>
               </Box>
@@ -345,7 +345,7 @@ export const ProjectExpenses = ({
               </p>
             </Box>
           ) : (
-            <Box className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <Box className="space-y-2 max-h-72 overflow-y-auto pe-1">
               {expenses.map((expense) => {
                 const catInfo = getCategoryInfo(expense.category);
                 return (
@@ -374,7 +374,7 @@ export const ProjectExpenses = ({
                         </span>
                       </Stack>
                     </Flex>
-                    <Flex className="items-center gap-2 flex-shrink-0 ml-2">
+                    <Flex className="items-center gap-2 flex-shrink-0 ms-2">
                       <span className="text-sm font-bold text-foreground">
                         $
                         {Number(expense.amount).toLocaleString("en-US", {

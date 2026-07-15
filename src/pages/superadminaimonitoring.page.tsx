@@ -71,7 +71,7 @@ function UsageBar({ pct }: { pct: number }) {
     <div className="flex items-center gap-2 min-w-40">
       <div className="relative h-2 w-28 rounded-full bg-primary/20 overflow-hidden">
         <div
-          className={`absolute inset-y-0 left-0 rounded-full transition-all ${getUsageColor(clamped)}`}
+          className={`absolute inset-y-0 start-0 rounded-full transition-all ${getUsageColor(clamped)}`}
           style={{ width: `${clamped}%` }}
         />
       </div>
@@ -280,15 +280,15 @@ const SuperAdminAIMonitoringPage = () => {
             <div>
               <CardTitle className="text-foreground">
                 All Organisation Limits
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                <span className="ms-2 text-sm font-normal text-muted-foreground">
                   ({limits.length})
                 </span>
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-1">
-                <span className="inline-flex items-center gap-1 mr-3">
+                <span className="inline-flex items-center gap-1 me-3">
                   <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Configured manually
                 </span>
-                <span className="inline-flex items-center gap-1 mr-3">
+                <span className="inline-flex items-center gap-1 me-3">
                   <span className="w-2 h-2 rounded-full bg-muted-foreground/40 inline-block" /> Default (50k)
                 </span>
                 <span className="inline-flex items-center gap-1">

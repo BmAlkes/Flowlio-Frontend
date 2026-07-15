@@ -47,7 +47,7 @@ function PackageCard({ pkg, onBuy, loading }: { pkg: TokenPackage; onBuy: (pkg: 
       <div>
         <p className="text-2xl font-black text-foreground">
           {(pkg.tokens / 1000).toFixed(0)}k
-          <span className="text-base font-medium text-muted-foreground ml-1">tokens</span>
+          <span className="text-base font-medium text-muted-foreground ms-1">tokens</span>
         </p>
         <p className="text-xs text-muted-foreground mt-1">{meta.description}</p>
       </div>
@@ -55,7 +55,7 @@ function PackageCard({ pkg, onBuy, loading }: { pkg: TokenPackage; onBuy: (pkg: 
       <div className="mt-auto">
         <p className="text-3xl font-bold text-foreground">
           ${pkg.price}
-          <span className="text-sm font-normal text-muted-foreground ml-1">{pkg.currency}</span>
+          <span className="text-sm font-normal text-muted-foreground ms-1">{pkg.currency}</span>
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
           ${(Number(pkg.price) / (pkg.tokens / 1000)).toFixed(3)} per 1k tokens

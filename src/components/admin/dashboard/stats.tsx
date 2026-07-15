@@ -183,7 +183,7 @@ export const Stats: FC<{
                           <p className="text-[2.4rem] font-black text-foreground leading-none tracking-tight">
                             {item.count}
                             {index === 2 && (
-                              <span className={cn("text-base font-medium ml-1 text-muted-foreground", (isSuperAdmin || isViewer) && "hidden")}>
+                              <span className={cn("text-base font-medium ms-1 text-muted-foreground", (isSuperAdmin || isViewer) && "hidden")}>
                                 {t("dashboard.hoursAbbreviation")}
                               </span>
                             )}

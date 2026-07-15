@@ -76,7 +76,7 @@ export const AssignPlanCard = () => {
           <span className="p-2 rounded-lg bg-blue-50/80 dark:bg-blue-900/30">
             <CreditCard className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </span>
-          <Box className="text-left">
+          <Box className="text-start">
             <p className="text-sm font-semibold text-foreground">Assign Plan On-Demand</p>
             <p className="text-xs text-muted-foreground">Manually assign any plan to an organisation — no PayPal required</p>
           </Box>
@@ -104,7 +104,7 @@ export const AssignPlanCard = () => {
                     <SelectItem key={o.id} value={o.id}>
                       {o.name}
                       {o.subscriptionPlan?.name && (
-                        <span className="ml-2 text-xs text-muted-foreground">
+                        <span className="ms-2 text-xs text-muted-foreground">
                           ({o.subscriptionPlan.name})
                         </span>
                       )}
@@ -125,7 +125,7 @@ export const AssignPlanCard = () => {
                   {plans.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.customPlanName || p.name}
-                      <span className="ml-2 text-xs text-muted-foreground">
+                      <span className="ms-2 text-xs text-muted-foreground">
                         ${p.price}/{(p as any).durationType ?? "mo"}
                       </span>
                     </SelectItem>

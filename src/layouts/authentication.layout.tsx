@@ -26,7 +26,7 @@ export const AuthenticationLayout = () => {
           </Stack>
         </Center>
 
-        <Center className="w-1/2 h-full pr-20 max-lg:w-full max-lg:pr-0">
+        <Center className="w-1/2 h-full pe-20 max-lg:w-full max-lg:pe-0">
           <Outlet />
         </Center>
       </Flex>

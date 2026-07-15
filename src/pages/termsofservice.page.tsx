@@ -53,7 +53,7 @@ const TermsOfServicePage = () => {
                 Flowlio is a comprehensive project management platform that
                 provides:
               </p>
-              <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+              <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                 <li>Project and task management tools</li>
                 <li>Calendar integration with Google Calendar</li>
                 <li>Client management and invoicing</li>
@@ -88,7 +88,7 @@ const TermsOfServicePage = () => {
                 <p className="text-foreground leading-relaxed mb-2">
                   You agree to:
                 </p>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>Provide accurate and complete information</li>
                   <li>Update your information when necessary</li>
                   <li>Notify us immediately of any unauthorized use</li>
@@ -107,7 +107,7 @@ const TermsOfServicePage = () => {
                 <p className="text-blue-800 font-medium mb-2">
                   Integration Terms:
                 </p>
-                <ul className="list-disc list-inside text-blue-700 space-y-1 ml-4">
+                <ul className="list-disc list-inside text-blue-700 space-y-1 ms-4">
                   <li>
                     You grant us permission to access your Google Calendar
                   </li>
@@ -155,7 +155,7 @@ const TermsOfServicePage = () => {
                 <p className="text-foreground leading-relaxed mb-2">
                   You may not:
                 </p>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>Use the Service for illegal or unauthorized purposes</li>
                   <li>Violate any applicable laws or regulations</li>
                   <li>Infringe on intellectual property rights</li>
@@ -191,7 +191,7 @@ const TermsOfServicePage = () => {
                 <p className="text-foreground leading-relaxed mb-2">
                   Payment terms include:
                 </p>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>All fees are non-refundable unless otherwise stated</li>
                   <li>Prices may change with 30 days' notice</li>
                   <li>Failed payments may result in service suspension</li>
@@ -303,7 +303,7 @@ const TermsOfServicePage = () => {
                 prior notice, for any reason, including if you breach these
                 Terms. Upon termination:
               </p>
-              <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+              <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                 <li>Your right to use the Service ceases immediately</li>
                 <li>We may delete your account and data</li>
                 <li>You remain liable for all amounts due</li>

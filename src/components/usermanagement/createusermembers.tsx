@@ -187,7 +187,7 @@ export const CreateUserMembers = () => {
         className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2 "
         onClick={() => navigate(-1)}
       >
-        <IoArrowBack />
+        <IoArrowBack className="rtl:rotate-180" />
         <p className="text-foreground">Back</p>
       </Box>
 
@@ -212,12 +212,12 @@ export const CreateUserMembers = () => {
               </h3>
             </div>
             {limitReached ? (
-              <p className="text-sm text-red-600 ml-7">
+              <p className="text-sm text-red-600 ms-7">
                 {planAccess?.data?.reason ||
                   "User limit reached. Please upgrade your plan to add more users."}
               </p>
             ) : (
-              <p className="text-sm text-blue-700 ml-7">
+              <p className="text-sm text-blue-700 ms-7">
                 You can create{" "}
                 {maxAllowed === 0 ? "unlimited" : maxAllowed - currentCount}{" "}
                 more user
@@ -397,7 +397,7 @@ export const CreateUserMembers = () => {
                         placeholder="Phone Number:"
                         enableSearch={true}
                         inputClass="mt-2 w-full h-14 bg-card border border-border rounded-full px-4 text-foreground focus:ring-0 focus:outline-none"
-                        buttonClass="border-r h-12 border-border bg-transparent"
+                        buttonClass="border-e h-12 border-border bg-transparent"
                         dropdownClass="bg-card border border-border"
                         {...field}
                       />
@@ -554,7 +554,7 @@ export const CreateUserMembers = () => {
                     <Box className="flex">
                       <FormMessage />
                       <Box
-                        className="ml-auto text-right text-[#1E6EE5] cursor-pointer text-sm"
+                        className="ms-auto text-end text-[#1E6EE5] cursor-pointer text-sm"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? "Hide Password" : "Show Password"}
@@ -583,7 +583,7 @@ export const CreateUserMembers = () => {
                     <Box className="flex">
                       <FormMessage />
                       <Box
-                        className="ml-auto text-right text-[#1E6EE5] cursor-pointer text-sm"
+                        className="ms-auto text-end text-[#1E6EE5] cursor-pointer text-sm"
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }

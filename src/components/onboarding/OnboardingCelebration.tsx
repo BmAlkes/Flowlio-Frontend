@@ -56,7 +56,7 @@ export function OnboardingCelebration({ onClose }: Props) {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+          className="absolute top-4 end-4 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
         >
           <X className="size-4" />
         </button>
