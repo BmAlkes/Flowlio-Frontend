@@ -49,7 +49,7 @@ export const ProjectStatusPieChart: FC<
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-3xl font-bold text-foreground leading-none">{total}</span>
-            <span className="text-xs text-muted-foreground mt-1 font-medium">Total Projects</span>
+            <span className="text-xs text-muted-foreground mt-1 font-medium">total {total === 1 ? "project" : "projects"}</span>
           </div>
         </div>
 
