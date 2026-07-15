@@ -2,7 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
 import { ReusableTable } from "../reusable/reusabletable";
-import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Flex } from "../ui/flex";
 import { Copy, Trash2, CircleCheck, Pencil } from "lucide-react";
@@ -17,6 +16,27 @@ import { PaymentLinkFormModal } from "./paymentlinkformmodal";
 import { useState } from "react";
 import { toast } from "sonner";
 import { TableSkeleton, ErrorState } from "../skeletons";
+import { cn } from "@/lib/utils";
+
+const AVATAR_COLORS = [
+  "bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500",
+  "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-pink-500",
+];
+
+function getAvatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function getInitials(name: string) {
+  return (name || "?")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 // Use PaymentLink type from the hook
 export type Data = PaymentLink;
@@ -65,13 +85,24 @@ export const PaymentLinksTable = () => {
     {
       accessorKey: "clientname",
       header: () => <Box className="text-foreground p-1">Client Name</Box>,
-      cell: ({ row }) => (
-        <Box className="capitalize p-1 w-24 max-sm:w-full">
-          {row.original.clientname.length > 15
-            ? row.original.clientname.slice(0, 15) + "..."
-            : row.original.clientname}
-        </Box>
-      ),
+      cell: ({ row }) => {
+        const name = row.original.clientname;
+        return (
+          <Flex className="items-center gap-2.5 p-1">
+            <div
+              className={cn(
+                "size-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold",
+                getAvatarColor(name),
+              )}
+            >
+              {getInitials(name)}
+            </div>
+            <Box className="capitalize font-medium text-foreground">
+              {name.length > 15 ? name.slice(0, 15) + "..." : name}
+            </Box>
+          </Flex>
+        );
+      },
     },
     {
       accessorKey: "project",
@@ -163,38 +194,38 @@ export const PaymentLinksTable = () => {
         };
 
         return (
-          <Center className="space-x-2">
-            <Button
+          <Center className="gap-1.5">
+            <button
               onClick={handleEdit}
-              className="bg-muted border-none text-foreground hover:bg-muted/70 cursor-pointer rounded-full border-2 border-border"
+              title="Edit"
+              className="h-8 w-8 flex items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70 transition-colors cursor-pointer"
             >
-              <Pencil className="w-4 h-4 me-1" />
-              Edit
-            </Button>
-            <Button
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
               onClick={handleCopyLink}
-              className="bg-[#e9eefd] border-none text-foreground hover:bg-[#e9eefd] cursor-pointer rounded-full border-2 border-blue-500"
+              title="Copy Link"
+              className="h-8 w-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-500/20 dark:text-blue-300 transition-colors cursor-pointer"
             >
-              <Copy className="w-4 h-4 me-1" />
-              Copy Link
-            </Button>
+              <Copy className="w-4 h-4" />
+            </button>
             {!isPaid && (
-              <Button
+              <button
                 onClick={handleToggleStatus}
                 disabled={updateStatusMutation.isPending}
-                className="bg-green-50 border-none text-green-700 hover:bg-green-100 cursor-pointer rounded-full border-2 border-green-500"
+                title="Mark as Paid"
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-500/20 dark:text-green-300 transition-colors cursor-pointer"
               >
-                <CircleCheck className="w-4 h-4 me-1" />
-                Mark as Paid
-              </Button>
+                <CircleCheck className="w-4 h-4" />
+              </button>
             )}
-            <Button
+            <button
               onClick={handleDelete}
-              className="bg-red-50 border-none text-red-600 hover:bg-red-100 cursor-pointer rounded-full border-2 border-red-500"
+              title="Delete"
+              className="h-8 w-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-500/15 dark:text-red-400 transition-colors cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 me-1" />
-              Delete
-            </Button>
+              <Trash2 className="w-4 h-4" />
+            </button>
           </Center>
         );
       },

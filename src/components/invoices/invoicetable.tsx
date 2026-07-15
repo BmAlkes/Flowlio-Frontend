@@ -2,23 +2,59 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
 import { ReusableTable } from "../reusable/reusabletable";
-import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Flex } from "../ui/flex";
-import { CircleCheck, FileText, Download, Trash2 } from "lucide-react";
+import { FileText, Download, Trash2, CircleCheck, RotateCcw } from "lucide-react";
 import { useFetchInvoices, Invoice } from "@/hooks/usefetchinvoices";
 import { useDeleteInvoice } from "@/hooks/usedeleteinvoice";
-import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
+import { useGenerateSingleInvoicePDF } from "@/hooks/usegeneratesingleinvoicepdf";
 import { useUpdateInvoiceStatus } from "@/hooks/useupdateinvoicestatus";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { TableSkeleton, ErrorState } from "@/components/skeletons";
+import { cn } from "@/lib/utils";
+
+const AVATAR_COLORS = [
+  "bg-blue-500", "bg-violet-500", "bg-emerald-500", "bg-amber-500",
+  "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-pink-500",
+];
+
+function getAvatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function getInitials(name: string) {
+  return (name || "?")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  paid: "bg-green-100 text-green-700 dark:bg-green-500/25 dark:text-green-300",
+  pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/25 dark:text-amber-300",
+  overdue: "bg-rose-100 text-rose-700 dark:bg-rose-500/25 dark:text-rose-300",
+  draft: "bg-muted text-muted-foreground",
+};
+
+function getStatusDisplay(invoice: Invoice) {
+  const status = invoice.status.toLowerCase();
+  if (status === "paid") return { label: "Paid", style: STATUS_STYLES.paid };
+  if (status === "draft") return { label: "Draft", style: STATUS_STYLES.draft };
+  if (invoice.dueDate && new Date(invoice.dueDate) < new Date())
+    return { label: "Overdue", style: STATUS_STYLES.overdue };
+  return { label: "Pending", style: STATUS_STYLES.pending };
+}
 
 // Actions component to properly use hooks
 const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
   const deleteInvoiceMutation = useDeleteInvoice();
   const updateStatusMutation = useUpdateInvoiceStatus();
-  const { generatePDF } = useGenerateInvoicePDF();
+  const { generateSingleInvoicePDF } = useGenerateSingleInvoicePDF();
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this invoice?")) {
@@ -37,55 +73,44 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
   };
 
   const handleDownloadPDF = () => {
-    // Generate new PDF from frontend to ensure data accuracy
-    generatePDF({ invoices: [invoice], exportType: "selected" });
+    // Generate a proper single-invoice document, not the bulk export report
+    generateSingleInvoicePDF(invoice);
   };
 
+  const isPaid = invoice.status.toLowerCase() === "paid";
+
   return (
-    <Center className="space-x-2">
-      <Button
+    <Center className="gap-1.5">
+      <button
         onClick={handleDownloadPDF}
-        className="bg-[#1797b9] border-none hover:bg-[#1797b9]/80 cursor-pointer rounded-full space-x-2 text-white"
-        disabled={false}
+        title={invoice.pdfUrl ? "Download PDF" : "Generate PDF"}
+        className="h-8 w-8 flex items-center justify-center rounded-full bg-[#1797b9]/10 text-[#1797b9] hover:bg-[#1797b9]/20 transition-colors cursor-pointer"
       >
-        {invoice.pdfUrl ? (
-          <Download className="size-4 text-white" />
-        ) : (
-          <FileText className="size-4 text-white" />
+        {invoice.pdfUrl ? <Download className="size-4" /> : <FileText className="size-4" />}
+      </button>
+
+      <button
+        onClick={() => handleUpdateStatus(isPaid ? "draft" : "paid")}
+        disabled={updateStatusMutation.isPending}
+        title={isPaid ? "Mark as Draft" : "Mark as Paid"}
+        className={cn(
+          "h-8 w-8 flex items-center justify-center rounded-full transition-colors cursor-pointer",
+          isPaid
+            ? "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-300"
+            : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-500/20 dark:text-green-300",
         )}
-        {invoice.pdfUrl ? "Download" : "Generate PDF"}
-      </Button>
+      >
+        {isPaid ? <RotateCcw className="size-4" /> : <CircleCheck className="size-4" />}
+      </button>
 
-      {invoice.status.toLowerCase() !== "paid" && (
-        <Button
-          onClick={() => handleUpdateStatus("paid")}
-          className="bg-green-500 border-none hover:bg-green-600 cursor-pointer rounded-full space-x-2 text-white"
-          disabled={updateStatusMutation.isPending}
-        >
-          <CircleCheck className="size-4" />
-          Mark as Paid
-        </Button>
-      )}
-
-      {invoice.status.toLowerCase() === "paid" && (
-        <Button
-          onClick={() => handleUpdateStatus("draft")}
-          className="bg-yellow-500 border-none hover:bg-yellow-600 cursor-pointer rounded-full space-x-2 text-white"
-          disabled={updateStatusMutation.isPending}
-        >
-          Mark as Draft
-        </Button>
-      )}
-
-      <Button
+      <button
         onClick={handleDelete}
-        variant="outline"
-        className="border-red-500 text-red-500 hover:bg-red-50 cursor-pointer rounded-full space-x-2"
         disabled={deleteInvoiceMutation.isPending}
+        title="Delete"
+        className="h-8 w-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-500/15 dark:text-red-400 transition-colors cursor-pointer"
       >
         <Trash2 className="size-4" />
-        Delete
-      </Button>
+      </button>
     </Center>
   );
 };
@@ -125,9 +150,22 @@ export const columns: ColumnDef<Data>[] = [
   {
     accessorKey: "clientname",
     header: () => <Box className="text-foreground">Client Name</Box>,
-    cell: ({ row }) => (
-      <Box className="capitalize p-1">{row.original.clientname}</Box>
-    ),
+    cell: ({ row }) => {
+      const name = row.original.clientname;
+      return (
+        <Flex className="items-center gap-2.5 p-1">
+          <div
+            className={cn(
+              "size-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold",
+              getAvatarColor(name),
+            )}
+          >
+            {getInitials(name)}
+          </div>
+          <Box className="capitalize font-medium text-foreground">{name}</Box>
+        </Flex>
+      );
+    },
   },
   {
     accessorKey: "amount",
@@ -156,17 +194,12 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "status",
     header: () => <Box className="text-center text-foreground">Status</Box>,
     cell: ({ row }) => {
-      const status = row.original.status.toLowerCase();
-      const isPaid = status === "paid";
-
+      const { label, style } = getStatusDisplay(row.original);
       return (
-        <Center className="text-center space-x-2">
-          <CircleCheck
-            className={`size-5 ${isPaid ? "text-green-500" : "text-muted-foreground"}`}
-          />
-          <Box className="text-center text-[15px] capitalize">
-            {row.original.status}
-          </Box>
+        <Center>
+          <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full", style)}>
+            {label}
+          </span>
         </Center>
       );
     },

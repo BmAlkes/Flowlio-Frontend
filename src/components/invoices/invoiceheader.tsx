@@ -14,15 +14,17 @@ import {
 import { ChevronDown, CirclePlus, Receipt, Repeat } from "lucide-react";
 import { Button } from "../ui/button";
 import { InvoiceCreationModal } from "./invoicecreationmodal";
-import { Invoice } from "@/hooks/usefetchinvoices";
+import { Invoice, useFetchInvoices } from "@/hooks/usefetchinvoices";
 import { toast } from "sonner";
 import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
 import { useUser } from "@/providers/user.provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { InvoiceStatCards } from "./invoicestatcards";
 
 export const InvoiceHeader: FC = () => {
   const { data: userData } = useUser();
   const isClient = userData?.user?.role === "client";
+  const { data: invoicesData } = useFetchInvoices();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [tableState, setTableState] = useState<{
@@ -142,6 +144,8 @@ export const InvoiceHeader: FC = () => {
           </Center>
         )}
       </Center>
+
+      {activeTab === "all" && <InvoiceStatCards invoices={invoicesData?.data ?? []} />}
 
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <Box className="px-4 mb-6">
