@@ -47,6 +47,11 @@ const formSchema = z.object({
   description: z.string().min(1, {
     message: "Description is required",
   }),
+  externalPaymentUrl: z
+    .string()
+    .min(1, { message: "Payment URL is required." })
+    .url({ message: "Must be a valid URL (e.g. your Stripe Payment Link or PayPal.me)." })
+    .refine((v) => v.startsWith("https://"), { message: "Payment URL must start with https://" }),
 });
 const PaymentLinksHeader: FC = () => {
   const createPaymentLinkMutation = useCreatePaymentLink();
@@ -60,6 +65,7 @@ const PaymentLinksHeader: FC = () => {
       projectId: "",
       amount: 0,
       description: "",
+      externalPaymentUrl: "",
     },
   });
 
@@ -204,6 +210,29 @@ const PaymentLinksHeader: FC = () => {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="externalPaymentUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-background rounded-full placeholder:text-muted-foreground"
+                        size="lg"
+                        type="url"
+                        placeholder="https://buy.stripe.com/... or https://paypal.me/..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground/90">
+                      Paste a payment link from your own Stripe, PayPal, or Wise account — Flowlio doesn't process payments, it just shares this link with your client.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

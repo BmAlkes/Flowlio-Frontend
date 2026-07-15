@@ -7,6 +7,7 @@ export interface CreatePaymentLinkRequest {
   projectId: string;
   description: string;
   amount: number;
+  externalPaymentUrl: string;
 }
 
 export interface CreatePaymentLinkResponse {
@@ -23,6 +24,8 @@ export interface CreatePaymentLinkResponse {
     submittedby: string;
     clientname: string;
     amount: string;
+    externalPaymentUrl: string;
+    status: "unpaid" | "paid";
     paymentLink: string;
     createdAt: string;
     updatedAt: string;

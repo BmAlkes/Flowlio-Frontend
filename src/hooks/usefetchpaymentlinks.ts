@@ -12,9 +12,20 @@ export interface PaymentLink {
   submittedby: string;
   clientname: string;
   amount: string;
+  externalPaymentUrl: string;
+  status: "unpaid" | "paid";
   paymentLink: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PublicPaymentLink {
+  organizationName: string;
+  project: string;
+  description: string;
+  amount: string;
+  externalPaymentUrl: string;
+  status: "unpaid" | "paid";
 }
 
 export interface GetPaymentLinksResponse {
@@ -86,5 +97,22 @@ export const useFetchPaymentLinkById = (paymentLinkId: string) => {
     refetchOnWindowFocus: false, // Don't refetch on window focus
     retry: 2, // Retry failed requests 2 times
     retryDelay: 1000, // Wait 1 second between retries
+  });
+};
+
+// Public, no-auth fetch for the client-facing /pay/:id page
+export const useFetchPublicPaymentLink = (paymentLinkId: string) => {
+  return useQuery({
+    queryKey: ["payment-link-public", paymentLinkId],
+    queryFn: async () => {
+      const response = await axios.get<{
+        success: boolean;
+        message: string;
+        data: PublicPaymentLink;
+      }>(`/payment-links/public/${paymentLinkId}`);
+      return response.data;
+    },
+    enabled: !!paymentLinkId,
+    retry: 1,
   });
 };
