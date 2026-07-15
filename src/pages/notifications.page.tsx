@@ -27,18 +27,18 @@ import { Center } from "@/components/ui/center";
 import { ListSkeleton, ErrorState } from "@/components/skeletons";
 
 const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string }> = {
-  lead_followup_due:     { icon: Calendar,       color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-900/20" },
-  lead_followup_overdue: { icon: AlertTriangle,  color: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/20" },
-  lead_assigned:         { icon: UserCheck,       color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
-  ai_threshold_reached:  { icon: Sparkles,        color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20" },
-  ai_quota_exceeded:     { icon: AlertTriangle,  color: "text-rose-600",    bg: "bg-rose-50 dark:bg-rose-900/20" },
-  payment:               { icon: CreditCard,      color: "text-green-600",  bg: "bg-green-50 dark:bg-green-900/20" },
-  task_overdue:          { icon: ClipboardX,      color: "text-rose-600",   bg: "bg-rose-50 dark:bg-rose-900/20" },
-  task_completed:        { icon: Check,            color: "text-green-600",  bg: "bg-green-50 dark:bg-green-900/20" },
-  project_risk:          { icon: ShieldAlert,     color: "text-rose-600",   bg: "bg-rose-50 dark:bg-rose-900/20" },
-  weekly_summary:        { icon: BarChart3,       color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-  project_comment:       { icon: Sparkles,        color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-900/20" },
-  client_message:        { icon: Sparkles,        color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-900/20" },
+  lead_followup_due:     { icon: Calendar,       color: "text-blue-600 dark:text-blue-300",     bg: "bg-blue-100 dark:bg-blue-500/25" },
+  lead_followup_overdue: { icon: AlertTriangle,  color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  lead_assigned:         { icon: UserCheck,       color: "text-indigo-600 dark:text-indigo-300", bg: "bg-indigo-100 dark:bg-indigo-500/25" },
+  ai_threshold_reached:  { icon: Sparkles,        color: "text-purple-600 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-500/25" },
+  ai_quota_exceeded:     { icon: AlertTriangle,  color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  payment:               { icon: CreditCard,      color: "text-green-600 dark:text-green-300",   bg: "bg-green-100 dark:bg-green-500/25" },
+  task_overdue:          { icon: ClipboardX,      color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  task_completed:        { icon: Check,            color: "text-green-600 dark:text-green-300",   bg: "bg-green-100 dark:bg-green-500/25" },
+  project_risk:          { icon: ShieldAlert,     color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  weekly_summary:        { icon: BarChart3,       color: "text-emerald-600 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/25" },
+  project_comment:       { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
+  client_message:        { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
   default:               { icon: Bell,            color: "text-foreground", bg: "bg-muted" },
 };
 
@@ -113,7 +113,7 @@ const NotificationsPage = () => {
   if (loading && allNotifications.length === 0) {
     return (
       <PageWrapper className="mt-6 px-4">
-        <div className="max-w-3xl mx-auto p-4">
+        <div className="max-w-6xl mx-auto p-4">
           <h1 className="text-2xl font-semibold mb-6">Notifications</h1>
           <ListSkeleton rows={6} />
         </div>
@@ -133,7 +133,7 @@ const NotificationsPage = () => {
 
   return (
     <PageWrapper className="mt-6 px-4">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         {/* Header */}
         <div className="mb-5">
@@ -230,8 +230,8 @@ const NotificationsPage = () => {
                         {!n.read && <span className="absolute start-1.5 top-5 w-1.5 h-1.5 rounded-full bg-blue-500" />}
 
                         {/* Icon */}
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${cfg.bg}`}>
-                          <Icon className={`h-4 w-4 ${cfg.color}`} />
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg}`}>
+                          <Icon className={`h-5 w-5 ${cfg.color}`} />
                         </div>
 
                         {/* Content */}
