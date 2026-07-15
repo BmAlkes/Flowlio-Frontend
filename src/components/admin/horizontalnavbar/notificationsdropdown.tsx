@@ -19,7 +19,7 @@ import {
 } from "@/hooks/useNotifications";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router";
-import { Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore } from "lucide-react";
+import { Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore, AlertTriangle, ClipboardX, ShieldAlert, BarChart3 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Center } from "../../ui/center";
 import { Badge } from "../../ui/badge";
@@ -60,6 +60,15 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return <MessageCircleMore className="h-4 w-4" />;
       case "follow_up_scheduled":
         return <Bell className="h-4 w-4" />;
+      case "lead_followup_due":
+      case "lead_followup_overdue":
+        return <AlertTriangle className="h-4 w-4" />;
+      case "task_overdue":
+        return <ClipboardX className="h-4 w-4" />;
+      case "project_risk":
+        return <ShieldAlert className="h-4 w-4" />;
+      case "weekly_summary":
+        return <BarChart3 className="h-4 w-4" />;
       default:
         return <InboxIcon className="h-4 w-4" />;
     }
@@ -85,6 +94,15 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-indigo-500";
       case "follow_up_scheduled":
         return "bg-indigo-500";
+      case "lead_followup_due":
+      case "lead_followup_overdue":
+        return "bg-amber-500";
+      case "task_overdue":
+        return "bg-rose-500";
+      case "project_risk":
+        return "bg-rose-500";
+      case "weekly_summary":
+        return "bg-emerald-500";
       default:
         return "bg-muted/500";
     }
@@ -133,6 +151,26 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
 
     if (notification.type === "client_message") {
       navigate("/dashboard/comments?tab=messages");
+      return;
+    }
+
+    if (notification.type === "task_overdue") {
+      navigate("/dashboard/task-management");
+      return;
+    }
+
+    if (notification.type === "project_risk") {
+      navigate("/dashboard/project");
+      return;
+    }
+
+    if (notification.type === "lead_followup_due" || notification.type === "lead_followup_overdue") {
+      navigate("/dashboard/leads");
+      return;
+    }
+
+    if (notification.type === "weekly_summary") {
+      navigate("/dashboard");
       return;
     }
 
