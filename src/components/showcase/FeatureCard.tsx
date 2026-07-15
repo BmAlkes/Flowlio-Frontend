@@ -38,7 +38,7 @@ export const FeatureCard = ({ feature, watchLabel, onWatch }: FeatureCardProps) 
       </div>
 
       {/* Category pill */}
-      <span className="absolute top-3 left-3 bg-[#0F766E] text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+      <span className="absolute top-3 left-3 bg-[#0F766E] text-white text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
         {feature.category}
       </span>
 

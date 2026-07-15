@@ -192,7 +192,7 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                           <div className="flex items-center gap-2.5">
                             <Avatar className="h-7 w-7">
                               <AvatarImage src={m.userImage || ""} />
-                              <AvatarFallback className="text-[10px] bg-muted">{m.userName.slice(0,2).toUpperCase()}</AvatarFallback>
+                              <AvatarFallback className="text-xs bg-muted">{m.userName.slice(0,2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <span className="font-medium text-sm">{m.userName}</span>
                           </div>
@@ -227,7 +227,7 @@ const TeamProductivity: React.FC<Props> = ({ period, onPeriodChange }) => {
                                 />
                               </div>
                             </div>
-                          ) : <span className="text-muted-foreground/40 text-xs">—</span>}
+                          ) : <span className="text-muted-foreground/90 text-xs">—</span>}
                         </TableCell>
                       </TableRow>
                     );

@@ -57,7 +57,7 @@ export const ProjectFilter = ({ onFilterChange }: ProjectFilterProps) => {
           <Filter className="w-4 h-4" />
           Custom Filters
           {hasActiveFilters && (
-            <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full ms-1">
+            <span className="bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full ms-1">
               {Object.keys(activeFilters).length}
             </span>
           )}

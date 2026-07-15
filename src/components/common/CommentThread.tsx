@@ -80,13 +80,13 @@ function CommentItem({
         {/* Author row */}
         <Flex className="justify-between items-start mb-1.5">
           <Flex className="gap-2 items-center">
-            <Box className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+            <Box className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
               {comment.userName.charAt(0).toUpperCase()}
             </Box>
             <span className="text-xs font-semibold text-foreground">
               {comment.userName}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
               {comment.updatedAt !== comment.createdAt && (
                 <span className="ms-1 italic">(edited)</span>
@@ -175,7 +175,7 @@ function CommentItem({
           <Button
             variant="ghost"
             size="sm"
-            className="h-5 px-1 text-[10px] text-blue-500 hover:text-blue-700 mt-1.5 gap-1"
+            className="h-5 px-1 text-xs text-blue-500 hover:text-blue-700 mt-1.5 gap-1"
             onClick={() => {
               setReplyOpen((v) => !v);
               setReplyContent("");

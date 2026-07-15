@@ -48,7 +48,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
         />
       </svg>
       <Center className="absolute top-0 left-0 w-full h-full flex-col gap-0">
-        <span className="text-muted-foreground text-[11px]">{label}</span>
+        <span className="text-muted-foreground text-xs">{label}</span>
         <span className="text-foreground text-[13px] font-medium">{time}</span>
       </Center>
     </div>

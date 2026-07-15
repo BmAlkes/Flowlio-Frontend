@@ -64,7 +64,7 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
       {/* Avatar with real image */}
       <Avatar className="h-9 w-9 rounded-xl shrink-0">
         <AvatarImage src={lead.image} alt={lead.name} className="object-cover" />
-        <AvatarFallback className="rounded-xl text-[11px] font-bold bg-muted text-muted-foreground">
+        <AvatarFallback className="rounded-xl text-xs font-bold bg-muted text-muted-foreground">
           {getInitials(lead.name)}
         </AvatarFallback>
       </Avatar>
@@ -77,7 +77,7 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
           {lead.businessIndustry && (
             <>
               <span className="text-muted-foreground/40 mx-0.5">·</span>
-              <Building2 className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+              <Building2 className="h-3 w-3 text-muted-foreground/90 shrink-0" />
               <span className="text-xs text-muted-foreground truncate">{lead.businessIndustry}</span>
             </>
           )}
@@ -93,7 +93,7 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
         >
           <CheckCheck className="h-4 w-4" />
         </button>
-        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40" />
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/90" />
       </div>
     </motion.div>
   );
@@ -123,7 +123,7 @@ const Section = ({ title, leads, variant, onDone, onNavigate, isPending, moreLab
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${labelColors[variant]}`}>
+        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${labelColors[variant]}`}>
           {title}
         </span>
         <span className={`text-xs font-bold ${labelColors[variant].split(" ")[0]}`}>
@@ -202,7 +202,7 @@ export const FollowUpWidget = () => {
           <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <CheckCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <p className="text-sm font-medium text-foreground/70">{t("dashboard.followUpsAllDone")}</p>
+          <p className="text-sm font-medium text-foreground/90">{t("dashboard.followUpsAllDone")}</p>
           <p className="text-xs text-muted-foreground text-center">{t("dashboard.followUpsAllDoneDesc")}</p>
         </div>
       ) : (

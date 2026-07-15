@@ -45,7 +45,7 @@ export const VideoModal = ({ isOpen, videoId, title, onClose }: VideoModalProps)
           <span className="text-white text-sm font-semibold truncate pe-4">{title}</span>
           <button
             onClick={onClose}
-            className="flex-shrink-0 text-white/70 hover:text-white transition-colors"
+            className="flex-shrink-0 text-white/90 hover:text-white transition-colors"
             aria-label="Close video"
           >
             <X className="size-5" />

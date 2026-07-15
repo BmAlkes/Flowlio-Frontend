@@ -139,19 +139,19 @@ export const TeamProductivityChart: FC<BoxProps> = ({ className, ...props }) => 
               <div className="flex items-center gap-4 shrink-0 text-end">
                 <div className="text-end hidden sm:block">
                   <p className="text-xs font-semibold text-foreground">{row.totalMinutes?.toLocaleString()}m</p>
-                  <p className="text-[10px] text-muted-foreground">time</p>
+                  <p className="text-xs text-muted-foreground">time</p>
                 </div>
                 <div className="text-end">
                   <p className="text-xs font-semibold text-emerald-500">{row.completedTasks}</p>
-                  <p className="text-[10px] text-muted-foreground">done</p>
+                  <p className="text-xs text-muted-foreground">done</p>
                 </div>
                 <div className="text-end hidden sm:block">
                   <p className="text-xs font-semibold text-amber-500">{row.inProgressTasks}</p>
-                  <p className="text-[10px] text-muted-foreground">active</p>
+                  <p className="text-xs text-muted-foreground">active</p>
                 </div>
                 <div className="text-end">
                   <p className="text-xs font-semibold text-rose-500">{row.pendingTasks}</p>
-                  <p className="text-[10px] text-muted-foreground">pending</p>
+                  <p className="text-xs text-muted-foreground">pending</p>
                 </div>
               </div>
             </div>

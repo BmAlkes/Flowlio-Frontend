@@ -303,13 +303,13 @@ export const WebhookDetail = () => {
                   <div className="flex items-center gap-2 text-xs">
                     <span className={`font-medium ${isError(log.status) ? "text-rose-600" : "text-foreground"}`}>{log.status}</span>
                     <span className="text-muted-foreground">{format(new Date(log.createdAt), "d MMM HH:mm")}</span>
-                    {log.ip && <span className="text-muted-foreground/40">{log.ip}</span>}
+                    {log.ip && <span className="text-muted-foreground/90">{log.ip}</span>}
                   </div>
                   {log.error && <p className="text-xs text-rose-500 mt-0.5">{log.error}</p>}
                   {log.leadId && <p className="text-xs text-green-600 mt-0.5">Lead: {log.leadId.slice(0, 8)}</p>}
                   <details className="mt-1">
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">Payload</summary>
-                    <pre className="mt-1 text-[11px] bg-muted/40 rounded p-2 overflow-x-auto font-mono max-h-32 text-muted-foreground">
+                    <pre className="mt-1 text-xs bg-muted/40 rounded p-2 overflow-x-auto font-mono max-h-32 text-muted-foreground">
                       {log.payload && Object.keys(log.payload).length > 0 ? JSON.stringify(log.payload, null, 2) : "(empty)"}
                     </pre>
                   </details>

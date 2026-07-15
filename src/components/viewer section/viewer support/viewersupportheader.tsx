@@ -151,8 +151,8 @@ export const ViewerSupportHeader = () => {
       header: () => <Box className="text-foreground font-semibold text-center">Submitted</Box>,
       cell: ({ row }) => (
         <Box className="text-xs text-muted-foreground text-center flex flex-col items-center">
-          <span className="font-medium text-foreground/80">{format(new Date(row.original.createdon), "MMM dd, yyyy")}</span>
-          <span className="text-[10px] opacity-70">{formatDistanceToNow(new Date(row.original.createdon), { addSuffix: true })}</span>
+          <span className="font-medium text-foreground/90">{format(new Date(row.original.createdon), "MMM dd, yyyy")}</span>
+          <span className="text-xs opacity-90">{formatDistanceToNow(new Date(row.original.createdon), { addSuffix: true })}</span>
         </Box>
       ),
     },
@@ -213,7 +213,7 @@ export const ViewerSupportHeader = () => {
       {/* Header Section */}
       <Flex className="justify-between items-end mb-10 border-b border-border pb-8">
         <Stack className="gap-2">
-          <Badge className="w-fit bg-blue-100 text-blue-600 hover:bg-blue-100/80 border-none px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-1">
+          <Badge className="w-fit bg-blue-100 text-blue-600 hover:bg-blue-100/80 border-none px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-1">
             Support Center
           </Badge>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
@@ -248,7 +248,7 @@ export const ViewerSupportHeader = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="text-[10px] h-6 px-2 text-red-500 hover:bg-red-50 font-bold uppercase tracking-tighter"
+                  className="text-xs h-6 px-2 text-red-500 hover:bg-red-50 font-bold uppercase tracking-tighter"
                   onClick={() => clearAllNotificationsMutation.mutate()}
                 >
                   Clear
@@ -261,11 +261,11 @@ export const ViewerSupportHeader = () => {
                 notificationsData.data.notifications.map((n: any) => (
                   <div
                     key={n.id}
-                    className={`p-3 rounded-2xl cursor-pointer transition-all border ${n.read ? "bg-white/50 dark:bg-muted/10 border-transparent text-foreground/70" : "bg-white dark:bg-muted/20 border-blue-100 dark:border-blue-500/20 shadow-sm hover:border-blue-400 dark:hover:border-blue-500"}`}
+                    className={`p-3 rounded-2xl cursor-pointer transition-all border ${n.read ? "bg-white/50 dark:bg-muted/10 border-transparent text-foreground/90" : "bg-white dark:bg-muted/20 border-blue-100 dark:border-blue-500/20 shadow-sm hover:border-blue-400 dark:hover:border-blue-500"}`}
                     onClick={() => handleNotificationClick(n)}
                   >
-                    <p className={`text-xs ${n.read ? "text-foreground/60" : "font-bold text-foreground"}`}>{n.title}</p>
-                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">{n.message}</p>
+                    <p className={`text-xs ${n.read ? "text-foreground/90" : "font-bold text-foreground"}`}>{n.title}</p>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{n.message}</p>
                   </div>
                 ))
               ) : (
@@ -320,7 +320,7 @@ export const ViewerSupportHeader = () => {
                     <Loader2 className="size-5 text-blue-500 animate-pulse" />
                   </div>
                 </div>
-                <p className="font-bold text-blue-600/60 tracking-widest text-[10px] uppercase">Retrieving Records</p>
+                <p className="font-bold text-blue-600/60 tracking-widest text-xs uppercase">Retrieving Records</p>
               </Center>
             ) : filteredTickets.length === 0 ? (
               <Center className="h-80 flex-col gap-3 text-muted-foreground">
@@ -347,7 +347,7 @@ export const ViewerSupportHeader = () => {
       {/* Creation Flow Modal */}
       <GeneralModal open={createModalProps.open} onOpenChange={createModalProps.onOpenChange} contentProps={{ className: "max-w-2xl rounded-[2.5rem] p-6 border-none shadow-2xl" }}>
         <Stack className="gap-1 mb-4 border-b border-border pb-4">
-          <Badge className="w-fit bg-orange-100 text-orange-600 border-none px-3 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase">New Submission</Badge>
+          <Badge className="w-fit bg-orange-100 text-orange-600 border-none px-3 py-0.5 rounded-full text-xs font-black tracking-widest uppercase">New Submission</Badge>
           <h2 className="text-3xl font-black text-foreground tracking-tight">Technical Assistance</h2>
           <p className="text-muted-foreground text-sm">Please provide a clear subject and detailed description of your request.</p>
         </Stack>
@@ -359,7 +359,7 @@ export const ViewerSupportHeader = () => {
               name="subject"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90 flex items-center gap-2">
                     <Calendar className="size-3"/> Topic / Summary
                   </FormLabel>
                   <FormControl>
@@ -375,20 +375,20 @@ export const ViewerSupportHeader = () => {
               name="destination"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90 flex items-center gap-2">
                     <Search className="size-3"/> Route To
                   </FormLabel>
                   <Flex className="gap-2 p-1 bg-muted/30 rounded-2xl border border-border/50">
                     <button
                       type="button"
-                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === "platform" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                      className={`flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${field.value === "platform" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
                       onClick={() => field.onChange("platform")}
                     >
                       Platform Support
                     </button>
                     <button
                       type="button"
-                      className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === "internal" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                      className={`flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${field.value === "internal" ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
                       onClick={() => field.onChange("internal")}
                     >
                       Internal Support
@@ -404,7 +404,7 @@ export const ViewerSupportHeader = () => {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90 flex items-center gap-2">
                     <Hash className="size-3"/> Full Description
                   </FormLabel>
                   <FormControl>
@@ -420,7 +420,7 @@ export const ViewerSupportHeader = () => {
               name="priority"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-2">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90 flex items-center gap-2">
                     Urgency Level
                   </FormLabel>
                   <Flex className="gap-2 p-1 bg-muted/30 rounded-2xl border border-border/50">
@@ -428,7 +428,7 @@ export const ViewerSupportHeader = () => {
                       <button
                         key={level}
                         type="button"
-                        className={`flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${field.value === level ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
+                        className={`flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${field.value === level ? "bg-white text-blue-600 shadow-sm border border-blue-100" : "text-muted-foreground hover:bg-white/50"}`}
                         onClick={() => field.onChange(level)}
                       >
                         {level}

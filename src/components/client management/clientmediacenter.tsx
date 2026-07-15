@@ -345,7 +345,7 @@ export const ClientMediaCenter: React.FC = () => {
                 ) : (
                   <Box className="flex flex-col items-center">
                     {getFileIcon(file.fileType)}
-                    <span className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-widest">
+                    <span className="text-xs font-bold text-muted-foreground mt-2 uppercase tracking-widest">
                       {file.fileType?.split("/")[1] || "FILE"}
                     </span>
                   </Box>
@@ -356,7 +356,7 @@ export const ClientMediaCenter: React.FC = () => {
               <Flex className="absolute top-3 left-3 right-3 justify-between items-start z-10 pointer-events-none">
                 {/* Project Name Badge */}
                 <Box className="transition-transform duration-300 group-hover:translate-x-1 group-hover:translate-y-1">
-                  <span className="bg-card/90 backdrop-blur-md text-[9px] font-black px-1.5 py-0.5 rounded-md text-gray-800 shadow-sm border border-white/50">
+                  <span className="bg-card/90 backdrop-blur-md text-xs font-black px-1.5 py-0.5 rounded-md text-gray-800 shadow-sm border border-white/50">
                     V{file.latestVersion}
                   </span>
                 </Box>
@@ -364,7 +364,7 @@ export const ClientMediaCenter: React.FC = () => {
                 {/* Format Badge */}
                 <Box className="transition-transform duration-300 group-hover:-translate-x-1 group-hover:translate-y-1">
                   <span
-                    className={`backdrop-blur-md text-[9px] font-black px-2 py-0.5 rounded-md shadow-sm border border-white/20 uppercase tracking-tighter ${getFormatBadgeStyle(
+                    className={`backdrop-blur-md text-xs font-black px-2 py-0.5 rounded-md shadow-sm border border-white/20 uppercase tracking-tighter ${getFormatBadgeStyle(
                       file.fileName,
                       file.fileType,
                     )}`}
@@ -376,7 +376,7 @@ export const ClientMediaCenter: React.FC = () => {
 
               {/* Always Visible Filename */}
               <Box className="absolute bottom-0 left-0 right-0 p-4 pt-12 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20 group-hover:opacity-0 transition-opacity duration-300">
-                <p className="text-white font-bold text-[11px] leading-tight line-clamp-1 drop-shadow-lg">
+                <p className="text-white font-bold text-xs leading-tight line-clamp-1 drop-shadow-lg">
                   {file.fileName}
                 </p>
               </Box>
@@ -388,7 +388,7 @@ export const ClientMediaCenter: React.FC = () => {
                     <p className="text-white font-bold text-sm leading-tight line-clamp-2 drop-shadow-md">
                       {file.fileName}
                     </p>
-                    <Flex className="items-center gap-2 mt-2 text-white/60 text-[10px]">
+                    <Flex className="items-center gap-2 mt-2 text-white/90 text-xs">
                       <Calendar className="w-3 h-3" />
                       {format(new Date(file.createdAt), "MMM d, yyyy")}
                     </Flex>
@@ -398,22 +398,22 @@ export const ClientMediaCenter: React.FC = () => {
                     {file.projectName && (
                       <Flex className="items-center gap-2">
                         <Box className="w-1 h-1 rounded-full bg-blue-400" />
-                        <p className="text-[10px] font-bold text-blue-300 uppercase tracking-tighter truncate">
+                        <p className="text-xs font-bold text-blue-300 uppercase tracking-tighter truncate">
                           {file.projectName}
                         </p>
                       </Flex>
                     )}
                     {file.taskName && (
-                      <p className="text-[10px] text-white/50 italic truncate">
+                      <p className="text-xs text-white/90 italic truncate">
                         {t("projects.task")}: {file.taskName}
                       </p>
                     )}
                     {file.clientName && (
-                      <p className="text-[10px] text-white/50 truncate">
+                      <p className="text-xs text-white/90 truncate">
                         {t("projects.client")}: {file.clientName}
                       </p>
                     )}
-                    <p className="text-[10px] text-white/30">
+                    <p className="text-xs text-white/90">
                       {t("media.version")} {file.latestVersion}
                     </p>
                   </Box>

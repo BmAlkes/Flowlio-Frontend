@@ -200,7 +200,7 @@ export const CustomFieldsManager = ({
                       value={selectedColor}
                       onChange={(e) => setSelectedColor(e.target.value)}
                       placeholder="#HEX"
-                      className="h-7 text-[10px] px-1"
+                      className="h-7 text-xs px-1"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>

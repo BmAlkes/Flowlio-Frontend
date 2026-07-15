@@ -188,7 +188,7 @@ const SupportHeader = () => {
         return (
           <Flex className="items-center gap-2">
             <Avatar className="size-6 border border-border">
-              <AvatarFallback className="bg-muted text-[10px] font-bold">
+              <AvatarFallback className="bg-muted text-xs font-bold">
                 {displayName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -455,7 +455,7 @@ const SupportHeader = () => {
               >
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm ${n.read ? "text-foreground/70" : "font-bold text-foreground"}`}
+                    className={`text-sm ${n.read ? "text-foreground/90" : "font-bold text-foreground"}`}
                   >
                     {n.title}
                   </p>
@@ -463,7 +463,7 @@ const SupportHeader = () => {
                     {n.message}
                   </p>
                 </div>
-                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
                   {formatDistanceToNow(new Date(n.createdAt), {
                     addSuffix: true,
                   })}
@@ -560,7 +560,7 @@ const SupportHeader = () => {
                         <span className="font-bold text-sm text-foreground">
                           {activity.user}
                         </span>
-                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                        <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
                           {formatDistanceToNow(new Date(activity.date), {
                             addSuffix: true,
                           })}

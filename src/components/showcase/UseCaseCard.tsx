@@ -50,7 +50,7 @@ export const UseCaseCard = ({
 
       {/* Feature pills */}
       <div>
-        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {featuresLabel}
         </p>
         <div className="flex flex-wrap gap-1.5">

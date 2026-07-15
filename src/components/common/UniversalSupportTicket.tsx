@@ -122,7 +122,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
       {/* Header Section */}
       <Flex className="justify-between items-end mb-10 border-b border-border pb-8 px-4">
         <Stack className="gap-2">
-          <Badge className="w-fit mt-3 bg-blue-100 text-blue-600 border-none px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-1">
+          <Badge className="w-fit mt-3 bg-blue-100 text-blue-600 border-none px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-1">
             Administration
           </Badge>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
@@ -178,7 +178,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
         contentProps={{ className: "max-w-2xl rounded-[2.5rem] p-6" }}
       >
         <Stack className="gap-1 mb-5 border-b border-border pb-4">
-          <Badge className="w-fit bg-blue-100 text-blue-600 border-none px-3 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase">
+          <Badge className="w-fit bg-blue-100 text-blue-600 border-none px-3 py-0.5 rounded-full text-xs font-black tracking-widest uppercase">
             Admin Flow
           </Badge>
           <h2 className="text-3xl font-black text-foreground tracking-tight">
@@ -193,7 +193,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
               name="subject"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                     Subject
                   </FormLabel>
                   <FormControl>
@@ -213,7 +213,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                  <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                     Description
                   </FormLabel>
                   <FormControl>
@@ -234,7 +234,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                       Priority
                     </FormLabel>
                     <Select
@@ -262,7 +262,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
                 name="client"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                       Client (Optional)
                     </FormLabel>
                     <FormControl>
@@ -279,7 +279,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
 
             {(canAssignToOrganizations || canAssignToUsers) && (
               <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                   Assignment Type
                 </FormLabel>
                 <Select
@@ -317,7 +317,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
                 name="assignedToOrganization"
                 render={({ field }) => (
                   <FormItem className="animate-in fade-in slide-in-from-top-2">
-                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                       Select Organization
                     </FormLabel>
                     <Select
@@ -348,7 +348,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem className="animate-in fade-in slide-in-from-top-2">
-                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/70">
+                    <FormLabel className="text-xs font-bold uppercase tracking-widest text-foreground/90">
                       Select Recipient
                     </FormLabel>
                     <Select

@@ -105,7 +105,7 @@ export const columns: ColumnDef<RecurringInvoice>[] = [
 
       return (
         <Center>
-          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${colorClass} capitalize`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${colorClass} capitalize`}>
             {status}
           </span>
         </Center>

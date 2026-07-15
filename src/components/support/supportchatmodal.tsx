@@ -63,13 +63,13 @@ export const SupportChatModal = ({ ticket, isOpen, onClose }: SupportChatModalPr
               <AlertCircle className="size-4" />
               <span className="text-xs font-semibold uppercase tracking-widest">Initial Description</span>
             </Flex>
-            <p className="text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed">
+            <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
               {ticket.description}
             </p>
           </Box>
           <Box className="space-y-3 border-s border-border/50 ps-4 max-md:border-s-0 max-md:ps-0 max-md:border-t max-md:pt-4">
             <Box>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Client / Organization</span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Client / Organization</span>
               {(() => {
                 const clientValue = ticket.client;
                 const isId = clientValue && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clientValue);
@@ -78,7 +78,7 @@ export const SupportChatModal = ({ ticket, isOpen, onClose }: SupportChatModalPr
               })()}
             </Box>
             <Box>
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">Assigned To</span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1">Assigned To</span>
               <p className="text-xs font-medium text-foreground">
                 {ticket.assignedUser?.name || ticket.assignedOrganization?.name || ticket.assignedto || "Unassigned"}
               </p>

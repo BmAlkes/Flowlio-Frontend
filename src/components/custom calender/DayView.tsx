@@ -80,7 +80,7 @@ export const DayView: React.FC<DayViewProps> = ({
       <div className="grid border-b border-border bg-background" style={{ gridTemplateColumns: "64px 1fr" }}>
         <div />
         <div className="flex flex-col items-center py-2 gap-0.5 select-none">
-          <span className="text-[10px] uppercase tracking-widest font-medium text-muted-foreground">
+          <span className="text-xs uppercase tracking-widest font-medium text-muted-foreground">
             {format(currentDate, "EEE", { locale: currentLocale })}
           </span>
           <span
@@ -89,7 +89,7 @@ export const DayView: React.FC<DayViewProps> = ({
               isToday
                 ? "bg-[#1797B9] text-white shadow-sm"
                 : isWeekend
-                ? "text-muted-foreground/60"
+                ? "text-muted-foreground/90"
                 : "text-foreground"
             )}
           >
@@ -119,7 +119,7 @@ export const DayView: React.FC<DayViewProps> = ({
                 className="flex items-start justify-end pe-3 pt-1 bg-background select-none"
                 style={{ minHeight: ROW_HEIGHT }}
               >
-                <span className="text-[10px] text-muted-foreground/60 font-medium tabular-nums">
+                <span className="text-xs text-muted-foreground/90 font-medium tabular-nums">
                   {formatHour(hour, currentLanguage)}
                 </span>
               </div>
@@ -193,7 +193,7 @@ export const DayView: React.FC<DayViewProps> = ({
                           <PlatformIcon platform={event.platform} />
                           <span className="text-xs font-semibold truncate">{event.title}</span>
                         </Flex>
-                        <span className="text-[10px] opacity-80">
+                        <span className="text-xs opacity-90">
                           {formatHour(event.startHour, currentLanguage)}–{formatHour(event.endHour, currentLanguage)}
                         </span>
 

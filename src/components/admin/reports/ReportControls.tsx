@@ -102,7 +102,7 @@ export const TrendBadge = ({ change }: { change: number | null | undefined }) =>
   const color = isUp ? "text-green-600" : isDown ? "text-rose-600" : "text-muted-foreground";
   const bg   = isUp ? "bg-green-50 dark:bg-green-900/20" : isDown ? "bg-rose-50 dark:bg-rose-900/20" : "bg-muted/50";
   return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded ${color} ${bg}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded ${color} ${bg}`}>
       <Icon className="h-3 w-3" />
       {Math.abs(change).toFixed(1)}%
     </span>

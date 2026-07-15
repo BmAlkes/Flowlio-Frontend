@@ -326,18 +326,18 @@ const SuperAdminAIMonitoringPage = () => {
                     return (
                       <TableRow
                         key={limit.id ?? limit.organizationId}
-                        className={limit.isDefault ? "opacity-70" : ""}
+                        className={limit.isDefault ? "opacity-90" : ""}
                       >
                         <TableCell className="font-medium text-foreground">
                           <div className="flex items-center gap-2 flex-wrap">
                             {limit.organizationName}
                             {limit.isDemo && (
-                              <Badge className="text-[10px] px-1.5 py-0 h-4 bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/30">
+                              <Badge className="text-xs px-1.5 py-0 h-4 bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-500/30">
                                 Demo
                               </Badge>
                             )}
                             {limit.isDefault && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground">
+                              <Badge variant="outline" className="text-xs px-1.5 py-0 h-4 text-muted-foreground">
                                 Default
                               </Badge>
                             )}

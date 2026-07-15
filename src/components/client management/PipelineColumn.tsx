@@ -56,7 +56,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
           <Flex className="items-center gap-2 min-w-0">
             <div className={`w-2 h-2 rounded-full shrink-0 ${getStatusColor(title)}`} />
             <h3 className="font-semibold text-sm text-foreground/90 truncate">{title}</h3>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-gray-800 border border-border/50 font-bold text-muted-foreground">
+            <span className="text-xs px-1.5 py-0.5 rounded bg-white dark:bg-gray-800 border border-border/50 font-bold text-muted-foreground">
               {items.length}
             </span>
           </Flex>
@@ -65,7 +65,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
         <Flex className="items-center gap-2">
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white dark:bg-gray-800 border border-border/40">
             <DollarSign className="h-2.5 w-2.5 text-emerald-600" />
-            <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
               {formatValue(totalValue)}
             </span>
           </div>
@@ -102,7 +102,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
                 ? "border-indigo-300 dark:border-indigo-600 bg-indigo-50/40 dark:bg-indigo-900/10"
                 : "border-border/30"
             }`}>
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/30">
+              <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground/90">
                 Drop here
               </span>
             </div>

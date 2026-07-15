@@ -95,7 +95,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
             Your Smart Virtual Assistant
           </h1>
           {session?.user && (
-            <h1 className="text-xs font-light text-white/70 max-md:text-foreground mt-1">
+            <h1 className="text-xs font-light text-white/90 max-md:text-foreground mt-1">
               Welcome, {session.user.name || session.user.email}
             </h1>
           )}

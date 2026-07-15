@@ -191,7 +191,7 @@ export const ViewerBarChartComponent: FC<
             <p className="text-base font-medium text-muted-foreground">
               {t("viewerChart.noData", { defaultValue: "No activity yet" })}
             </p>
-            <p className="text-sm text-muted-foreground/60 mt-1">
+            <p className="text-sm text-muted-foreground/90 mt-1">
               {t("viewerChart.noDataDesc", {
                 defaultValue:
                   "Start tracking time on tasks to see your performance here.",
