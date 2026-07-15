@@ -117,7 +117,7 @@ export const WebhookDetail = () => {
     setMapping((p) => ({ ...p, [key]: value }));
   };
 
-  const handleCreateField = (key: string) => {
+  const handleCreateField = () => {
     if (!newFieldName.trim()) return;
     createLeadField.mutate(
       { name: newFieldName.trim(), type: "text" },
@@ -234,9 +234,9 @@ export const WebhookDetail = () => {
                         placeholder="Field name"
                         value={newFieldName}
                         onChange={(e) => setNewFieldName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleCreateField(key)}
+                        onKeyDown={(e) => e.key === "Enter" && handleCreateField()}
                       />
-                      <Button size="sm" className="h-8 text-xs" disabled={!newFieldName.trim() || createLeadField.isPending} onClick={() => handleCreateField(key)}>
+                      <Button size="sm" className="h-8 text-xs" disabled={!newFieldName.trim() || createLeadField.isPending} onClick={() => handleCreateField()}>
                         {createLeadField.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Create"}
                       </Button>
                       <button onClick={() => setCreatingFieldFor(null)} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
