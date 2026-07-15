@@ -16,23 +16,11 @@ import { CalendarIcon } from "@/components/customeIcons";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Check, Pencil, X, Webhook } from "lucide-react";
+import { getWebhookDisplayItems } from "@/utils/webhookFields";
 
 interface Props {
   leadId: string;
   rawCustomFields?: Record<string, any> | null;
-}
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function isUUID(s: string) {
-  return UUID_RE.test(s);
-}
-
-function cleanLabel(key: string): string {
-  // Elementor flat: fields[message][value] → Message
-  const m = key.match(/^fields\[([^\]]+)\]\[value\]$/);
-  if (m) return m[1].replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  return key.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function FieldInput({
@@ -113,30 +101,12 @@ export function LeadCustomFieldsSection({ leadId, rawCustomFields }: Props) {
     setEditing(false);
   }, [leadId, savedValues]);
 
-  // Build webhook display items from rawCustomFields:
-  // - UUID key that matches a defined field → use the field name as label
-  // - Non-UUID key → clean label
-  // - UUID key with no matching field → skip (internal key, not useful to show)
-  const webhookItems: { label: string; value: string }[] = [];
-  if (rawCustomFields) {
-    for (const [key, val] of Object.entries(rawCustomFields)) {
-      if (val == null || val === "") continue;
-      if (typeof val === "object") continue;
-      if (isUUID(key)) {
-        const matchingField = fields.find((f) => f.id === key);
-        if (matchingField) {
-          webhookItems.push({ label: matchingField.name, value: String(val) });
-        }
-        // else: UUID without a matching field definition → skip
-      } else {
-        webhookItems.push({ label: cleanLabel(key), value: String(val) });
-      }
-    }
-  }
+  const webhookItems = getWebhookDisplayItems(rawCustomFields, fields);
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const fieldsWithWebhookValue = new Set(
     rawCustomFields
-      ? Object.keys(rawCustomFields).filter((k) => isUUID(k) && fields.some((f) => f.id === k) && rawCustomFields[k] != null && rawCustomFields[k] !== "")
+      ? Object.keys(rawCustomFields).filter((k) => UUID_RE.test(k) && fields.some((f) => f.id === k) && rawCustomFields[k] != null && rawCustomFields[k] !== "")
       : []
   );
 

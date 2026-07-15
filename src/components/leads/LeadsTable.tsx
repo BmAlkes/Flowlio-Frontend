@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLeads, useDeleteLead } from "@/hooks/useLeads";
 import { useWebhooks } from "@/hooks/useWebhooks";
+import { useLeadFields } from "@/hooks/useLeadFields";
+import { getWebhookDisplayItems } from "@/utils/webhookFields";
 import { useUpdateLeadTemperature, LeadTemperature } from "@/hooks/useCRM";
 import { ClientDetailSheet } from "@/components/client management/ClientDetailSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -101,6 +103,7 @@ export const LeadsTable = () => {
 
   const { data, isLoading } = useLeads({ search, webhookId: webhookId !== "all" ? webhookId : undefined });
   const { data: webhooks = [] } = useWebhooks();
+  const { data: leadFields = [] } = useLeadFields();
   const deleteLead = useDeleteLead();
   const bulkAction = useBulkLeadAction();
   const leads = data?.data ?? [];
@@ -165,6 +168,7 @@ export const LeadsTable = () => {
               </th>
               <th className="text-start px-3 py-3 font-medium text-muted-foreground">Name</th>
               <th className="text-start px-3 py-3 font-medium text-muted-foreground">Source</th>
+              <th className="text-start px-3 py-3 font-medium text-muted-foreground">Note</th>
               <th className="text-start px-3 py-3 font-medium text-muted-foreground">Tags</th>
               <th className="text-start px-3 py-3 font-medium text-muted-foreground">Assigned</th>
               <th className="text-start px-3 py-3 font-medium text-muted-foreground">Stage</th>
@@ -177,7 +181,7 @@ export const LeadsTable = () => {
           </thead>
           <tbody className="divide-y divide-border/50">
             {leads.length === 0 ? (
-              <tr><td colSpan={11} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
+              <tr><td colSpan={12} className="text-center py-16 text-muted-foreground">{search ? "No leads match your search." : "No leads yet."}</td></tr>
             ) : (
               leads.map((lead: any) => {
                 const dot = STAGE_DOT[lead.status] ?? "bg-gray-400";
@@ -185,6 +189,7 @@ export const LeadsTable = () => {
                 const overdue = fu ? isPast(fu) : false;
                 const days = fu ? differenceInDays(fu, new Date()) : null;
                 const initials = lead.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) ?? "?";
+                const note = getWebhookDisplayItems(lead.customFields, leadFields)[0];
 
                 return (
                   <tr
@@ -219,6 +224,14 @@ export const LeadsTable = () => {
 
                     <td className="px-3 py-3">
                       <span className="text-xs text-muted-foreground">{lead.webhookName ?? "Manual"}</span>
+                    </td>
+
+                    <td className="px-3 py-3 max-w-[220px]">
+                      {note ? (
+                        <p className="text-xs text-muted-foreground truncate" title={`${note.label}: ${note.value}`}>{note.value}</p>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/90">—</span>
+                      )}
                     </td>
 
                     <td className="px-3 py-3">
