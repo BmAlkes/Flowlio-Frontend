@@ -88,7 +88,7 @@ export const GuidedFlowModal = ({
               className="bg-[#1797B9] hover:bg-[#1797B9]/90 text-white flex-1 sm:flex-initial cursor-pointer"
             >
               {nextAction.label}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ms-2 h-4 w-4" />
             </Button>
           </Flex>
         </DialogFooter>

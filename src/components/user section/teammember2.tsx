@@ -36,7 +36,7 @@ export const TeamMember2 = () => {
               <Flex className="gap-0 w-60 max-sm:w-full">
                 <h1 className="text-white font-[100] text-5xl max-sm:text-3xl">
                   Meet the Minds Behind
-                  <span className="text-[#F98618] text-5xl max-sm:text-3xl font-semibold ml-1">
+                  <span className="text-[#F98618] text-5xl max-sm:text-3xl font-semibold ms-1">
                     Dotvizion
                   </span>
                 </h1>

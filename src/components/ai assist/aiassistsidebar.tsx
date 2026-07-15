@@ -60,7 +60,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
   return (
     <Sidebar
       className={cn(
-        "**:data-[sidebar=sidebar]:bg-[url('/dashboard/aisidebarimg.png')] **:data-[sidebar=sidebar]:bg-center **:data-[sidebar=sidebar]:bg-cover **:data-[sidebar=sidebar]:text-white absolute mt-24 z-[1] **:data-[sidebar=sidebar]:rounded-l-lg **:data-[sidebar=sidebar]:overflow-hidden inset-y-0 mb-1 ml-2 h-screen",
+        "**:data-[sidebar=sidebar]:bg-[url('/dashboard/aisidebarimg.png')] **:data-[sidebar=sidebar]:bg-center **:data-[sidebar=sidebar]:bg-cover **:data-[sidebar=sidebar]:text-white absolute mt-24 z-[1] **:data-[sidebar=sidebar]:rounded-l-lg **:data-[sidebar=sidebar]:overflow-hidden inset-y-0 mb-1 ms-2 h-screen",
         className,
       )}
       collapsible="icon"
@@ -77,7 +77,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
           <SidebarTrigger
             className={cn(
               "text-white max-md:text-foreground bg-gray-100/20 hover:bg-gray-100/30",
-              state === "collapsed" ? "-ml-4 rotate-180" : "ml-auto",
+              state === "collapsed" ? "-ms-4 rotate-180" : "ms-auto",
             )}
           />
         </Flex>
@@ -186,7 +186,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
-                                className="hover:bg-card/30 rounded p-1 ml-1 cursor-pointer"
+                                className="hover:bg-card/30 rounded p-1 ms-1 cursor-pointer"
                                 title="More actions"
                               >
                                 <EllipsisVertical className="size-4 text-foreground" />
@@ -197,7 +197,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
                                 className="cursor-pointer"
                                 onClick={() => handleEdit(chat.id, chat.title)}
                               >
-                                <Pencil className="size-4 mr-2" /> Rename
+                                <Pencil className="size-4 me-2" /> Rename
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
@@ -212,7 +212,7 @@ export const AiAssitSidebar: React.FC<{ className?: string }> = ({
                                 }}
                                 variant="destructive"
                               >
-                                <Trash className="size-4 mr-2" /> Delete
+                                <Trash className="size-4 me-2" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

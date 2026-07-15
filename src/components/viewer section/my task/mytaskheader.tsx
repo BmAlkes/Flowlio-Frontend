@@ -127,14 +127,14 @@ export const MyTaskHeader = () => {
         </Center>
 
         <Flex className="justify-between max-sm:items-start flex-col lg:flex-row items-center w-full gap-4">
-          <Flex className={cn("relative md:ml-auto w-full")}>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
+          <Flex className={cn("relative md:ms-auto w-full")}>
+            <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
             <Input
               type="search"
               placeholder={t("tasks.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 pl-10 bg-card h-10  placeholder:text-foreground  placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0 rounded-full"
+              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 ps-10 bg-card h-10  placeholder:text-foreground  placeholder:text-[15px] border border-border focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0 rounded-full"
             />
           </Flex>
 
@@ -145,7 +145,7 @@ export const MyTaskHeader = () => {
                   variant="ghost"
                   aria-haspopup="dialog"
                   className={cn(
-                    "ml-auto cursor-pointer bg-card border border-border rounded-full h-10 w-40 text-foreground shadow-none flex p-3 gap-8"
+                    "ms-auto cursor-pointer bg-card border border-border rounded-full h-10 w-40 text-foreground shadow-none flex p-3 gap-8"
                   )}
                 >
                   {selectedProject === "all" ? t("tasks.allProjects") : selectedProject}

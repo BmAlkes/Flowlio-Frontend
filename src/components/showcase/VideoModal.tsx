@@ -42,7 +42,7 @@ export const VideoModal = ({ isOpen, videoId, title, onClose }: VideoModalProps)
       <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 bg-[#1A1A2E]">
-          <span className="text-white text-sm font-semibold truncate pr-4">{title}</span>
+          <span className="text-white text-sm font-semibold truncate pe-4">{title}</span>
           <button
             onClick={onClose}
             className="flex-shrink-0 text-white/70 hover:text-white transition-colors"

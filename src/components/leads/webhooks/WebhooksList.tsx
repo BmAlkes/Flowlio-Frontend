@@ -121,7 +121,7 @@ function CreateWebhookDialog({ open, onClose }: { open: boolean; onClose: () => 
         <div className="flex justify-end gap-3 mt-5">
           <Button variant="outline" onClick={onClose} className="rounded-full px-6 h-10">Cancel</Button>
           <Button onClick={handleCreate} disabled={isPending || !name.trim()} className="rounded-full px-6 h-10">
-            {isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating...</> : "Create"}
+            {isPending ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />Creating...</> : "Create"}
           </Button>
         </div>
       </DialogContent>
@@ -171,7 +171,7 @@ export const WebhooksList = () => {
             Connect WordPress, Facebook Lead Ads, or any form to automatically create leads.
           </p>
           <Button variant="outline" className="mt-5 rounded-full px-6 h-10" onClick={() => setShowCreate(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Create your first webhook
           </Button>
         </div>

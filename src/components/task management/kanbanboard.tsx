@@ -159,7 +159,7 @@ function DraggableTask({
                   >
                     <MessageCircleMore className="size-3.5" />
                     {commentCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                      <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                         {commentCount > 9 ? "9+" : commentCount}
                       </span>
                     )}

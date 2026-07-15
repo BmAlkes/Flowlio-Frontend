@@ -137,7 +137,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
                   variant="outline"
                   className="flex-1"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-4 h-4 me-2" />
                   Download
                 </Button>
                 {onRegenerate && (
@@ -147,7 +147,7 @@ export const ImageGenerationModal: React.FC<ImageGenerationModalProps> = ({
                     className="flex-1"
                     disabled={isLoading}
                   >
-                    <RefreshCw className="w-4 h-4 mr-2" />
+                    <RefreshCw className="w-4 h-4 me-2" />
                     Regenerate
                   </Button>
                 )}

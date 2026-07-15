@@ -159,7 +159,7 @@ export const Navbar: FC<NavbarProps> = ({
             </SheetTrigger>
             <SheetContent side="top" className="px-6">
               <Flex className="items-start justify-between px-12">
-                <Link to="/" className="mt-6 -ml-12">
+                <Link to="/" className="mt-6 -ms-12">
                   <img src="/logo/logowithtext.svg" alt="Logo" className="h-12 w-34" />
                 </Link>
                 <div className="grid gap-2 py-6">
@@ -223,7 +223,7 @@ export const Navbar: FC<NavbarProps> = ({
         </Flex>
 
         {/* ── Right: pricing + lang dropdown + login + CTA ── */}
-        <Center className="ml-auto hidden lg:flex gap-3">
+        <Center className="ms-auto hidden lg:flex gap-3">
           <Link
             to="/pricing"
             onClick={() => navigate("/pricing")}
@@ -279,7 +279,7 @@ export const Navbar: FC<NavbarProps> = ({
                         </span>
                         <span className="text-[11px] text-gray-400 leading-none mt-1 truncate">{native}</span>
                       </span>
-                      {isActive && <Check className="size-3.5 text-[#F98618] ml-auto shrink-0" />}
+                      {isActive && <Check className="size-3.5 text-[#F98618] ms-auto shrink-0" />}
                     </Link>
                   </DropdownMenuItem>
                 );

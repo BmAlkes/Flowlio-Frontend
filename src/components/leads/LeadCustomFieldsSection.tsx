@@ -72,9 +72,9 @@ function FieldInput({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn("w-full h-9 justify-start text-left font-normal text-sm rounded-lg", !value && "text-muted-foreground")}
+            className={cn("w-full h-9 justify-start text-start font-normal text-sm rounded-lg", !value && "text-muted-foreground")}
           >
-            <CalendarIcon className="size-4 mr-2 text-muted-foreground" />
+            <CalendarIcon className="size-4 me-2 text-muted-foreground" />
             {value ? format(new Date(value), "d MMM yyyy") : "Pick a date"}
           </Button>
         </PopoverTrigger>

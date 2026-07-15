@@ -555,7 +555,7 @@ const ChatBox: React.FC<{
           </Button>
           <Button
             size="lg"
-            className="ml-auto bg-[#0c89af] rounded-full h-9 w-9 cursor-pointer"
+            className="ms-auto bg-[#0c89af] rounded-full h-9 w-9 cursor-pointer"
             onClick={handleSendClick}
             aria-label="Send"
             disabled={!input.trim() && attachments.length === 0}

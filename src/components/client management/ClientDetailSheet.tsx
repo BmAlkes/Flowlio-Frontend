@@ -301,7 +301,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {t("pipeline.temperature")}
                 {insights?.isManualTemperature && (
-                  <span className="ml-2 normal-case font-semibold text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
+                  <span className="ms-2 normal-case font-semibold text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
                     {t("pipeline.temperatureManual")}
                   </span>
                 )}

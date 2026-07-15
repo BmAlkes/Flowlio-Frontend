@@ -135,14 +135,14 @@ export const DemoPasswordChangeModal: React.FC<
                 placeholder="Enter current password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="pr-10"
+                className="pe-10"
                 disabled={isLoading}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showCurrentPassword ? (
@@ -165,14 +165,14 @@ export const DemoPasswordChangeModal: React.FC<
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="pr-10"
+                className="pe-10"
                 disabled={isLoading}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showNewPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
@@ -195,14 +195,14 @@ export const DemoPasswordChangeModal: React.FC<
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pr-10"
+                className="pe-10"
                 disabled={isLoading}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 disabled={isLoading}
               >
                 {showConfirmPassword ? (
@@ -222,7 +222,7 @@ export const DemoPasswordChangeModal: React.FC<
             >
               {isLoading ? (
                 <span className="inline-flex items-center">
-                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                   <RefreshCw className="me-2 h-4 w-4 animate-spin" />
                   Changing Password...
                 </span>
               ) : (

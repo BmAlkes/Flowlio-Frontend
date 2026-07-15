@@ -72,7 +72,7 @@ export const PurposeAndHowItWorks = () => {
                 <Flex
                   key={phase.label}
                   className={`flex-col p-8 sm:p-10 gap-5 bg-card relative group transition-colors duration-300 hover:bg-muted/40 ${
-                    i < phases.length - 1 ? "lg:border-r border-b lg:border-b-0 border-border" : ""
+                    i < phases.length - 1 ? "lg:border-e border-b lg:border-b-0 border-border" : ""
                   }`}
                 >
                   {/* Accent top bar on hover */}

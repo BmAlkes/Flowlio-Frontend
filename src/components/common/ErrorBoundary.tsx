@@ -44,7 +44,7 @@ export class ErrorBoundary extends React.Component<
             <p className="text-sm text-muted-foreground mb-4">
               Please try again. If the problem persists, refresh the page.
             </p>
-            <div className="text-left bg-red-50 border border-red-200 rounded-md p-3 mb-4 text-xs text-red-800 break-words">
+            <div className="text-start bg-red-50 border border-red-200 rounded-md p-3 mb-4 text-xs text-red-800 break-words">
               <div className="font-medium mb-1">Error:</div>
               <pre className="whitespace-pre-wrap">
                 {String(this.state.error?.message || this.state.error)}

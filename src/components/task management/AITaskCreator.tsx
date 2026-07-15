@@ -79,7 +79,7 @@ export const AITaskCreator = ({
         variant="outline"
         className="w-full border-dashed border-2 border-blue-300 hover:border-blue-400 hover:bg-blue-50 transition-all"
       >
-        <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
+        <Sparkles className="w-4 h-4 me-2 text-blue-600" />
         <span className="text-blue-600 font-medium">Create Task with AI</span>
       </Button>
     );
@@ -140,7 +140,7 @@ export const AITaskCreator = ({
               disabled={!input.trim() || aiTaskCreation.isPending}
               className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
+              <Sparkles className="w-4 h-4 me-2" />
               Generate Task
             </Button>
             <Button

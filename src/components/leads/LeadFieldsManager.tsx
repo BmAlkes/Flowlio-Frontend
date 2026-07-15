@@ -164,7 +164,7 @@ function FieldFormDialog({
             disabled={isPending || !form.name.trim()}
             className="rounded-full px-5"
           >
-            {isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</> : "Save Field"}
+            {isPending ? <><Loader2 className="h-4 w-4 me-2 animate-spin" /> Saving...</> : "Save Field"}
           </Button>
         </div>
       </DialogContent>
@@ -215,7 +215,7 @@ export function LeadFieldsManager() {
             size="sm"
             onClick={() => setShowCreate(true)}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Add your first field
           </Button>
         </div>

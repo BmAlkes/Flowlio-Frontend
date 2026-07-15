@@ -448,7 +448,7 @@ export const CreateTask = ({
           className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2"
           onClick={() => navigate(-1)}
         >
-          <IoArrowBack />
+          <IoArrowBack className="rtl:rotate-180" />
           <p className="text-foreground">Back</p>
         </Box>
       )}
@@ -479,7 +479,7 @@ export const CreateTask = ({
             {isEditMode ? (
               updateTask.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
                   Updating...
                 </>
               ) : (
@@ -487,7 +487,7 @@ export const CreateTask = ({
               )
             ) : createTask.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
                 Creating...
               </>
             ) : parentId ? (
@@ -659,7 +659,7 @@ export const CreateTask = ({
                 ) : (
                   <Box className="border-2 border-primary rounded-lg p-4 relative w-50 h-50">
                     <Stack className="gap-2">
-                      <Box className="flex ml-auto w-full absolute top-0 right-0 p-2 z-10">
+                      <Box className="flex ms-auto w-full absolute top-0 right-0 p-2 z-10">
                         <Button
                           variant="outline"
                           size="sm"
@@ -746,7 +746,7 @@ export const CreateTask = ({
                             size="lg"
                             variant={"outline"}
                             className={cn(
-                              "justify-start text-left font-normal rounded-full",
+                              "justify-start text-start font-normal rounded-full",
                               !field.value && "text-muted-foreground",
                             )}
                           >
@@ -915,7 +915,7 @@ export const CreateTask = ({
                             size="lg"
                             variant={"outline"}
                             className={cn(
-                              "justify-start text-left font-normal rounded-full",
+                              "justify-start text-start font-normal rounded-full",
                               !field.value && "text-muted-foreground",
                             )}
                           >

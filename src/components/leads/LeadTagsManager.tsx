@@ -68,7 +68,7 @@ export const LeadTagsManager = () => {
           {tags.map((tag) => (
             <Flex
               key={tag.id}
-              className="items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-full border border-border bg-card text-sm"
+              className="items-center gap-1.5 ps-3 pe-1.5 py-1.5 rounded-full border border-border bg-card text-sm"
             >
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />
               <span className="font-medium text-foreground">{tag.name}</span>

@@ -20,7 +20,7 @@ export const ListSkeleton = memo(
     return (
       <div className={cn("space-y-5 w-full", className)}>
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="flex items-start gap-3 pl-1">
+          <div key={i} className="flex items-start gap-3 ps-1">
             {/* Dot or avatar */}
             {withAvatar ? (
               <Skeleton className="h-8 w-8 rounded-full flex-shrink-0 mt-0.5" />

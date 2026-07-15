@@ -123,10 +123,10 @@ const EntryForm: React.FC<EntryFormProps> = ({ open, onClose, editing }) => {
             <div>
               <Label className="text-xs mb-1 block">Amount (USD) *</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">$</span>
+                <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">$</span>
                 <Input
                   type="number" min="0" step="0.01" placeholder="0.00"
-                  className="pl-7"
+                  className="ps-7"
                   value={form.amount || ""}
                   onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
                 />
@@ -405,7 +405,7 @@ const RevenuePage: React.FC = () => {
                       <TableHead>Description</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Source</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead className="text-end">Amount</TableHead>
                       <TableHead className="w-10" />
                     </TableRow>
                   </TableHeader>
@@ -439,7 +439,7 @@ const RevenuePage: React.FC = () => {
                               {entry.source.replace("_", " ")}
                             </span>
                           </TableCell>
-                          <TableCell className="text-right font-semibold tabular-nums">
+                          <TableCell className="text-end font-semibold tabular-nums">
                             {fmt(entry.amount)}
                           </TableCell>
                           <TableCell>

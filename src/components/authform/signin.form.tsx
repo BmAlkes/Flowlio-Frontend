@@ -1369,7 +1369,7 @@ export const SignInForm: FC = () => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                       >
                         {showPassword ? (
                           <IoEyeOff size={20} />
@@ -1410,7 +1410,7 @@ export const SignInForm: FC = () => {
             >
               {isLoading ? (
                 <span className="inline-flex items-center">
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="me-2 h-4 w-4 animate-spin" />
                 </span>
               ) : (
                 "Sign In"

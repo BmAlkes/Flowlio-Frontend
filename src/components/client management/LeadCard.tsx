@@ -19,7 +19,7 @@ const TEMP_DOT: Record<string, string> = {
 };
 
 const TEMP_BORDER: Record<string, string> = {
-  Hot: "border-l-orange-400", Warm: "border-l-amber-400", Cold: "border-l-sky-400", Lost: "border-l-gray-400",
+  Hot: "border-s-orange-400", Warm: "border-s-amber-400", Cold: "border-s-sky-400", Lost: "border-s-gray-400",
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
@@ -53,14 +53,14 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
 
   const temp = insights?.temperature;
   const formattedValue = formatValue(lead.leadValue);
-  const borderClass = temp ? TEMP_BORDER[temp] : "border-l-transparent";
+  const borderClass = temp ? TEMP_BORDER[temp] : "border-s-transparent";
 
   return (
     <Box
       ref={setNodeRef}
       style={style}
       className={`
-        relative bg-card rounded-lg border border-border/50 border-l-[3px] ${borderClass}
+        relative bg-card rounded-lg border border-border/50 border-s-[3px] ${borderClass}
         group transition-all duration-150
         ${isOverlay ? "shadow-xl scale-[1.02] cursor-grabbing" : "hover:shadow-sm cursor-pointer"}
       `}

@@ -33,7 +33,7 @@ export const FeatureCard = ({ feature, watchLabel, onWatch }: FeatureCardProps) 
       {/* Play overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
         <div className="size-14 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-          <Play className="size-6 text-[#0F766E] fill-[#0F766E] ml-0.5" />
+          <Play className="size-6 text-[#0F766E] fill-[#0F766E] ms-0.5" />
         </div>
       </div>
 

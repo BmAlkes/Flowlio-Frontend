@@ -171,7 +171,7 @@ function DraggableTask({
           {t("projects.viewDetails")}
         </button>
         {task.attachments && task.attachments.length > 0 && (
-          <span className="text-xs text-muted-foreground ml-3 flex items-center gap-1">
+          <span className="text-xs text-muted-foreground ms-3 flex items-center gap-1">
             <File className="w-3 h-3" />
             {task.attachments.length}
           </span>

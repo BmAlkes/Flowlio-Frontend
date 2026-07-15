@@ -520,7 +520,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
           backgroundColor: feature.status.color,
         }}
       />
-      <p className="pointer-events-none flex-1 truncate text-left font-medium">
+      <p className="pointer-events-none flex-1 truncate text-start font-medium">
         {feature.name}
       </p>
       <p className="pointer-events-none text-muted-foreground">{duration}</p>
@@ -611,7 +611,7 @@ export const GanttSidebar: FC<GanttSidebarProps> = ({
 }) => (
   <div
     className={cn(
-      "sticky left-0 z-30 h-max min-h-full overflow-clip border-border/50 border-r bg-background/90 backdrop-blur-md",
+      "sticky left-0 z-30 h-max min-h-full overflow-clip border-border/50 border-e bg-background/90 backdrop-blur-md",
       className
     )}
     data-roadmap-ui="gantt-sidebar"
@@ -771,7 +771,7 @@ export const GanttCreateMarkerTrigger: FC<GanttCreateMarkerTriggerProps> = ({
       ref={mouseRef}
     >
       <div
-        className="-ml-2 pointer-events-auto sticky top-6 z-20 flex w-4 flex-col items-center justify-center gap-1 overflow-visible opacity-0 group-hover:opacity-100"
+        className="-ms-2 pointer-events-auto sticky top-6 z-20 flex w-4 flex-col items-center justify-center gap-1 overflow-visible opacity-0 group-hover:opacity-100"
         style={{ transform: `translateX(${x}px)` }}
       >
         <button
@@ -861,7 +861,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({
     <Card className="h-full w-full rounded-md bg-background p-2 text-xs shadow-sm">
       <div
         className={cn(
-          "flex h-full w-full items-center justify-between gap-2 text-left",
+          "flex h-full w-full items-center justify-between gap-2 text-start",
           isPressed && "cursor-grabbing"
         )}
         {...attributes}

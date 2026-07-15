@@ -71,7 +71,7 @@ export const InsightsMetrics = () => {
       <Box className="relative z-10 max-w-5xl w-full mt-14">
 
         {/* ── Heading ── */}
-        <Box ref={headingRef} className="ml-2 sm:ml-6 mb-12">
+        <Box ref={headingRef} className="ms-2 sm:ms-6 mb-12">
           <p className="text-sm font-semibold tracking-widest uppercase mb-4" style={{ color: "#F98618" }}>
             What you can measure
           </p>

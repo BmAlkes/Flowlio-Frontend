@@ -85,7 +85,7 @@ export const ProjectRiskAlertsPanel = () => {
                   </p>
                 )}
                 {alert.overdueTaskTitles && alert.overdueTaskTitles.length > 0 && (
-                  <ul className="mt-1.5 list-disc pl-4 space-y-0.5">
+                  <ul className="mt-1.5 list-disc ps-4 space-y-0.5">
                     {alert.overdueTaskTitles.map((title, i) => (
                       <li key={i} className="text-xs text-muted-foreground truncate">
                         {title}

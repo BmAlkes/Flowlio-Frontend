@@ -126,7 +126,7 @@ export const OverrideLimitsModal: FC<OverrideLimitsModalProps> = ({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="overflow-y-auto flex-1 mt-4 pr-1">
+      <div className="overflow-y-auto flex-1 mt-4 pe-1">
         <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           {LIMIT_FIELDS.map(({ key, label, icon }) => (
             <Box key={key}>
@@ -153,7 +153,7 @@ export const OverrideLimitsModal: FC<OverrideLimitsModalProps> = ({
       </div>
 
       <DialogFooter className="mt-6 shrink-0">
-        <Button variant="ghost" onClick={handleReset} disabled={overrideLimits.isPending} className="mr-auto">
+        <Button variant="ghost" onClick={handleReset} disabled={overrideLimits.isPending} className="me-auto">
           Clear all overrides
         </Button>
         <Button variant="outline" onClick={() => onOpenChange(false)} disabled={overrideLimits.isPending}>

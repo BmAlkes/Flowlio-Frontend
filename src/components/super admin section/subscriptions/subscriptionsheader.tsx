@@ -934,7 +934,7 @@ export const SubscriptionsHeader = () => {
             <Stack className="mt-2 p-3 flex-1">
               <label htmlFor="name" className="mb-1">
                 Custom Plan Name
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-muted-foreground ms-2">
                   (Optional - This will be displayed on pricing page if set)
                 </span>
               </label>
@@ -972,17 +972,17 @@ export const SubscriptionsHeader = () => {
               <label htmlFor="price" className="mt-3">
                 Set Price
                 {plan.key === "free" && (
-                  <span className="ml-2 text-xs font-normal text-green-600">Must be $0 for free plan</span>
+                  <span className="ms-2 text-xs font-normal text-green-600">Must be $0 for free plan</span>
                 )}
               </label>
               <Flex className="relative items-center h-16">
-                <span className="absolute left-3 text-muted-foreground font-outfit font-semibold text-2xl flex items-center h-full ">
+                <span className="absolute start-3 text-muted-foreground font-outfit font-semibold text-2xl flex items-center h-full ">
                   $
                 </span>
                 <Input
                   type="number"
                   placeholder="00.00"
-                  className={`bg-background h-full border border-border placeholder:text-muted-foreground shadow-none placeholder:text-2xl pl-8 focus:text-foreground text-2xl text-start flex items-center`}
+                  className={`bg-background h-full border border-border placeholder:text-muted-foreground shadow-none placeholder:text-2xl ps-8 focus:text-foreground text-2xl text-start flex items-center`}
                   value={plan.key === "free" ? "0" : plans[plan.key as PlanKey].price}
                   onChange={(e) =>
                     plan.key !== "free" && handleInputChange(
@@ -1046,7 +1046,7 @@ export const SubscriptionsHeader = () => {
               </Flex>
               <label htmlFor="trialDays" className="mt-3">
                 Trial Days
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-muted-foreground ms-2">
                   (0 = No Trial, Any number = Trial days)
                 </span>
               </label>

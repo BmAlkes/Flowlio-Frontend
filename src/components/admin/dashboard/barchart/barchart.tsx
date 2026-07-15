@@ -139,7 +139,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
                 {t("charts.projectScheduleOverview")}
               </h1>
             </Flex>
-            <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
+            <ChartGuides className="gap-4 pt-1 max-md:me-auto" />
             <CalendarPopOver
               onDateRangeChange={handleDateRangeChange}
               initialDateRange={dateRange || undefined}
@@ -164,7 +164,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
             </h1>
           </Flex>
 
-          <ChartGuides className="gap-4 pt-1 max-md:mr-auto" />
+          <ChartGuides className="gap-4 pt-1 max-md:me-auto" />
           <CalendarPopOver
             onDateRangeChange={handleDateRangeChange}
             initialDateRange={dateRange || undefined}
@@ -177,7 +177,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
       </Box>
 
       <ChartContainer
-        className="mt-5 w-full max-sm:-ml-6  h-[21.8rem] max-sm:h-[16rem] max-sm:overflow-x-scroll"
+        className="mt-5 w-full max-sm:-ms-6  h-[21.8rem] max-sm:h-[16rem] max-sm:overflow-x-scroll"
         config={{}}
       >
         <BarChart

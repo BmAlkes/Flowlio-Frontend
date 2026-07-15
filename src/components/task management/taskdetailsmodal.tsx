@@ -302,7 +302,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                             <p className="text-sm text-muted-foreground">
                               {formatFileSize(attachment.size)}
                               {attachment.versions && attachment.versions.length > 1 && (
-                                <span className="ml-2 px-1.5 py-0.5 bg-muted text-[10px] font-bold rounded uppercase">
+                                <span className="ms-2 px-1.5 py-0.5 bg-muted text-[10px] font-bold rounded uppercase">
                                   V{attachment.versions[0].versionNumber}
                                 </span>
                               )}
@@ -540,7 +540,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                                   onClick={() =>
                                     onOpenTask(startAfterTask.id)
                                   }
-                                  className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-left"
+                                  className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-start"
                                 >
                                   {startAfterTask.title}
                                 </button>
@@ -554,7 +554,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                           <button
                             type="button"
                             onClick={() => onOpenTask(startAfterTask.id)}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-left"
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer text-start"
                           >
                             {startAfterTask.title}
                           </button>

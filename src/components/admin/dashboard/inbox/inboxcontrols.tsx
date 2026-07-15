@@ -20,7 +20,7 @@ export const InboxControls = () => {
 
         <Flex className="gap-2 max-md:mt-4">
           <Button variant="outline" size="sm" className="text-muted-foreground">
-            <RefreshCcw className="mr-2 h-4 w-4" />
+            <RefreshCcw className="me-2 h-4 w-4" />
             Refresh
           </Button>
           <Button
@@ -29,7 +29,7 @@ export const InboxControls = () => {
             className="text-muted-foreground"
             onClick={markAllAsRead}
           >
-            <CheckSquare className="mr-2 h-4 w-4" />
+            <CheckSquare className="me-2 h-4 w-4" />
             Mark All Read
           </Button>
           <Button
@@ -38,7 +38,7 @@ export const InboxControls = () => {
             className="text-red-600 border border-red-300"
             onClick={clearAll}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Trash2 className="me-2 h-4 w-4" />
             Clear All
           </Button>
         </Flex>

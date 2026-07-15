@@ -419,7 +419,7 @@ const SuperAdminDemoAccountsPage = () => {
               disabled={loading || isAnimating}
               className="border-border hover:bg-muted/50 h-10 px-6 cursor-pointer"
             >
-              <X className="w-4 h-4 mr-2" />
+              <X className="w-4 h-4 me-2" />
               Cancel
             </Button>
           </div>
@@ -485,7 +485,7 @@ const SuperAdminDemoAccountsPage = () => {
                     >
                       <TableCell className="font-medium">
                         {loadingActions[d.id] === "delete" && (
-                          <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin text-red-600" />
+                          <Loader2 className="w-4 h-4 inline-block me-2 animate-spin text-red-600" />
                         )}
                         {d.name}
                       </TableCell>
@@ -520,7 +520,7 @@ const SuperAdminDemoAccountsPage = () => {
                           >
                             {loadingActions[d.id] === "toggle" ? (
                               <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <Loader2 className="w-4 h-4 me-2 animate-spin" />
                                 {d.status === "suspended" ||
                                 d.status === "inactive"
                                   ? "Reactivating..."
@@ -665,7 +665,7 @@ const SuperAdminDemoAccountsPage = () => {
             >
               {loadingActions[editingDemo?.id || ""] === "edit" ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 me-2 animate-spin" />
                   Updating...
                 </>
               ) : convertToClient ? (
