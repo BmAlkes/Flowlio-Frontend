@@ -64,7 +64,7 @@ const SortableRowWrapper = React.forwardRef<
         ref={setNodeRef}
         style={style}
         data-state={isDragging && "selected"}
-        className={`${isSortableDragging ? "bg-blue-50 border-l-2 border-blue-400" : ""} transition-colors ${!isSortingActive ? "cursor-grab" : ""}`}
+        className={`${isSortableDragging ? "bg-blue-50 border-s-2 border-blue-400" : ""} transition-colors ${!isSortingActive ? "cursor-grab" : ""}`}
         {...attributes}
         {...listeners}
       >

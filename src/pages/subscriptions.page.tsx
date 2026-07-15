@@ -592,7 +592,7 @@ const SubscriptionsPage = () => {
                         <Box className="text-xl font-semibold mb-1">
                           {plan.name}
                           {isCurrentPlan && (
-                            <Badge className="ml-2 bg-[#1797B9]">
+                            <Badge className="ms-2 bg-[#1797B9]">
                               Current Plan
                             </Badge>
                           )}
@@ -601,7 +601,7 @@ const SubscriptionsPage = () => {
                           {plan.description}
                         </Box>
                       </Box>
-                      <Box className="text-right">
+                      <Box className="text-end">
                         <Box className="text-2xl font-bold">${plan.price}</Box>
                         <Box className="text-sm text-muted-foreground">
                           per {plan.billingCycle || "month"}
@@ -622,7 +622,7 @@ const SubscriptionsPage = () => {
                         variant="outline"
                         className="flex-1 border-[#1797B9] text-[#1797B9] hover:bg-[#1797B9] hover:text-white transition-all duration-200 cursor-pointer rounded-full"
                       >
-                        <Info className="h-4 w-4 mr-2" />
+                        <Info className="h-4 w-4 me-2" />
                         View Features
                       </Button>
                       <Button
@@ -664,7 +664,7 @@ const SubscriptionsPage = () => {
                         {plan.description}
                       </Box>
                     </Box>
-                    <Box className="text-right">
+                    <Box className="text-end">
                       <Box className="text-2xl font-bold">${plan.price}</Box>
                       <Box className="text-sm text-muted-foreground">
                         per {plan.interval}

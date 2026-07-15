@@ -57,7 +57,7 @@ export const ProjectFilter = ({ onFilterChange }: ProjectFilterProps) => {
           <Filter className="w-4 h-4" />
           Custom Filters
           {hasActiveFilters && (
-            <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full ml-1">
+            <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full ms-1">
               {Object.keys(activeFilters).length}
             </span>
           )}
@@ -79,7 +79,7 @@ export const ProjectFilter = ({ onFilterChange }: ProjectFilterProps) => {
             )}
           </Flex>
 
-          <Box className="max-h-[300px] overflow-y-auto space-y-3 pr-1">
+          <Box className="max-h-[300px] overflow-y-auto space-y-3 pe-1">
             {customFieldsData?.data.map((field) => (
               <Box key={field.id} className="space-y-1.5">
                 <Label className="text-xs">{field.name}</Label>

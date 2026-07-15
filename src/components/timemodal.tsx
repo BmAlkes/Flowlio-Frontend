@@ -161,7 +161,7 @@ export default function TimeModal() {
             </button>
 
             <form className="relative z-10 flex flex-col gap-6 p-6 max-sm:p-4">
-              <Flex className="items-center gap-4 pr-10">
+              <Flex className="items-center gap-4 pe-10">
                 <Center className="size-12 rounded-2xl bg-slate-950 text-white shadow-lg">
                   <Clock3 className="size-6" />
                 </Center>

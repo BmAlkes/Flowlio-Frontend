@@ -632,7 +632,7 @@ export const ClientForm = ({
                         placeholder="Phone Number:"
                         enableSearch={true}
                         inputClass="mt-2 w-full h-14 bg-card border border-border rounded-full px-4 text-foreground focus:ring-0 focus:outline-none"
-                        buttonClass="border-r h-12 border-border bg-transparent"
+                        buttonClass="border-e h-12 border-border bg-transparent"
                         dropdownClass="bg-card border border-border"
                         {...field}
                       />

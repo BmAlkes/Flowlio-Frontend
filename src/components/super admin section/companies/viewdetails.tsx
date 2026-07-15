@@ -82,7 +82,7 @@ export const ViewDetails = () => {
         className="flex items-center gap-2 w-fit cursor-pointer transition-all duration-300 hover:bg-muted rounded-full hover:p-2 mt-4"
         onClick={() => navigate(-1)}
       >
-        <IoArrowBack />
+        <IoArrowBack className="rtl:rotate-180" />
         <p className="text-foreground">Back</p>
       </Box>
 
@@ -143,7 +143,7 @@ export const ViewDetails = () => {
               </Flex>
             </Stack>
             <hr className="border border-border mt-6" />
-            <Stack className="mt-6 px-4 gap-6 ml-6">
+            <Stack className="mt-6 px-4 gap-6 ms-6">
               {companyDetails.owner?.email && (
                 <Flex className="gap-3 items-center">
                   <Mail className="font-light size-4 text-muted-foreground" />

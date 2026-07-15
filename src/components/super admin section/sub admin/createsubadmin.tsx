@@ -122,7 +122,7 @@ export const CreateSubAdmin = () => {
         className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300  hover:bg-muted rounded-full hover:p-2 "
         onClick={() => navigate(-1)}
       >
-        <IoArrowBack />
+        <IoArrowBack className="rtl:rotate-180" />
         <p className="text-foreground">Back</p>
       </Box>
 
@@ -294,7 +294,7 @@ export const CreateSubAdmin = () => {
                     <button
                       type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="absolute end-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                       {showPassword ? (
                         <IoEyeOff size={20} />
@@ -338,7 +338,7 @@ export const CreateSubAdmin = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer"
+                  className="absolute end-3 top-11 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer"
                 >
                   {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
                 </button>

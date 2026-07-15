@@ -80,7 +80,7 @@ export const SuperAdminBarChartComponent: FC<BoxProps> = ({
           </Flex>
 
           <Flex className="gap-4">
-            <SuperAdminChartGuides className="gap-4 pt-1 max-md:mr-auto" />
+            <SuperAdminChartGuides className="gap-4 pt-1 max-md:me-auto" />
             <SuperAdminCalendarPopOver
               selectedYear={selectedYear}
               onYearChange={setSelectedYear}

@@ -194,9 +194,9 @@ export const UserManagementTable = ({
   const columns: ColumnDef<Data>[] = [
     {
       accessorKey: "firstname",
-      header: () => <Box className="text-foreground pl-4 min-w-[180px]">{t("table.name")}</Box>,
+      header: () => <Box className="text-foreground ps-4 min-w-[180px]">{t("table.name")}</Box>,
       cell: ({ row }) => (
-        <Flex className="capitalize pl-4 min-w-[180px]">
+        <Flex className="capitalize ps-4 min-w-[180px]">
           <Avatar className="size-8">
             <AvatarImage
               src={row.original.user?.image || "https://github.com/shadcn.png"}
@@ -207,7 +207,7 @@ export const UserManagementTable = ({
             </AvatarFallback>
           </Avatar>
 
-          <Box className="ml-2">
+          <Box className="ms-2">
             <Box className="font-medium">
               {row.original.user?.name || `${row.original.firstname} ${row.original.lastname}`}
             </Box>

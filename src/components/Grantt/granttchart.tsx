@@ -91,7 +91,7 @@ export const GenericGantt = ({
     return (
       <div className="flex h-64 items-center justify-center border rounded-lg">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 ">Loading timeline...</span>
+        <span className="ms-2 ">Loading timeline...</span>
       </div>
     );
   }

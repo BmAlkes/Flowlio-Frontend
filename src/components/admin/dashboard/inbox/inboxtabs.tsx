@@ -22,14 +22,14 @@ export const InboxTabs: FC<{
             onClick={() => goToStep(tab)}
             ref={(el) => (tabRefs.current[tab] = el)}
             className={cn(
-              "text-foreground capitalize bg-transparent shadow-none hover:bg-transparent p-2 py-1.5 pr-1.5 size-fit!",
+              "text-foreground capitalize bg-transparent shadow-none hover:bg-transparent p-2 py-1.5 pe-1.5 size-fit!",
               tab === step && "shadow-sm bg-card"
             )}
           >
             {tab}
             <Badge
               className={cn(
-                "ml-2 bg-muted/500 text-white",
+                "ms-2 bg-muted/500 text-white",
                 tab === "unread" && "bg-blue-500 text-white"
               )}
             >

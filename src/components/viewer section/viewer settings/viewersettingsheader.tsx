@@ -430,7 +430,7 @@ export const ViewerSettingsHeader = () => {
                     {...register("email")}
                     disabled
                   />
-                  <IoMdLock className="size-6 text-muted-foreground absolute right-4 top-3 " />
+                  <IoMdLock className="size-6 text-muted-foreground absolute end-4 top-3 " />
                 </Flex>
                 {errors.email && (
                   <span className="text-red-500 text-xs">
@@ -456,7 +456,7 @@ export const ViewerSettingsHeader = () => {
               <Stack className="gap-6 w-3xl max-md:w-full mt-8">
                 <Box className="relative">
                   <Input
-                    className="bg-background rounded-full pr-12"
+                    className="bg-background rounded-full pe-12"
                     size="lg"
                     type={showCurrentPassword ? "text" : "password"}
                     placeholder="Enter Current Password"
@@ -464,7 +464,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowCurrentPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -482,7 +482,7 @@ export const ViewerSettingsHeader = () => {
                 )}
                 <Box className="relative">
                   <Input
-                    className="bg-background rounded-full pr-12"
+                    className="bg-background rounded-full pe-12"
                     placeholder="Enter New Password"
                     type={showNewPassword ? "text" : "password"}
                     size="lg"
@@ -490,7 +490,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowNewPassword((v) => !v)}
                     tabIndex={-1}
                   >
@@ -536,7 +536,7 @@ export const ViewerSettingsHeader = () => {
                 )}
                 <Box className="relative">
                   <Input
-                    className="bg-background rounded-full pr-12"
+                    className="bg-background rounded-full pe-12"
                     placeholder="Confirm New Password"
                     type={showConfirmPassword ? "text" : "password"}
                     size="lg"
@@ -544,7 +544,7 @@ export const ViewerSettingsHeader = () => {
                   />
                   <Button
                     type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
+                    className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground focus:outline-none cursor-pointer bg-transparent hover:bg-transparent shadow-none"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     tabIndex={-1}
                   >

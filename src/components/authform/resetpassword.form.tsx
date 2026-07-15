@@ -133,7 +133,7 @@ export const ResetPasswordForm: FC = () => {
         to="/auth/signin"
         className="flex text-center justify-center items-center gap-1 w-fit text-sm text-[#1797B9] hover:text-[#1797B9]/80 underline px-2"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 rtl:rotate-180" />
         Back to login
       </Anchor>
 
@@ -214,7 +214,7 @@ export const ResetPasswordForm: FC = () => {
             >
               {isLoading ? (
                 <span className="inline-flex items-center">
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="me-2 h-4 w-4 animate-spin" />
                   Resetting Password...
                 </span>
               ) : (

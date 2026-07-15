@@ -60,7 +60,7 @@ const PrivacyPolicyPage = () => {
                     We may collect personal information that you provide
                     directly to us, including:
                   </Box>
-                  <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                  <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                     <li>Name and email address</li>
                     <li>Company and organization information</li>
                     <li>Profile information and preferences</li>
@@ -76,7 +76,7 @@ const PrivacyPolicyPage = () => {
                   <Box className="text-foreground leading-relaxed mb-2">
                     When you connect your Google Calendar, we collect:
                   </Box>
-                  <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                  <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                     <li>Calendar events and metadata</li>
                     <li>Calendar access permissions</li>
                     <li>Event creation, modification, and deletion data</li>
@@ -104,7 +104,7 @@ const PrivacyPolicyPage = () => {
                 <Box className="text-foreground leading-relaxed mb-2">
                   We use the information we collect to:
                 </Box>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>Provide and maintain our services</li>
                   <li>Process transactions and manage subscriptions</li>
                   <li>Sync calendar events between platforms</li>
@@ -130,7 +130,7 @@ const PrivacyPolicyPage = () => {
                   <Box className="text-blue-800 font-medium mb-2">
                     Required Google Calendar Permissions:
                   </Box>
-                  <ul className="list-disc list-inside text-blue-700 space-y-1 ml-4">
+                  <ul className="list-disc list-inside text-blue-700 space-y-1 ms-4">
                     <li>Read, create, update, and delete calendar events</li>
                     <li>Access calendar metadata and settings</li>
                     <li>Synchronize events between platforms</li>
@@ -154,7 +154,7 @@ const PrivacyPolicyPage = () => {
                   information to third parties, except in the following
                   circumstances:
                 </Box>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>With your explicit consent</li>
                   <li>To comply with legal obligations</li>
                   <li>To protect our rights and prevent fraud</li>
@@ -200,7 +200,7 @@ const PrivacyPolicyPage = () => {
                 <Box className="text-foreground leading-relaxed mb-2">
                   You have the right to:
                 </Box>
-                <ul className="list-disc list-inside text-foreground space-y-1 ml-4">
+                <ul className="list-disc list-inside text-foreground space-y-1 ms-4">
                   <li>Access and update your personal information</li>
                   <li>Request deletion of your personal information</li>
                   <li>Opt-out of certain data processing activities</li>

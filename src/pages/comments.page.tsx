@@ -66,7 +66,7 @@ function CommentRow({ comment }: { comment: OrgComment }) {
   return (
     <Box className={cn(
       "bg-card rounded-xl border border-border p-4 hover:shadow-sm transition-shadow",
-      comment.parentId && "ml-6 border-l-4 border-l-blue-200"
+      comment.parentId && "ms-6 border-s-4 border-s-blue-200"
     )}>
       <Flex className="justify-between items-start gap-3">
         <Flex className="gap-3 items-start flex-1 min-w-0">
@@ -199,7 +199,7 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
 
           {/* Replies */}
           {item.replies && item.replies.length > 0 && (
-            <Box className="mt-3 space-y-2 border-l-2 border-indigo-200 pl-3">
+            <Box className="mt-3 space-y-2 border-s-2 border-indigo-200 ps-3">
               {item.replies.map((reply) => (
                 <Box key={reply.id} className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg p-3">
                   <Flex className="gap-2 items-center mb-1 flex-wrap">
@@ -440,12 +440,12 @@ export const CommentsPage = () => {
       {/* Search + New Message button */}
       <Flex className="gap-3 mb-6 items-center">
         <Box className="relative max-w-sm flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={tab === "comments" ? "Search by content, author, project or task..." : "Search by content or client..."}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-9 bg-background"
+            className="ps-9 bg-background"
           />
         </Box>
         {tab === "messages" && (
@@ -500,13 +500,13 @@ export const CommentsPage = () => {
       {totalPages > 1 && !search && (
         <Flex className="justify-center items-center gap-3 mt-6">
           <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="gap-1">
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
           <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="gap-1">
             Next
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 rtl:rotate-180" />
           </Button>
         </Flex>
       )}

@@ -164,14 +164,14 @@ export const PlanAccessModal: FC<PlanAccessModalProps> = ({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="overflow-y-auto flex-1 pr-1 mt-4">
+      <div className="overflow-y-auto flex-1 pe-1 mt-4">
         <Stack className="gap-8">
 
           {/* ── Service Limits ── */}
           <Box>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
               Service Limits
-              <span className="ml-2 text-xs normal-case font-normal">(0 = unlimited)</span>
+              <span className="ms-2 text-xs normal-case font-normal">(0 = unlimited)</span>
             </h3>
             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
               <LimitField id="maxUsers" label="Max Users" icon={<Users size={14} />} value={settings.maxUsers} onChange={handleNum} />

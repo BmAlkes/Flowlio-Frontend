@@ -335,43 +335,43 @@ export const DashboardAIBot = () => {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-muted-foreground">Total Projects:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {summaryData.metrics.totalProjects}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Active Projects:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {summaryData.metrics.activeProjects}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Total Tasks:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {summaryData.metrics.totalTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Completed:</span>
-                  <span className="font-semibold ml-2 text-green-600">
+                  <span className="font-semibold ms-2 text-green-600">
                     {summaryData.metrics.completedTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">In Progress:</span>
-                  <span className="font-semibold ml-2 text-blue-600">
+                  <span className="font-semibold ms-2 text-blue-600">
                     {summaryData.metrics.inProgressTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Total Hours:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {summaryData.metrics.totalHours.toFixed(1)}h
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Billable Hours:</span>
-                  <span className="font-semibold ml-2 text-green-600">
+                  <span className="font-semibold ms-2 text-green-600">
                     {summaryData.metrics.billableHours.toFixed(1)}h
                   </span>
                 </div>
@@ -709,37 +709,37 @@ Description: ${userInput}`,
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-muted-foreground">Total Projects:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {insights.summary.totalProjects}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Total Tasks:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {insights.summary.totalTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Completed:</span>
-                  <span className="font-semibold ml-2 text-green-600">
+                  <span className="font-semibold ms-2 text-green-600">
                     {insights.summary.completedTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">In Progress:</span>
-                  <span className="font-semibold ml-2 text-blue-600">
+                  <span className="font-semibold ms-2 text-blue-600">
                     {insights.summary.inProgressTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Overdue Tasks:</span>
-                  <span className="font-semibold ml-2 text-red-600">
+                  <span className="font-semibold ms-2 text-red-600">
                     {insights.summary.overdueTasks}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Hours Tracked:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {insights.summary.totalHoursTrackedFormatted ||
                       `${Math.floor(
                         insights.summary.totalHoursTracked / 60
@@ -853,25 +853,25 @@ Description: ${userInput}`,
               <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                 <div>
                   <span className="text-muted-foreground">On Track:</span>
-                  <span className="font-semibold ml-2 text-green-600">
+                  <span className="font-semibold ms-2 text-green-600">
                     {insights.timelinePredictions.projectsOnTrack}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">At Risk:</span>
-                  <span className="font-semibold ml-2 text-orange-600">
+                  <span className="font-semibold ms-2 text-orange-600">
                     {insights.timelinePredictions.projectsAtRisk}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Delayed:</span>
-                  <span className="font-semibold ml-2 text-red-600">
+                  <span className="font-semibold ms-2 text-red-600">
                     {insights.timelinePredictions.projectsDelayed}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Avg Completion:</span>
-                  <span className="font-semibold ml-2">
+                  <span className="font-semibold ms-2">
                     {insights.timelinePredictions.averageCompletionTime} days
                   </span>
                 </div>
@@ -888,13 +888,13 @@ Description: ${userInput}`,
                       <li key={project.projectId}>
                         {project.projectName}
                         {project.daysRemaining !== undefined && (
-                          <span className="text-orange-600 ml-1">
+                          <span className="text-orange-600 ms-1">
                             ({project.daysRemaining} days left,{" "}
                             {project.progress}% done)
                           </span>
                         )}
                         {project.daysOverdue !== undefined && (
-                          <span className="text-red-600 ml-1">
+                          <span className="text-red-600 ms-1">
                             ({project.daysOverdue} days overdue,{" "}
                             {project.progress}% done)
                           </span>
@@ -1238,7 +1238,7 @@ Description: ${userInput}`,
                         disabled={!userInput.trim() || createClient.isPending}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
                       >
-                        <Sparkles className="w-4 h-4 mr-2" />
+                        <Sparkles className="w-4 h-4 me-2" />
                         Generate Client
                       </Button>
                       <Button
@@ -1315,7 +1315,7 @@ Description: ${userInput}`,
                         disabled={!userInput.trim() || createProject.isPending}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
                       >
-                        <Sparkles className="w-4 h-4 mr-2" />
+                        <Sparkles className="w-4 h-4 me-2" />
                         Generate Project
                       </Button>
                       <Button

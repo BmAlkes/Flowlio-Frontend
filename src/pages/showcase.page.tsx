@@ -213,7 +213,7 @@ const MockThumb = ({ category, duration }: ThumbProps) => {
       {/* Hover play button */}
       <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
         <div className="w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(255,107,43,0.9)", boxShadow: "0 0 24px rgba(255,107,43,0.5)" }}>
-          <Play size={14} color="white" fill="white" className="ml-0.5" />
+          <Play size={14} color="white" fill="white" className="ms-0.5" />
         </div>
       </div>
       {/* Duration badge */}
@@ -261,7 +261,7 @@ const HeroDashboard = ({ onPlay }: { onPlay: () => void }) => (
           <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>app.flowlioapp.com</span>
         </div>
         {/* Avatar */}
-        <div className="flex items-center gap-1.5 ml-2">
+        <div className="flex items-center gap-1.5 ms-2">
           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
             <span style={{ fontSize: 7, fontWeight: 700, color: "#fff" }}>O</span>
           </div>
@@ -272,7 +272,7 @@ const HeroDashboard = ({ onPlay }: { onPlay: () => void }) => (
       {/* App body */}
       <div className="flex" style={{ height: 300 }}>
         {/* Sidebar */}
-        <div className="flex flex-col py-3 px-2 border-r gap-0.5" style={{ width: 120, background: "#070C1B", borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="flex flex-col py-3 px-2 border-e gap-0.5" style={{ width: 120, background: "#070C1B", borderColor: "rgba(255,255,255,0.06)" }}>
           {/* Logo */}
           <div className="flex items-center gap-1.5 px-2 mb-3">
             <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background: "linear-gradient(135deg,#FF6B2B,#FF4500)" }}>
@@ -401,7 +401,7 @@ const HeroDashboard = ({ onPlay }: { onPlay: () => void }) => (
                     <div className="w-2 h-2 rounded-sm border flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.2)" }} />
                     <span style={{ fontSize: 7.5, color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.label}</span>
                   </div>
-                  <span className="flex-shrink-0 ml-1 px-1.5 py-0.5 rounded text-white" style={{ fontSize: 6.5, fontWeight: 700, background: `${t.c}22`, color: t.c }}>
+                  <span className="flex-shrink-0 ms-1 px-1.5 py-0.5 rounded text-white" style={{ fontSize: 6.5, fontWeight: 700, background: `${t.c}22`, color: t.c }}>
                     {t.status}
                   </span>
                 </div>
@@ -420,7 +420,7 @@ const HeroDashboard = ({ onPlay }: { onPlay: () => void }) => (
           className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform"
           style={{ background: "rgba(255,255,255,0.92)", boxShadow: "0 8px 40px rgba(0,0,0,0.5)" }}
         >
-          <Play size={20} color="#0F766E" fill="#0F766E" className="ml-1" />
+          <Play size={20} color="#0F766E" fill="#0F766E" className="ms-1" />
         </div>
       </div>
     </div>
@@ -796,7 +796,7 @@ const ShowcasePage = () => {
                   {/* Play overlay */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/90 shadow-xl group-hover:scale-110 transition-transform">
-                      <Play size={16} color="#FF6B2B" fill="#FF6B2B" className="ml-0.5" />
+                      <Play size={16} color="#FF6B2B" fill="#FF6B2B" className="ms-0.5" />
                     </div>
                   </div>
                   {/* Duration */}
@@ -888,7 +888,7 @@ const ShowcasePage = () => {
                       {/* Hover play */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                         <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,107,43,0.9)", boxShadow: "0 0 24px rgba(255,107,43,0.5)" }}>
-                          <Play size={14} color="white" fill="white" className="ml-0.5" />
+                          <Play size={14} color="white" fill="white" className="ms-0.5" />
                         </div>
                       </div>
                       {/* Duration */}
@@ -1036,7 +1036,7 @@ const ShowcasePage = () => {
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
                       <Icon size={20} color="rgba(255,255,255,0.9)" />
                     </div>
-                    <div className="text-right">
+                    <div className="text-end">
                       <div className="text-2xl font-black text-white leading-none">{ind.metric}</div>
                       <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>{ind.metricLabel}</div>
                     </div>

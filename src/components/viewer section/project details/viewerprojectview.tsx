@@ -181,7 +181,7 @@ export const ViewerProjectView = () => {
             className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300 hover:bg-muted rounded-full hover:p-2"
             onClick={() => navigate(-1)}
           >
-            <IoArrowBack />
+            <IoArrowBack className="rtl:rotate-180" />
             <p className="text-foreground">{t("common.back")}</p>
           </Box>
 

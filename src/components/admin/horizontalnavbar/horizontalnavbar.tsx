@@ -50,7 +50,7 @@ export const HorizontalNavbar = () => {
       )}
 
       <ModeToggle />
-      <NotificationsDropdown className="max-lg:ml-auto" />
+      <NotificationsDropdown className="max-lg:ms-auto" />
       {/* <FaqDropdown className="max-md:hidden" /> */}
     </Box>
   );

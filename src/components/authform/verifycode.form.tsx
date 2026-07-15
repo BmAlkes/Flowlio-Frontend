@@ -123,7 +123,7 @@ export const VerifyCodeForm: FC = () => {
         to="/auth/signin"
         className="flex text-center justify-center items-center gap-1 w-fit text-sm text-[#1797B9] hover:text-[#1797B9]/80 mb-16 max-sm:m-0 underline px-2"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 rtl:rotate-180" />
         Back to login
       </Anchor>
       <FormWrapper
@@ -176,7 +176,7 @@ export const VerifyCodeForm: FC = () => {
             >
               {isLoading ? (
                 <span className="inline-flex items-center">
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="me-2 h-4 w-4 animate-spin" />
                   Verifying...
                 </span>
               ) : (
@@ -191,7 +191,7 @@ export const VerifyCodeForm: FC = () => {
                   type="button"
                   onClick={handleResend}
                   disabled={isLoading}
-                  className="underline text-[#F48E2D] hover:text-[#F48E2D]/80 hover:underline cursor-pointer ml-1 disabled:opacity-50"
+                  className="underline text-[#F48E2D] hover:text-[#F48E2D]/80 hover:underline cursor-pointer ms-1 disabled:opacity-50"
                 >
                   Resend
                 </button>

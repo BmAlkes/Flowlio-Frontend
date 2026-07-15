@@ -631,7 +631,7 @@ const CheckoutPage = () => {
               {plan?.features && plan.features.length > 0 ? (
                 <>
                   <h3 className="font-semibold mb-2">Included Services:</h3>
-                  <ul className="mb-4 list-disc pl-5">
+                  <ul className="mb-4 list-disc ps-5">
                     {plan.features.map((feature: string, idx: number) => (
                       <li key={idx} className="text-sm">
                         {feature}

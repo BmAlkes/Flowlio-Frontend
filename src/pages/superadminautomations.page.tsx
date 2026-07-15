@@ -75,12 +75,12 @@ const SuperAdminAutomationsPage = () => {
                   >
                     {isRunningThis ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="h-4 w-4 me-2 animate-spin" />
                         Running...
                       </>
                     ) : (
                       <>
-                        <PlayCircle className="h-4 w-4 mr-2" />
+                        <PlayCircle className="h-4 w-4 me-2" />
                         Run now
                       </>
                     )}
@@ -113,7 +113,7 @@ const SuperAdminAutomationsPage = () => {
                       </p>
                     )}
                     {result.errors.length > 0 && (
-                      <ul className="mt-2 list-disc pl-5 space-y-0.5 text-rose-700 dark:text-rose-400">
+                      <ul className="mt-2 list-disc ps-5 space-y-0.5 text-rose-700 dark:text-rose-400">
                         {result.errors.map((err, i) => (
                           <li key={i}>{err}</li>
                         ))}

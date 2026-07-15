@@ -75,7 +75,7 @@ function CommentItem({
   };
 
   return (
-    <Box className={depth > 0 ? "ml-5 border-l-2 border-border pl-3" : ""}>
+    <Box className={depth > 0 ? "ms-5 border-s-2 border-border ps-3" : ""}>
       <Box className="bg-card rounded-lg p-3 border border-border group">
         {/* Author row */}
         <Flex className="justify-between items-start mb-1.5">
@@ -89,7 +89,7 @@ function CommentItem({
             <span className="text-[10px] text-muted-foreground">
               {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
               {comment.updatedAt !== comment.createdAt && (
-                <span className="ml-1 italic">(edited)</span>
+                <span className="ms-1 italic">(edited)</span>
               )}
             </span>
           </Flex>
@@ -189,7 +189,7 @@ function CommentItem({
 
       {/* Reply input */}
       {replyOpen && canComment && (
-        <Box className="mt-1.5 ml-5">
+        <Box className="mt-1.5 ms-5">
           <Flex className="gap-1.5">
             <input
               type="text"
@@ -273,7 +273,7 @@ export function CommentThread({
           <span className="text-sm font-semibold text-foreground">
             Comments
             {comments.length > 0 && (
-              <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+              <span className="ms-1.5 text-xs font-normal text-muted-foreground">
                 ({comments.length})
               </span>
             )}
@@ -283,7 +283,7 @@ export function CommentThread({
 
       {/* List */}
       <Box
-        className="space-y-2 overflow-y-auto pr-0.5"
+        className="space-y-2 overflow-y-auto pe-0.5"
         style={{ maxHeight }}
       >
         {isLoading ? (

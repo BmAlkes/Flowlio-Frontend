@@ -273,10 +273,10 @@ export const ClientMediaCenter: React.FC = () => {
           <Flex className="gap-3 flex-wrap">
             {/* Search Input */}
             <Box className="flex-1 min-w-[300px] relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder={t("media.searchPlaceholder")}
-                className="pl-11 h-12 rounded-xl bg-muted/50 border-none focus-visible:ring-2 focus-visible:ring-blue-100 placeholder:text-muted-foreground"
+                className="ps-11 h-12 rounded-xl bg-muted/50 border-none focus-visible:ring-2 focus-visible:ring-blue-100 placeholder:text-muted-foreground"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />

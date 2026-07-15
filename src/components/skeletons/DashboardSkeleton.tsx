@@ -67,7 +67,7 @@ export const DashboardSkeleton = memo(({ className }: DashboardSkeletonProps) =>
                 <div key={i} className="flex items-center gap-3">
                   <Skeleton className="h-3 w-3 rounded-full" />
                   <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-3 w-8 ml-auto" />
+                  <Skeleton className="h-3 w-8 ms-auto" />
                 </div>
               ))}
             </div>

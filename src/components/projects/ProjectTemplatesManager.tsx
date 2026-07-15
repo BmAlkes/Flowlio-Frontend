@@ -126,7 +126,7 @@ export const ProjectTemplatesManager = () => {
             onClick={() => setIsAddingNew(true)}
             className="rounded-full bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <Plus className="w-4 h-4 mr-2" /> Create New Template
+            <Plus className="w-4 h-4 me-2" /> Create New Template
           </Button>
         )}
       </Flex>

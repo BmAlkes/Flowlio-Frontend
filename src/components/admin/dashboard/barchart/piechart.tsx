@@ -68,7 +68,7 @@ export const ProjectStatusPieChart: FC<
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-sm font-semibold text-foreground">{item.value}</span>
-                  <span className="text-xs text-muted-foreground w-9 text-right">({pct}%)</span>
+                  <span className="text-xs text-muted-foreground w-9 text-end">({pct}%)</span>
                 </div>
               </div>
             );

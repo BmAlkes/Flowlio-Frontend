@@ -46,7 +46,7 @@ export const SubscriptionHistoryModal = ({
         {isLoading && (
           <Flex className="items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-[#1797B9]" />
-            <Box className="ml-3 text-muted-foreground">
+            <Box className="ms-3 text-muted-foreground">
               Loading subscription history...
             </Box>
           </Flex>
@@ -118,13 +118,13 @@ export const SubscriptionHistoryModal = ({
                           ${subscription.planPrice}{" "}
                           {subscription.planCurrency || "USD"}
                           {subscription.plan?.billingCycle && (
-                            <span className="ml-1">
+                            <span className="ms-1">
                               / {subscription.plan.billingCycle}
                             </span>
                           )}
                         </p>
                       </Box>
-                      <Box className="text-right">
+                      <Box className="text-end">
                         <p className="text-xs text-muted-foreground">
                           Subscription #{index + 1}
                         </p>

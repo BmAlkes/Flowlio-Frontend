@@ -410,7 +410,7 @@ export const SubscribtionTabele = ({
               onClick={() => setAuditModalOpen(true)}
               className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 cursor-pointer"
             >
-              <AlertTriangle className="h-4 w-4 mr-2" />
+              <AlertTriangle className="h-4 w-4 me-2" />
               {t("superadmin.subscriptions.auditPayment", "Audit Payment")}
             </Button>
           </Flex>
@@ -423,13 +423,13 @@ export const SubscribtionTabele = ({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="border border-border max-md:ml-auto"
+              className="border border-border max-md:ms-auto"
             >
               <CalendarIcon className="fill-[#1797B9]" />
               This Month
             </Button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" className="w-[19rem] mr-8">
+          <PopoverContent side="bottom" className="w-[19rem] me-8">
             <Calendar
               mode="range"
               selected={date}

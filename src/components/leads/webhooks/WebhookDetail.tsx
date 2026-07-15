@@ -102,7 +102,7 @@ export const WebhookDetail = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/dashboard/leads/webhooks")} className="text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /></button>
+          <button onClick={() => navigate("/dashboard/leads/webhooks")} className="text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4 rtl:rotate-180" /></button>
           <h2 className="font-semibold text-lg">{webhook.name}</h2>
           <span className="text-xs text-muted-foreground">{SOURCE_LABELS[webhook.source]}</span>
         </div>
@@ -145,7 +145,7 @@ export const WebhookDetail = () => {
               ))}
             </div>
             <ol className="space-y-1 text-sm text-foreground">
-              {GUIDES[guideTab].steps.map((s, i) => <li key={i}><span className="text-muted-foreground mr-1.5">{i + 1}.</span>{s}</li>)}
+              {GUIDES[guideTab].steps.map((s, i) => <li key={i}><span className="text-muted-foreground me-1.5">{i + 1}.</span>{s}</li>)}
             </ol>
             <div className="text-xs text-muted-foreground">
               <span className="font-medium">Format:</span> <code className="text-foreground">{GUIDES[guideTab].format}</code>

@@ -38,7 +38,7 @@ export const PayPalConfigModal = ({ onClose }: PayPalConfigModalProps) => {
       {isLoading ? (
         <Flex className="items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="ml-3 text-muted-foreground">
+          <span className="ms-3 text-muted-foreground">
             Loading PayPal configuration...
           </span>
         </Flex>
