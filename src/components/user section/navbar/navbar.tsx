@@ -178,7 +178,7 @@ export const Navbar: FC<NavbarProps> = ({
 
                   {/* Language links — mobile */}
                   <div className="pt-2 pb-1">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
                       Flowlio in your language
                     </p>
                     <div className="flex flex-col gap-1">
@@ -195,7 +195,7 @@ export const Navbar: FC<NavbarProps> = ({
                           >
                             <span className="flex items-center gap-2.5">
                               <span className={cn(
-                                "inline-flex items-center justify-center w-8 h-5 rounded text-[10px] font-bold tracking-wide",
+                                "inline-flex items-center justify-center w-8 h-5 rounded text-xs font-bold tracking-wide",
                                 isActive ? "bg-[#F98618]/10 text-[#F98618]" : "bg-gray-100 text-gray-500"
                               )}>
                                 {code}
@@ -252,7 +252,7 @@ export const Navbar: FC<NavbarProps> = ({
                 {langTriggerLabel && (
                   <span className="text-[13px] font-semibold">{langTriggerLabel}</span>
                 )}
-                <ChevronDown className="size-3.5 opacity-60" />
+                <ChevronDown className="size-3.5 opacity-90" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 p-1.5">
@@ -268,7 +268,7 @@ export const Navbar: FC<NavbarProps> = ({
                       )}
                     >
                       <span className={cn(
-                        "inline-flex items-center justify-center w-9 h-5 rounded text-[10px] font-bold tracking-wide shrink-0",
+                        "inline-flex items-center justify-center w-9 h-5 rounded text-xs font-bold tracking-wide shrink-0",
                         isActive ? "bg-[#F98618]/10 text-[#F98618]" : "bg-gray-100 text-gray-500"
                       )}>
                         {code}
@@ -277,7 +277,7 @@ export const Navbar: FC<NavbarProps> = ({
                         <span className={cn("text-sm font-semibold leading-none", isActive ? "text-[#F98618]" : "text-gray-800")}>
                           {lang}
                         </span>
-                        <span className="text-[11px] text-gray-400 leading-none mt-1 truncate">{native}</span>
+                        <span className="text-xs text-gray-400 leading-none mt-1 truncate">{native}</span>
                       </span>
                       {isActive && <Check className="size-3.5 text-[#F98618] ms-auto shrink-0" />}
                     </Link>

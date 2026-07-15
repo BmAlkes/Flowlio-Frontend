@@ -146,7 +146,7 @@ export const FileVersionHistoryModal: React.FC<FileVersionHistoryModalProps> = (
                     </Flex>
                   </Flex>
 
-                  <Flex className="justify-between items-center text-[11px] text-muted-foreground mt-2 pt-2 border-t border-border">
+                  <Flex className="justify-between items-center text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
                     <Flex className="gap-4">
                       <Flex className="gap-1.5">
                         <Calendar className="w-3 h-3" />

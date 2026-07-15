@@ -254,7 +254,7 @@ export const WebhooksList = () => {
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
+                    <ChevronRight className="h-5 w-5 text-muted-foreground/90 group-hover:text-muted-foreground transition-colors" />
                   </div>
                 </div>
               </div>

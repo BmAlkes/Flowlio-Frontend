@@ -497,20 +497,20 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* Footer Info */}
       {!isSourceMode && (
         <Flex className="border-t border-border p-2 px-4 justify-between items-center bg-muted/20">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
             Rich Text Mode
           </p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {editor.storage.characterCount?.characters?.() || 0} characters
           </p>
         </Flex>
       )}
       {isSourceMode && (
         <Flex className="border-t border-gray-800 p-2 px-4 justify-between items-center bg-gray-900 text-muted-foreground">
-          <p className="text-[10px] uppercase tracking-widest font-bold text-orange-400">
+          <p className="text-xs uppercase tracking-widest font-bold text-orange-400">
             HTML Source Mode
           </p>
-          <p className="text-[10px]">Be careful with manual HTML tags</p>
+          <p className="text-xs">Be careful with manual HTML tags</p>
         </Flex>
       )}
       {/* Editor Styles */}

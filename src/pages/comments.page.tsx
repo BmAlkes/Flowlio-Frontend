@@ -77,7 +77,7 @@ function CommentRow({ comment }: { comment: OrgComment }) {
             <Flex className="gap-2 items-center flex-wrap mb-1">
               <span className="font-semibold text-sm text-foreground">{comment.userName}</span>
               {comment.parentId && (
-                <Flex className="gap-1 items-center text-[10px] text-blue-500">
+                <Flex className="gap-1 items-center text-xs text-blue-500">
                   <CornerDownRight className="w-3 h-3" />
                   <span>Reply</span>
                 </Flex>
@@ -86,16 +86,16 @@ function CommentRow({ comment }: { comment: OrgComment }) {
                 {format(new Date(comment.createdAt), "MMM d, yyyy · h:mm a")}
               </span>
               {comment.updatedAt !== comment.createdAt && (
-                <span className="text-[10px] italic text-muted-foreground">(edited)</span>
+                <span className="text-xs italic text-muted-foreground">(edited)</span>
               )}
             </Flex>
             <Flex className="gap-2 mb-2 flex-wrap">
-              <Flex className="gap-1 items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-[10px] font-medium px-2 py-0.5 rounded-full">
+              <Flex className="gap-1 items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-medium px-2 py-0.5 rounded-full">
                 <FolderOpen className="w-3 h-3" />
                 {comment.projectName}
               </Flex>
               {comment.taskTitle && (
-                <Flex className="gap-1 items-center bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-[10px] font-medium px-2 py-0.5 rounded-full">
+                <Flex className="gap-1 items-center bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-medium px-2 py-0.5 rounded-full">
                   <CheckSquare className="w-3 h-3" />
                   {comment.taskTitle}
                 </Flex>
@@ -188,7 +188,7 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
             </Button>
           </Flex>
           <Flex className="gap-2 mb-2">
-            <Flex className="gap-1 items-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-medium px-2 py-0.5 rounded-full">
+            <Flex className="gap-1 items-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-xs font-medium px-2 py-0.5 rounded-full">
               <UserCircle2 className="w-3 h-3" />
               Client Message
             </Flex>
@@ -203,14 +203,14 @@ function InteractionRow({ item }: { item: OrgInteraction }) {
               {item.replies.map((reply) => (
                 <Box key={reply.id} className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg p-3">
                   <Flex className="gap-2 items-center mb-1 flex-wrap">
-                    <Box className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                    <Box className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
                       {reply.userName.charAt(0).toUpperCase()}
                     </Box>
                     <span className="text-xs font-semibold text-foreground">{reply.userName}</span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {format(new Date(reply.createdAt), "MMM d, yyyy · h:mm a")}
                     </span>
-                    <Flex className="gap-1 items-center text-[10px] text-teal-600 dark:text-teal-400">
+                    <Flex className="gap-1 items-center text-xs text-teal-600 dark:text-teal-400">
                       <CornerDownRight className="w-3 h-3" />
                       <span>Reply to client</span>
                     </Flex>
@@ -410,7 +410,7 @@ export const CommentsPage = () => {
             <MessageCircleMore className="w-4 h-4" />
             Project Comments
             {allComments.length > 0 && (
-              <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {commentsData?.total ?? allComments.length}
               </span>
             )}
@@ -429,7 +429,7 @@ export const CommentsPage = () => {
             <UserCircle2 className="w-4 h-4" />
             Client Messages
             {allInteractions.length > 0 && (
-              <span className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {interactionsData?.total ?? allInteractions.length}
               </span>
             )}

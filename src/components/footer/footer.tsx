@@ -79,19 +79,19 @@ export const Footer = () => (
 
         {/* Product */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">Product</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/90 mb-1">Product</h4>
           {PRODUCT_LINKS.map(l => <NavLink key={l.label} to={l.to}>{l.label}</NavLink>)}
         </div>
 
         {/* Resources */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">Resources</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/90 mb-1">Resources</h4>
           {RESOURCES_LINKS.map(l => <NavLink key={l.label} to={l.to}>{l.label}</NavLink>)}
         </div>
 
         {/* Legal */}
         <div className="flex flex-col gap-3">
-          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1">Legal</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-white/90 mb-1">Legal</h4>
           {LEGAL_LINKS.map(l => <NavLink key={l.label} to={l.to}>{l.label}</NavLink>)}
         </div>
       </div>
@@ -107,7 +107,7 @@ export const Footer = () => (
             href="https://www.dotvizion.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-white/60 hover:text-white transition-colors duration-200"
+            className="text-white/90 hover:text-white transition-colors duration-200"
           >
             Dotvizion
           </a>

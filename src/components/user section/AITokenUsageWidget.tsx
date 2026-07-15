@@ -62,7 +62,7 @@ export const AITokenUsageWidget = () => {
                 {t("dashboard.aiTokenUsage", "AI Token Usage")}
               </p>
               {isExceeded && (
-                <Badge variant="destructive" className="text-[10px] px-2 py-0 h-4">
+                <Badge variant="destructive" className="text-xs px-2 py-0 h-4">
                   {t("dashboard.limitExceeded", "Exceeded")}
                 </Badge>
               )}

@@ -123,7 +123,7 @@ export const GenericGantt = ({
                 {laneMetadata?.assigneeImage && (
                   <Avatar className="h-6 w-6 shrink-0 border border-background shadow-sm">
                     <AvatarImage src={laneMetadata.assigneeImage} />
-                    <AvatarFallback className="text-[10px]">
+                    <AvatarFallback className="text-xs">
                       {laneMetadata.assigneeName?.slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
@@ -168,25 +168,25 @@ export const GenericGantt = ({
                            {(feature as any).metadata?.clientImage && (
                             <Avatar className="h-4 w-4 shrink-0 border border-background shadow-sm">
                               <AvatarImage src={(feature as any).metadata.clientImage} />
-                              <AvatarFallback className="text-[8px]">
+                              <AvatarFallback className="text-xs">
                                 {feature.name.slice(0, 2)}
                               </AvatarFallback>
                             </Avatar>
                           )}
-                          <p className="truncate text-[10px] font-medium leading-none">
+                          <p className="truncate text-xs font-medium leading-none">
                             {feature.name}
                           </p>
                         </div>
 
                         <div className="flex items-center gap-1.5 shrink-0">
                           {(feature as any).metadata?.progress !== undefined && (
-                            <span className="text-[9px] text-muted-foreground font-mono">
+                            <span className="text-xs text-muted-foreground font-mono">
                               {(feature as any).metadata.progress}%
                             </span>
                           )}
                           <Badge 
                             variant="outline" 
-                            className="h-3.5 px-1 text-[8px] uppercase font-bold border-none"
+                            className="h-3.5 px-1 text-xs uppercase font-bold border-none"
                             style={{ 
                               backgroundColor: `${feature.status.color}20`,
                               color: feature.status.color 
@@ -411,7 +411,7 @@ const ProjectGantt = () => {
 
           <Flex className="gap-4 items-center">
             <Flex className="flex-col gap-1.5">
-              <Label className="text-[10px] uppercase text-muted-foreground font-bold">Year</Label>
+              <Label className="text-xs uppercase text-muted-foreground font-bold">Year</Label>
               <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
                 <SelectTrigger className="w-[100px] h-8 text-xs">
                   <SelectValue placeholder="Year" />
@@ -427,7 +427,7 @@ const ProjectGantt = () => {
             </Flex>
 
             <Flex className="flex-col gap-1.5">
-              <Label className="text-[10px] uppercase text-muted-foreground font-bold">Show Years</Label>
+              <Label className="text-xs uppercase text-muted-foreground font-bold">Show Years</Label>
               <Select value={yearRange.toString()} onValueChange={(v) => setYearRange(parseInt(v))}>
                 <SelectTrigger className="w-[100px] h-8 text-xs">
                   <SelectValue placeholder="Range" />
@@ -443,7 +443,7 @@ const ProjectGantt = () => {
             </Flex>
 
             <Flex className="flex-col gap-1.5">
-              <Label className="text-[10px] uppercase text-muted-foreground font-bold">View Mode</Label>
+              <Label className="text-xs uppercase text-muted-foreground font-bold">View Mode</Label>
               <Select value={viewRange} onValueChange={(v) => setViewRange(v as Range)}>
                 <SelectTrigger className="w-[120px] h-8 text-xs">
                   <SelectValue placeholder="View Mode" />
@@ -459,8 +459,8 @@ const ProjectGantt = () => {
         </Flex>
         
         <Flex className="flex-col gap-1 items-end">
-           <span className="text-[10px] text-muted-foreground font-medium">Timeline Controls</span>
-           <span className="text-[11px] font-bold">
+           <span className="text-xs text-muted-foreground font-medium">Timeline Controls</span>
+           <span className="text-xs font-bold">
             {viewMode === "projects" ? "Project" : "Workload"} - {viewRange.charAt(0).toUpperCase() + viewRange.slice(1)} View
            </span>
         </Flex>

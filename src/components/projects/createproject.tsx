@@ -604,7 +604,7 @@ export const CreateProject = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-blue-600/70 text-[10px] mt-1 px-2">
+                    <p className="text-blue-600/90 text-xs mt-1 px-2">
                       Choosing a template will automatically set up standard
                       tasks for this project type.
                     </p>

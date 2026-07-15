@@ -211,7 +211,7 @@ const NotificationsPage = () => {
                       );
                     })()}
 
-                    <p className="text-xs text-muted-foreground/60 mt-1">{timeAgo}</p>
+                    <p className="text-xs text-muted-foreground/90 mt-1">{timeAgo}</p>
                   </div>
 
                   {/* Actions */}

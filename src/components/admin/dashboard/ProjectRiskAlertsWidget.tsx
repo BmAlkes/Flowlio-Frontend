@@ -44,7 +44,7 @@ const AlertRow = ({ alert, onDismiss, onNavigate, isPending }: AlertRowProps) =>
             {alert.projectName || alert.projectNumber}
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${risk.color}`}>
+            <span className={`text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${risk.color}`}>
               {risk.label}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -122,7 +122,7 @@ export const ProjectRiskAlertsWidget = () => {
           <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <CheckCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <p className="text-sm font-medium text-foreground/70">
+          <p className="text-sm font-medium text-foreground/90">
             No projects at risk
           </p>
           <p className="text-xs text-muted-foreground text-center">

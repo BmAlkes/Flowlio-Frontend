@@ -302,7 +302,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                             <p className="text-sm text-muted-foreground">
                               {formatFileSize(attachment.size)}
                               {attachment.versions && attachment.versions.length > 1 && (
-                                <span className="ms-2 px-1.5 py-0.5 bg-muted text-[10px] font-bold rounded uppercase">
+                                <span className="ms-2 px-1.5 py-0.5 bg-muted text-xs font-bold rounded uppercase">
                                   V{attachment.versions[0].versionNumber}
                                 </span>
                               )}

@@ -170,7 +170,7 @@ export const Stats: FC<{
                       <>
                         {/* Top: label + icon */}
                         <div className="relative px-4 pt-4 pb-2 flex items-start justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.13em] text-muted-foreground/80">
+                          <span className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground/90">
                             {item.title}
                           </span>
                           <div className={cn("p-1.5 rounded-lg shrink-0", accent.icon)}>
@@ -198,7 +198,7 @@ export const Stats: FC<{
                         {/* Footer label */}
                         <div className="px-4 pb-4 flex items-center gap-1.5">
                           <span className={cn("size-1.5 rounded-full shrink-0", accent.dot)} />
-                          <span className="text-[11px] text-muted-foreground/70 truncate">
+                          <span className="text-xs text-muted-foreground/90 truncate">
                             {item.description}
                           </span>
                         </div>

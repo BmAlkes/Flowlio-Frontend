@@ -159,7 +159,7 @@ function DraggableTask({
                   >
                     <MessageCircleMore className="size-3.5" />
                     {commentCount > 0 && (
-                      <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                      <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-xs font-bold rounded-full flex items-center justify-center">
                         {commentCount > 9 ? "9+" : commentCount}
                       </span>
                     )}
@@ -208,7 +208,7 @@ function DraggableTask({
                             style={{ backgroundColor: option.color }}
                           />
                         </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-[10px] px-2 py-1">
+                        <TooltipContent side="bottom" className="text-xs px-2 py-1">
                           {field.name}: {value}
                         </TooltipContent>
                       </Tooltip>
@@ -282,7 +282,7 @@ function DroppableColumn({
         style={{ backgroundColor: STATUS_COLORS[status] }}
       >
         <span>{t(KANBAN_STATUS_I18N_KEY[status])}</span>
-        <span className="text-xs opacity-80">
+        <span className="text-xs opacity-90">
           {React.Children.count(children)}
         </span>
       </Box>

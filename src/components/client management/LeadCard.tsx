@@ -68,18 +68,18 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       onClick={onCardClick}
     >
       <div {...listeners} onClick={(e) => e.stopPropagation()} className="absolute top-2.5 end-2.5 p-0.5 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity z-10">
-        <GripVertical className="h-3 w-3 text-muted-foreground/30" />
+        <GripVertical className="h-3 w-3 text-muted-foreground/90" />
       </div>
 
       <div className="p-3">
         <Flex className="items-center gap-2.5 mb-2">
           <Avatar className="h-7 w-7 rounded-lg shrink-0">
             <AvatarImage src={lead.image} />
-            <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-[10px] font-medium">{initials}</AvatarFallback>
+            <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-xs font-medium">{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <h4 className="text-sm font-medium text-foreground truncate">{lead.name}</h4>
-            <p className="text-[11px] text-muted-foreground truncate">{lead.businessIndustry || "General"}</p>
+            <p className="text-xs text-muted-foreground truncate">{lead.businessIndustry || "General"}</p>
           </div>
         </Flex>
 
@@ -87,7 +87,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
           {temp ? (
             <Flex className="items-center gap-1">
               <span className={`w-1.5 h-1.5 rounded-full ${TEMP_DOT[temp] ?? "bg-gray-400"}`} />
-              <span className="text-[11px] font-medium text-muted-foreground">{temp}</span>
+              <span className="text-xs font-medium text-muted-foreground">{temp}</span>
             </Flex>
           ) : <div />}
           {formattedValue ? (
@@ -96,21 +96,21 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
               <span className="text-xs font-medium">{formattedValue}</span>
             </Flex>
           ) : (
-            <span className="text-[11px] text-muted-foreground/40">{t("pipeline.noValue")}</span>
+            <span className="text-xs text-muted-foreground/90">{t("pipeline.noValue")}</span>
           )}
         </Flex>
 
         <div className="pt-2 border-t border-border/30 flex items-center justify-between">
           {lead.lastInteractionAt ? (
-            <Flex className="items-center gap-1 text-[11px] text-muted-foreground/60">
+            <Flex className="items-center gap-1 text-xs text-muted-foreground/90">
               <Clock className="h-2.5 w-2.5" />
               <span>{format(new Date(lead.lastInteractionAt), "MMM d")}</span>
             </Flex>
           ) : (
-            <span className="text-[11px] text-muted-foreground/40">{t("pipeline.noContactYet")}</span>
+            <span className="text-xs text-muted-foreground/90">{t("pipeline.noContactYet")}</span>
           )}
           {followUp && (
-            <Flex className={`items-center gap-1 text-[10px] font-medium ${followUpOverdue ? "text-rose-500" : "text-foreground"}`}>
+            <Flex className={`items-center gap-1 text-xs font-medium ${followUpOverdue ? "text-rose-500" : "text-foreground"}`}>
               <Bell className="h-2.5 w-2.5" />
               <span>
                 {followUpOverdue ? t("pipeline.followUpOverdue") : followUpDays === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: followUpDays ?? 0 })}

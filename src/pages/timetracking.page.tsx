@@ -802,7 +802,7 @@ const TimeTrackingPage = () => {
             <div className="flex flex-col items-center py-12 gap-2">
               <Clock className="w-8 h-8 text-muted-foreground/40" />
               <p className="text-sm font-medium text-muted-foreground">{message}</p>
-              <p className="text-xs text-muted-foreground/60">
+              <p className="text-xs text-muted-foreground/90">
                 Start tracking time to see your entries here
               </p>
             </div>

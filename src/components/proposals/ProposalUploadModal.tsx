@@ -193,7 +193,7 @@ export const ProposalUploadModal: React.FC<ProposalUploadModalProps> = ({
                     <p className="text-sm font-medium text-green-700 truncate max-w-full px-4">
                       {file.name}
                     </p>
-                    <p className="text-xs text-green-600/70">
+                    <p className="text-xs text-green-600/90">
                       {(file.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
                   </>
