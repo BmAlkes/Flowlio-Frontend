@@ -19,10 +19,10 @@ export const HorizontalNavbar = () => {
   return (
     <Box
       className={cn(
-        "pt-5 items-center grid max-md:grid-cols-[auto_auto_1fr_auto_auto_auto_auto] grid-cols-[1fr_auto_auto_auto_auto_auto_auto] gap-2",
-        pathname !== "/dashboard" && "gap-1",
-        pathname === "/superadmin" && "gap-1",
-        pathname === "/viewer" && "gap-1.5"
+        "pt-5 px-4 items-center grid max-md:grid-cols-[auto_auto_1fr_auto_auto_auto_auto] grid-cols-[1fr_auto_auto_auto_auto_auto_auto] gap-3",
+        pathname !== "/dashboard" && "gap-2",
+        pathname === "/superadmin" && "gap-2",
+        pathname === "/viewer" && "gap-2.5"
       )}
     >
       <SidebarTrigger className="min-md:hidden" />
