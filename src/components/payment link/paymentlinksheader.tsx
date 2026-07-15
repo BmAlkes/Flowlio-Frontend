@@ -7,9 +7,12 @@ import { Button } from "../ui/button";
 import { CirclePlus } from "lucide-react";
 import { useGeneralModalDisclosure } from "../common/generalmodal";
 import { PaymentLinkFormModal } from "./paymentlinkformmodal";
+import { PaymentLinkStatCards } from "./paymentlinkstatcards";
+import { useFetchPaymentLinks } from "@/hooks/usefetchpaymentlinks";
 
 const PaymentLinksHeader: FC = () => {
   const modalProps = useGeneralModalDisclosure();
+  const { data: paymentLinksData } = useFetchPaymentLinks();
 
   return (
     <PageWrapper className="mt-6">
@@ -32,6 +35,8 @@ const PaymentLinksHeader: FC = () => {
           Create Links
         </Button>
       </Center>
+
+      <PaymentLinkStatCards paymentLinks={paymentLinksData?.data ?? []} />
 
       <PaymentLinksTable />
 
