@@ -46,7 +46,7 @@ export const features: Feature[] = [
     title: "Project Templates",
     description: "Start from a battle-tested template and skip the setup overhead. Customise milestones, task lists and assignees in one click.",
     category: "Projects",
-    videoId: "PROJECTS_VIDEO_2",
+    videoId: "ilo5LVs3Yt8",
     duration: "1:20",
     uploadDate: "2024-11-05",
   },
