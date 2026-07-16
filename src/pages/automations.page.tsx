@@ -77,7 +77,7 @@ function AutomationCard({
     1,
     historyOpen,
   );
-  const runs = historyData?.data?.runs ?? [];
+  const runs = historyData?.data ?? [];
 
   const isRunningThis =
     runAutomation.isPending && runAutomation.variables?.key === automation.key;
