@@ -1,35 +1,181 @@
 import { useState } from "react";
-import { AlertTriangle, CheckCircle2, Loader2, PlayCircle, Zap } from "lucide-react";
+import {
+  AlertTriangle, CheckCircle2, Loader2, PlayCircle, Zap,
+  ChevronDown, ChevronUp, History as HistoryIcon,
+} from "lucide-react";
 import { Box } from "@/components/ui/box";
 import { Stack } from "@/components/ui/stack";
 import { Flex } from "@/components/ui/flex";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { format } from "date-fns";
 import {
   AUTOMATIONS,
   useRunAutomation,
+  useAutomationSettings,
+  useUpdateAutomationSettings,
+  useAutomationHistory,
   type AutomationKey,
+  type AutomationDefinition,
   type RunAutomationResult,
 } from "@/hooks/useAutomations";
 
-const AutomationsPage = () => {
+function AutomationCard({
+  automation,
+  enabled,
+  onToggle,
+  isTogglePending,
+}: {
+  automation: AutomationDefinition;
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  isTogglePending: boolean;
+}) {
   const runAutomation = useRunAutomation();
-  const [results, setResults] = useState<
-    Partial<Record<AutomationKey, RunAutomationResult>>
-  >({});
+  const [result, setResult] = useState<RunAutomationResult | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const { data: historyData, isLoading: historyLoading } = useAutomationHistory(
+    automation.key,
+  );
 
-  const handleRun = (key: AutomationKey) => {
-    runAutomation.mutate(key, {
-      onSuccess: (data) => {
-        setResults((prev) => ({ ...prev, [key]: data.data }));
-      },
+  const isRunningThis =
+    runAutomation.isPending && runAutomation.variables === automation.key;
+
+  const handleRun = () => {
+    runAutomation.mutate(automation.key, {
+      onSuccess: (data) => setResult(data.data),
     });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <Flex className="items-center justify-between gap-4">
+          <Flex className="items-center gap-3">
+            <CardTitle className="text-lg">{automation.title}</CardTitle>
+            <Badge variant="secondary">{automation.schedule}</Badge>
+          </Flex>
+          <Flex className="items-center gap-2 shrink-0">
+            <span className="text-xs text-muted-foreground/90">{enabled ? "On" : "Off"}</span>
+            <Switch checked={enabled} onCheckedChange={onToggle} disabled={isTogglePending} />
+          </Flex>
+        </Flex>
+      </CardHeader>
+      <CardContent>
+        <Flex className="items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            {automation.description}
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleRun}
+            disabled={isRunningThis}
+            className="shrink-0"
+          >
+            {isRunningThis ? (
+              <>
+                <Loader2 className="h-4 w-4 me-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <PlayCircle className="h-4 w-4 me-2" />
+                Run now
+              </>
+            )}
+          </Button>
+        </Flex>
+
+        {result && (
+          <Box
+            className={`mt-4 rounded-lg border p-3 text-sm ${
+              result.errors.length > 0
+                ? "border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-900/20"
+                : "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-900/20"
+            }`}
+          >
+            <Flex className="items-center gap-2 font-medium">
+              {result.errors.length > 0 ? (
+                <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              )}
+              Last run: {result.itemsFound} {automation.itemLabel}{" "}
+              found, {result.emailsSent} email(s) sent,{" "}
+              {result.emailsFailed} failed
+            </Flex>
+            {result.itemsFound === 0 && (
+              <p className="text-muted-foreground mt-1">
+                No matching {automation.itemLabel} right now — nothing to notify.
+              </p>
+            )}
+            {result.errors.length > 0 && (
+              <ul className="mt-2 list-disc ps-5 space-y-0.5 text-rose-700 dark:text-rose-400">
+                {result.errors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            )}
+          </Box>
+        )}
+
+        <button
+          onClick={() => setHistoryOpen((v) => !v)}
+          className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground/90 hover:text-foreground transition-colors"
+        >
+          <HistoryIcon className="h-3.5 w-3.5" />
+          Recent runs
+          {historyOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        </button>
+
+        {historyOpen && (
+          <Box className="mt-2 border border-border rounded-lg divide-y divide-border">
+            {historyLoading ? (
+              <p className="text-xs text-muted-foreground/90 p-3">Loading history...</p>
+            ) : historyData?.data.runs.length ? (
+              historyData.data.runs.map((run) => (
+                <Flex key={run.id} className="items-center justify-between gap-3 px-3 py-2 text-xs">
+                  <Flex className="items-center gap-2">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                        (run.emailsFailed ?? 0) > 0 ? "bg-rose-500" : "bg-emerald-500"
+                      }`}
+                    />
+                    <span className="text-muted-foreground/90">
+                      {format(new Date(run.runAt), "d MMM HH:mm")}
+                    </span>
+                    <span className="text-muted-foreground/60 capitalize">({run.triggeredBy})</span>
+                  </Flex>
+                  <span className="text-foreground">
+                    {run.itemsFound ?? 0} found · {run.emailsSent ?? 0} sent
+                    {(run.emailsFailed ?? 0) > 0 && `, ${run.emailsFailed} failed`}
+                  </span>
+                </Flex>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground/90 p-3">No runs recorded yet.</p>
+            )}
+          </Box>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const AutomationsPage = () => {
+  const { data: settingsData } = useAutomationSettings();
+  const updateSettings = useUpdateAutomationSettings();
+
+  const isEnabled = (key: AutomationKey) => {
+    const entry = settingsData?.data.find((s) => s.automationKey === key);
+    return entry?.enabled ?? true;
   };
 
   return (
@@ -45,83 +191,15 @@ const AutomationsPage = () => {
       </Stack>
 
       <Stack className="gap-4">
-        {AUTOMATIONS.map((automation) => {
-          const result = results[automation.key];
-          const isRunningThis =
-            runAutomation.isPending &&
-            runAutomation.variables === automation.key;
-
-          return (
-            <Card key={automation.key}>
-              <CardHeader>
-                <Flex className="items-center justify-between gap-4">
-                  <CardTitle className="text-lg">
-                    {automation.title}
-                  </CardTitle>
-                  <Badge variant="secondary">{automation.schedule}</Badge>
-                </Flex>
-              </CardHeader>
-              <CardContent>
-                <Flex className="items-center justify-between gap-4">
-                  <p className="text-sm text-muted-foreground max-w-2xl">
-                    {automation.description}
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleRun(automation.key)}
-                    disabled={isRunningThis}
-                    className="shrink-0"
-                  >
-                    {isRunningThis ? (
-                      <>
-                        <Loader2 className="h-4 w-4 me-2 animate-spin" />
-                        Running...
-                      </>
-                    ) : (
-                      <>
-                        <PlayCircle className="h-4 w-4 me-2" />
-                        Run now
-                      </>
-                    )}
-                  </Button>
-                </Flex>
-
-                {result && (
-                  <Box
-                    className={`mt-4 rounded-lg border p-3 text-sm ${
-                      result.errors.length > 0
-                        ? "border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-900/20"
-                        : "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-900/20"
-                    }`}
-                  >
-                    <Flex className="items-center gap-2 font-medium">
-                      {result.errors.length > 0 ? (
-                        <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      )}
-                      Last run: {result.itemsFound} {automation.itemLabel}{" "}
-                      found, {result.emailsSent} email(s) sent,{" "}
-                      {result.emailsFailed} failed
-                    </Flex>
-                    {result.itemsFound === 0 && (
-                      <p className="text-muted-foreground mt-1">
-                        No matching {automation.itemLabel} right now — nothing to notify.
-                      </p>
-                    )}
-                    {result.errors.length > 0 && (
-                      <ul className="mt-2 list-disc ps-5 space-y-0.5 text-rose-700 dark:text-rose-400">
-                        {result.errors.map((err, i) => (
-                          <li key={i}>{err}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+        {AUTOMATIONS.map((automation) => (
+          <AutomationCard
+            key={automation.key}
+            automation={automation}
+            enabled={isEnabled(automation.key)}
+            isTogglePending={updateSettings.isPending && updateSettings.variables?.key === automation.key}
+            onToggle={(enabled) => updateSettings.mutate({ key: automation.key, enabled })}
+          />
+        ))}
       </Stack>
     </Box>
   );

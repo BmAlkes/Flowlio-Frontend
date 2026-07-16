@@ -19,7 +19,10 @@ import {
 } from "@/hooks/useNotifications";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router";
-import { Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore, AlertTriangle, ClipboardX, ShieldAlert, BarChart3 } from "lucide-react";
+import {
+  Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore, AlertTriangle,
+  ClipboardX, ShieldAlert, BarChart3, Receipt, Link2, Webhook, UserX, UserMinus, Gauge,
+} from "lucide-react";
 import { Button } from "../../ui/button";
 import { Center } from "../../ui/center";
 import { Badge } from "../../ui/badge";
@@ -69,6 +72,21 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return <ShieldAlert className="h-4 w-4" />;
       case "weekly_summary":
         return <BarChart3 className="h-4 w-4" />;
+      case "invoice_overdue":
+        return <Receipt className="h-4 w-4" />;
+      case "payment_link_reminder":
+        return <Link2 className="h-4 w-4" />;
+      case "webhook_issue":
+        return <Webhook className="h-4 w-4" />;
+      case "lead_not_contacted":
+        return <UserX className="h-4 w-4" />;
+      case "client_inactive":
+        return <UserMinus className="h-4 w-4" />;
+      case "support_ticket_unanswered":
+        return <Ticket className="h-4 w-4" />;
+      case "trial_ending":
+      case "plan_usage_limit":
+        return <Gauge className="h-4 w-4" />;
       default:
         return <InboxIcon className="h-4 w-4" />;
     }
@@ -103,6 +121,21 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-rose-500";
       case "weekly_summary":
         return "bg-emerald-500";
+      case "invoice_overdue":
+        return "bg-rose-500";
+      case "payment_link_reminder":
+        return "bg-amber-500";
+      case "webhook_issue":
+        return "bg-rose-500";
+      case "lead_not_contacted":
+        return "bg-amber-500";
+      case "client_inactive":
+        return "bg-orange-500";
+      case "support_ticket_unanswered":
+        return "bg-blue-500";
+      case "trial_ending":
+      case "plan_usage_limit":
+        return "bg-purple-500";
       default:
         return "bg-muted/500";
     }
@@ -171,6 +204,37 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
 
     if (notification.type === "weekly_summary") {
       navigate("/dashboard");
+      return;
+    }
+
+    if (notification.type === "invoice_overdue") {
+      navigate("/dashboard/invoice");
+      return;
+    }
+
+    if (notification.type === "payment_link_reminder") {
+      navigate("/dashboard/payment-links");
+      return;
+    }
+
+    if (notification.type === "webhook_issue") {
+      const webhookId = notification.data?.webhookId;
+      navigate(webhookId ? `/dashboard/leads/webhooks/${webhookId}` : "/dashboard/leads/webhooks");
+      return;
+    }
+
+    if (notification.type === "lead_not_contacted") {
+      navigate("/dashboard/leads");
+      return;
+    }
+
+    if (notification.type === "client_inactive") {
+      navigate("/dashboard/client-management");
+      return;
+    }
+
+    if (notification.type === "trial_ending" || notification.type === "plan_usage_limit") {
+      navigate("/dashboard/subscription");
       return;
     }
 

@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { axios } from "@/configs/axios.config";
 
@@ -6,7 +6,14 @@ export type AutomationKey =
   | "task-overdue"
   | "project-risk"
   | "lead-followup"
-  | "weekly-summary";
+  | "weekly-summary"
+  | "invoice-overdue"
+  | "payment-link-reminder"
+  | "webhook-issue"
+  | "new-lead-not-contacted"
+  | "client-inactivity"
+  | "support-ticket-unanswered"
+  | "trial-and-usage";
 
 export interface AutomationDefinition {
   key: AutomationKey;
@@ -55,6 +62,69 @@ export const AUTOMATIONS: AutomationDefinition[] = [
     templateKey: "weekly_summary",
     itemLabel: "organization(s)",
   },
+  {
+    key: "invoice-overdue",
+    title: "Invoice Overdue",
+    description:
+      "Notifies the organization owner by email when an invoice passes its due date without being marked paid. Repeats every 7 days while still overdue.",
+    schedule: "Daily at 08:30 UTC",
+    templateKey: "invoice_overdue",
+    itemLabel: "invoice(s)",
+  },
+  {
+    key: "payment-link-reminder",
+    title: "Payment Link Reminder",
+    description:
+      "Reminds the organization owner to follow up when a payment link has stayed unpaid for more than 7 days since creation.",
+    schedule: "Daily at 09:30 UTC",
+    templateKey: "payment_link_reminder",
+    itemLabel: "payment link(s)",
+  },
+  {
+    key: "webhook-issue",
+    title: "Webhook Silent/Failing",
+    description:
+      "Alerts the admin when an active lead webhook has received no calls in 7+ days, or when most of its recent calls are failing — usually a sign the integration on the client's site broke.",
+    schedule: "Daily at 11:00 UTC",
+    templateKey: "webhook_issue",
+    itemLabel: "webhook(s)",
+  },
+  {
+    key: "new-lead-not-contacted",
+    title: "New Lead Not Contacted",
+    description:
+      "Notifies the assigned user (or organization owner) when a brand-new lead has had no recorded contact within 24–48 hours — the window that matters most for conversion.",
+    schedule: "Every 6 hours",
+    templateKey: "lead_not_contacted",
+    itemLabel: "lead(s)",
+  },
+  {
+    key: "client-inactivity",
+    title: "Client Inactivity",
+    description:
+      "Flags clients with no active project or task in the last 30 days — an early churn signal for the organization owner to act on.",
+    schedule: "Weekly, Monday at 09:00 UTC",
+    templateKey: "client_inactive",
+    itemLabel: "client(s)",
+  },
+  {
+    key: "support-ticket-unanswered",
+    title: "Support Ticket Unanswered",
+    description:
+      "Notifies assigned admins when a support ticket has gone more than 24 hours without a first response.",
+    schedule: "Every 4 hours",
+    templateKey: "support_ticket_unanswered",
+    itemLabel: "ticket(s)",
+  },
+  {
+    key: "trial-and-usage",
+    title: "Trial Ending / Plan Usage Limit",
+    description:
+      "Notifies the organization owner when their trial is 3 days or less from ending, or when plan usage (users, projects, storage) crosses 80% of the limit.",
+    schedule: "Daily at 07:00 UTC",
+    templateKey: "trial_and_usage",
+    itemLabel: "organization(s)",
+  },
 ];
 
 export interface RunAutomationResult {
@@ -64,21 +134,28 @@ export interface RunAutomationResult {
   errors: string[];
 }
 
-// Raw shapes differ per automation (tasksFound / projectsFound / leadsFound / organizationsFound) — normalize to itemsFound.
+// Raw shapes differ per automation (tasksFound / projectsFound / leadsFound /
+// organizationsFound / invoicesFound / etc) — normalize to itemsFound by
+// picking whichever "*Found" field the backend actually returned, so new
+// automations don't need a frontend change just to report their count.
 interface RawRunAutomationResult {
-  tasksFound?: number;
-  projectsFound?: number;
-  leadsFound?: number;
-  organizationsFound?: number;
   emailsSent: number;
   emailsFailed: number;
   errors: string[];
+  [key: string]: unknown;
 }
 
 interface RunAutomationResponse {
   success: boolean;
   message: string;
   data: RawRunAutomationResult;
+}
+
+function extractItemsFound(raw: RawRunAutomationResult): number {
+  const foundKey = Object.keys(raw).find(
+    (k) => k.endsWith("Found") && typeof raw[k] === "number",
+  );
+  return foundKey ? (raw[foundKey] as number) : 0;
 }
 
 export const useRunAutomation = () => {
@@ -97,12 +174,7 @@ export const useRunAutomation = () => {
       return {
         ...response.data,
         data: {
-          itemsFound:
-            raw.tasksFound ??
-            raw.projectsFound ??
-            raw.leadsFound ??
-            raw.organizationsFound ??
-            0,
+          itemsFound: extractItemsFound(raw),
           emailsSent: raw.emailsSent,
           emailsFailed: raw.emailsFailed,
           errors: raw.errors,
@@ -120,6 +192,74 @@ export const useRunAutomation = () => {
       const errorMessage =
         error.response?.data?.message || "Failed to run automation";
       toast.error(errorMessage);
+    },
+  });
+};
+
+export interface AutomationRun {
+  id: string;
+  organizationId: string;
+  automationKey: AutomationKey;
+  itemsFound: number | null;
+  emailsSent: number | null;
+  emailsFailed: number | null;
+  errors: string[] | null;
+  triggeredBy: "cron" | "manual";
+  runAt: string;
+}
+
+export interface AutomationHistoryResponse {
+  success: boolean;
+  data: {
+    runs: AutomationRun[];
+    total: number;
+    page: number;
+  };
+}
+
+export const useAutomationHistory = (key: AutomationKey, page = 1) => {
+  return useQuery({
+    queryKey: ["automation-history", key, page],
+    queryFn: async () => {
+      const response = await axios.get<AutomationHistoryResponse>(
+        `/automations/${key}/history?page=${page}&limit=5`,
+      );
+      return response.data;
+    },
+  });
+};
+
+export interface AutomationSettingsEntry {
+  automationKey: AutomationKey;
+  enabled: boolean;
+  lastScheduledRunAt: string | null;
+}
+
+export const useAutomationSettings = () => {
+  return useQuery({
+    queryKey: ["automation-settings"],
+    queryFn: async () => {
+      const response = await axios.get<{ success: boolean; data: AutomationSettingsEntry[] }>(
+        "/automations/settings",
+      );
+      return response.data;
+    },
+  });
+};
+
+export const useUpdateAutomationSettings = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ key, enabled }: { key: AutomationKey; enabled: boolean }) => {
+      const response = await axios.patch(`/automations/${key}/settings`, { enabled });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["automation-settings"] });
+      toast.success(variables.enabled ? "Automation enabled" : "Automation disabled");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update automation settings");
     },
   });
 };
