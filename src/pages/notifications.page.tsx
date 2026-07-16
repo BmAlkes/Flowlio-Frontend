@@ -20,6 +20,7 @@ import {
   Trash2, Check, CheckCheck, Bell, UserCheck, AlertTriangle,
   CreditCard, Sparkles, Calendar, ChevronLeft, ChevronRight,
   ClipboardX, ShieldAlert, BarChart3, Search, MoreVertical,
+  Receipt, Link2, Webhook, UserX, UserMinus, Gauge, Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
@@ -39,6 +40,14 @@ const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string
   weekly_summary:        { icon: BarChart3,       color: "text-emerald-600 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/25" },
   project_comment:       { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
   client_message:        { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
+  invoice_overdue:       { icon: Receipt,         color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  payment_link_reminder: { icon: Link2,           color: "text-amber-600 dark:text-amber-300",   bg: "bg-amber-100 dark:bg-amber-500/25" },
+  webhook_issue:         { icon: Webhook,         color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
+  lead_not_contacted:    { icon: UserX,           color: "text-amber-600 dark:text-amber-300",   bg: "bg-amber-100 dark:bg-amber-500/25" },
+  client_inactive:       { icon: UserMinus,       color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
+  support_ticket_unanswered: { icon: Ticket,      color: "text-blue-600 dark:text-blue-300",     bg: "bg-blue-100 dark:bg-blue-500/25" },
+  trial_ending:          { icon: Gauge,           color: "text-purple-600 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-500/25" },
+  plan_usage_limit:      { icon: Gauge,           color: "text-purple-600 dark:text-purple-300", bg: "bg-purple-100 dark:bg-purple-500/25" },
   default:               { icon: Bell,            color: "text-foreground", bg: "bg-muted" },
 };
 
