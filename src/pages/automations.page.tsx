@@ -41,14 +41,14 @@ function parseDefaultHour(schedule: string): number | null {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// REOPENED 2026-07-16: backend claimed all 11 handlers were scoped by
-// organizationId, but a live "Run now" on Weekly Summary from an org-owner
-// account still returned "5 organization(s) found, 6 email(s) sent" — i.e.
-// still processing/emailing every organization on the platform, not just
-// the caller's. Do NOT flip this back to true from a backend "it's fixed"
-// message alone — flip it only after a live re-test confirms the count is
-// scoped to the caller's own organization.
-const RUN_SCOPING_CONFIRMED = false;
+// PENDING LIVE RE-VERIFICATION 2026-07-16: backend says the previous "5 orgs"
+// result was a stale Railway deployment (tested before the new build with the
+// scoping fix + a new controller-level guard had finished rolling out), not a
+// broken fix. Re-enabled here so the fix can be verified with an actual "Run
+// now" click. If it still returns more than 1 organization for a non-superadmin
+// caller, flip this back to false immediately — do not keep trusting backend
+// explanations without a live re-test confirming the real count.
+const RUN_SCOPING_CONFIRMED = true;
 
 function AutomationCard({
   automation,
