@@ -37,7 +37,7 @@ export const features: Feature[] = [
     title: "Create & Manage Projects",
     description: "Set up a project in seconds, assign team members, define milestones and track every phase from kick-off to delivery.",
     category: "Projects",
-    videoId: "PROJECTS_VIDEO_1",
+    videoId: "abEVtIjgIK4",
     duration: "1:45",
     uploadDate: "2024-11-01",
   },
