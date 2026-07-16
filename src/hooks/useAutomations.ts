@@ -222,11 +222,9 @@ export interface AutomationRun {
 
 export interface AutomationHistoryResponse {
   success: boolean;
-  data: {
-    runs: AutomationRun[];
-    total: number;
-    page: number;
-  };
+  data: AutomationRun[];
+  page: number;
+  limit: number;
 }
 
 export const useAutomationHistory = (
