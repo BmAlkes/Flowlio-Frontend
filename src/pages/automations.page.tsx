@@ -41,10 +41,14 @@ function parseDefaultHour(schedule: string): number | null {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// Backend confirmed 2026-07-16: every automation handler now filters its
-// query by organizationId when present in the request body, so "Run now"
-// on this org-scoped page can no longer touch other organizations' data.
-const RUN_SCOPING_CONFIRMED = true;
+// REOPENED 2026-07-16: backend claimed all 11 handlers were scoped by
+// organizationId, but a live "Run now" on Weekly Summary from an org-owner
+// account still returned "5 organization(s) found, 6 email(s) sent" — i.e.
+// still processing/emailing every organization on the platform, not just
+// the caller's. Do NOT flip this back to true from a backend "it's fixed"
+// message alone — flip it only after a live re-test confirms the count is
+// scoped to the caller's own organization.
+const RUN_SCOPING_CONFIRMED = false;
 
 function AutomationCard({
   automation,
@@ -132,7 +136,7 @@ function AutomationCard({
             variant="outline"
             onClick={handleRun}
             disabled={isRunningThis || !RUN_SCOPING_CONFIRMED}
-            title={!RUN_SCOPING_CONFIRMED ? "Temporarily disabled — waiting on a backend fix so this only affects your organization" : undefined}
+            title={!RUN_SCOPING_CONFIRMED ? "Temporarily disabled — a previous fix attempt didn't actually scope this to your organization" : undefined}
             className="shrink-0"
           >
             {isRunningThis ? (
