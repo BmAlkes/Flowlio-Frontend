@@ -217,14 +217,19 @@ export interface AutomationHistoryResponse {
   };
 }
 
-export const useAutomationHistory = (key: AutomationKey, page = 1, enabled = true) => {
+export const useAutomationHistory = (
+  key: AutomationKey,
+  organizationId: string | undefined,
+  page = 1,
+  enabled = true,
+) => {
   return useQuery({
-    queryKey: ["automation-history", key, page],
-    enabled,
+    queryKey: ["automation-history", key, organizationId, page],
+    enabled: enabled && !!organizationId,
     retry: false,
     queryFn: async () => {
       const response = await axios.get<AutomationHistoryResponse>(
-        `/automations/${key}/history?page=${page}&limit=5`,
+        `/automations/${key}/history?organizationId=${organizationId}&page=${page}&limit=5`,
       );
       return response.data;
     },
@@ -237,13 +242,14 @@ export interface AutomationSettingsEntry {
   lastScheduledRunAt: string | null;
 }
 
-export const useAutomationSettings = () => {
+export const useAutomationSettings = (organizationId: string | undefined) => {
   return useQuery({
-    queryKey: ["automation-settings"],
+    queryKey: ["automation-settings", organizationId],
+    enabled: !!organizationId,
     retry: false,
     queryFn: async () => {
       const response = await axios.get<{ success: boolean; data: AutomationSettingsEntry[] }>(
-        "/automations/settings",
+        `/automations/settings?organizationId=${organizationId}`,
       );
       return response.data;
     },
@@ -253,8 +259,19 @@ export const useAutomationSettings = () => {
 export const useUpdateAutomationSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ key, enabled }: { key: AutomationKey; enabled: boolean }) => {
-      const response = await axios.patch(`/automations/${key}/settings`, { enabled });
+    mutationFn: async ({
+      key,
+      enabled,
+      organizationId,
+    }: {
+      key: AutomationKey;
+      enabled: boolean;
+      organizationId: string;
+    }) => {
+      const response = await axios.patch(`/automations/${key}/settings`, {
+        enabled,
+        organizationId,
+      });
       return response.data;
     },
     onSuccess: (_, variables) => {
