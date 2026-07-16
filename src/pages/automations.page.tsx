@@ -15,6 +15,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { useUser } from "@/providers/user.provider";
 import {
@@ -28,19 +31,34 @@ import {
   type RunAutomationResult,
 } from "@/hooks/useAutomations";
 
+// Only "Daily at HH:MM UTC" / "Weekly, <day> at HH:MM UTC" schedules have a
+// single fixed hour that makes sense to customize — interval schedules
+// ("Every 6 hours") don't.
+function parseDefaultHour(schedule: string): number | null {
+  const match = schedule.match(/(\d{2}):\d{2}\s*UTC/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
 function AutomationCard({
   automation,
   organizationId,
   enabled,
   onToggle,
   isTogglePending,
+  scheduleHourUtc,
+  onScheduleChange,
 }: {
   automation: AutomationDefinition;
   organizationId: string | undefined;
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
   isTogglePending: boolean;
+  scheduleHourUtc: number | null;
+  onScheduleChange: (hour: number) => void;
 }) {
+  const defaultHour = parseDefaultHour(automation.schedule);
   const runAutomation = useRunAutomation();
   const [result, setResult] = useState<RunAutomationResult | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -76,6 +94,29 @@ function AutomationCard({
         </Flex>
       </CardHeader>
       <CardContent>
+        {defaultHour !== null && (
+          <Flex className="items-center gap-2 mb-3">
+            <span className="text-xs text-muted-foreground/90">Runs at</span>
+            <Select
+              value={String(scheduleHourUtc ?? defaultHour)}
+              onValueChange={(v) => onScheduleChange(parseInt(v, 10))}
+              disabled={!enabled}
+            >
+              <SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {HOURS.map((h) => (
+                  <SelectItem key={h} value={String(h)}>
+                    {String(h).padStart(2, "0")}:00 UTC
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {scheduleHourUtc !== null && scheduleHourUtc !== defaultHour && (
+              <span className="text-xs text-muted-foreground/60">(default: {String(defaultHour).padStart(2, "0")}:00 UTC)</span>
+            )}
+          </Flex>
+        )}
+
         <Flex className="items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground max-w-2xl">
             {automation.description}
@@ -184,10 +225,11 @@ const AutomationsPage = () => {
   const { data: settingsData } = useAutomationSettings(organizationId);
   const updateSettings = useUpdateAutomationSettings();
 
-  const isEnabled = (key: AutomationKey) => {
-    const entry = settingsData?.data?.find((s) => s.automationKey === key);
-    return entry?.enabled ?? true;
-  };
+  const getEntry = (key: AutomationKey) =>
+    settingsData?.data?.find((s) => s.automationKey === key);
+
+  const isEnabled = (key: AutomationKey) => getEntry(key)?.enabled ?? true;
+  const getScheduleHour = (key: AutomationKey) => getEntry(key)?.scheduleHourUtc ?? null;
 
   return (
     <Box className="px-2">
@@ -212,6 +254,11 @@ const AutomationsPage = () => {
             onToggle={(enabled) => {
               if (!organizationId) return;
               updateSettings.mutate({ key: automation.key, enabled, organizationId });
+            }}
+            scheduleHourUtc={getScheduleHour(automation.key)}
+            onScheduleChange={(scheduleHourUtc) => {
+              if (!organizationId) return;
+              updateSettings.mutate({ key: automation.key, scheduleHourUtc, organizationId });
             }}
           />
         ))}
