@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { format } from "date-fns";
+import { useUser } from "@/providers/user.provider";
 import {
   AUTOMATIONS,
   useRunAutomation,
@@ -29,11 +30,13 @@ import {
 
 function AutomationCard({
   automation,
+  organizationId,
   enabled,
   onToggle,
   isTogglePending,
 }: {
   automation: AutomationDefinition;
+  organizationId: string | undefined;
   enabled: boolean;
   onToggle: (enabled: boolean) => void;
   isTogglePending: boolean;
@@ -43,6 +46,7 @@ function AutomationCard({
   const [historyOpen, setHistoryOpen] = useState(false);
   const { data: historyData, isLoading: historyLoading, isError: historyErrored } = useAutomationHistory(
     automation.key,
+    organizationId,
     1,
     historyOpen,
   );
@@ -175,7 +179,9 @@ function AutomationCard({
 }
 
 const AutomationsPage = () => {
-  const { data: settingsData } = useAutomationSettings();
+  const { data: userData } = useUser();
+  const organizationId = userData?.user?.organizationId;
+  const { data: settingsData } = useAutomationSettings(organizationId);
   const updateSettings = useUpdateAutomationSettings();
 
   const isEnabled = (key: AutomationKey) => {
@@ -200,9 +206,13 @@ const AutomationsPage = () => {
           <AutomationCard
             key={automation.key}
             automation={automation}
+            organizationId={organizationId}
             enabled={isEnabled(automation.key)}
             isTogglePending={updateSettings.isPending && updateSettings.variables?.key === automation.key}
-            onToggle={(enabled) => updateSettings.mutate({ key: automation.key, enabled })}
+            onToggle={(enabled) => {
+              if (!organizationId) return;
+              updateSettings.mutate({ key: automation.key, enabled, organizationId });
+            }}
           />
         ))}
       </Stack>
