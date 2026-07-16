@@ -217,9 +217,11 @@ export interface AutomationHistoryResponse {
   };
 }
 
-export const useAutomationHistory = (key: AutomationKey, page = 1) => {
+export const useAutomationHistory = (key: AutomationKey, page = 1, enabled = true) => {
   return useQuery({
     queryKey: ["automation-history", key, page],
+    enabled,
+    retry: false,
     queryFn: async () => {
       const response = await axios.get<AutomationHistoryResponse>(
         `/automations/${key}/history?page=${page}&limit=5`,
@@ -238,6 +240,7 @@ export interface AutomationSettingsEntry {
 export const useAutomationSettings = () => {
   return useQuery({
     queryKey: ["automation-settings"],
+    retry: false,
     queryFn: async () => {
       const response = await axios.get<{ success: boolean; data: AutomationSettingsEntry[] }>(
         "/automations/settings",

@@ -41,9 +41,12 @@ function AutomationCard({
   const runAutomation = useRunAutomation();
   const [result, setResult] = useState<RunAutomationResult | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const { data: historyData, isLoading: historyLoading } = useAutomationHistory(
+  const { data: historyData, isLoading: historyLoading, isError: historyErrored } = useAutomationHistory(
     automation.key,
+    1,
+    historyOpen,
   );
+  const runs = historyData?.data?.runs ?? [];
 
   const isRunningThis =
     runAutomation.isPending && runAutomation.variables === automation.key;
@@ -139,8 +142,10 @@ function AutomationCard({
           <Box className="mt-2 border border-border rounded-lg divide-y divide-border">
             {historyLoading ? (
               <p className="text-xs text-muted-foreground/90 p-3">Loading history...</p>
-            ) : historyData?.data.runs.length ? (
-              historyData.data.runs.map((run) => (
+            ) : historyErrored ? (
+              <p className="text-xs text-muted-foreground/90 p-3">History isn't available yet.</p>
+            ) : runs.length ? (
+              runs.map((run) => (
                 <Flex key={run.id} className="items-center justify-between gap-3 px-3 py-2 text-xs">
                   <Flex className="items-center gap-2">
                     <span
@@ -174,7 +179,7 @@ const AutomationsPage = () => {
   const updateSettings = useUpdateAutomationSettings();
 
   const isEnabled = (key: AutomationKey) => {
-    const entry = settingsData?.data.find((s) => s.automationKey === key);
+    const entry = settingsData?.data?.find((s) => s.automationKey === key);
     return entry?.enabled ?? true;
   };
 
