@@ -240,6 +240,8 @@ export interface AutomationSettingsEntry {
   automationKey: AutomationKey;
   enabled: boolean;
   lastScheduledRunAt: string | null;
+  /** Hour of day (0-23, UTC) the org wants this automation to run at. Null = use the system default shown in AUTOMATIONS[].schedule. */
+  scheduleHourUtc: number | null;
 }
 
 export const useAutomationSettings = (organizationId: string | undefined) => {
@@ -263,20 +265,27 @@ export const useUpdateAutomationSettings = () => {
       key,
       enabled,
       organizationId,
+      scheduleHourUtc,
     }: {
       key: AutomationKey;
-      enabled: boolean;
+      enabled?: boolean;
       organizationId: string;
+      scheduleHourUtc?: number | null;
     }) => {
       const response = await axios.patch(`/automations/${key}/settings`, {
-        enabled,
         organizationId,
+        ...(enabled !== undefined && { enabled }),
+        ...(scheduleHourUtc !== undefined && { scheduleHourUtc }),
       });
       return response.data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["automation-settings"] });
-      toast.success(variables.enabled ? "Automation enabled" : "Automation disabled");
+      if (variables.enabled !== undefined) {
+        toast.success(variables.enabled ? "Automation enabled" : "Automation disabled");
+      } else {
+        toast.success("Schedule updated");
+      }
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to update automation settings");
