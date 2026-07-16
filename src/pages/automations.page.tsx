@@ -41,12 +41,10 @@ function parseDefaultHour(schedule: string): number | null {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// "Run now" is temporarily disabled on this org-scoped page: the backend
-// /automations/:key/run endpoint was built for the superadmin QA page and
-// processes every organization on the platform, not just the caller's.
-// Flip to true once the backend confirms it scopes to the organizationId
-// we now send.
-const RUN_SCOPING_CONFIRMED = false;
+// Backend confirmed 2026-07-16: every automation handler now filters its
+// query by organizationId when present in the request body, so "Run now"
+// on this org-scoped page can no longer touch other organizations' data.
+const RUN_SCOPING_CONFIRMED = true;
 
 function AutomationCard({
   automation,
