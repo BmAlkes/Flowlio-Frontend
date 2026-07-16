@@ -41,6 +41,13 @@ function parseDefaultHour(schedule: string): number | null {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
+// "Run now" is temporarily disabled on this org-scoped page: the backend
+// /automations/:key/run endpoint was built for the superadmin QA page and
+// processes every organization on the platform, not just the caller's.
+// Flip to true once the backend confirms it scopes to the organizationId
+// we now send.
+const RUN_SCOPING_CONFIRMED = false;
+
 function AutomationCard({
   automation,
   organizationId,
@@ -71,12 +78,14 @@ function AutomationCard({
   const runs = historyData?.data?.runs ?? [];
 
   const isRunningThis =
-    runAutomation.isPending && runAutomation.variables === automation.key;
+    runAutomation.isPending && runAutomation.variables?.key === automation.key;
 
   const handleRun = () => {
-    runAutomation.mutate(automation.key, {
-      onSuccess: (data) => setResult(data.data),
-    });
+    if (!organizationId) return;
+    runAutomation.mutate(
+      { key: automation.key, organizationId },
+      { onSuccess: (data) => setResult(data.data) },
+    );
   };
 
   return (
@@ -124,7 +133,8 @@ function AutomationCard({
           <Button
             variant="outline"
             onClick={handleRun}
-            disabled={isRunningThis}
+            disabled={isRunningThis || !RUN_SCOPING_CONFIRMED}
+            title={!RUN_SCOPING_CONFIRMED ? "Temporarily disabled — waiting on a backend fix so this only affects your organization" : undefined}
             className="shrink-0"
           >
             {isRunningThis ? (
@@ -140,6 +150,11 @@ function AutomationCard({
             )}
           </Button>
         </Flex>
+        {!RUN_SCOPING_CONFIRMED && (
+          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+            "Run now" is temporarily disabled here while we confirm it only affects your organization.
+          </p>
+        )}
 
         {result && (
           <Box

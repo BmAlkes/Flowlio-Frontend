@@ -160,15 +160,23 @@ function extractItemsFound(raw: RawRunAutomationResult): number {
 
 export const useRunAutomation = () => {
   return useMutation({
-    mutationFn: async (
-      key: AutomationKey,
-    ): Promise<{
+    mutationFn: async ({
+      key,
+      organizationId,
+    }: {
+      key: AutomationKey;
+      /** Scopes the run to one organization. Omit only for the superadmin
+       * platform-wide QA page — every other caller MUST pass this, otherwise
+       * the backend processes (and emails!) every organization on the platform. */
+      organizationId?: string;
+    }): Promise<{
       success: boolean;
       message: string;
       data: RunAutomationResult;
     }> => {
       const response = await axios.post<RunAutomationResponse>(
         `/automations/${key}/run`,
+        organizationId ? { organizationId } : undefined,
       );
       const raw = response.data.data;
       return {

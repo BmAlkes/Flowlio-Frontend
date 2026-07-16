@@ -25,11 +25,14 @@ const SuperAdminAutomationsPage = () => {
   >({});
 
   const handleRun = (key: AutomationKey) => {
-    runAutomation.mutate(key, {
-      onSuccess: (data) => {
-        setResults((prev) => ({ ...prev, [key]: data.data }));
+    runAutomation.mutate(
+      { key },
+      {
+        onSuccess: (data) => {
+          setResults((prev) => ({ ...prev, [key]: data.data }));
+        },
       },
-    });
+    );
   };
 
   return (
@@ -50,7 +53,7 @@ const SuperAdminAutomationsPage = () => {
           const result = results[automation.key];
           const isRunningThis =
             runAutomation.isPending &&
-            runAutomation.variables === automation.key;
+            runAutomation.variables?.key === automation.key;
 
           return (
             <Card key={automation.key}>
