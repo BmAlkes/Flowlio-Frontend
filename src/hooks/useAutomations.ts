@@ -159,6 +159,7 @@ function extractItemsFound(raw: RawRunAutomationResult): number {
 }
 
 export const useRunAutomation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       key,
@@ -189,7 +190,10 @@ export const useRunAutomation = () => {
         },
       };
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["automation-history", variables.key, variables.organizationId],
+      });
       if (data.data.emailsFailed > 0) {
         toast.error(data.message || "Automation completed with failures");
       } else {
