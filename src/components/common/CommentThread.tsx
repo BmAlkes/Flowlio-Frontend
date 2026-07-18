@@ -9,6 +9,7 @@ import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
 import { useUpdateProjectComment } from "@/hooks/useupdateprojectcomment";
 import { useUser } from "@/providers/user.provider";
+import { MentionInput } from "@/components/common/MentionInput";
 
 interface CommentThreadProps {
   projectId: string;
@@ -38,8 +39,10 @@ function CommentItem({
 }: CommentItemProps) {
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyContent, setReplyContent] = useState("");
+  const [replyMentions, setReplyMentions] = useState<string[]>([]);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
+  const [editMentions, setEditMentions] = useState<string[]>([]);
 
   const createComment = useCreateProjectComment();
   const deleteComment = useDeleteProjectComment();
@@ -51,10 +54,11 @@ function CommentItem({
     const text = replyContent.trim();
     if (!text || createComment.isPending) return;
     createComment.mutate(
-      { projectId, taskId, content: text, parentId: comment.id },
+      { projectId, taskId, content: text, parentId: comment.id, mentions: replyMentions },
       {
         onSuccess: () => {
           setReplyContent("");
+          setReplyMentions([]);
           setReplyOpen(false);
         },
       }
@@ -65,7 +69,7 @@ function CommentItem({
     const text = editContent.trim();
     if (!text || updateComment.isPending) return;
     updateComment.mutate(
-      { commentId: comment.id, content: text, projectId, taskId },
+      { commentId: comment.id, content: text, projectId, taskId, mentions: editMentions },
       { onSuccess: () => setEditing(false) }
     );
   };
@@ -128,12 +132,14 @@ function CommentItem({
         {/* Content */}
         {editing ? (
           <Flex className="gap-1.5 mt-1">
-            <textarea
-              className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-[#0c89af] resize-none leading-relaxed"
+            <MentionInput
+              as="textarea"
               rows={2}
+              className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-[#0c89af] resize-none leading-relaxed"
               value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
-              onKeyDown={(e) => {
+              onChange={setEditContent}
+              onMentionedUserIdsChange={setEditMentions}
+              onSubmitKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleEdit();
@@ -191,13 +197,13 @@ function CommentItem({
       {replyOpen && canComment && (
         <Box className="mt-1.5 ms-5">
           <Flex className="gap-1.5">
-            <input
-              type="text"
+            <MentionInput
               value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="Write a reply..."
+              onChange={setReplyContent}
+              onMentionedUserIdsChange={setReplyMentions}
+              placeholder="Write a reply... (@ to mention)"
               className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-[#0c89af] placeholder:text-muted-foreground"
-              onKeyDown={(e) => {
+              onSubmitKeyDown={(e) => {
                 if (e.key === "Enter") handleReply();
                 if (e.key === "Escape") setReplyOpen(false);
               }}
@@ -242,6 +248,7 @@ export function CommentThread({
   showHeader = true,
 }: CommentThreadProps) {
   const [newComment, setNewComment] = useState("");
+  const [newCommentMentions, setNewCommentMentions] = useState<string[]>([]);
   const { data: userData } = useUser();
   const currentUserId = userData?.user?.id ?? "";
 
@@ -258,8 +265,13 @@ export function CommentThread({
     const text = newComment.trim();
     if (!text || createComment.isPending || !projectId) return;
     createComment.mutate(
-      { projectId, taskId, content: text },
-      { onSuccess: () => setNewComment("") }
+      { projectId, taskId, content: text, mentions: newCommentMentions },
+      {
+        onSuccess: () => {
+          setNewComment("");
+          setNewCommentMentions([]);
+        },
+      }
     );
   };
 
@@ -324,13 +336,13 @@ export function CommentThread({
       {/* Add comment input */}
       {canComment && (
         <Flex className="gap-1.5 pt-1 border-t border-border">
-          <input
-            type="text"
+          <MentionInput
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
+            onChange={setNewComment}
+            onMentionedUserIdsChange={setNewCommentMentions}
+            placeholder="Add a comment... (@ to mention)"
             className="flex-1 text-xs bg-muted rounded-lg px-3 py-2 border border-border focus:outline-none focus:border-[#0c89af] placeholder:text-muted-foreground transition-colors"
-            onKeyDown={(e) => {
+            onSubmitKeyDown={(e) => {
               if (e.key === "Enter") handleAdd();
             }}
           />

@@ -21,7 +21,7 @@ import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router";
 import {
   Bell, InboxIcon, Ticket, Users, AlertCircle, MessageCircleMore, AlertTriangle,
-  ClipboardX, ShieldAlert, BarChart3, Receipt, Link2, Webhook, UserX, UserMinus, Gauge,
+  ClipboardX, ShieldAlert, BarChart3, Receipt, Link2, Webhook, UserX, UserMinus, Gauge, AtSign,
 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Center } from "../../ui/center";
@@ -61,6 +61,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
       case "project_comment":
       case "client_message":
         return <MessageCircleMore className="h-4 w-4" />;
+      case "comment_mention":
+        return <AtSign className="h-4 w-4" />;
       case "follow_up_scheduled":
         return <Bell className="h-4 w-4" />;
       case "lead_followup_due":
@@ -110,6 +112,8 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
         return "bg-blue-500";
       case "client_message":
         return "bg-indigo-500";
+      case "comment_mention":
+        return "bg-violet-500";
       case "follow_up_scheduled":
         return "bg-indigo-500";
       case "lead_followup_due":
@@ -184,6 +188,11 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
 
     if (notification.type === "client_message") {
       navigate("/dashboard/comments?tab=messages");
+      return;
+    }
+
+    if (notification.type === "comment_mention") {
+      navigate("/dashboard/comments");
       return;
     }
 

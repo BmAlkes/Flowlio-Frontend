@@ -7,6 +7,8 @@ export interface UpdateProjectCommentRequest {
   content: string;
   projectId: string;
   taskId?: string;
+  /** User ids mentioned via @Name in the content — backend notifies them directly. */
+  mentions?: string[];
 }
 
 export interface UpdateProjectCommentResponse {
@@ -30,9 +32,11 @@ export const useUpdateProjectComment = () => {
     mutationFn: async ({
       commentId,
       content,
+      mentions,
     }: UpdateProjectCommentRequest): Promise<UpdateProjectCommentResponse> => {
       const response = await axios.patch(`/projects/comments/${commentId}`, {
         content,
+        mentions,
       });
       return response.data;
     },
