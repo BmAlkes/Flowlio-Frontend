@@ -41,6 +41,7 @@
   },
   "appSidebar": {
     "dashboard": "Dashboard",
+    "inbox": "Inbox",
     "projects": "Projects",
     "projectManagement": "Project Management",
     "tasks": "Tasks",

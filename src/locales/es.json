@@ -41,6 +41,7 @@
   },
   "appSidebar": {
     "dashboard": "Tablero",
+    "inbox": "Bandeja de entrada",
     "projects": "Proyectos",
     "projectManagement": "Gestión de proyectos",
     "tasks": "Tareas",

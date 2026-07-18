@@ -51,6 +51,7 @@ const AiAssistPage = lazy(() =>
 const SettingsPage = lazy(() => import("./pages/settings.page"));
 const AutomationsPage = lazy(() => import("./pages/automations.page"));
 const DashboardPage = lazy(() => import("./pages/dashboard.page"));
+const InboxPage = lazy(() => import("./pages/inbox.page"));
 const TimeTrackingPage = lazy(() => import("./pages/timetracking.page"));
 const NotFound = lazy(() =>
   import("./pages/notfound.page").then((module) => ({
@@ -537,6 +538,10 @@ const AppRoutes = () => {
         <Route
           element={<LazyWrapper component={CommentsPage} />}
           path="comments"
+        />
+        <Route
+          element={<LazyWrapper component={InboxPage} />}
+          path="inbox"
         />
         <Route index element={<LazyWrapper component={DashboardPage} />} />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />

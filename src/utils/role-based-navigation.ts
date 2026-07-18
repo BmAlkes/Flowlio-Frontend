@@ -6,7 +6,7 @@ import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
 import { SquareKanban, UserPen, Clock, Users } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
-import { MessageCircleQuestion, Bell, MessageCircleMore } from "lucide-react";
+import { MessageCircleQuestion, Bell, MessageCircleMore, Inbox } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
 import { BadgeDollarSign, TrendingUp } from "lucide-react";
 import { FolderOpen, ListTodo, FileText, Zap } from "lucide-react";
@@ -200,6 +200,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     title: "dashboard",
     url: "/dashboard",
     icon: React.createElement(SquareKanban),
+  },
+  {
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/project",
