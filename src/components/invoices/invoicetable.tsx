@@ -41,7 +41,7 @@ const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
 };
 
-function getStatusDisplay(invoice: Invoice) {
+export function getStatusDisplay(invoice: Invoice) {
   const status = invoice.status.toLowerCase();
   if (status === "paid") return { label: "Paid", style: STATUS_STYLES.paid };
   if (status === "draft") return { label: "Draft", style: STATUS_STYLES.draft };

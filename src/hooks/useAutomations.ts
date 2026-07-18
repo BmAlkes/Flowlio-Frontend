@@ -138,7 +138,7 @@ export interface RunAutomationResult {
 // organizationsFound / invoicesFound / etc) — normalize to itemsFound by
 // picking whichever "*Found" field the backend actually returned, so new
 // automations don't need a frontend change just to report their count.
-interface RawRunAutomationResult {
+export interface RawRunAutomationResult {
   emailsSent: number;
   emailsFailed: number;
   errors: string[];
@@ -151,7 +151,7 @@ interface RunAutomationResponse {
   data: RawRunAutomationResult;
 }
 
-function extractItemsFound(raw: RawRunAutomationResult): number {
+export function extractItemsFound(raw: RawRunAutomationResult): number {
   const foundKey = Object.keys(raw).find(
     (k) => k.endsWith("Found") && typeof raw[k] === "number",
   );
