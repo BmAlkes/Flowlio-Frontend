@@ -3,7 +3,8 @@ import { AppSidebar, type NavItem } from "@/components/admin/appsidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { CSSProperties } from "react";
 import { Box } from "@/components/ui/box";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import {
   BadgeCent,
   Building,
@@ -85,6 +86,7 @@ export const navItems: NavItem[] = [
 
 export const SuperAdminLayout = () => {
   const { data: userData } = useUser();
+  const location = useLocation();
 
   // Filter navigation items based on user role
   const filteredNavItems = navItems.filter((item) => {
@@ -119,7 +121,9 @@ export const SuperAdminLayout = () => {
         <SidebarInset className="bg-transparent overflow-auto">
           <HorizontalNavbar />
           <Box className="pb-2">
-            <Outlet />
+            <ErrorBoundary section="this page" resetKey={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </Box>
         </SidebarInset>
       </SidebarProvider>

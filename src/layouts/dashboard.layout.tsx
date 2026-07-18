@@ -9,6 +9,7 @@ import { useUser } from "@/providers/user.provider";
 import { useEffect, useState } from "react";
 // import { SubscriptionGuard } from "@/components/common/subscriptionguard";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 export const DashboardLayout = () => {
   const { data: userData, isLoading } = useUser();
@@ -74,7 +75,9 @@ export const DashboardLayout = () => {
         <SidebarInset className="bg-transparent overflow-auto">
           <HorizontalNavbar />
           <Box className="pb-2">
-            <Outlet />
+            <ErrorBoundary section="this page" resetKey={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </Box>
         </SidebarInset>
       </SidebarProvider>

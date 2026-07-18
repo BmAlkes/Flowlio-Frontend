@@ -2,7 +2,18 @@ import React from "react";
 
 type ErrorBoundaryState = { hasError: boolean; error?: any; retryKey: number };
 
-type ErrorBoundaryProps = React.PropsWithChildren;
+type ErrorBoundaryProps = React.PropsWithChildren<{
+  /** Human-readable label for what this boundary wraps, shown in the error UI and
+   * console log so a crash can be traced to a section without needing DevTools. */
+  section?: string;
+  /** When this value changes (e.g. the route pathname) while an error is shown,
+   * the boundary auto-recovers — so navigating away from a broken page doesn't
+   * require the user to click Retry or refresh. */
+  resetKey?: string | number;
+  /** Renders full-screen instead of a contained card — only the top-level,
+   * app-wide boundary in App.tsx should use this. */
+  fullScreen?: boolean;
+}>;
 
 export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
@@ -18,7 +29,18 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: any, info: any) {
-    console.error("UI ErrorBoundary caught:", error, info);
+    const section = this.props.section ?? "app";
+    console.error(`UI ErrorBoundary caught (${section}):`, error, info);
+  }
+
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (
+      this.state.hasError &&
+      prevProps.resetKey !== undefined &&
+      prevProps.resetKey !== this.props.resetKey
+    ) {
+      this.handleRetry();
+    }
   }
 
   handleRetry = () => {
@@ -37,10 +59,19 @@ export class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
+      const { section, fullScreen } = this.props;
       return (
-        <div className="flex min-h-screen items-center justify-center p-6">
+        <div
+          className={
+            fullScreen
+              ? "flex min-h-screen items-center justify-center p-6"
+              : "flex items-center justify-center p-6"
+          }
+        >
           <div className="max-w-md w-full bg-card border rounded-xl p-6 text-center">
-            <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
+            <h2 className="text-lg font-semibold mb-2">
+              {section ? `Something went wrong in ${section}` : "Something went wrong"}
+            </h2>
             <p className="text-sm text-muted-foreground mb-4">
               Please try again. If the problem persists, refresh the page.
             </p>

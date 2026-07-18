@@ -25,7 +25,7 @@ const App = () => {
       <QueryClientProvider client={client}>
         <UserProvider>
           <NotificationsProvider>
-            <ErrorBoundary>
+            <ErrorBoundary section="the app" fullScreen>
               <AppRouter />
             </ErrorBoundary>
             <Toaster />
