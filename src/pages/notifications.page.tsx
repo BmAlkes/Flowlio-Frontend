@@ -26,6 +26,9 @@ import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { Center } from "@/components/ui/center";
 import { ListSkeleton, ErrorState } from "@/components/skeletons";
+import { MentionInput } from "@/components/common/MentionInput";
+import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
+import { Send, Reply } from "lucide-react";
 
 const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string }> = {
   lead_followup_due:     { icon: Calendar,       color: "text-blue-600 dark:text-blue-300",     bg: "bg-blue-100 dark:bg-blue-500/25" },
@@ -57,6 +60,55 @@ const MENTION_TYPES = new Set(["project_comment", "client_message", "comment_men
 const getTypeConfig = (type: string) =>
   TYPE_CONFIG[type] ?? TYPE_CONFIG.default;
 
+function NotificationQuickReply({
+  projectId,
+  taskId,
+  commentId,
+  onDone,
+}: {
+  projectId: string;
+  taskId?: string;
+  commentId: string;
+  onDone: () => void;
+}) {
+  const [content, setContent] = useState("");
+  const [mentions, setMentions] = useState<string[]>([]);
+  const createComment = useCreateProjectComment();
+
+  const handleSend = () => {
+    const text = content.trim();
+    if (!text || createComment.isPending) return;
+    createComment.mutate(
+      { projectId, taskId, parentId: commentId, content: text, mentions },
+      { onSuccess: onDone },
+    );
+  };
+
+  return (
+    <Flex className="gap-1.5 mt-2">
+      <MentionInput
+        value={content}
+        onChange={setContent}
+        onMentionedUserIdsChange={setMentions}
+        placeholder="Write a reply... (@ to mention)"
+        className="flex-1 text-xs bg-muted rounded-lg px-2.5 py-1.5 border border-border focus:outline-none focus:border-blue-500 placeholder:text-muted-foreground"
+        onSubmitKeyDown={(e) => {
+          if (e.key === "Enter") handleSend();
+          if (e.key === "Escape") onDone();
+        }}
+        autoFocus
+      />
+      <button
+        onClick={handleSend}
+        disabled={!content.trim() || createComment.isPending}
+        className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white disabled:opacity-40 hover:bg-blue-700 transition-colors shrink-0"
+      >
+        <Send className="w-3.5 h-3.5" />
+      </button>
+    </Flex>
+  );
+}
+
 function groupLabel(date: Date): string {
   if (isToday(date)) return "Today";
   if (isYesterday(date)) return "Yesterday";
@@ -67,6 +119,7 @@ const NotificationsPage = () => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<"all" | "unread" | "mentions">("all");
   const [search, setSearch] = useState("");
+  const [replyOpenId, setReplyOpenId] = useState<string | null>(null);
   const limit = 20;
 
   const { data, isLoading, isFetching, error, refetch } = useNotifications({
@@ -223,6 +276,8 @@ const NotificationsPage = () => {
                     const Icon = cfg.icon;
                     const timeAgo = formatDistanceToNow(new Date(n.createdAt), { addSuffix: true });
 
+                    const canReply = Boolean(n.data?.projectId && n.data?.commentId);
+
                     const extraEntries = n.data && Object.keys(n.data).length > 0
                       ? Object.entries(n.data).filter(([key]) => {
                           const k = key.toLowerCase();
@@ -276,6 +331,30 @@ const NotificationsPage = () => {
                                 );
                               })}
                             </div>
+                          )}
+
+                          {canReply && (
+                            <>
+                              {replyOpenId === n.id ? (
+                                <NotificationQuickReply
+                                  projectId={n.data.projectId}
+                                  taskId={n.data.taskId}
+                                  commentId={n.data.commentId}
+                                  onDone={() => {
+                                    setReplyOpenId(null);
+                                    toast.success("Reply sent!");
+                                  }}
+                                />
+                              ) : (
+                                <button
+                                  onClick={() => setReplyOpenId(n.id)}
+                                  className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium mt-1.5 transition-colors"
+                                >
+                                  <Reply className="h-3 w-3" />
+                                  Reply
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
 
