@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import PhoneInput from "react-phone-input-2";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import { Center } from "../ui/center";
 import { Input } from "../ui/input";
@@ -133,6 +133,9 @@ interface ClientFormProps {
   };
   onSuccess?: () => void;
   onClose?: () => void;
+  /** Scrolls to and focuses the portal password field on mount — used when
+   * the user got here via the "Grant Portal Access" shortcut in the table. */
+  focusPortalAccess?: boolean;
 }
 
 export const ClientForm = ({
@@ -140,6 +143,7 @@ export const ClientForm = ({
   client,
   onSuccess,
   onClose,
+  focusPortalAccess,
 }: ClientFormProps) => {
   const navigate = useNavigate();
   const { mutate: createClient, isPending: isCreating } = useCreateClient();
@@ -158,6 +162,16 @@ export const ClientForm = ({
   const [showGuidedFlow, setShowGuidedFlow] = useState(false);
   const [createdClientId, setCreatedClientId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const portalAccessRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!focusPortalAccess) return;
+    const timer = setTimeout(() => {
+      portalAccessRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      portalAccessRef.current?.querySelector("input")?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [focusPortalAccess]);
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>(
     () => {
       if (client?.socialMediaLinks) {
@@ -704,7 +718,7 @@ export const ClientForm = ({
             </Box>
 
             {/* Grant Portal Access */}
-            <Box className="mt-6 p-4 border border-border rounded-xl bg-muted/30">
+            <Box ref={portalAccessRef} className="mt-6 p-4 border border-border rounded-xl bg-muted/30 scroll-mt-24">
               <Stack className="gap-4">
                 <h1 className="text-foreground text-xl font-medium">
                   Client Portal Access
@@ -1024,11 +1038,13 @@ export const CreateClient = () => {
   // Check if we're in edit mode from navigation state
   const editMode = location.state?.mode === "edit";
   const clientData = location.state?.client;
+  const focusPortalAccess = Boolean(location.state?.focusPortalAccess);
 
   return (
     <ClientForm
       mode={editMode ? "edit" : "create"}
       client={editMode ? clientData : undefined}
+      focusPortalAccess={focusPortalAccess}
       onSuccess={() => {
         if (editMode) {
           toast.success("Client updated successfully!");
