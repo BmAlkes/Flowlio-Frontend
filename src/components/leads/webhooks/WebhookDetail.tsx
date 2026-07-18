@@ -27,8 +27,7 @@ import { toast } from "sonner";
 const CORE_LEAD_FIELDS = [
   { id: "name", label: "Name" }, { id: "email", label: "Email" },
   { id: "phone", label: "Phone" }, { id: "businessIndustry", label: "Industry" },
-  { id: "leadValue", label: "Lead Value" }, { id: "address", label: "Address" },
-  { id: "cpfcnpj", label: "VAT / Tax ID" },
+  { id: "leadValue", label: "Lead Value" },
 ];
 
 const SOURCE_LABELS: Record<WebhookSource, string> = {
