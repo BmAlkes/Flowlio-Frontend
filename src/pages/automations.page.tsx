@@ -34,7 +34,7 @@ import {
 // Only "Daily at HH:MM UTC" / "Weekly, <day> at HH:MM UTC" schedules have a
 // single fixed hour that makes sense to customize — interval schedules
 // ("Every 6 hours") don't.
-function parseDefaultHour(schedule: string): number | null {
+export function parseDefaultHour(schedule: string): number | null {
   const match = schedule.match(/(\d{2}):\d{2}\s*UTC/);
   return match ? parseInt(match[1], 10) : null;
 }

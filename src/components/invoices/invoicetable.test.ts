@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getStatusDisplay } from "./invoicetable";
+import { getStatusDisplay, getAvatarColor, getInitials } from "./invoicetable";
 import type { Invoice } from "@/hooks/usefetchinvoices";
 
 function makeInvoice(overrides: Partial<Invoice> = {}): Invoice {
@@ -43,5 +43,40 @@ describe("getStatusDisplay", () => {
   it("is case-insensitive on the status field", () => {
     const invoice = makeInvoice({ status: "PAID", dueDate: "2020-01-01" });
     expect(getStatusDisplay(invoice).label).toBe("Paid");
+  });
+});
+
+describe("getAvatarColor", () => {
+  it("is deterministic for the same name", () => {
+    expect(getAvatarColor("Acme Co")).toBe(getAvatarColor("Acme Co"));
+  });
+
+  it("does not throw on an empty string", () => {
+    expect(() => getAvatarColor("")).not.toThrow();
+  });
+
+  it("can produce different colors for different names", () => {
+    // Not guaranteed for every pair (hash collisions are possible), but this
+    // pair should differ — guards against an accidental always-return-index-0 bug.
+    expect(getAvatarColor("Acme Co")).not.toBe(getAvatarColor("Zephyr Industries"));
+  });
+});
+
+describe("getInitials", () => {
+  it("takes the first letter of up to two words", () => {
+    expect(getInitials("Bruno Malkes")).toBe("BM");
+    expect(getInitials("Acme")).toBe("A");
+  });
+
+  it("uppercases lowercase input", () => {
+    expect(getInitials("bruno malkes")).toBe("BM");
+  });
+
+  it("falls back to '?' for empty/undefined names", () => {
+    expect(getInitials("")).toBe("?");
+  });
+
+  it("caps at two characters for names with more than two words", () => {
+    expect(getInitials("Bruno Miguel Malkes")).toBe("BM");
   });
 });

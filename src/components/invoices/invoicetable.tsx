@@ -19,13 +19,13 @@ const AVATAR_COLORS = [
   "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-pink-500",
 ];
 
-function getAvatarColor(name: string) {
+export function getAvatarColor(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function getInitials(name: string) {
+export function getInitials(name: string) {
   return (name || "?")
     .split(" ")
     .map((n) => n[0])

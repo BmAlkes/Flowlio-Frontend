@@ -3,26 +3,28 @@ import { Link2, DollarSign, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PaymentLink } from "@/hooks/usefetchpaymentlinks";
 
+export function computePaymentLinkStats(paymentLinks: PaymentLink[]) {
+  const paid = paymentLinks.filter((p) => p.status === "paid");
+  const unpaid = paymentLinks.filter((p) => p.status !== "paid");
+  const sum = (list: PaymentLink[]) =>
+    list.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+
+  return {
+    total: paymentLinks.length,
+    totalAmount: sum(paymentLinks),
+    paidCount: paid.length,
+    paidAmount: sum(paid),
+    unpaidCount: unpaid.length,
+    unpaidAmount: sum(unpaid),
+  };
+}
+
 interface PaymentLinkStatCardsProps {
   paymentLinks: PaymentLink[];
 }
 
 export const PaymentLinkStatCards: FC<PaymentLinkStatCardsProps> = ({ paymentLinks }) => {
-  const stats = useMemo(() => {
-    const paid = paymentLinks.filter((p) => p.status === "paid");
-    const unpaid = paymentLinks.filter((p) => p.status !== "paid");
-    const sum = (list: PaymentLink[]) =>
-      list.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
-
-    return {
-      total: paymentLinks.length,
-      totalAmount: sum(paymentLinks),
-      paidCount: paid.length,
-      paidAmount: sum(paid),
-      unpaidCount: unpaid.length,
-      unpaidAmount: sum(unpaid),
-    };
-  }, [paymentLinks]);
+  const stats = useMemo(() => computePaymentLinkStats(paymentLinks), [paymentLinks]);
 
   const cards = [
     {
