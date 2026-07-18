@@ -279,9 +279,9 @@ const NotificationsPage = () => {
                     const canReply = Boolean(n.data?.projectId && n.data?.commentId);
 
                     const extraEntries = n.data && Object.keys(n.data).length > 0
-                      ? Object.entries(n.data).filter(([key]) => {
+                      ? Object.entries(n.data).filter(([key, value]) => {
                           const k = key.toLowerCase();
-                          return !k.includes("id") && !k.includes("token");
+                          return !k.includes("id") && !k.includes("token") && typeof value !== "boolean";
                         })
                       : [];
 
