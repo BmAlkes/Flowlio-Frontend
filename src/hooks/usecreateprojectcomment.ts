@@ -7,6 +7,8 @@ export interface CreateProjectCommentRequest {
   content: string;
   taskId?: string;
   parentId?: string;
+  /** User ids mentioned via @Name in the content — backend notifies them directly. */
+  mentions?: string[];
 }
 
 export interface CreateProjectCommentResponse {

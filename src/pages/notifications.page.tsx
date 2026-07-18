@@ -20,7 +20,7 @@ import {
   Trash2, Check, CheckCheck, Bell, UserCheck, AlertTriangle,
   CreditCard, Sparkles, Calendar, ChevronLeft, ChevronRight,
   ClipboardX, ShieldAlert, BarChart3, Search, MoreVertical,
-  Receipt, Link2, Webhook, UserX, UserMinus, Gauge, Ticket,
+  Receipt, Link2, Webhook, UserX, UserMinus, Gauge, Ticket, AtSign,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
@@ -40,6 +40,7 @@ const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string
   weekly_summary:        { icon: BarChart3,       color: "text-emerald-600 dark:text-emerald-300", bg: "bg-emerald-100 dark:bg-emerald-500/25" },
   project_comment:       { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
   client_message:        { icon: Sparkles,        color: "text-orange-600 dark:text-orange-300", bg: "bg-orange-100 dark:bg-orange-500/25" },
+  comment_mention:       { icon: AtSign,          color: "text-violet-600 dark:text-violet-300", bg: "bg-violet-100 dark:bg-violet-500/25" },
   invoice_overdue:       { icon: Receipt,         color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
   payment_link_reminder: { icon: Link2,           color: "text-amber-600 dark:text-amber-300",   bg: "bg-amber-100 dark:bg-amber-500/25" },
   webhook_issue:         { icon: Webhook,         color: "text-rose-600 dark:text-rose-300",     bg: "bg-rose-100 dark:bg-rose-500/25" },
@@ -51,7 +52,7 @@ const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: string; bg: string
   default:               { icon: Bell,            color: "text-foreground", bg: "bg-muted" },
 };
 
-const MENTION_TYPES = new Set(["project_comment", "client_message"]);
+const MENTION_TYPES = new Set(["project_comment", "client_message", "comment_mention"]);
 
 const getTypeConfig = (type: string) =>
   TYPE_CONFIG[type] ?? TYPE_CONFIG.default;
