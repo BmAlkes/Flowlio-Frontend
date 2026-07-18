@@ -3,37 +3,39 @@ import { FileText, DollarSign, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Invoice } from "@/hooks/usefetchinvoices";
 
-const isOverdue = (invoice: Invoice) =>
+export const isOverdue = (invoice: Invoice) =>
   invoice.status.toLowerCase() !== "paid" &&
   !!invoice.dueDate &&
   new Date(invoice.dueDate) < new Date();
+
+export function computeInvoiceStats(invoices: Invoice[]) {
+  const total = invoices.length;
+  const paid = invoices.filter((i) => i.status.toLowerCase() === "paid");
+  const overdue = invoices.filter(isOverdue);
+  const pending = invoices.filter(
+    (i) => i.status.toLowerCase() !== "paid" && !isOverdue(i),
+  );
+
+  const sum = (list: Invoice[]) =>
+    list.reduce((acc, i) => acc + (parseFloat(i.amount) || 0), 0);
+
+  return {
+    total,
+    paidCount: paid.length,
+    paidAmount: sum(paid),
+    pendingCount: pending.length,
+    pendingAmount: sum(pending),
+    overdueCount: overdue.length,
+    overdueAmount: sum(overdue),
+  };
+}
 
 interface InvoiceStatCardsProps {
   invoices: Invoice[];
 }
 
 export const InvoiceStatCards: FC<InvoiceStatCardsProps> = ({ invoices }) => {
-  const stats = useMemo(() => {
-    const total = invoices.length;
-    const paid = invoices.filter((i) => i.status.toLowerCase() === "paid");
-    const overdue = invoices.filter(isOverdue);
-    const pending = invoices.filter(
-      (i) => i.status.toLowerCase() !== "paid" && !isOverdue(i),
-    );
-
-    const sum = (list: Invoice[]) =>
-      list.reduce((acc, i) => acc + (parseFloat(i.amount) || 0), 0);
-
-    return {
-      total,
-      paidCount: paid.length,
-      paidAmount: sum(paid),
-      pendingCount: pending.length,
-      pendingAmount: sum(pending),
-      overdueCount: overdue.length,
-      overdueAmount: sum(overdue),
-    };
-  }, [invoices]);
+  const stats = useMemo(() => computeInvoiceStats(invoices), [invoices]);
 
   const cards = [
     {
