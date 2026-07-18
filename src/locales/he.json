@@ -39,6 +39,7 @@
   },
   "appSidebar": {
     "dashboard": "לוח בקרה",
+    "inbox": "תיבת דואר",
     "projects": "פרויקטים",
     "projectManagement": "ניהול פרויקטים",
     "tasks": "משימות",

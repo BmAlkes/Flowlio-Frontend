@@ -39,6 +39,7 @@
   },
   "appSidebar": {
     "dashboard": "Painel",
+    "inbox": "Caixa de Entrada",
     "projects": "Projetos",
     "projectManagement": "Gerenciamento de projetos",
     "tasks": "Tarefas",
