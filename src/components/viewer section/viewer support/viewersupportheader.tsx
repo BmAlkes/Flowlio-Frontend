@@ -100,8 +100,29 @@ export const ViewerSupportHeader = () => {
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.read) markAsReadMutation.mutate(notification.id);
+
     const ticketId = notification.data?.ticketId;
-    if (ticketId) navigate(`/viewer/viewer-support?ticketId=${ticketId}`);
+    if (ticketId) {
+      navigate(`/viewer/viewer-support?ticketId=${ticketId}`);
+      return;
+    }
+
+    if (
+      notification.type === "project_comment" ||
+      notification.type === "client_message" ||
+      notification.type === "comment_mention"
+    ) {
+      const projectId = notification.data?.projectId;
+      navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/notifications");
+      return;
+    }
+
+    if (notification.type === "task_overdue") {
+      navigate("/viewer/my-tasks");
+      return;
+    }
+
+    navigate("/viewer/notifications");
   };
 
   const getTableColumns = (): ColumnDef<UniversalSupportTicket>[] => [

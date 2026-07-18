@@ -13,7 +13,7 @@ import {
   Bot,
   Calendar,
   Clock,
-  // Bell,
+  Bell,
 } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -56,11 +56,11 @@ export const navItems: NavItem[] = [
     title: "support",
     icon: <MessageCircleQuestion />,
   },
-  // {
-  //   url: "/viewer/notifications",
-  //   title: "notifications",
-  //   icon: <Bell />,
-  // },
+  {
+    url: "/viewer/notifications",
+    title: "notifications",
+    icon: <Bell />,
+  },
   {
     url: "/viewer/viewer-settings",
     title: "settings",

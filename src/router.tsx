@@ -697,7 +697,7 @@ const AppRoutes = () => {
         />
         <Route
           path="notifications"
-          // element={<LazyWrapper component={NotificationsPage} />}
+          element={<LazyWrapper component={NotificationsPage} />}
         />
         <Route
           path="viewer-settings"

@@ -181,23 +181,24 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
       return;
     }
 
-    if (notification.type === "project_comment") {
-      navigate("/dashboard/comments");
-      return;
-    }
-
-    if (notification.type === "client_message") {
-      navigate("/dashboard/comments?tab=messages");
-      return;
-    }
-
-    if (notification.type === "comment_mention") {
-      navigate("/dashboard/comments");
+    if (
+      notification.type === "project_comment" ||
+      notification.type === "client_message" ||
+      notification.type === "comment_mention"
+    ) {
+      const projectId = notification.data?.projectId;
+      if (userRole === "viewer") {
+        navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/notifications");
+      } else {
+        navigate(
+          notification.type === "client_message" ? "/dashboard/comments?tab=messages" : "/dashboard/comments",
+        );
+      }
       return;
     }
 
     if (notification.type === "task_overdue") {
-      navigate("/dashboard/task-management");
+      navigate(userRole === "viewer" ? "/viewer/my-tasks" : "/dashboard/task-management");
       return;
     }
 
@@ -251,7 +252,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
     if (userRole === "superadmin" || userRole === "subadmin") {
       navigate("/superadmin/notifications");
     } else if (userRole === "viewer") {
-      navigate("/dashboard/notifications");
+      navigate("/viewer/notifications");
     } else {
       navigate("/dashboard/notifications");
     }
