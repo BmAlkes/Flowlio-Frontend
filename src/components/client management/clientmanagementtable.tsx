@@ -173,6 +173,16 @@ export const ClientManagementTable = () => {
     });
   };
 
+  const openGrantPortalAccessModal = (client: Data) => {
+    navigate("/dashboard/client-management/create-client", {
+      state: {
+        mode: "edit",
+        client: client,
+        focusPortalAccess: true,
+      },
+    });
+  };
+
   // Handle delete client
   const handleDeleteClient = async (id: string, email: string) => {
     if (window.confirm(t("clientManagement.confirmDelete", { email }))) {
@@ -551,7 +561,7 @@ export const ClientManagementTable = () => {
                   <Button
                     variant="outline"
                     className="bg-amber-500 border-none w-9 h-9 hover:bg-amber-600 cursor-pointer rounded-md text-white"
-                    // onClick={() => setGrantAccessClient(row.original)}
+                    onClick={() => openGrantPortalAccessModal(row.original)}
                   >
                     <KeyRound className="text-white size-5 " />
                   </Button>
