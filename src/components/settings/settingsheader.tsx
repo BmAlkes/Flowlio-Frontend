@@ -31,6 +31,7 @@ import { useTranslation } from "react-i18next";
 import { DetailsPageSkeleton } from "../skeletons";
 import { RotateCcw, Sparkles } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { useWebPush } from "@/hooks/useWebPush";
 
 const settingsSchema = z
   .object({
@@ -120,6 +121,7 @@ export const SettingsHeader = () => {
   const { t } = useTranslation();
   const { data: userData, isLoading } = useUser();
   const queryClient = useQueryClient();
+  const webPush = useWebPush();
   const updateProfileMutation = useUpdateUserProfile();
   const updateProfileImageMutation = useUpdateProfileImage();
   const verifyOTPMutation = useVerifyOTP();
@@ -453,6 +455,32 @@ export const SettingsHeader = () => {
       toast.error(
         "Failed to update project activity preferences. Please try again.",
       );
+    }
+  };
+
+  const handlePushToggle = async (enabled: boolean) => {
+    try {
+      if (enabled) {
+        await webPush.subscribe();
+      } else {
+        await webPush.unsubscribe();
+      }
+
+      const currentPrefs = userData?.user?.notificationPreferences || {};
+      await axios.patch("/user/profile", {
+        notificationPreferences: { ...currentPrefs, pushNotifications: enabled },
+      });
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      if (enabled) {
+        toast.success("🔔 Browser push notifications enabled!");
+      } else {
+        toast.info("🔕 Browser push notifications disabled.");
+      }
+    } catch (error: any) {
+      console.error("Failed to update push notifications:", error);
+      toast.error(error?.message || "Failed to update push notification preferences.");
     }
   };
 
@@ -897,6 +925,24 @@ export const SettingsHeader = () => {
                     className="cursor-pointer"
                     checked={watch("projectActivityUpdatesNotifications")}
                     onCheckedChange={handleProjectUpdatesToggle}
+                  />
+                </Flex>
+                <Flex className="justify-between w-full rounded-md max-md:px-3">
+                  <Stack className="gap-0">
+                    <span className="text-[#7184B4]">
+                      Browser Push Notifications
+                    </span>
+                    <h1 className="text-md max-md:text-sm">
+                      {webPush.supported
+                        ? "Get a notification on this device even when Flowlio isn't open in a tab."
+                        : "Not supported in this browser."}
+                    </h1>
+                  </Stack>
+                  <Switch
+                    className="cursor-pointer"
+                    checked={webPush.isSubscribed}
+                    disabled={!webPush.supported || webPush.isChecking}
+                    onCheckedChange={handlePushToggle}
                   />
                 </Flex>
 
