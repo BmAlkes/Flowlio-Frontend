@@ -15,6 +15,8 @@ export interface TimeEntry {
   projectName: string;
   createdAt: string;
   updatedAt: string;
+  /** Set once these tracked hours have been billed on an invoice — prevents double-billing. */
+  invoicedAt?: string | null;
 }
 
 export interface TimeEntriesResponse {
