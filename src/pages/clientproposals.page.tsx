@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SignatureModal, type SignaturePayload } from "@/components/proposals/SignatureModal";
 
 interface Proposal {
   id: string;
@@ -55,6 +56,7 @@ const statusConfig = {
 const ClientProposalsPage = () => {
   const queryClient = useQueryClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [signingProposal, setSigningProposal] = useState<Proposal | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["client-proposals"],
@@ -67,11 +69,12 @@ const ClientProposalsPage = () => {
   const proposals = data || [];
 
   const approveMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await axios.put(`/proposals/${id}/approve`);
+    mutationFn: async ({ id, signature }: { id: string; signature: SignaturePayload }) => {
+      await axios.put(`/proposals/${id}/approve`, signature);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-proposals"] });
+      setSigningProposal(null);
     },
   });
 
@@ -165,7 +168,7 @@ const ClientProposalsPage = () => {
       cell: ({ row }) => {
         const proposal = row.original;
         const isPending = proposal.status === "pending";
-        const isApprovingThis = approveMutation.isPending && approveMutation.variables === proposal.id;
+        const isApprovingThis = approveMutation.isPending && approveMutation.variables?.id === proposal.id;
         const isRejectingThis = rejectMutation.isPending && rejectMutation.variables === proposal.id;
         const isDownloadingThis = downloadingId === proposal.id;
 
@@ -200,7 +203,7 @@ const ClientProposalsPage = () => {
                     <Button
                       variant="outline"
                       className="bg-[#00A400] hover:bg-green-700 border-none w-9 h-9 p-0 rounded-md"
-                      onClick={() => approveMutation.mutate(proposal.id)}
+                      onClick={() => setSigningProposal(proposal)}
                       disabled={isApprovingThis || isRejectingThis}
                     >
                       {isApprovingThis ? (
@@ -256,6 +259,16 @@ const ClientProposalsPage = () => {
           />
         </Box>
       )}
+
+      <SignatureModal
+        isOpen={!!signingProposal}
+        onClose={() => setSigningProposal(null)}
+        proposalTitle={signingProposal?.projectTitle ?? ""}
+        isSubmitting={approveMutation.isPending}
+        onConfirm={(signature) => {
+          if (signingProposal) approveMutation.mutate({ id: signingProposal.id, signature });
+        }}
+      />
     </PageWrapper>
   );
 };
