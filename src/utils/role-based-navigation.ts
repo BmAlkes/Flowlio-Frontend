@@ -6,7 +6,7 @@ import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
 import { SquareKanban, UserPen, Clock, Users } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
-import { MessageCircleQuestion, Bell, MessageCircleMore, Inbox } from "lucide-react";
+import { MessageCircleQuestion, MessageCircleMore, Inbox } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
 import { BadgeDollarSign, TrendingUp } from "lucide-react";
 import { FolderOpen, ListTodo, FileText, Zap } from "lucide-react";
@@ -73,9 +73,9 @@ const viewerNavItems: NavItem[] = [
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/notifications",
-    title: "notifications",
-    icon: React.createElement(Bell),
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/settings",
@@ -119,9 +119,9 @@ const operatorNavItems: NavItem[] = [
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/notifications",
-    title: "notifications",
-    icon: React.createElement(Bell),
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/settings",
@@ -183,9 +183,9 @@ const userNavItems: NavItem[] = [
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/notifications",
-    title: "notifications",
-    icon: React.createElement(Bell),
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/settings",
@@ -200,11 +200,6 @@ const userOrgOwnerNavItems: NavItem[] = [
     title: "dashboard",
     url: "/dashboard",
     icon: React.createElement(SquareKanban),
-  },
-  {
-    url: "/dashboard/inbox",
-    title: "inbox",
-    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/project",
@@ -301,9 +296,9 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/notifications",
-    title: "notifications",
-    icon: React.createElement(Bell),
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/settings",
@@ -399,9 +394,9 @@ const subAdminNavItems: NavItem[] = [
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/notifications",
-    title: "notifications",
-    icon: React.createElement(Bell),
+    url: "/dashboard/inbox",
+    title: "inbox",
+    icon: React.createElement(Inbox),
   },
   {
     url: "/dashboard/settings",

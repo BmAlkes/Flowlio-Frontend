@@ -1,4 +1,3 @@
-import { NotificationsProvider } from "./providers/notifications.provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "./components/ui/sonner";
@@ -24,13 +23,11 @@ const App = () => {
     <HelmetProvider>
       <QueryClientProvider client={client}>
         <UserProvider>
-          <NotificationsProvider>
-            <ErrorBoundary section="the app" fullScreen>
-              <AppRouter />
-            </ErrorBoundary>
-            <Toaster />
-            <ReactQueryDevtools />
-          </NotificationsProvider>
+          <ErrorBoundary section="the app" fullScreen>
+            <AppRouter />
+          </ErrorBoundary>
+          <Toaster />
+          <ReactQueryDevtools />
         </UserProvider>
       </QueryClientProvider>
     </HelmetProvider>

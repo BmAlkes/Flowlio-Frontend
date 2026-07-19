@@ -254,7 +254,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
     } else if (userRole === "viewer") {
       navigate("/viewer/notifications");
     } else {
-      navigate("/dashboard/notifications");
+      navigate("/dashboard/inbox");
     }
   };
 

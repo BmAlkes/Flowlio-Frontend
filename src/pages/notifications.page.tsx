@@ -20,7 +20,7 @@ import {
   Trash2, Check, CheckCheck, Bell, UserCheck, AlertTriangle,
   CreditCard, Sparkles, Calendar, ChevronLeft, ChevronRight,
   ClipboardX, ShieldAlert, BarChart3, Search, MoreVertical,
-  Receipt, Link2, Webhook, UserX, UserMinus, Gauge, Ticket, AtSign,
+  Receipt, Link2, Webhook, UserX, UserMinus, Gauge, Ticket, AtSign, RefreshCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
@@ -177,7 +177,7 @@ const NotificationsPage = () => {
     return (
       <PageWrapper className="pt-8 px-4">
         <div className="max-w-6xl mx-auto p-4">
-          <h1 className="text-2xl font-semibold mb-6">Notifications</h1>
+          <h1 className="text-2xl font-semibold mb-6">Inbox</h1>
           <ListSkeleton rows={6} />
         </div>
       </PageWrapper>
@@ -201,14 +201,14 @@ const NotificationsPage = () => {
         {/* Header */}
         <div className="mb-5">
           <Flex className="items-center gap-2.5">
-            <h1 className="text-2xl font-semibold text-foreground">Notifications</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Inbox</h1>
             {unreadCount > 0 && (
               <span className="text-xs font-bold bg-blue-600 text-white h-5 min-w-5 px-1.5 rounded-full flex items-center justify-center">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
           </Flex>
-          <p className="text-sm text-muted-foreground/90 mt-1">Stay updated with what's happening in your workspace.</p>
+          <p className="text-sm text-muted-foreground/90 mt-1">Manage and track all your notifications and messages in one place.</p>
         </div>
 
         {/* Toolbar */}
@@ -236,6 +236,15 @@ const NotificationsPage = () => {
               </button>
             ))}
           </div>
+
+          <Button
+            variant="outline" size="sm"
+            onClick={() => refetch()}
+            disabled={loading}
+            className="h-9 text-xs gap-1.5 rounded-lg shrink-0"
+          >
+            <RefreshCcw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+          </Button>
 
           <Button
             variant="outline" size="sm"
