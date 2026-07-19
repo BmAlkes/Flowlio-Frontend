@@ -11,9 +11,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { ChevronDown, CirclePlus, Receipt, Repeat } from "lucide-react";
+import { ChevronDown, CirclePlus, Receipt, Repeat, Clock } from "lucide-react";
 import { Button } from "../ui/button";
 import { InvoiceCreationModal } from "./invoicecreationmodal";
+import { GenerateInvoiceFromTimeModal } from "./GenerateInvoiceFromTimeModal";
 import { Invoice, useFetchInvoices } from "@/hooks/usefetchinvoices";
 import { toast } from "sonner";
 import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
@@ -26,6 +27,7 @@ export const InvoiceHeader: FC = () => {
   const isClient = userData?.user?.role === "client";
   const { data: invoicesData } = useFetchInvoices();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isGenerateFromTimeOpen, setIsGenerateFromTimeOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [tableState, setTableState] = useState<{
     selectedRows: Invoice[];
@@ -114,6 +116,16 @@ export const InvoiceHeader: FC = () => {
               {activeTab === "all" ? "Create Invoice" : "Create Template"}
             </Button>
             {activeTab === "all" && (
+              <Button
+                variant="outline"
+                onClick={() => setIsGenerateFromTimeOpen(true)}
+                className="rounded-full px-6 py-4 flex items-center gap-2"
+              >
+                <Clock className="w-4 h-4" />
+                From Time Tracking
+              </Button>
+            )}
+            {activeTab === "all" && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Center className="bg-black text-white cursor-pointer hover:bg-black/80 hover:text-white rounded-full w-36 h-10 justify-between items-center">
@@ -183,6 +195,10 @@ export const InvoiceHeader: FC = () => {
       <InvoiceCreationModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+      />
+      <GenerateInvoiceFromTimeModal
+        isOpen={isGenerateFromTimeOpen}
+        onClose={() => setIsGenerateFromTimeOpen(false)}
       />
     </PageWrapper>
   );
