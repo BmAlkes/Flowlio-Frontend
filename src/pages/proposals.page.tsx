@@ -10,7 +10,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
 import { useState } from "react";
-import { Download, CheckCircle2, XCircle, Clock, FileText, Upload, PenLine, Trash2, Lock, Loader2 } from "lucide-react";
+import { Download, CheckCircle2, XCircle, Clock, FileText, Upload, PenLine, Trash2, Lock, Loader2, BadgeCheck } from "lucide-react";
+import { GeneralModal } from "@/components/common/generalmodal";
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 import { useNavigate } from "react-router";
 import { generatePdfBlob } from "@/lib/generatePdf";
@@ -40,6 +41,9 @@ interface Proposal {
   createdAt: string;
   approvedAt?: string;
   rejectedAt?: string;
+  signedName?: string | null;
+  signatureImage?: string | null;
+  signedIp?: string | null;
 }
 
 const OrgProposalsPage = () => {
@@ -50,6 +54,7 @@ const OrgProposalsPage = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [viewingSignature, setViewingSignature] = useState<Proposal | null>(null);
 
   const { data: featureAccess, isLoading: checkingAccess } = useHasFeatureAccess("proposalsAccess");
   const hasAccess = featureAccess?.data?.hasAccess ?? true;
@@ -217,6 +222,23 @@ const OrgProposalsPage = () => {
                 </Tooltip>
               </TooltipProvider>
 
+              {proposal.status === "approved" && proposal.signedName && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-8 h-8 p-0 rounded-lg border-border hover:bg-emerald-50 hover:border-emerald-200"
+                        onClick={() => setViewingSignature(proposal)}
+                      >
+                        <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>View signature</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
               {isConfirming ? (
                 <div className="flex items-center gap-1">
                   <Button
@@ -363,6 +385,63 @@ const OrgProposalsPage = () => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
       />
+
+      <GeneralModal open={!!viewingSignature} onOpenChange={(open) => !open && setViewingSignature(null)}>
+        {viewingSignature && (
+          <Box className="space-y-4">
+            <Box>
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <BadgeCheck className="w-4 h-4 text-emerald-600" /> Proof of Acceptance
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                {viewingSignature.projectTitle}
+              </p>
+            </Box>
+
+            <Box className="space-y-2 text-sm">
+              <Flex className="justify-between">
+                <span className="text-muted-foreground">Signed by</span>
+                <span className="font-medium text-foreground">{viewingSignature.signedName}</span>
+              </Flex>
+              <Flex className="justify-between">
+                <span className="text-muted-foreground">Signed on</span>
+                <span className="font-medium text-foreground">
+                  {viewingSignature.approvedAt
+                    ? format(new Date(viewingSignature.approvedAt), "MMM d, yyyy 'at' h:mm a")
+                    : "—"}
+                </span>
+              </Flex>
+              {viewingSignature.signedIp && (
+                <Flex className="justify-between">
+                  <span className="text-muted-foreground">IP address</span>
+                  <span className="font-medium text-foreground font-mono text-xs">
+                    {viewingSignature.signedIp}
+                  </span>
+                </Flex>
+              )}
+            </Box>
+
+            {viewingSignature.signatureImage && (
+              <Box>
+                <p className="text-xs text-muted-foreground mb-1.5">Drawn signature</p>
+                <Box className="border border-border rounded-lg bg-white p-2">
+                  <img
+                    src={viewingSignature.signatureImage}
+                    alt="Client signature"
+                    className="max-h-32 mx-auto"
+                  />
+                </Box>
+              </Box>
+            )}
+
+            <Flex className="justify-end pt-2">
+              <Button variant="outline" onClick={() => setViewingSignature(null)}>
+                Close
+              </Button>
+            </Flex>
+          </Box>
+        )}
+      </GeneralModal>
     </PageWrapper>
   );
 };
