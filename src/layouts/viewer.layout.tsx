@@ -57,8 +57,8 @@ export const navItems: NavItem[] = [
     icon: <MessageCircleQuestion />,
   },
   {
-    url: "/viewer/notifications",
-    title: "notifications",
+    url: "/viewer/inbox",
+    title: "inbox",
     icon: <Bell />,
   },
   {

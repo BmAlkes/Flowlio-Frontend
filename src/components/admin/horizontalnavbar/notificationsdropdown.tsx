@@ -188,7 +188,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
     ) {
       const projectId = notification.data?.projectId;
       if (userRole === "viewer") {
-        navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/notifications");
+        navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/inbox");
       } else {
         navigate(
           notification.type === "client_message" ? "/dashboard/comments?tab=messages" : "/dashboard/comments",
@@ -252,7 +252,7 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
     if (userRole === "superadmin" || userRole === "subadmin") {
       navigate("/superadmin/notifications");
     } else if (userRole === "viewer") {
-      navigate("/viewer/notifications");
+      navigate("/viewer/inbox");
     } else {
       navigate("/dashboard/inbox");
     }

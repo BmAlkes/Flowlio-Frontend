@@ -113,7 +113,7 @@ export const ViewerSupportHeader = () => {
       notification.type === "comment_mention"
     ) {
       const projectId = notification.data?.projectId;
-      navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/notifications");
+      navigate(projectId ? `/viewer/projects/${projectId}` : "/viewer/inbox");
       return;
     }
 
@@ -122,7 +122,7 @@ export const ViewerSupportHeader = () => {
       return;
     }
 
-    navigate("/viewer/notifications");
+    navigate("/viewer/inbox");
   };
 
   const getTableColumns = (): ColumnDef<UniversalSupportTicket>[] => [
