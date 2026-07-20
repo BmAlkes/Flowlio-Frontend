@@ -99,6 +99,7 @@ export type Data = {
   socialMediaLinks?: string; // JSON string
   customFields?: Record<string, any>;
   position?: number; // Order field for drag-and-drop
+  portalAccessEnabled?: boolean;
 };
 
 const PAGE_SIZE = 10;
@@ -111,7 +112,6 @@ export const ClientManagementTable = () => {
   // Client-side pagination state
   const [pageIndex, setPageIndex] = useState(0);
 
-  // const [grantAccessClient, setGrantAccessClient] = useState<Data | null>(null);
   const navigate = useNavigate();
 
   const translateClientStatus = (status: string) =>

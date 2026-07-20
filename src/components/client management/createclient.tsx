@@ -16,6 +16,8 @@ import { Center } from "../ui/center";
 import { Input } from "../ui/input";
 import "../usermanagement/phonenumberstyle.css";
 import { Box } from "../ui/box";
+import { Flex } from "../ui/flex";
+import { Switch } from "../ui/switch";
 import { z } from "zod";
 import { PageWrapper } from "../common/pagewrapper";
 import { useNavigate, useLocation } from "react-router";
@@ -114,6 +116,7 @@ const formSchema = z.object({
     .optional(),
   customFields: z.record(z.any()).optional(),
   portalPassword: z.string().optional(),
+  portalAccessEnabled: z.boolean().optional(),
 });
 
 interface ClientFormProps {
@@ -130,6 +133,7 @@ interface ClientFormProps {
     image?: string;
     socialMediaLinks?: string; // JSON string
     customFields?: Record<string, any>;
+    portalAccessEnabled?: boolean;
   };
   onSuccess?: () => void;
   onClose?: () => void;
@@ -204,6 +208,7 @@ export const ClientForm = ({
         : [],
       customFields: client?.customFields || {},
       portalPassword: "",
+      portalAccessEnabled: client?.portalAccessEnabled ?? true,
     },
   });
 
@@ -222,6 +227,7 @@ export const ClientForm = ({
         industry: client.businessIndustry,
         socialMediaLinks: parsedSocialLinks,
         customFields: client.customFields || {},
+        portalAccessEnabled: client.portalAccessEnabled ?? true,
       });
       setSocialMediaLinks(parsedSocialLinks);
       setPdfPreview(client.image || null);
@@ -349,6 +355,7 @@ export const ClientForm = ({
         socialMediaLinks.filter((link) => link.url.trim() !== ""),
       ),
       customFields: values.customFields,
+      portalAccessEnabled: values.portalAccessEnabled ?? true,
       ...(mode === "create" && { password: values.portalPassword }),
       ...(mode === "edit" && values.portalPassword && values.portalPassword.length >= 8 && { password: values.portalPassword }),
     };
@@ -728,6 +735,31 @@ export const ClientForm = ({
                     ? "Every client will have portal access to view projects, tasks & invoices"
                     : "Leave blank to keep the current password. Fill in to set a new portal password."}
                 </p>
+
+                {mode === "edit" && (
+                  <FormField
+                    control={form.control}
+                    name="portalAccessEnabled"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Flex className="items-center justify-between max-w-md rounded-lg border border-border bg-background px-4 py-3">
+                          <Box>
+                            <FormLabel className="text-sm font-medium">Portal access</FormLabel>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {field.value === false
+                                ? "This client is blocked from logging into the portal, even with the correct password."
+                                : "This client can log into the portal."}
+                            </p>
+                          </Box>
+                          <FormControl>
+                            <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </Flex>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                   <FormField
                     control={form.control}
                     name="portalPassword"

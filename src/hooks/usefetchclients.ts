@@ -14,6 +14,7 @@ interface Client {
   createdAt: string;
   updatedAt: string;
   position: number;
+  portalAccessEnabled?: boolean;
 }
 
 interface ClientsResponse {

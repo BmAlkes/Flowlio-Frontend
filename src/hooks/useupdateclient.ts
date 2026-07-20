@@ -11,6 +11,8 @@ export interface UpdateClientData {
   status?: string;
   image?: string;
   customFields?: Record<string, any>;
+  password?: string;
+  portalAccessEnabled?: boolean;
 }
 
 export interface UpdateClientResponse {
