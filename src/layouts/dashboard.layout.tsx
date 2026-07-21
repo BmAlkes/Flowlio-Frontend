@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 // import { SubscriptionGuard } from "@/components/common/subscriptionguard";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { GlobalCommandPalette } from "@/components/common/GlobalCommandPalette";
 
 export const DashboardLayout = () => {
   const { data: userData, isLoading } = useUser();
@@ -82,6 +83,7 @@ export const DashboardLayout = () => {
         </SidebarInset>
       </SidebarProvider>
       <OnboardingProvider />
+      <GlobalCommandPalette />
     </Box>
     // </SubscriptionGuard>
   );
