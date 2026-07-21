@@ -98,6 +98,10 @@ function CommandPaletteResults({ onNavigate }: { onNavigate: (path: string) => v
   );
 }
 
+/** Fired by the visible search button in the topbar, since it lives in a
+ * different part of the layout tree than this always-mounted component. */
+export const OPEN_COMMAND_PALETTE_EVENT = "open-command-palette";
+
 export function GlobalCommandPalette() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -109,8 +113,13 @@ export function GlobalCommandPalette() {
         setOpen((o) => !o);
       }
     };
+    const handleOpenEvent = () => setOpen(true);
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener(OPEN_COMMAND_PALETTE_EVENT, handleOpenEvent);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener(OPEN_COMMAND_PALETTE_EVENT, handleOpenEvent);
+    };
   }, []);
 
   const handleNavigate = (path: string) => {

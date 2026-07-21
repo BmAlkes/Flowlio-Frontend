@@ -5,6 +5,7 @@ import { ProjectSelector } from "./projectselector";
 // import { FaqDropdown } from "./faqdropdown";
 import { Box } from "@/components/ui/box";
 import { SearchBox } from "./searchbox";
+import { CommandPaletteTrigger } from "./commandpalettetrigger";
 import { QuickActions } from "./quickactions";
 import { useLocation } from "react-router";
 import { cn } from "@/lib/utils";
@@ -37,8 +38,12 @@ export const HorizontalNavbar = () => {
         <>
           <ProjectSelector selectTriggerClassname="min-w-[12rem] justify-self-center max-md:min-w-full" />
 
-          <SearchBox />
+          {pathname === "/viewer" ? <SearchBox /> : <CommandPaletteTrigger />}
         </>
+      )}
+
+      {pathname.startsWith("/dashboard") && pathname !== "/dashboard" && (
+        <CommandPaletteTrigger />
       )}
 
       {pathname === "/superadmin" && <SearchBox />}
