@@ -107,7 +107,7 @@ export const InvoiceHeader: FC = () => {
         </Stack>
 
         {!isClient && (
-          <Center className="gap-3">
+          <Center className="gap-3 flex-wrap max-sm:justify-start">
             <Button
               onClick={handleCreateInvoice}
               className="bg-[#1797b9] hover:bg-[#1797b9]/80 text-white rounded-full px-6 py-4 flex items-center gap-2"

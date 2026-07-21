@@ -31,7 +31,7 @@ export const ClientManagementHeader = () => {
           </h1>
         </Stack>
 
-        <Flex className="gap-2 items-center">
+        <Flex className="gap-2 items-center flex-wrap max-sm:justify-start">
           <Button
             variant="outline"
             className="bg-black text-white border border-border rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer hover:bg-muted/50"
