@@ -159,8 +159,8 @@ export const LeadsTable = () => {
       </div>
 
       {/* Table */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="border border-border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm min-w-[900px]">
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="ps-4 pe-1 py-3 w-8">

@@ -39,7 +39,7 @@ export const ProjectHeader = () => {
         </Stack>
 
         {!isClient && (
-          <Flex className="gap-2">
+          <Flex className="gap-2 flex-wrap max-sm:justify-start">
             <Button
               variant="outline"
               className="bg-black text-white border border-border rounded-full px-6 py-5 items-center gap-2 cursor-pointer hover:bg-muted/50"

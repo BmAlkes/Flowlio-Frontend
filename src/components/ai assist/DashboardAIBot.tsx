@@ -1084,8 +1084,10 @@ Description: ${userInput}`,
 
   return (
     <Box
-      className={`fixed right-6 z-50 bg-background rounded-2xl shadow-2xl border border-border transition-all duration-300 ${
-        isMinimized ? "w-80 h-10 bottom-4" : "w-96 h-[600px] bottom-0"
+      className={`fixed right-4 md:right-6 z-50 bg-background rounded-2xl shadow-2xl border border-border transition-all duration-300 ${
+        isMinimized
+          ? "w-[min(20rem,calc(100vw-2rem))] h-10 bottom-4"
+          : "w-[min(24rem,calc(100vw-2rem))] h-[min(600px,calc(100vh-6rem))] bottom-4 md:bottom-0"
       } flex flex-col`}
     >
       {/* Header */}
