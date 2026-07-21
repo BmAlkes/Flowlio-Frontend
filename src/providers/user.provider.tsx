@@ -98,6 +98,31 @@ interface BeterAuthProviderProps extends PropsWithChildren {
 
 const UserAuthContext = createContext<ContextData>({} as any);
 
+/** Mirrors the merge logic in UserProvider's sync effect — pulled out so
+ * forceRefreshUser can compute the final value directly from freshly-fetched
+ * data instead of waiting for that effect to re-run on its own schedule. */
+function buildEnhancedUserData(authData: any, userProfileData: any): Data | null {
+  if (!authData?.user) return null;
+  if (!userProfileData?.data) return authData as Data;
+  return {
+    ...authData,
+    user: {
+      ...authData.user,
+      ...userProfileData.data,
+      role: userProfileData.data.role || authData.user.role,
+      subadminId: userProfileData.data.subadminId,
+      isSuperAdmin: userProfileData.data.isSuperAdmin,
+      isOrganizationManager: userProfileData.data.isOrganizationManager,
+      clientId:
+        userProfileData.data.clientId || userProfileData.data.clientProfile?.id,
+      organizationId:
+        userProfileData.data.organizationId ||
+        userProfileData.data.clientProfile?.organizationId ||
+        authData.user.organizationId,
+    },
+  } as unknown as Data;
+}
+
 const PortalActivityTracker = () => {
   usePortalActivityTracker();
   return null;
@@ -184,36 +209,8 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
 
     // User is logged in - process session data
     if (authData?.user) {
-      // Use fresh user profile data if available, otherwise fall back to Better Auth data
-      if (userProfileData?.data) {
-        const enhancedData = {
-          ...authData,
-          user: {
-            ...authData.user,
-            ...userProfileData.data,
-            // Prefer profile role so backend-updated role (e.g. viewer→user after Org Manager promote) wins over session
-            role: userProfileData.data.role || authData.user.role,
-            subadminId: userProfileData.data.subadminId,
-            isSuperAdmin: userProfileData.data.isSuperAdmin,
-            isOrganizationManager: userProfileData.data.isOrganizationManager,
-            clientId:
-              userProfileData.data.clientId ||
-              userProfileData.data.clientProfile?.id,
-            organizationId:
-              userProfileData.data.organizationId ||
-              userProfileData.data.clientProfile?.organizationId ||
-              (authData.user as any).organizationId,
-          },
-        };
-        setData(enhancedData as unknown as Data);
-        setIsLoading(false);
-      } else {
-        setData(authData as Data);
-
-        // If we have Better Auth data but no profile data, still set loading to false
-        // The profile data will be fetched in the background
-        setIsLoading(false);
-      }
+      setData(buildEnhancedUserData(authData, userProfileData));
+      setIsLoading(false);
     }
 
     if (error) {
@@ -236,17 +233,28 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
     queryClient,
   ]);
 
-  // Function to force refresh user data (useful after login/logout)
+  // Function to force refresh user data (useful after login/logout). Computes
+  // the merged value directly from the freshly-resolved responses instead of
+  // relying on the sync effect above to re-run before the caller continues —
+  // that gap was a real race: on slower devices (seen consistently on mobile
+  // Safari), a caller's `navigate()` right after `await refetchUser()` could
+  // fire before the effect had processed the new session, so ProtectedRoute's
+  // guard read a still-stale "no user" context and bounced back to sign-in
+  // even though the login had actually succeeded.
   const forceRefreshUser = async () => {
     setIsLoading(true);
-
-    // Clear current data
     setData(null);
 
-    // Refetch both Better Auth session and user profile
-    await Promise.all([refetchUser(), refetchProfile()]);
+    const [sessionResult, profileResult] = await Promise.all([
+      authClient.getSession(),
+      refetchProfile(),
+    ]);
 
+    setData(buildEnhancedUserData(sessionResult?.data, profileResult?.data));
     setIsLoading(false);
+
+    // Keep the useSession() hook itself in sync for other consumers of authData.
+    refetchUser();
   };
 
   return (
