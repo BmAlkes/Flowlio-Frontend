@@ -1,4 +1,6 @@
 import { lazy, useEffect, useRef } from "react";
+import { hasConsent } from "@/utils/cookieConsent";
+import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import { useTheme } from "next-themes";
@@ -229,9 +231,9 @@ const CommentsPage = lazy(() =>
   })),
 );
 
-// Fires a Meta Pixel PageView on every client-side route change. The initial
-// load's PageView is already sent by the script tag in index.html — this
-// only covers navigations after that, which a SPA doesn't reload for.
+// Fires a Meta Pixel PageView on every client-side route change, but only
+// once marketing consent has been granted (see CookieConsentBanner /
+// loadMetaPixel — the pixel itself isn't loaded at all until then).
 const MetaPixelTracker = () => {
   const { pathname } = useLocation();
   const isFirstRender = useRef(true);
@@ -241,6 +243,7 @@ const MetaPixelTracker = () => {
       isFirstRender.current = false;
       return;
     }
+    if (!hasConsent("marketing")) return;
     const fbq = (window as any).fbq;
     if (typeof fbq === "function") {
       fbq("track", "PageView");
@@ -776,6 +779,7 @@ export const AppRouter = () => {
       >
         <ThemeWatcher />
         <MetaPixelTracker />
+        <CookieConsentBanner />
         <AppRoutes />
       </ThemeProvider>
     </BrowserRouter>

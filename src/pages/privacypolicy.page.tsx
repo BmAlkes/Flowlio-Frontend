@@ -215,11 +215,63 @@ const PrivacyPolicyPage = () => {
                 <h2 className="text-xl font-semibold text-indigo-800 mb-4">
                   9. Cookies and Tracking Technologies
                 </h2>
+                <Box className="text-foreground leading-relaxed mb-4">
+                  We use cookies and similar technologies in three categories.
+                  You choose which of the optional categories to allow the
+                  first time you visit our site, and can change your choice
+                  at any time using the "Cookie Settings" link in the footer.
+                </Box>
+
+                <Box className="mb-4 border border-border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-indigo-50 text-start">
+                        <th className="text-start px-3 py-2 font-medium text-indigo-800">Category</th>
+                        <th className="text-start px-3 py-2 font-medium text-indigo-800">Purpose</th>
+                        <th className="text-start px-3 py-2 font-medium text-indigo-800">Provider</th>
+                        <th className="text-start px-3 py-2 font-medium text-indigo-800">Can be disabled?</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      <tr>
+                        <td className="px-3 py-2 font-medium">Necessary</td>
+                        <td className="px-3 py-2">Keeps you logged in, remembers your session, and protects against fraud.</td>
+                        <td className="px-3 py-2">Flowlio</td>
+                        <td className="px-3 py-2">No — required for the site to work</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-medium">Analytics</td>
+                        <td className="px-3 py-2">Helps us understand how the site is used so we can improve it.</td>
+                        <td className="px-3 py-2">Flowlio</td>
+                        <td className="px-3 py-2">Yes</td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 font-medium">Marketing</td>
+                        <td className="px-3 py-2">Measures the performance of our ads and helps us reach people likely to be interested in Flowlio.</td>
+                        <td className="px-3 py-2">Meta (Facebook) Pixel</td>
+                        <td className="px-3 py-2">Yes</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Box>
+
                 <Box className="text-foreground leading-relaxed">
-                  We use cookies and similar tracking technologies to enhance
-                  your experience, analyze usage patterns, and provide
-                  personalized content. You can control cookie preferences
-                  through your browser settings.
+                  Marketing cookies are not loaded at all until you explicitly
+                  opt in — the Meta Pixel script does not run on your first
+                  visit unless you click "Accept All" or enable "Marketing" in
+                  Cookie Preferences. When enabled, Meta receives information
+                  about the pages you visit on our site so we can measure ad
+                  performance; see{" "}
+                  <a
+                    href="https://www.facebook.com/privacy/policy/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-indigo-700"
+                  >
+                    Meta's Privacy Policy
+                  </a>{" "}
+                  for how they handle that data. You can also control ad
+                  personalization directly in your Meta account settings.
                 </Box>
               </Box>
 

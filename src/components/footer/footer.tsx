@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { FiLinkedin, FiInstagram, FiMail, FiFacebook } from "react-icons/fi";
 import Logo from "/logo/5000x5000-3.svg";
+import { OPEN_COOKIE_PREFERENCES_EVENT } from "@/components/common/CookieConsentBanner";
 
 const PRODUCT_LINKS = [
   { label: "Showcase",  to: "/showcase" },
@@ -19,7 +20,6 @@ const RESOURCES_LINKS = [
 const LEGAL_LINKS = [
   { label: "Privacy Policy",   to: "/privacy-policy" },
   { label: "Terms of Service", to: "/terms-of-service" },
-  { label: "Cookie Settings",  to: null },
 ];
 
 const SOCIAL = [
@@ -93,6 +93,12 @@ export const Footer = () => (
         <div className="flex flex-col gap-3">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-white/90 mb-1">Legal</h4>
           {LEGAL_LINKS.map(l => <NavLink key={l.label} to={l.to}>{l.label}</NavLink>)}
+          <button
+            onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_PREFERENCES_EVENT))}
+            className="text-sm text-[#8892A4] hover:text-white transition-colors duration-200 text-start"
+          >
+            Cookie Settings
+          </button>
         </div>
       </div>
     </div>
