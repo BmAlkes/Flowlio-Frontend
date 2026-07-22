@@ -1,4 +1,4 @@
-import { lazy, useEffect } from "react";
+import { lazy, useEffect, useRef } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import { useTheme } from "next-themes";
@@ -228,6 +228,27 @@ const CommentsPage = lazy(() =>
     default: module.CommentsPage,
   })),
 );
+
+// Fires a Meta Pixel PageView on every client-side route change. The initial
+// load's PageView is already sent by the script tag in index.html — this
+// only covers navigations after that, which a SPA doesn't reload for.
+const MetaPixelTracker = () => {
+  const { pathname } = useLocation();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const fbq = (window as any).fbq;
+    if (typeof fbq === "function") {
+      fbq("track", "PageView");
+    }
+  }, [pathname]);
+
+  return null;
+};
 
 // Force Light Theme on non-dashboard paths
 const ThemeWatcher = () => {
@@ -754,6 +775,7 @@ export const AppRouter = () => {
         disableTransitionOnChange
       >
         <ThemeWatcher />
+        <MetaPixelTracker />
         <AppRoutes />
       </ThemeProvider>
     </BrowserRouter>
