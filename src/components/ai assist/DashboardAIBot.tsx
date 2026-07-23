@@ -24,6 +24,7 @@ import { useUser } from "@/providers/user.provider";
 import { Loader2, Sparkles } from "lucide-react";
 import { axios } from "@/configs/axios.config";
 import { useProjectInsights } from "@/hooks/useProjectInsights";
+import { useAiAssistChatStore } from "@/store/aiassistchat.store";
 
 interface Message {
   id: string;
@@ -54,6 +55,28 @@ export const DashboardAIBot = () => {
   const createProject = useCreateProject();
   const { data: userData } = useUser();
   const projectInsights = useProjectInsights();
+  const { setUserId, loadUserChats, addChat, setActiveChat } =
+    useAiAssistChatStore();
+
+  // Keep the shared AI Assist chat store in sync so free-form conversations
+  // started here also show up on the full AI Assist page.
+  useEffect(() => {
+    const userId = userData?.user?.id;
+    if (userId) {
+      setUserId(userId);
+      loadUserChats(userId);
+    }
+  }, [userData?.user?.id, setUserId, loadUserChats]);
+
+  const getOrCreateActiveChatId = () => {
+    const { activeChatId, chats } = useAiAssistChatStore.getState();
+    if (activeChatId && chats.some((chat) => chat.id === activeChatId)) {
+      return activeChatId;
+    }
+    const newId = addChat({ title: "New Chat", messages: [] });
+    setActiveChat(newId);
+    return newId;
+  };
 
   const aiOptions: AIOption[] = [
     {
@@ -209,29 +232,44 @@ export const DashboardAIBot = () => {
     }
   }, [isOpen, isMinimized, messages.length]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!userInput.trim()) return;
 
-    addUserMessage(userInput);
+    const text = userInput;
+    addUserMessage(text);
     setUserInput("");
 
-    // Simple response logic
-    setTimeout(() => {
-      if (userInput.toLowerCase().includes("task")) {
-        setActiveOption("task-creator");
-        addBotMessage(
-          "I can help you create a task! Please describe what you need:"
-        );
-      } else {
-        addBotMessage(
-          "I understand! Here are some things I can help you with:"
-        );
-        // Show options after a delay
-        setTimeout(() => {
-          addBotMessage(renderOptions());
-        }, 500);
-      }
-    }, 500);
+    const chatId = getOrCreateActiveChatId();
+
+    const loadingMessageId = Date.now().toString();
+    const loadingMessage: Message = {
+      id: loadingMessageId,
+      type: "bot",
+      content: (
+        <Flex className="items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+          <span>Thinking...</span>
+        </Flex>
+      ),
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, loadingMessage]);
+
+    // Reuses the same store/endpoint as the full AI Assist page so the
+    // conversation is also saved and visible there.
+    await useAiAssistChatStore.getState().sendAIRequest(text, chatId);
+
+    const updatedChat = useAiAssistChatStore
+      .getState()
+      .chats.find((chat) => chat.id === chatId);
+    const aiMessage = updatedChat?.messages
+      .filter((msg) => msg.role === "ai" && !msg.isLoading)
+      .at(-1);
+
+    setMessages((prev) => prev.filter((msg) => msg.id !== loadingMessageId));
+    addBotMessage(
+      aiMessage?.text || "Sorry, I couldn't process that. Please try again."
+    );
   };
 
   const handleOptionClick = (option: AIOption) => {
