@@ -21,7 +21,8 @@ import { SubscriptionHistoryModal } from "./SubscriptionHistoryModal";
 import { SubscriptionAuditModal } from "./SubscriptionAuditModal";
 import { AssignPlanModal } from "./AssignPlanModal";
 import { OverrideLimitsModal } from "./OverrideLimitsModal";
-import { AlertTriangle, MoreHorizontal, History, CreditCard, SlidersHorizontal } from "lucide-react";
+import { ReactivateSubscriptionModal } from "./ReactivateSubscriptionModal";
+import { AlertTriangle, MoreHorizontal, History, CreditCard, SlidersHorizontal, RotateCcw } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,8 +41,9 @@ export interface SubscriptionsHeaderProps {
 
 export type Data = {
   id: string;
+  subscriptionId?: string;
   amount: number;
-  status: "active" | "inActive" | "non  active";
+  status: "active" | "inActive" | "non  active" | "past_due";
   lastbilledon: Date;
   subscribtionplan: string;
   companyName: string;
@@ -188,6 +190,7 @@ export const getColumns = (t: any): ColumnDef<Data>[] => [
       const meta = table.options.meta as any;
       const orgId = row.original.id;
       const companyName = row.original.companyName;
+      const isPastDue = row.original.status === "past_due";
 
       return (
         <Center>
@@ -220,6 +223,23 @@ export const getColumns = (t: any): ColumnDef<Data>[] => [
                 <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                 Override Limits
               </DropdownMenuItem>
+              {isPastDue && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-2 text-green-600 focus:text-green-600"
+                    onClick={() =>
+                      meta?.onReactivateSubscription?.(
+                        row.original.subscriptionId || orgId,
+                        companyName
+                      )
+                    }
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Reactivate Subscription
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </Center>
@@ -239,7 +259,9 @@ export const SubscribtionTabele = ({
   const [auditModalOpen, setAuditModalOpen] = useState(false);
   const [assignPlanModalOpen, setAssignPlanModalOpen] = useState(false);
   const [overrideLimitsModalOpen, setOverrideLimitsModalOpen] = useState(false);
+  const [reactivateModalOpen, setReactivateModalOpen] = useState(false);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>("");
   const [selectedPlanName, setSelectedPlanName] = useState<string>("");
   const {
@@ -267,6 +289,12 @@ export const SubscribtionTabele = ({
     setSelectedCompanyName(companyName);
     setSelectedPlanName(planName);
     setOverrideLimitsModalOpen(true);
+  };
+
+  const handleReactivateSubscription = (subscriptionId: string, companyName: string) => {
+    setSelectedSubscriptionId(subscriptionId);
+    setSelectedCompanyName(companyName);
+    setReactivateModalOpen(true);
   };
 
   const plansData: Data[] =
@@ -310,6 +338,15 @@ export const SubscribtionTabele = ({
         const activeSubscription = org.subscriptions?.find(
           (sub: any) => sub.status === "active"
         );
+
+        // Subscription record matching the org's current status (used for
+        // status-specific actions like reactivating a past_due subscription)
+        const currentSubscription =
+          activeSubscription ||
+          org.subscriptions?.find(
+            (sub: any) => sub.status === org.subscriptionStatus?.toLowerCase()
+          ) ||
+          org.subscriptions?.[0];
 
         // Determine status based on multiple factors (priority order):
         // 1. Check if subscription record exists and is active (most reliable)
@@ -357,8 +394,13 @@ export const SubscribtionTabele = ({
           : new Date(new Date(start).getTime() + 30 * 24 * 60 * 60 * 1000);
         return {
           id: org.id,
+          subscriptionId: currentSubscription?.id,
           amount,
-          status: subscriptionStatus as "active" | "inActive" | "non active",
+          status: subscriptionStatus as
+            | "active"
+            | "inActive"
+            | "non active"
+            | "past_due",
           companyName: org.name || "N/A",
           lastbilledon: start,
           startDate: start,
@@ -468,6 +510,7 @@ export const SubscribtionTabele = ({
           onViewHistory: handleViewHistory,
           onAssignPlan: handleAssignPlan,
           onOverrideLimits: handleOverrideLimits,
+          onReactivateSubscription: handleReactivateSubscription,
         }}
       />
 
@@ -505,6 +548,16 @@ export const SubscribtionTabele = ({
           orgId={selectedOrganizationId}
           companyName={selectedCompanyName}
           currentPlanName={selectedPlanName}
+        />
+      )}
+
+      {/* Reactivate Subscription Modal */}
+      {reactivateModalOpen && selectedSubscriptionId && (
+        <ReactivateSubscriptionModal
+          open={reactivateModalOpen}
+          onOpenChange={setReactivateModalOpen}
+          subscriptionId={selectedSubscriptionId}
+          companyName={selectedCompanyName}
         />
       )}
     </Box>

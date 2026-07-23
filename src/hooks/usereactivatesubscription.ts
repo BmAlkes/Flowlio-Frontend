@@ -32,6 +32,7 @@ export const useReactivateSubscription = () => {
     },
     onSuccess: () => {
       // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["fetch all organizations"] });
       queryClient.invalidateQueries({ queryKey: ["all-organizations"] });
       queryClient.invalidateQueries({ queryKey: ["subscription-history"] });
     },
