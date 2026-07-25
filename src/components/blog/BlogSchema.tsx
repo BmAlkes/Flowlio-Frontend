@@ -82,7 +82,7 @@ function buildDefaultArticleSchema(post: BlogPost, url: string) {
     image: post.ogImage || post.coverImage,
     author: {
       "@type": "Person",
-      name: getAuthorName(post.author),
+      name: getAuthorName(post.authorName),
     },
     publisher: PUBLISHER,
     datePublished: post.publishedAt,
