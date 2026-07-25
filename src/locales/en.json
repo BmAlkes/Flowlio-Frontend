@@ -906,6 +906,7 @@
     "freeDate": "free date",
     "followUpChange": "Change",
     "followUpSet": "Set a follow-up reminder",
+    "followUpNotePlaceholder": "Reason / note (optional)",
     "clientStatuses": {
       "New Lead": "New Lead",
       "Contacted": "Contacted",

@@ -437,6 +437,9 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                       {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
                     </p>
                     <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
+                    {client.followUpNote && (
+                      <p className="text-xs text-foreground/80 mt-0.5 break-words">{client.followUpNote}</p>
+                    )}
                   </div>
                   <button
                     onClick={() => setShowFollowUp(true)}
@@ -445,7 +448,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     {t("pipeline.followUpChange")}
                   </button>
                   <button
-                    onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null })}
+                    onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null, followUpNote: null })}
                     disabled={cancelFollowUp.isPending}
                     className="text-muted-foreground/90 hover:text-rose-500 transition-colors shrink-0"
                   >

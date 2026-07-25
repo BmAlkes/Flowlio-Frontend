@@ -716,6 +716,7 @@
     "freeDate": "תאריך חופשי",
     "followUpChange": "שנה",
     "followUpSet": "הגדר תזכורת מעקב",
+    "followUpNotePlaceholder": "סיבה / הערה (אופציונלי)",
     "clientStatuses": {
       "New Lead": "ליד חדש",
       "Contacted": "נוצר קשר",

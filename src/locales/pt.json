@@ -742,6 +742,7 @@
     "freeDate": "data livre",
     "followUpChange": "Alterar",
     "followUpSet": "Definir lembrete de follow-up",
+    "followUpNotePlaceholder": "Motivo / observação (opcional)",
     "clientStatuses": {
       "New Lead": "Novo Lead",
       "Contacted": "Contatado",
