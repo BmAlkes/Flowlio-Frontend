@@ -41,11 +41,23 @@ export interface BlogCategoryCount {
   count: number;
 }
 
+/** Slim shape returned for the "most viewed" sidebar list — top 5 by
+ * viewCount, not a full BlogPost (no content/status/excerpt/etc). */
+export interface BlogMostViewedPost {
+  id: string;
+  slug: string;
+  title: string;
+  coverImage?: string;
+  viewCount?: number;
+  publishedAt?: string;
+  readingTimeMin?: number;
+}
+
 export interface BlogListResponse {
   success: boolean;
   data: BlogPost[];
   categories?: BlogCategoryCount[];
-  mostViewed?: BlogPost[];
+  mostViewed?: BlogMostViewedPost[];
   total: number;
   page: number;
   totalPages: number;

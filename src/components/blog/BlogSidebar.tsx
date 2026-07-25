@@ -1,10 +1,10 @@
 import { Link } from "react-router";
 import { Eye } from "lucide-react";
-import { BlogCategoryCount, BlogPost } from "@/hooks/useBlog";
+import { BlogCategoryCount, BlogMostViewedPost } from "@/hooks/useBlog";
 
 interface BlogSidebarProps {
   categories?: BlogCategoryCount[];
-  mostViewed?: BlogPost[];
+  mostViewed?: BlogMostViewedPost[];
   activeCategory?: string;
 }
 
