@@ -18,6 +18,7 @@ import {
   Mail,
   Bot,
   Zap,
+  Newspaper,
 } from "lucide-react";
 import { useUser } from "@/providers/user.provider";
 
@@ -51,6 +52,11 @@ export const navItems: NavItem[] = [
     title: "newsletter",
     url: "/superadmin/newsletter",
     icon: <Mail />,
+  },
+  {
+    title: "blog",
+    url: "/superadmin/blog",
+    icon: <Newspaper />,
   },
   {
     title: "demoAccounts",
@@ -95,6 +101,7 @@ export const SuperAdminLayout = () => {
         "/superadmin",
         "/superadmin/companies",
         "/superadmin/subscriptions",
+        "/superadmin/blog",
         "/superadmin/support-tickets",
         "/superadmin/notifications",
         "/superadmin/settings",

@@ -84,6 +84,8 @@ const WhatIsFlowlioPage = lazy(
   () => import("./pages/whatisflowlio.page"),
 );
 const ShowcasePage = lazy(() => import("./pages/showcase.page"));
+const BlogPage = lazy(() => import("./pages/blog.page"));
+const BlogPostPage = lazy(() => import("./pages/blogpost.page"));
 const WhatIsFlowlioENPage = lazy(
   () => import("./pages/whatisflowlio-en.page"),
 );
@@ -168,6 +170,11 @@ const SuperAdminNewsletterPage = lazy(() =>
   import("./pages/superadminnewsletter.page").then((module) => ({
     default: module.SuperAdminNewsletterPage,
   })),
+);
+const SuperAdminBlogPage = lazy(() => import("./pages/superadminblog.page"));
+const BlogPostEditorPage = lazy(() => import("./pages/blogposteditor.page"));
+const BlogPostAnalyticsPage = lazy(
+  () => import("./pages/blogpostanalytics.page"),
 );
 const SuperAdminSupportTicketPage = lazy(
   () => import("./pages/superadminsupportticket.page"),
@@ -293,6 +300,9 @@ const AppRoutes = () => {
       {/* Public routes fixed the workflow route*/}
       <Route path="/" element={<LazyWrapper component={HomePage} />} />
       <Route path="/showcase" element={<LazyWrapper component={ShowcasePage} />} />
+      <Route path="/blog" element={<LazyWrapper component={BlogPage} />} />
+      <Route path="/blog/category/:category" element={<LazyWrapper component={BlogPage} />} />
+      <Route path="/blog/:slug" element={<LazyWrapper component={BlogPostPage} />} />
       <Route
         path="/que-es-flowlio"
         element={<LazyWrapper component={WhatIsFlowlioPage} />}
@@ -616,6 +626,22 @@ const AppRoutes = () => {
         <Route
           path="newsletter"
           element={<LazyWrapper component={SuperAdminNewsletterPage} />}
+        />
+        <Route
+          path="blog"
+          element={<LazyWrapper component={SuperAdminBlogPage} />}
+        />
+        <Route
+          path="blog/new"
+          element={<LazyWrapper component={BlogPostEditorPage} />}
+        />
+        <Route
+          path="blog/edit/:id"
+          element={<LazyWrapper component={BlogPostEditorPage} />}
+        />
+        <Route
+          path="blog/analytics/:id"
+          element={<LazyWrapper component={BlogPostAnalyticsPage} />}
         />
         <Route
           path="support-tickets"
