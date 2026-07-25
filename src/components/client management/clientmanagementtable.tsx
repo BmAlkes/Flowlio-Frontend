@@ -22,12 +22,15 @@ import {
   FaSnapchat,
   FaPinterest,
 } from "react-icons/fa";
-import { Eye, Pencil, KeyRound } from "lucide-react";
+import { Eye, Pencil, KeyRound, Bell, Trash2 } from "lucide-react";
+import { differenceInDays, isPast, format } from "date-fns";
+import { FollowUpPicker } from "./FollowUpPicker";
+import { useSetFollowUp } from "@/hooks/useCRM";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
 } from "../common/generalmodal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Stack } from "../ui/stack";
 import { useFetchOrganizationClients } from "@/hooks/usefetchclients";
 import { useDeleteClient } from "@/hooks/usedeleteclient";
@@ -100,6 +103,7 @@ export type Data = {
   customFields?: Record<string, any>;
   position?: number; // Order field for drag-and-drop
   portalAccessEnabled?: boolean;
+  followUpAt?: string | null;
 };
 
 const PAGE_SIZE = 10;
@@ -108,6 +112,7 @@ export const ClientManagementTable = () => {
   const { t } = useTranslation();
   const props = useGeneralModalDisclosure();
   const [selectedClient, setSelectedClient] = useState<Data | null>(null);
+  const [showFollowUp, setShowFollowUp] = useState(false);
 
   // Client-side pagination state
   const [pageIndex, setPageIndex] = useState(0);
@@ -136,6 +141,7 @@ export const ClientManagementTable = () => {
     useUpdateClient();
   const { mutate: bulkUpdatePositions, isPending: isUpdatingPositions } =
     useBulkUpdateClientPositions();
+  const setFollowUp = useSetFollowUp();
 
   const handleStatusChange = (clientId: string, newStatus: string) => {
     updateClient(
@@ -160,7 +166,28 @@ export const ClientManagementTable = () => {
 
   const openViewClientModal = (client: Data) => {
     setSelectedClient(client);
+    setShowFollowUp(false);
     props.onOpenChange(true);
+  };
+
+  // selectedClient is a snapshot taken when the modal opened, so once a
+  // follow-up mutation refetches the list, pull the fresh followUpAt back
+  // into it (everything else about the client can't change from this modal).
+  useEffect(() => {
+    if (!selectedClient || !clientsData?.data) return;
+    const fresh = clientsData.data.find((c: any) => c.id === selectedClient.id);
+    if (fresh && fresh.followUpAt !== selectedClient.followUpAt) {
+      setSelectedClient((prev) => (prev ? { ...prev, followUpAt: fresh.followUpAt ?? null } : prev));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientsData]);
+
+  const handleCancelFollowUp = () => {
+    if (!selectedClient) return;
+    setFollowUp.mutate(
+      { clientId: selectedClient.id, followUpAt: null },
+      { onSuccess: () => refetch() }
+    );
   };
 
   const openEditClientModal = (client: Data) => {
@@ -626,6 +653,7 @@ export const ClientManagementTable = () => {
         : undefined,
       customFields: client.customFields || {},
       position: client.position || 0,
+      followUpAt: client.followUpAt ?? null,
     })) || mockData;
 
   // Handle reorder completion
@@ -999,6 +1027,67 @@ export const ClientManagementTable = () => {
 
               {/* Right Column: Interaction Timeline */}
               <Box className="w-[380px] max-md:w-full p-8 bg-muted/20 h-full flex flex-col border-s border-border/50 max-md:border-s-0">
+                {/* Follow-up reminder */}
+                <Box className="mb-6">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
+                    {t("dashboard.followUps")}
+                  </h3>
+
+                  {selectedClient.followUpAt && !showFollowUp && (() => {
+                    const date = new Date(selectedClient.followUpAt as string);
+                    const overdue = isPast(date);
+                    const daysLeft = differenceInDays(date, new Date());
+                    return (
+                      <Box className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                        overdue
+                          ? "bg-rose-50 dark:bg-rose-900/15 border-rose-200 dark:border-rose-500/30"
+                          : "bg-indigo-50 dark:bg-indigo-900/15 border-indigo-200 dark:border-indigo-500/30"
+                      }`}>
+                        <Bell className={`h-3.5 w-3.5 shrink-0 ${overdue ? "text-rose-500" : "text-indigo-500"}`} />
+                        <Box className="flex-1 min-w-0">
+                          <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
+                            {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
+                        </Box>
+                        <button
+                          onClick={() => setShowFollowUp(true)}
+                          className={`text-xs font-semibold transition-colors shrink-0 ${overdue ? "text-rose-600 hover:text-rose-800" : "text-indigo-600 hover:text-indigo-800"}`}
+                        >
+                          {t("pipeline.followUpChange")}
+                        </button>
+                        <button
+                          onClick={handleCancelFollowUp}
+                          disabled={setFollowUp.isPending}
+                          className="text-muted-foreground/90 hover:text-rose-500 transition-colors shrink-0"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </Box>
+                    );
+                  })()}
+
+                  {!selectedClient.followUpAt && !showFollowUp && (
+                    <button
+                      onClick={() => setShowFollowUp(true)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/15 transition-colors w-full"
+                    >
+                      <Bell className="h-3.5 w-3.5 shrink-0" />
+                      <span className="text-xs font-semibold">{t("pipeline.followUpSet")}</span>
+                    </button>
+                  )}
+
+                  {showFollowUp && (
+                    <FollowUpPicker
+                      clientId={selectedClient.id}
+                      onDismiss={() => {
+                        setShowFollowUp(false);
+                        refetch();
+                      }}
+                    />
+                  )}
+                </Box>
+
                 <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                   <span className="w-2 h-6 bg-indigo-600 rounded-full" />
                   Activity Timeline
