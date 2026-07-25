@@ -16,6 +16,7 @@ interface Client {
   position: number;
   portalAccessEnabled?: boolean;
   followUpAt?: string | null;
+  followUpNote?: string | null;
 }
 
 interface ClientsResponse {

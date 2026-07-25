@@ -101,6 +101,9 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
             </>
           )}
         </div>
+        {lead.followUpNote && (
+          <p className="text-xs text-foreground/70 mt-0.5 truncate">{lead.followUpNote}</p>
+        )}
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
@@ -187,7 +190,7 @@ export const FollowUpWidget = () => {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   const handleDone = (clientId: string) => {
-    cancelFollowUp.mutate({ clientId, followUpAt: null });
+    cancelFollowUp.mutate({ clientId, followUpAt: null, followUpNote: null });
   };
 
   const handleNavigate = (lead: FollowUpLead) => {

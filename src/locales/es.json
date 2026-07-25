@@ -962,6 +962,7 @@
     "freeDate": "fecha libre",
     "followUpChange": "Cambiar",
     "followUpSet": "Programar recordatorio de seguimiento",
+    "followUpNotePlaceholder": "Motivo / nota (opcional)",
     "clientStatuses": {
       "New Lead": "Nuevo Lead",
       "Contacted": "Contactado",

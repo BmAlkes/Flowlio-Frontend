@@ -14,6 +14,7 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
   const setFollowUp = useSetFollowUp();
   const [customDate, setCustomDate] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const [note, setNote] = useState("");
 
   const QUICK_OPTIONS = [
     { label: t("pipeline.tomorrow"), days: 1 },
@@ -24,7 +25,7 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
   const handleQuick = (days: number) => {
     const date = addDays(new Date(), days);
     setFollowUp.mutate(
-      { clientId, followUpAt: date.toISOString() },
+      { clientId, followUpAt: date.toISOString(), followUpNote: note.trim() || null },
       { onSuccess: onDismiss }
     );
   };
@@ -32,7 +33,7 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
   const handleCustom = () => {
     if (!customDate) return;
     setFollowUp.mutate(
-      { clientId, followUpAt: new Date(customDate).toISOString() },
+      { clientId, followUpAt: new Date(customDate).toISOString(), followUpNote: note.trim() || null },
       { onSuccess: onDismiss }
     );
   };
@@ -50,6 +51,18 @@ export const FollowUpPicker = ({ clientId, onDismiss }: FollowUpPickerProps) => 
         <button onClick={onDismiss} className="text-indigo-400 hover:text-indigo-600 transition-colors">
           <X className="h-3.5 w-3.5" />
         </button>
+      </div>
+
+      {/* Note */}
+      <div className="px-3 pt-3">
+        <input
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder={t("pipeline.followUpNotePlaceholder")}
+          maxLength={280}
+          className="w-full h-9 px-3 rounded-lg border border-indigo-200 dark:border-indigo-500/40 bg-white dark:bg-gray-800 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
       </div>
 
       {/* Options */}

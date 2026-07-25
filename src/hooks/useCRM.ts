@@ -170,15 +170,17 @@ export const useSetFollowUp = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { clientId: string; followUpAt: string | null }) => {
+    mutationFn: async (data: { clientId: string; followUpAt: string | null; followUpNote?: string | null }) => {
       const response = await axios.patch(`/leads/${data.clientId}/followup`, {
         followUpAt: data.followUpAt,
+        followUpNote: data.followUpNote,
       });
       return response.data;
     },
     onSuccess: (_, variables) => {
       patchClientInCache(queryClient, variables.clientId, {
         followUpAt: variables.followUpAt,
+        followUpNote: variables.followUpAt ? variables.followUpNote ?? null : null,
       });
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
@@ -218,6 +220,7 @@ export interface FollowUpLead {
   businessIndustry?: string;
   status: string;
   followUpAt: string;
+  followUpNote?: string | null;
   image?: string;
   // Not sent by the API yet — see backend prompt in the PR description.
   // Falls back to "lead" everywhere it's read so behavior stays unchanged

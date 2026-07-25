@@ -104,6 +104,7 @@ export type Data = {
   position?: number; // Order field for drag-and-drop
   portalAccessEnabled?: boolean;
   followUpAt?: string | null;
+  followUpNote?: string | null;
 };
 
 const PAGE_SIZE = 10;
@@ -176,8 +177,10 @@ export const ClientManagementTable = () => {
   useEffect(() => {
     if (!selectedClient || !clientsData?.data) return;
     const fresh = clientsData.data.find((c: any) => c.id === selectedClient.id);
-    if (fresh && fresh.followUpAt !== selectedClient.followUpAt) {
-      setSelectedClient((prev) => (prev ? { ...prev, followUpAt: fresh.followUpAt ?? null } : prev));
+    if (fresh && (fresh.followUpAt !== selectedClient.followUpAt || fresh.followUpNote !== selectedClient.followUpNote)) {
+      setSelectedClient((prev) =>
+        prev ? { ...prev, followUpAt: fresh.followUpAt ?? null, followUpNote: fresh.followUpNote ?? null } : prev
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientsData]);
@@ -185,7 +188,7 @@ export const ClientManagementTable = () => {
   const handleCancelFollowUp = () => {
     if (!selectedClient) return;
     setFollowUp.mutate(
-      { clientId: selectedClient.id, followUpAt: null },
+      { clientId: selectedClient.id, followUpAt: null, followUpNote: null },
       { onSuccess: () => refetch() }
     );
   };
@@ -654,6 +657,7 @@ export const ClientManagementTable = () => {
       customFields: client.customFields || {},
       position: client.position || 0,
       followUpAt: client.followUpAt ?? null,
+      followUpNote: client.followUpNote ?? null,
     })) || mockData;
 
   // Handle reorder completion
@@ -1049,6 +1053,9 @@ export const ClientManagementTable = () => {
                             {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
                           </p>
                           <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
+                          {selectedClient.followUpNote && (
+                            <p className="text-xs text-foreground/80 mt-0.5 break-words">{selectedClient.followUpNote}</p>
+                          )}
                         </Box>
                         <button
                           onClick={() => setShowFollowUp(true)}
