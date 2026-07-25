@@ -12,8 +12,8 @@ const PRODUCT_LINKS = [
 
 const RESOURCES_LINKS = [
   { label: "What is Flowlio?", to: "/what-is-flowlio" },
+  { label: "Blog",             to: "/blog" },
   { label: "Help Center",      to: null },
-  { label: "Blog",             to: null },
   { label: "Community",        to: null },
 ];
 

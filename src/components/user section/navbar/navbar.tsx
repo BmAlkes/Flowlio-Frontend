@@ -47,6 +47,7 @@ export const Navbar: FC<NavbarProps> = ({
   const isInsightsPage = isInsights || location.pathname === "/insights";
   const isPricingPage  = isPricing  || location.pathname === "/pricing";
   const isShowcasePage = location.pathname === "/showcase";
+  const isBlogPage     = location.pathname.startsWith("/blog");
   const activeLang     = langPages.find((l) => l.path === location.pathname);
 
   useEffect(() => {
@@ -147,6 +148,19 @@ export const Navbar: FC<NavbarProps> = ({
             >
               Showcase
             </Link>
+
+            <Link
+              to="/blog"
+              className={cn(
+                "group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-[16px] font-medium transition-colors hover:bg-muted hover:text-[#F98618] focus:bg-muted focus:outline-none disabled:pointer-events-none max-lg:hidden",
+                isHomePage     && "text-muted-foreground",
+                isWorkflowPage && "text-white",
+                isInsightsPage && "text-white",
+                isBlogPage     && "text-[#F98618]"
+              )}
+            >
+              Blog
+            </Link>
           </Flex>
 
           {/* ── Mobile hamburger ── */}
@@ -174,6 +188,9 @@ export const Navbar: FC<NavbarProps> = ({
                   </Link>
                   <Link to="/showcase" className={cn("flex w-full items-center py-2 text-lg font-semibold", isShowcasePage && "text-[#F98618]")}>
                     Showcase
+                  </Link>
+                  <Link to="/blog" className={cn("flex w-full items-center py-2 text-lg font-semibold", isBlogPage && "text-[#F98618]")}>
+                    Blog
                   </Link>
 
                   {/* Language links — mobile */}
