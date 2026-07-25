@@ -219,6 +219,10 @@ export interface FollowUpLead {
   status: string;
   followUpAt: string;
   image?: string;
+  // Not sent by the API yet — see backend prompt in the PR description.
+  // Falls back to "lead" everywhere it's read so behavior stays unchanged
+  // until the backend adds it to GET /leads/followups/dashboard.
+  clientType?: "lead" | "client";
 }
 
 export interface FollowUpDashboardData {

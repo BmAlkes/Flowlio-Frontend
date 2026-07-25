@@ -455,6 +455,17 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               );
             })()}
 
+            {/* Set follow-up (only when there's nothing scheduled yet) */}
+            {!client.followUpAt && !showFollowUp && (
+              <button
+                onClick={() => setShowFollowUp(true)}
+                className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/15 transition-colors w-full"
+              >
+                <Bell className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs font-semibold">{t("pipeline.followUpSet")}</span>
+              </button>
+            )}
+
             {/* Follow-up picker */}
             {showFollowUp && (
               <FollowUpPicker
