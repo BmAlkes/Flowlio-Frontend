@@ -64,11 +64,11 @@ export const BlogPage = () => {
         <section className="bg-gradient-to-b from-indigo-50 to-background dark:from-indigo-950/20 dark:to-background py-16 px-4">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">
-              Blog Flowlio
+              Flowlio Blog
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Guias práticos sobre gestão de projetos, clientes e automação — pra agências e
-              times que usam o Flowlio pra crescer.
+              Practical guides on project management, client relationships and automation —
+              for agencies and teams that use Flowlio to grow.
             </p>
           </div>
         </section>
