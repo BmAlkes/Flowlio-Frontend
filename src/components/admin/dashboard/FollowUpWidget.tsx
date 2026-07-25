@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useFollowUpsDashboard, useSetFollowUp, FollowUpLead } from "@/hooks/useCRM";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Building2, CalendarClock, Loader2, CheckCheck, AlertTriangle, ArrowRight } from "lucide-react";
+import { Bell, Building2, CalendarClock, Loader2, CheckCheck, AlertTriangle, ArrowRight, Briefcase, UserPlus } from "lucide-react";
 import { differenceInDays, format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+type TypeFilter = "all" | "lead" | "client";
 
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -13,7 +16,7 @@ interface LeadRowProps {
   lead: FollowUpLead;
   variant: "overdue" | "today" | "upcoming";
   onDone: (id: string) => void;
-  onNavigate: (id: string) => void;
+  onNavigate: (lead: FollowUpLead) => void;
   isPending: boolean;
 }
 
@@ -59,7 +62,7 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer hover:brightness-95 transition-all ${colors[variant]}`}
-      onClick={() => onNavigate(lead.id)}
+      onClick={() => onNavigate(lead)}
     >
       {/* Avatar with real image */}
       <Avatar className="h-9 w-9 rounded-xl shrink-0">
@@ -70,7 +73,23 @@ const LeadRow = ({ lead, variant, onDone, onNavigate, isPending }: LeadRowProps)
       </Avatar>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground truncate">{lead.name}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-semibold text-foreground truncate">{lead.name}</p>
+          <span
+            className={`shrink-0 flex items-center gap-1 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full ${
+              lead.clientType === "client"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                : "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400"
+            }`}
+          >
+            {lead.clientType === "client" ? (
+              <Briefcase className="h-2.5 w-2.5" />
+            ) : (
+              <UserPlus className="h-2.5 w-2.5" />
+            )}
+            {lead.clientType === "client" ? t("dashboard.followUpsClient") : t("dashboard.followUpsLead")}
+          </span>
+        </div>
         <div className="flex items-center gap-1 mt-0.5">
           <CalendarClock className={`h-3 w-3 shrink-0 ${iconColors[variant]}`} />
           <span className={`text-xs font-medium ${dateColors[variant]}`}>{dateLabel}</span>
@@ -104,7 +123,7 @@ interface SectionProps {
   leads: FollowUpLead[];
   variant: "overdue" | "today" | "upcoming";
   onDone: (id: string) => void;
-  onNavigate: (id: string) => void;
+  onNavigate: (lead: FollowUpLead) => void;
   isPending: boolean;
   moreLabel: string;
 }
@@ -151,22 +170,43 @@ const Section = ({ title, leads, variant, onDone, onNavigate, isPending, moreLab
   );
 };
 
+const filterLeads = (leads: FollowUpLead[] | undefined, filter: TypeFilter) => {
+  if (!leads) return [];
+  if (filter === "all") return leads;
+  // Items without a clientType from the API are treated as leads (the
+  // endpoint's original/only behavior), so the filter never hides items
+  // the widget already showed before this field existed.
+  return leads.filter((lead) => (lead.clientType ?? "lead") === filter);
+};
+
 export const FollowUpWidget = () => {
   const { t } = useTranslation();
   const { data, isLoading } = useFollowUpsDashboard();
   const cancelFollowUp = useSetFollowUp();
   const navigate = useNavigate();
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   const handleDone = (clientId: string) => {
     cancelFollowUp.mutate({ clientId, followUpAt: null });
   };
 
-  const handleNavigate = (_clientId: string) => {
-    navigate("/dashboard/leads");
+  const handleNavigate = (lead: FollowUpLead) => {
+    navigate(lead.clientType === "client" ? "/dashboard/clients" : "/dashboard/leads");
   };
 
-  const total = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) + (data?.upcoming?.length ?? 0);
-  const hasUrgent = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) > 0;
+  const overdue = filterLeads(data?.overdue, typeFilter);
+  const today = filterLeads(data?.today, typeFilter);
+  const upcoming = filterLeads(data?.upcoming, typeFilter);
+
+  const totalUnfiltered = (data?.overdue?.length ?? 0) + (data?.today?.length ?? 0) + (data?.upcoming?.length ?? 0);
+  const total = overdue.length + today.length + upcoming.length;
+  const hasUrgent = overdue.length + today.length > 0;
+
+  const FILTERS: { value: TypeFilter; label: string }[] = [
+    { value: "all", label: t("dashboard.followUpsFilterAll") },
+    { value: "lead", label: t("dashboard.followUpsFilterLeads") },
+    { value: "client", label: t("dashboard.followUpsFilterClients") },
+  ];
 
   return (
     <div className="rounded-2xl p-5 w-full bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60">
@@ -192,6 +232,25 @@ export const FollowUpWidget = () => {
         )}
       </div>
 
+      {/* Type filter */}
+      {totalUnfiltered > 0 && (
+        <div className="flex gap-1 p-1 bg-muted/40 rounded-lg mb-4">
+          {FILTERS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setTypeFilter(value)}
+              className={`flex-1 h-7 rounded text-xs font-medium transition-all ${
+                typeFilter === value
+                  ? "bg-white dark:bg-slate-700 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Content */}
       {isLoading ? (
         <div className="flex justify-center py-8">
@@ -209,30 +268,30 @@ export const FollowUpWidget = () => {
         <div className="space-y-4">
           <Section
             title={t("dashboard.followUpsOverdue")}
-            leads={data?.overdue ?? []}
+            leads={overdue}
             variant="overdue"
             onDone={handleDone}
             onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
-            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, (data?.overdue?.length ?? 0) - 5) })}
+            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, overdue.length - 5) })}
           />
           <Section
             title={t("dashboard.followUpsToday")}
-            leads={data?.today ?? []}
+            leads={today}
             variant="today"
             onDone={handleDone}
             onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
-            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, (data?.today?.length ?? 0) - 5) })}
+            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, today.length - 5) })}
           />
           <Section
             title={t("dashboard.followUpsUpcoming")}
-            leads={data?.upcoming ?? []}
+            leads={upcoming}
             variant="upcoming"
             onDone={handleDone}
             onNavigate={handleNavigate}
             isPending={cancelFollowUp.isPending}
-            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, (data?.upcoming?.length ?? 0) - 5) })}
+            moreLabel={t("dashboard.followUpsMore", { count: Math.max(0, upcoming.length - 5) })}
           />
         </div>
       )}
