@@ -194,7 +194,7 @@ export const FollowUpWidget = () => {
   };
 
   const handleNavigate = (lead: FollowUpLead) => {
-    navigate(lead.clientType === "client" ? "/dashboard/clients" : "/dashboard/leads");
+    navigate(lead.clientType === "client" ? "/dashboard/client-management" : "/dashboard/leads");
   };
 
   const overdue = filterLeads(data?.overdue, typeFilter);
