@@ -1,9 +1,9 @@
 import { Link } from "react-router";
 import { Eye } from "lucide-react";
-import { BlogPost } from "@/hooks/useBlog";
+import { BlogCategoryCount, BlogPost } from "@/hooks/useBlog";
 
 interface BlogSidebarProps {
-  categories?: string[];
+  categories?: BlogCategoryCount[];
   mostViewed?: BlogPost[];
   activeCategory?: string;
 }
@@ -29,15 +29,16 @@ export const BlogSidebar = ({ categories, mostViewed, activeCategory }: BlogSide
             >
               All posts
             </Link>
-            {categories.map((category) => (
+            {categories.map(({ category, count }) => (
               <Link
                 key={category}
                 to={`/blog/category/${category}`}
-                className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
                   activeCategory === category ? "bg-indigo-50 text-indigo-700" : "text-muted-foreground hover:bg-muted"
                 }`}
               >
-                {category}
+                <span>{category}</span>
+                <span className="text-xs text-muted-foreground">{count}</span>
               </Link>
             ))}
           </div>
@@ -67,10 +68,10 @@ export const BlogSidebar = ({ categories, mostViewed, activeCategory }: BlogSide
                   <p className="text-sm font-semibold text-foreground group-hover:text-indigo-600 transition-colors line-clamp-2">
                     {post.title}
                   </p>
-                  {typeof post.views === "number" && (
+                  {typeof post.viewCount === "number" && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       <Eye className="h-3 w-3" />
-                      {post.views.toLocaleString()} views
+                      {post.viewCount.toLocaleString()} views
                     </p>
                   )}
                 </div>

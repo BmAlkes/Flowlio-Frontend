@@ -51,15 +51,15 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
             <p className="text-muted-foreground text-base line-clamp-3">{post.excerpt}</p>
           )}
           <div className="flex items-center gap-3 text-sm text-muted-foreground mt-2">
-            <span className="font-medium text-foreground">{getAuthorName(post.author)}</span>
+            <span className="font-medium text-foreground">{getAuthorName(post.authorName)}</span>
             <span>·</span>
             <span>{dateLabel}</span>
-            {post.readingTime && (
+            {post.readingTimeMin && (
               <>
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {post.readingTime} min read
+                  {post.readingTimeMin} min read
                 </span>
               </>
             )}
@@ -97,13 +97,13 @@ export const BlogCard = ({ post, featured = false }: BlogCardProps) => {
           <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{post.excerpt}</p>
         )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-          <span className="font-medium text-foreground/80">{getAuthorName(post.author)}</span>
+          <span className="font-medium text-foreground/80">{getAuthorName(post.authorName)}</span>
           <span>·</span>
           <span>{dateLabel}</span>
-          {post.readingTime && (
+          {post.readingTimeMin && (
             <>
               <span>·</span>
-              <span>{post.readingTime} min</span>
+              <span>{post.readingTimeMin} min</span>
             </>
           )}
         </div>

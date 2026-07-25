@@ -113,7 +113,7 @@ export const BlogPostsTable = () => {
                       {post.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-foreground font-medium">{(post.views ?? 0).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm text-foreground font-medium">{(post.viewCount ?? 0).toLocaleString()}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
                     {post.updatedAt ? format(new Date(post.updatedAt), "MMM d, yyyy") : "—"}
                   </td>

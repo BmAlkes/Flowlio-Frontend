@@ -19,12 +19,12 @@ export interface BlogPost {
   tags?: string[];
   featured?: boolean;
   status: BlogPostStatus;
-  author?: string | { name: string; image?: string };
+  authorName?: string;
   publishedAt?: string;
   updatedAt?: string;
   createdAt?: string;
-  views?: number;
-  readingTime?: number;
+  viewCount?: number;
+  readingTimeMin?: number;
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
@@ -34,16 +34,17 @@ export interface BlogPost {
   faq?: BlogFaqItem[];
 }
 
-export const getAuthorName = (author?: BlogPost["author"]): string =>
-  typeof author === "string" ? author : author?.name || "Flowlio Team";
+export const getAuthorName = (authorName?: string): string => authorName || "Flowlio Team";
 
-export const getAuthorImage = (author?: BlogPost["author"]): string | undefined =>
-  typeof author === "object" ? author?.image : undefined;
+export interface BlogCategoryCount {
+  category: string;
+  count: number;
+}
 
 export interface BlogListResponse {
   success: boolean;
   data: BlogPost[];
-  categories?: string[];
+  categories?: BlogCategoryCount[];
   mostViewed?: BlogPost[];
   total: number;
   page: number;
@@ -53,7 +54,7 @@ export interface BlogListResponse {
 export interface BlogPostResponse {
   success: boolean;
   data: BlogPost;
-  relatedPosts?: BlogPost[];
+  related?: BlogPost[];
 }
 
 interface UseBlogPostsParams {

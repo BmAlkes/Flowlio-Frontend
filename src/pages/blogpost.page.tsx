@@ -9,7 +9,7 @@ import { BlogCard } from "@/components/blog/BlogCard";
 import { BlogFaqSection } from "@/components/blog/BlogFaqSection";
 import { BlogShareButtons } from "@/components/blog/BlogShareButtons";
 import { BlogPostSchema } from "@/components/blog/BlogSchema";
-import { useBlogPost, getAuthorName, getAuthorImage } from "@/hooks/useBlog";
+import { useBlogPost, getAuthorName } from "@/hooks/useBlog";
 import { sanitizeHTML } from "@/utils/sanitize";
 
 const SITE_URL = "https://flowlioapp.com";
@@ -109,32 +109,25 @@ export const BlogPostPage = () => {
             {post.title}
           </h1>
           <div className="flex flex-wrap items-center gap-3 mt-5">
-            {getAuthorImage(post.author) && (
-              <img
-                src={getAuthorImage(post.author)}
-                alt={getAuthorName(post.author)}
-                className="h-9 w-9 rounded-full object-cover"
-              />
-            )}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">{getAuthorName(post.author)}</span>
+              <span className="font-semibold text-foreground">{getAuthorName(post.authorName)}</span>
               <span>·</span>
               <span>{dateLabel}</span>
-              {post.readingTime && (
+              {post.readingTimeMin && (
                 <>
                   <span>·</span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {post.readingTime} min read
+                    {post.readingTimeMin} min read
                   </span>
                 </>
               )}
-              {typeof post.views === "number" && (
+              {typeof post.viewCount === "number" && (
                 <>
                   <span>·</span>
                   <span className="flex items-center gap-1">
                     <Eye className="h-3.5 w-3.5" />
-                    {post.views.toLocaleString()} views
+                    {post.viewCount.toLocaleString()} views
                   </span>
                 </>
               )}
@@ -168,11 +161,11 @@ export const BlogPostPage = () => {
         </article>
 
         {/* Related posts */}
-        {data?.relatedPosts && data.relatedPosts.length > 0 && (
+        {data?.related && data.related.length > 0 && (
           <section className="max-w-6xl mx-auto px-4 pb-16">
             <h2 className="text-2xl font-bold text-foreground mb-6">Related articles</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.relatedPosts.slice(0, 3).map((related) => (
+              {data.related.slice(0, 3).map((related) => (
                 <BlogCard key={related.id} post={related} />
               ))}
             </div>

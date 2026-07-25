@@ -84,7 +84,7 @@ export const BlogPage = () => {
             >
               All
             </a>
-            {data.categories.map((c) => (
+            {data.categories.map(({ category: c, count }) => (
               <a
                 key={c}
                 href={`/blog/category/${c}`}
@@ -92,7 +92,7 @@ export const BlogPage = () => {
                   category === c ? "bg-indigo-600 text-white" : "bg-muted text-muted-foreground hover:bg-muted/70"
                 }`}
               >
-                {c}
+                {c} <span className="opacity-70">({count})</span>
               </a>
             ))}
           </div>
