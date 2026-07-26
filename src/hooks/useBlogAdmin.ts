@@ -4,14 +4,14 @@ import { toast } from "sonner";
 import { BlogFaqItem, BlogPost, BlogPostStatus } from "./useBlog";
 
 export interface BlogAdminStats {
-  totalPosts: number;
-  totalViews: number;
-  byStatus: Record<BlogPostStatus, number>;
-  topPosts: Array<{
+  totalPosts?: number;
+  totalViews?: number;
+  byStatus?: Partial<Record<BlogPostStatus, number>>;
+  topPosts?: Array<{
     id: string;
     title: string;
     slug: string;
-    views: number;
+    views?: number;
     publishedAt?: string;
   }>;
 }
@@ -146,9 +146,9 @@ export const useDeleteBlogPost = () => {
 };
 
 export interface BlogPostAnalytics {
-  totalViews: number;
-  viewsByDay: Array<{ date: string; views: number }>;
-  topReferrers: Array<{ referrer: string; count: number }>;
+  totalViews?: number;
+  viewsByDay?: Array<{ date: string; views: number }>;
+  topReferrers?: Array<{ referrer: string; count?: number }>;
 }
 
 export const useBlogPostAnalytics = (id: string | undefined, days: number) => {
