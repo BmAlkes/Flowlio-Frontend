@@ -73,7 +73,7 @@ export const BlogPostAnalytics = ({ postId }: BlogPostAnalyticsProps) => {
                   <Eye className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{analytics.totalViews.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-foreground">{(analytics.totalViews ?? 0).toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">Views in the last {days} days</p>
                 </div>
               </CardContent>
@@ -85,7 +85,7 @@ export const BlogPostAnalytics = ({ postId }: BlogPostAnalyticsProps) => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analytics.viewsByDay}>
+                  <LineChart data={analytics.viewsByDay ?? []}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis
                       dataKey="date"
@@ -117,7 +117,7 @@ export const BlogPostAnalytics = ({ postId }: BlogPostAnalyticsProps) => {
                         <span className="text-sm text-foreground truncate max-w-[70%]">
                           {ref.referrer || "Direct / unknown"}
                         </span>
-                        <span className="text-sm font-semibold text-muted-foreground">{ref.count.toLocaleString()}</span>
+                        <span className="text-sm font-semibold text-muted-foreground">{(ref.count ?? 0).toLocaleString()}</span>
                       </Flex>
                     ))}
                   </div>

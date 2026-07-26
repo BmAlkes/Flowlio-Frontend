@@ -13,7 +13,7 @@ const StatCard = ({
 }: {
   icon: React.ElementType;
   label: string;
-  value: number;
+  value: number | undefined | null;
   accent: string;
 }) => (
   <Card>
@@ -22,7 +22,7 @@ const StatCard = ({
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-2xl font-bold text-foreground">{value.toLocaleString()}</p>
+        <p className="text-2xl font-bold text-foreground">{(value ?? 0).toLocaleString()}</p>
         <p className="text-sm text-muted-foreground">{label}</p>
       </div>
     </CardContent>
@@ -48,8 +48,8 @@ export const BlogStatsCards = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <StatCard icon={FileText} label="Total posts" value={stats.totalPosts} accent="bg-indigo-100 text-indigo-600" />
-        <StatCard icon={Eye} label="Total views" value={stats.totalViews} accent="bg-sky-100 text-sky-600" />
+        <StatCard icon={FileText} label="Total posts" value={stats.totalPosts ?? 0} accent="bg-indigo-100 text-indigo-600" />
+        <StatCard icon={Eye} label="Total views" value={stats.totalViews ?? 0} accent="bg-sky-100 text-sky-600" />
         <StatCard icon={CheckCircle2} label="Published" value={stats.byStatus?.published ?? 0} accent="bg-emerald-100 text-emerald-600" />
         <StatCard icon={PenLine} label="Drafts" value={stats.byStatus?.draft ?? 0} accent="bg-amber-100 text-amber-600" />
         <StatCard icon={Archive} label="Archived" value={stats.byStatus?.archived ?? 0} accent="bg-gray-100 text-gray-600" />
@@ -81,7 +81,7 @@ export const BlogStatsCards = () => {
                   </div>
                   <span className="text-sm font-bold text-foreground flex items-center gap-1 shrink-0">
                     <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                    {post.views.toLocaleString()}
+                    {(post.views ?? 0).toLocaleString()}
                   </span>
                 </Link>
               ))}

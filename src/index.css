@@ -240,6 +240,33 @@ a,
 }
 
 /* ============================================================
+   ACCORDION EXPAND/COLLAPSE ANIMATION
+   Referenced by --animate-accordion-down/-up above; Radix's
+   AccordionContent needs these keyframes to actually animate its
+   height (and to fire the animationend it waits on before hiding
+   the closed content) — without them the panel opens but never
+   visually collapses.
+   ============================================================ */
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* ============================================================
    SKELETON SHIMMER ANIMATION
    Global shimmer effect for all skeleton loading states.
    ============================================================ */
