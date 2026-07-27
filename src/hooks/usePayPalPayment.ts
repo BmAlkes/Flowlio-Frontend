@@ -89,6 +89,7 @@ interface ActivatePayPalSubscriptionRequest {
   organizationWebsite?: string;
   organizationIndustry?: string;
   organizationSize?: string;
+  country?: string;
   planId?: string;
 }
 

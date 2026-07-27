@@ -8,6 +8,8 @@ import { PageWrapper } from "@/components/common/pagewrapper";
 import { IoEye } from "react-icons/io5";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { axios } from "@/configs/axios.config";
 import { useFetchAllOrganizations } from "@/hooks/usefetchallorganizations";
 
 export type Data = {
@@ -105,7 +107,21 @@ export const SuperAdminTable = () => {
     isLoading,
     error,
   } = useFetchAllOrganizations();
+  const { data: demoAccountsResponse } = useQuery({
+    queryKey: ["demo-account-org-ids"],
+    queryFn: async () => {
+      const response = await axios.get("/superadmin/demo-accounts");
+      return response.data;
+    },
+  });
   const navigate = useNavigate();
+
+  const demoOrgIds = useMemo(() => {
+    const demos = Array.isArray(demoAccountsResponse?.data)
+      ? (demoAccountsResponse.data as any[])
+      : [];
+    return new Set(demos.map((demo) => demo.id));
+  }, [demoAccountsResponse]);
 
   const data: Data[] = useMemo(() => {
     const organizations = Array.isArray(allOrganizationsResponse?.data)
@@ -130,15 +146,15 @@ export const SuperAdminTable = () => {
       return {
         id: org.id,
         slug: org.slug,
-        plan: org.subscriptionPlan?.name || "N/A",
+        plan: demoOrgIds.has(org.id) ? "Demo" : org.subscriptionPlan?.name || "N/A",
         submittedby: "",
-        country: "N/A",
+        country: org.country || "N/A",
         companyname: org.name || "N/A",
         email,
         registrationDate: new Date(org.createdAt),
       } as Data;
     });
-  }, [allOrganizationsResponse]);
+  }, [allOrganizationsResponse, demoOrgIds]);
 
   if (isLoading) {
     return (

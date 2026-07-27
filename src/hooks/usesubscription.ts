@@ -93,9 +93,9 @@ export interface ActivateFreeResult {
 
 export const useActivateFreePlan = () => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResponse<ActivateFreeResult>, ErrorWithMessage, { planId: string }>({
-    mutationFn: async ({ planId }) => {
-      const response = await axios.post("/subscriptions/activate-free", { planId });
+  return useMutation<ApiResponse<ActivateFreeResult>, ErrorWithMessage, { planId: string; organizationName?: string; country?: string }>({
+    mutationFn: async ({ planId, organizationName, country }) => {
+      const response = await axios.post("/subscriptions/activate-free", { planId, organizationName, country });
       return response.data;
     },
     onSuccess: () => {
