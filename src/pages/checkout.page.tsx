@@ -18,6 +18,14 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { COUNTRIES } from "@/data/countries";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 // import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +58,7 @@ const formSchema = z.object({
   organizationName: z
     .string()
     .min(1, { message: "Organization name is required" }),
+  country: z.string().min(1, { message: "Country is required" }),
 });
 
 const CheckoutPage = () => {
@@ -119,9 +128,20 @@ const CheckoutPage = () => {
 
   const handleActivateFreePlan = async () => {
     if (!selectedPlan) return;
+
+    if (createOrganization) {
+      const isValid = await form.trigger(["organizationName", "country"]);
+      if (!isValid) return;
+    }
+
     setIsProcessing(true);
     try {
-      await activateFreePlanMutation.mutateAsync({ planId: selectedPlan.id });
+      const formData = form.getValues();
+      await activateFreePlanMutation.mutateAsync({
+        planId: selectedPlan.id,
+        organizationName: createOrganization ? formData.organizationName : undefined,
+        country: createOrganization ? formData.country : undefined,
+      });
       toast.success(`"${selectedPlan.name}" plan activated!`);
       navigate("/dashboard", { replace: true });
     } catch (err: any) {
@@ -162,6 +182,7 @@ const CheckoutPage = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       organizationName: pendingOrgData?.organizationName || storeOrgName || "",
+      country: pendingOrgData?.country || "",
     },
   });
 
@@ -286,11 +307,11 @@ const CheckoutPage = () => {
       throw new Error(errorMsg);
     }
 
-    // Validate organization name if creating organization
+    // Validate organization name and country if creating organization
     if (createOrganization) {
-      const isValid = await form.trigger("organizationName");
+      const isValid = await form.trigger(["organizationName", "country"]);
       if (!isValid) {
-        const errorMsg = "Please enter a valid organization name";
+        const errorMsg = "Please enter a valid organization name and country";
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -298,6 +319,11 @@ const CheckoutPage = () => {
       const formData = form.getValues();
       if (!formData.organizationName?.trim()) {
         const errorMsg = "Please enter an organization name";
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+      if (!formData.country?.trim()) {
+        const errorMsg = "Please select a country";
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -354,6 +380,7 @@ const CheckoutPage = () => {
         organizationName: createOrganization
           ? formData.organizationName
           : undefined,
+        country: createOrganization ? formData.country : undefined,
         planId: selectedPlan.id,
       });
 
@@ -679,6 +706,30 @@ const CheckoutPage = () => {
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className="mb-4">
+                        <FormLabel className="font-normal">Country *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border rounded-lg w-full bg-card h-12">
+                              <SelectValue placeholder="Select your country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {COUNTRIES.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
