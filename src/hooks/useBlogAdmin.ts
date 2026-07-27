@@ -11,6 +11,10 @@ export interface BlogAdminStats {
     id: string;
     title: string;
     slug: string;
+    // Backend field name unconfirmed for this endpoint — every other
+    // blog endpoint uses viewCount, so read that first and fall back
+    // to views in case /blog/admin/stats differs.
+    viewCount?: number;
     views?: number;
     publishedAt?: string;
   }>;

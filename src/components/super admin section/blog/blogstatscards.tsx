@@ -81,7 +81,7 @@ export const BlogStatsCards = () => {
                   </div>
                   <span className="text-sm font-bold text-foreground flex items-center gap-1 shrink-0">
                     <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                    {(post.views ?? 0).toLocaleString()}
+                    {(post.viewCount ?? post.views ?? 0).toLocaleString()}
                   </span>
                 </Link>
               ))}
