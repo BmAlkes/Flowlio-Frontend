@@ -55,6 +55,7 @@ type Data = {
     };
     phone?: string;
     address?: string;
+    country?: string;
     status?: string | null;
     selectedPlanId?: string | null;
     pendingOrganizationData?: {
@@ -62,6 +63,7 @@ type Data = {
       organizationWebsite?: string;
       organizationIndustry?: string;
       organizationSize?: string;
+      country?: string;
       planId?: string;
     } | null;
     /** For role "client": the client record id used for client-scoped API calls */

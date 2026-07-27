@@ -209,6 +209,7 @@
     "email": "E-mail",
     "phone": "Número de telefone",
     "address": "Endereço",
+    "country": "País",
     "chooseFile": "Escolher arquivo",
     "remove": "Remover",
     "uploading": "Enviando...",

@@ -10,6 +10,7 @@ export interface UpdateUserProfileRequest {
   email: string;
   phone?: string;
   address?: string;
+  country?: string;
 }
 
 export interface UpdateUserProfileResponse {
@@ -19,6 +20,7 @@ export interface UpdateUserProfileResponse {
     email: string;
     phone: string | null;
     address: string | null;
+    country: string | null;
     image: string | null;
     emailVerified: boolean;
     isSuperAdmin: boolean;
