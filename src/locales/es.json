@@ -213,6 +213,7 @@
     "fullName": "Nombre completo",
     "phone": "Teléfono",
     "address": "Dirección",
+    "country": "País",
     "email": "Correo electrónico",
     "securitySettings": "Ajustes de seguridad",
     "profileUpdates": "Actualizaciones de perfil",

@@ -110,12 +110,22 @@ export const UsersTable = () => {
     {
       accessorKey: "organizations",
       header: () => <Box className="text-foreground">{t("superadmin.users.table.company", "Organizations")}</Box>,
-      cell: ({ row }) => (
-        <Box className="text-muted-foreground">
-          {row.original.organizationCount || 0} {t("appSidebar.companies", "Organizations")}
-        </Box>
-      ),
-      size: 150,
+      cell: ({ row }) => {
+        const orgs = row.original.organizations || [];
+        if (orgs.length === 0) {
+          return <Box className="text-muted-foreground">—</Box>;
+        }
+        const names = orgs.map((o) => o.organization?.name).filter(Boolean);
+        const label = names.slice(0, 2).join(", ");
+        const extra = names.length > 2 ? ` +${names.length - 2}` : "";
+        return (
+          <Box className="text-muted-foreground truncate max-w-[200px]" title={names.join(", ")}>
+            {label}
+            {extra}
+          </Box>
+        );
+      },
+      size: 200,
     },
     {
       accessorKey: "emailVerified",

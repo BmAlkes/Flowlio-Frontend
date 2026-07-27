@@ -213,6 +213,7 @@
     "fullName": "Full Name",
     "phone": "Phone",
     "address": "Address",
+    "country": "Country",
     "email": "Email",
     "securitySettings": "Security Settings",
     "profileUpdates": "Profile Updates",

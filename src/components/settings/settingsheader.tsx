@@ -10,6 +10,14 @@ import { Input } from "@/components/ui/input";
 import { IoMdLock, IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { Box } from "@/components/ui/box";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { COUNTRIES } from "@/data/countries";
 import React, { useRef, useState, useEffect } from "react";
 import { useUser } from "@/providers/user.provider";
 import { useUpdateUserProfile } from "@/hooks/useupdateuserprofile";
@@ -40,6 +48,7 @@ const settingsSchema = z
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
     address: z.string().optional(),
+    country: z.string().optional(),
     currentpassword: z.string().optional(),
     newpassword: z.string().optional(),
     confirmpassword: z.string().optional(),
@@ -156,6 +165,7 @@ export const SettingsHeader = () => {
       email: "",
       phone: "",
       address: "",
+      country: "",
       currentpassword: "",
       newpassword: "",
       confirmpassword: "",
@@ -180,6 +190,7 @@ export const SettingsHeader = () => {
       setValue("email", userData.user.email || "");
       setValue("phone", userData.user.phone || "");
       setValue("address", userData.user.address || "");
+      setValue("country", userData.user.country || "");
       if (userData.user.image) {
         setAvatarPreview(userData.user.image);
       }
@@ -227,6 +238,8 @@ export const SettingsHeader = () => {
         phone: values.phone && values.phone.trim() !== "" ? values.phone : "",
         address:
           values.address && values.address.trim() !== "" ? values.address : "",
+        country:
+          values.country && values.country.trim() !== "" ? values.country : "",
       };
 
       await updateProfileMutation.mutateAsync(profileData);
@@ -686,6 +699,22 @@ export const SettingsHeader = () => {
                   placeholder={t("settings.address")}
                   {...register("address")}
                 />
+
+                <Select
+                  value={watch("country") || undefined}
+                  onValueChange={(value) => setValue("country", value)}
+                >
+                  <SelectTrigger className="bg-background border-border w-full !h-11 rounded-full">
+                    <SelectValue placeholder={t("settings.country", "Country")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRIES.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 <Flex className="w-full relative border border-border rounded-full">
                   <Input

@@ -90,6 +90,7 @@
     "email": "אימייל",
     "phone": "מספר טלפון",
     "address": "כתובת",
+    "country": "מדינה",
     "chooseFile": "בחר קובץ",
     "remove": "הסר",
     "uploading": "מעלה...",
