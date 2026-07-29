@@ -1,7 +1,10 @@
 import { PageWrapper } from "@/components/common/pagewrapper";
 import { Center } from "@/components/ui/center";
 import { Stack } from "@/components/ui/stack";
+import { Box } from "@/components/ui/box";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersTable } from "./userstable";
+import { UsersByOrganization } from "./usersbyorganization";
 import { useTranslation } from "react-i18next";
 
 export const UsersHeader = () => {
@@ -19,7 +22,24 @@ export const UsersHeader = () => {
         </Stack>
       </Center>
 
-      <UsersTable />
+      <Box className="px-4 pb-6">
+        <Tabs defaultValue="all" className="space-y-6">
+          <TabsList className="bg-background border border-border shadow-sm p-1 h-auto">
+            <TabsTrigger value="all" className="py-1.5 px-3">
+              {t("superadmin.users.allUsers", "All Users")}
+            </TabsTrigger>
+            <TabsTrigger value="by-organization" className="py-1.5 px-3">
+              {t("superadmin.users.byOrganization", "By Organization")}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            <UsersTable />
+          </TabsContent>
+          <TabsContent value="by-organization">
+            <UsersByOrganization />
+          </TabsContent>
+        </Tabs>
+      </Box>
     </PageWrapper>
   );
 };

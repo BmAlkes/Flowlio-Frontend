@@ -115,6 +115,11 @@
     "users": {
       "title": "Users",
       "subtitle": "Overview of all users across the platform.",
+      "allUsers": "All Users",
+      "byOrganization": "By Organization",
+      "searchOrganizations": "Search organizations...",
+      "noOrganizationsFound": "No organizations found.",
+      "noOrganization": "No Organization",
       "table": {
         "name": "Name",
         "email": "Email",

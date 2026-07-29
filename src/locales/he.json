@@ -614,6 +614,11 @@
     "users": {
       "title": "משתמשים",
       "subtitle": "סקירה כללית של כל המשתמשים בפלטפורמה.",
+      "allUsers": "כל המשתמשים",
+      "byOrganization": "לפי ארגון",
+      "searchOrganizations": "חיפוש ארגונים...",
+      "noOrganizationsFound": "לא נמצאו ארגונים.",
+      "noOrganization": "ללא ארגון",
       "table": {
         "name": "שם",
         "email": "אימייל",

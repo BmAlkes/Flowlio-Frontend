@@ -114,6 +114,11 @@
     "users": {
       "title": "Usuarios",
       "subtitle": "Vista general de todos los usuarios en la plataforma.",
+      "allUsers": "Todos los Usuarios",
+      "byOrganization": "Por Organización",
+      "searchOrganizations": "Buscar organizaciones...",
+      "noOrganizationsFound": "No se encontraron organizaciones.",
+      "noOrganization": "Sin Organización",
       "table": {
         "name": "Nombre",
         "email": "Correo electrónico",
