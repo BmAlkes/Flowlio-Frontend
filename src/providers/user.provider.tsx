@@ -56,6 +56,7 @@ type Data = {
     phone?: string;
     address?: string;
     country?: string;
+    billingEmail?: string;
     status?: string | null;
     selectedPlanId?: string | null;
     pendingOrganizationData?: {

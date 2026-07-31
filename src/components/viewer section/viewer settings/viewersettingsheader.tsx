@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUpdateUserProfile } from "@/hooks/useupdateuserprofile";
+import { axios } from "@/configs/axios.config";
 import { useUpdateProfileImage } from "@/hooks/useupdateprofileimage";
 import { authClient } from "@/lib/auth-client";
 
@@ -289,8 +290,22 @@ export const ViewerSettingsHeader = () => {
     }
   };
 
-  // Notification toggles handlers, replicate pattern as needed
-  // ... add your notification save logic (API, optimistic UI, etc.)
+  // Notification toggle handler — persists immediately, like settingsheader.tsx's pattern.
+  const handleProjectActivityToggle = async (enabled: boolean) => {
+    try {
+      setValue("projectActivityUpdatesNotifications", enabled);
+      const currentPrefs = userData?.user?.notificationPreferences || {};
+      await axios.patch("/user/profile", {
+        notificationPreferences: { ...currentPrefs, projectActivityUpdates: enabled },
+      });
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      toast.success(enabled ? "Project activity notifications enabled" : "Project activity notifications disabled");
+    } catch {
+      setValue("projectActivityUpdatesNotifications", !enabled);
+      toast.error("Failed to update notification preference. Please try again.");
+    }
+  };
 
   // Password strength helpers (copy from settingsheader if needed)
   const getPasswordStrength = (password: string): number => {
@@ -592,9 +607,7 @@ export const ViewerSettingsHeader = () => {
                   <Switch
                     className="cursor-pointer"
                     checked={watch("projectActivityUpdatesNotifications")}
-                    onCheckedChange={(val) =>
-                      setValue("projectActivityUpdatesNotifications", val)
-                    }
+                    onCheckedChange={handleProjectActivityToggle}
                   />
                 </Flex>
                 {/* Two-Factor Authentication Section */}

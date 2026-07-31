@@ -22,13 +22,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useUser } from "@/providers/user.provider";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
 } from "@/components/common/generalmodal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
 import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { useDeleteProjectComment } from "@/hooks/usedeleteprojectcomment";
@@ -96,6 +96,20 @@ const ClientProjectsPage = () => {
   };
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Deep-link support: other pages (e.g. the task detail sheet) can navigate
+  // here with state.openCommentsForProjectId to jump straight into a
+  // project's comment thread instead of the client hunting for it.
+  useEffect(() => {
+    const targetProjectId = (location.state as { openCommentsForProjectId?: string } | null)
+      ?.openCommentsForProjectId;
+    if (targetProjectId) {
+      openCommentModal(targetProjectId);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   const projects = projectsResponse?.data?.projects || [];
 
