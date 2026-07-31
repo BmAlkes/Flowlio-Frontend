@@ -14,6 +14,11 @@ import { FolderOpen, ListTodo, FileText, Zap } from "lucide-react";
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
 const clientNavItems: NavItem[] = [
   {
+    title: "dashboard",
+    url: "/clients",
+    icon: React.createElement(SquareKanban),
+  },
+  {
     title: "projectManagement",
     url: "/clients/projects",
     icon: React.createElement(FolderOpen),
