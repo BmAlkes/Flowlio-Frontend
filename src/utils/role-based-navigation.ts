@@ -68,22 +68,37 @@ const viewerNavItems: NavItem[] = [
     icon: React.createElement(GroupIcon),
   },
   {
-    url: "/viewer/task-management",
+    url: "/viewer/my-tasks",
     title: "tasks",
     icon: React.createElement(TaskManagementIcon),
   },
   {
-    url: "/dashboard/support",
+    url: "/viewer/calendar",
+    title: "calendar",
+    icon: React.createElement(IoCalendarOutline),
+  },
+  {
+    url: "/viewer/time-tracking",
+    title: "timeTracking",
+    icon: React.createElement(Clock),
+  },
+  {
+    url: "/viewer/ai-assistant",
+    title: "aiAssistance",
+    icon: React.createElement(LuWandSparkles),
+  },
+  {
+    url: "/viewer/viewer-support",
     title: "supportTickets",
     icon: React.createElement(MessageCircleQuestion),
   },
   {
-    url: "/dashboard/inbox",
+    url: "/viewer/inbox",
     title: "inbox",
     icon: React.createElement(Inbox),
   },
   {
-    url: "/dashboard/settings",
+    url: "/viewer/viewer-settings",
     title: "settings",
     icon: React.createElement(IoSettingsOutline),
   },
