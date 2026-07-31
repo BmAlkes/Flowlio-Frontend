@@ -517,15 +517,15 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
 
               {/* Task Details Grid */}
               <Center className="grid grid-cols-2 gap-4">
-                <Stack className="bg-[#FFFEE8] w-full text-center p-3 rounded-lg">
-                  <h1 className="text-sm font-normal text-[#929292]">{t("tasks.status")}</h1>
+                <Stack className="bg-muted/60 border border-border w-full text-center p-3 rounded-lg">
+                  <h1 className="text-sm font-normal text-muted-foreground">{t("tasks.status")}</h1>
                   <h1 className="text-sm font-normal text-foreground capitalize">
                      {t(`tasks.statusValue.${selectedTask.status === "in progress" ? "in_progress" : selectedTask.status === "to do" ? "todo" : selectedTask.status}`)}
                   </h1>
                 </Stack>
 
-                <Stack className="bg-[#FFFEE8] w-full text-center p-3 rounded-lg">
-                  <h1 className="text-sm font-normal text-[#929292]">
+                <Stack className="bg-muted/60 border border-border w-full text-center p-3 rounded-lg">
+                  <h1 className="text-sm font-normal text-muted-foreground">
                     {t("tasks.dueDate")}
                   </h1>
                   <h1 className="text-sm font-normal text-foreground">
@@ -533,8 +533,8 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                   </h1>
                 </Stack>
 
-                <Stack className="bg-[#FFFEE8] w-full text-center p-3 rounded-lg">
-                  <h1 className="text-sm font-normal text-[#929292]">
+                <Stack className="bg-muted/60 border border-border w-full text-center p-3 rounded-lg">
+                  <h1 className="text-sm font-normal text-muted-foreground">
                     {t("support.sentBy")}
                   </h1>
                   <h1 className="text-sm font-normal text-foreground">
@@ -542,8 +542,8 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
                   </h1>
                 </Stack>
 
-                <Stack className="bg-[#FFFEE8] w-full text-center p-3 rounded-lg">
-                  <h1 className="text-sm font-normal text-[#929292]">
+                <Stack className="bg-muted/60 border border-border w-full text-center p-3 rounded-lg">
+                  <h1 className="text-sm font-normal text-muted-foreground">
                     {t("support.ticketId")}
                   </h1>
                   <h1 className="text-sm font-normal text-foreground">

@@ -371,21 +371,21 @@ function TaskDetailModalContent({
 
         {/* Meta grid */}
         <Center className="grid grid-cols-2 gap-4">
-          <Stack className="bg-[#FFFEE8] text-center p-3 rounded-lg">
-            <p className="text-xs text-[#929292]">{t("tasks.status")}</p>
+          <Stack className="bg-muted/60 border border-border text-center p-3 rounded-lg">
+            <p className="text-xs text-muted-foreground">{t("tasks.status")}</p>
             <p className="text-sm font-medium capitalize text-foreground">
               {task.status.replace("_", " ")}
             </p>
           </Stack>
-          <Stack className="bg-[#FFFEE8] text-center p-3 rounded-lg">
-            <p className="text-xs text-[#929292]">{t("tasks.dueDate")}</p>
+          <Stack className="bg-muted/60 border border-border text-center p-3 rounded-lg">
+            <p className="text-xs text-muted-foreground">{t("tasks.dueDate")}</p>
             <p className="text-sm font-medium text-foreground">
               {task.endDate || "N/A"}
             </p>
           </Stack>
           {task.creatorName && (
-            <Stack className="bg-[#FFFEE8] text-center p-3 rounded-lg col-span-2">
-              <p className="text-xs text-[#929292]">{t("support.sentBy")}</p>
+            <Stack className="bg-muted/60 border border-border text-center p-3 rounded-lg col-span-2">
+              <p className="text-xs text-muted-foreground">{t("support.sentBy")}</p>
               <p className="text-sm font-medium text-foreground">{task.creatorName}</p>
             </Stack>
           )}
