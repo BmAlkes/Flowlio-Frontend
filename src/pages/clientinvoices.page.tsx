@@ -8,7 +8,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, CreditCard } from "lucide-react";
 import { useGenerateInvoicePDF } from "@/hooks/usegenerateinvoicepdf";
 import { useUser } from "@/providers/user.provider";
 
@@ -98,6 +98,16 @@ const ClientInvoicesPage = () => {
       header: t("common.actions"),
       cell: ({ row }) => (
         <div className="flex gap-2">
+          {row.original.status?.toLowerCase() !== "paid" && row.original.paymentUrl && (
+            <Button
+              size="sm"
+              onClick={() => window.open(row.original.paymentUrl!, "_blank", "noopener,noreferrer")}
+              className="bg-[#00A400] hover:bg-green-700 text-white"
+            >
+              <CreditCard className="h-4 w-4 me-1" />
+              Pay Now
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"

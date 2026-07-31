@@ -7,6 +7,7 @@ interface CreateInvoiceData {
   amount: number;
   description?: string;
   dueDate?: string;
+  paymentUrl?: string;
   pdfFile?: string; // Base64 encoded PDF
   pdfFileName?: string;
 }

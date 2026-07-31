@@ -29,6 +29,7 @@ const formSchema = z
     amount: z.number().min(0.01, "Amount must be greater than 0"),
     description: z.string().optional(),
     dueDate: z.string().optional(),
+    paymentUrl: z.string().url("Enter a valid URL").optional().or(z.literal("")),
     isRecurring: z.boolean().default(false),
     templateName: z.string().optional(),
     frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
@@ -79,6 +80,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
       amount: 0,
       description: "",
       dueDate: "",
+      paymentUrl: "",
       isRecurring: false,
       frequency: "monthly",
     },
@@ -157,6 +159,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
               amount: data.amount,
               description: data.description,
               dueDate: data.dueDate,
+              paymentUrl: data.paymentUrl || undefined,
               pdfFile: pdfBase64,
               pdfFileName: pdfFileName,
             },
@@ -177,6 +180,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
             amount: data.amount,
             description: data.description,
             dueDate: data.dueDate,
+            paymentUrl: data.paymentUrl || undefined,
           },
           {
             onSuccess: () => {
@@ -345,6 +349,25 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
             </p>
           )}
         </Box>
+
+        {!isRecurring && (
+          <Box>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Payment Link (optional)
+            </label>
+            <Input
+              type="url"
+              {...register("paymentUrl")}
+              placeholder="https://buy.stripe.com/... or your PayPal.Me link"
+            />
+            {errors.paymentUrl && (
+              <p className="text-red-500 text-sm mt-1">{errors.paymentUrl.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Lets the client pay directly from their portal via a "Pay Now" button.
+            </p>
+          </Box>
+        )}
 
         {!isRecurring && (
           <Box>
