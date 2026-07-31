@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "@/components/ui/box";
@@ -9,6 +10,13 @@ import {
 } from "@/hooks/useFetchViewerProjects";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
@@ -36,6 +44,7 @@ export const MyProjectsTable = () => {
   const { data: projectsResponse, isLoading, error } = useFetchViewerProjects();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [statusFilter, setStatusFilter] = useState("all");
 
   if (isLoading) {
     return (
@@ -65,6 +74,9 @@ export const MyProjectsTable = () => {
       </Box>
     );
   }
+
+  const filteredProjects =
+    statusFilter === "all" ? projects : projects.filter((p) => p.status === statusFilter);
 
   const columns: ColumnDef<ViewerProject>[] = [
     {
@@ -161,11 +173,26 @@ export const MyProjectsTable = () => {
   ];
 
   return (
-    <ReusableTable
-      data={projects}
-      columns={columns}
-      enablePaymentLinksCalender={true}
-      onRowClick={(row) => navigate(`/viewer/projects/${row.original.id}`)}
-    />
+    <Box className="space-y-4">
+      <Box className="px-4">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder={t("projects.status")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("projects.allProjects", "All")}</SelectItem>
+            <SelectItem value="pending">{t("projects.statusValue.pending")}</SelectItem>
+            <SelectItem value="ongoing">{t("projects.statusValue.ongoing")}</SelectItem>
+            <SelectItem value="completed">{t("projects.statusValue.completed")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </Box>
+      <ReusableTable
+        data={filteredProjects}
+        columns={columns}
+        enablePaymentLinksCalender={true}
+        onRowClick={(row) => navigate(`/viewer/projects/${row.original.id}`)}
+      />
+    </Box>
   );
 };

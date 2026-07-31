@@ -48,6 +48,12 @@ import {
 } from "@/components/ui/tooltip";
 import { MessageCircle, Hash, Plus, Loader2, Calendar, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SupportChatModal } from "../../support/supportchatmodal";
 
 const formSchema = z.object({
@@ -61,6 +67,9 @@ export const ViewerSupportHeader = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"all" | "open" | "closed">("all");
+  const [showTicketSearch, setShowTicketSearch] = useState(false);
+  const [ticketSearch, setTicketSearch] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high" | "urgent">("all");
   const [selectedTicket, setSelectedTicket] = useState<UniversalSupportTicket | null>(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
@@ -205,11 +214,18 @@ export const ViewerSupportHeader = () => {
     },
   ];
 
-  const filteredTickets = ticketsData?.data?.tickets?.filter(t => {
+  const filteredTickets = (ticketsData?.data?.tickets?.filter(t => {
     if (activeTab === "open") return t.status === "open" || t.status === "in_progress";
     if (activeTab === "closed") return t.status === "closed" || t.status === "resolved";
     return true;
-  }) || [];
+  }) || []).filter(t => {
+    if (priorityFilter !== "all" && t.priority !== priorityFilter) return false;
+    if (ticketSearch.trim()) {
+      const q = ticketSearch.trim().toLowerCase();
+      return t.subject?.toLowerCase().includes(q) || t.ticketNumber?.toLowerCase().includes(q);
+    }
+    return true;
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -327,9 +343,52 @@ export const ViewerSupportHeader = () => {
                 </Button>
               </Flex>
               
-              <Flex className="gap-2">
-                <Button variant="outline" size="icon" className="rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50"><Search className="size-4"/></Button>
-                <Button variant="outline" size="icon" className="rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50"><Filter className="size-4"/></Button>
+              <Flex className="gap-2 items-center">
+                {showTicketSearch && (
+                  <Box className="relative">
+                    <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                      autoFocus
+                      value={ticketSearch}
+                      onChange={(e) => setTicketSearch(e.target.value)}
+                      placeholder="Search tickets..."
+                      className="ps-9 h-10 w-56 rounded-xl"
+                    />
+                  </Box>
+                )}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={`rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50 ${showTicketSearch ? "bg-muted" : ""}`}
+                  onClick={() => {
+                    setShowTicketSearch((prev) => !prev);
+                    if (showTicketSearch) setTicketSearch("");
+                  }}
+                >
+                  <Search className="size-4"/>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className={`rounded-xl size-10 border-border text-muted-foreground hover:bg-muted/50 ${priorityFilter !== "all" ? "bg-muted" : ""}`}
+                    >
+                      <Filter className="size-4"/>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {(["all", "urgent", "high", "medium", "low"] as const).map((priority) => (
+                      <DropdownMenuItem
+                        key={priority}
+                        className={`cursor-pointer capitalize ${priorityFilter === priority ? "font-semibold" : ""}`}
+                        onClick={() => setPriorityFilter(priority)}
+                      >
+                        {priority === "all" ? "All Priorities" : priority}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </Flex>
             </Flex>
 
