@@ -14,6 +14,7 @@ export interface ClientInvoice {
   datepaid: string | null;
   dueDate: string;
   description: string;
+  paymentUrl?: string | null;
   pdfUrl: string;
   pdfFileName: string;
   pdfFileSize: number;
