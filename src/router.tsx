@@ -226,6 +226,7 @@ const ReportsPage = lazy(() => import("./pages/reports.page"));
 const RevenuePage = lazy(() => import("./pages/revenue.page"));
 const ProjectTemplatesPage = lazy(() => import("./pages/projecttemplates.page"));
 
+const ClientDashboardPage = lazy(() => import("./pages/clientdashboard.page"));
 const ClientProjectsPage = lazy(() => import("./pages/clientprojects.page"));
 const ClientTasksPage = lazy(() => import("./pages/clienttasks.page"));
 const ClientInvoicesPage = lazy(() => import("./pages/clientinvoices.page"));
@@ -687,7 +688,7 @@ const AppRoutes = () => {
           </ClientRoute>
         }
       >
-        <Route index element={<LazyWrapper component={ClientProjectsPage} />} />
+        <Route index element={<LazyWrapper component={ClientDashboardPage} />} />
         <Route
           path="projects"
           element={<LazyWrapper component={ClientProjectsPage} />}
