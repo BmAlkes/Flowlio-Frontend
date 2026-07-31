@@ -440,17 +440,19 @@ export const ClientMediaCenter: React.FC = () => {
                     >
                       <Download className="w-3.5 h-3.5" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="w-10 h-9 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white backdrop-blur-md rounded-xl p-0 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteClick(file);
-                      }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                    {file.uploadedBy === userData?.user?.id && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="w-10 h-9 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white backdrop-blur-md rounded-xl p-0 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(file);
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
                   </Flex>
                 </Stack>
               </Box>

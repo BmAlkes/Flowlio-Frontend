@@ -9,7 +9,7 @@ import { Center } from "@/components/ui/center";
 import { ColumnDef } from "@tanstack/react-table";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import { format } from "date-fns";
-import { Download, CheckCircle2, XCircle, Clock, FileText } from "lucide-react";
+import { Download, CheckCircle2, XCircle, Clock, FileText, X } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { ProposalPDF, type ProposalData } from "@/components/ai assist/ProposalPDF";
 import {
@@ -19,6 +19,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SignatureModal, type SignaturePayload } from "@/components/proposals/SignatureModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Proposal {
   id: string;
@@ -57,6 +67,7 @@ const ClientProposalsPage = () => {
   const queryClient = useQueryClient();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [signingProposal, setSigningProposal] = useState<Proposal | null>(null);
+  const [rejectingProposal, setRejectingProposal] = useState<Proposal | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["client-proposals"],
@@ -84,6 +95,7 @@ const ClientProposalsPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-proposals"] });
+      setRejectingProposal(null);
     },
   });
 
@@ -217,6 +229,29 @@ const ClientProposalsPage = () => {
                 </Tooltip>
               </TooltipProvider>
             )}
+
+            {/* Reject */}
+            {isPending && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-[#EF5350] hover:bg-red-600 border-none w-9 h-9 p-0 rounded-md"
+                      onClick={() => setRejectingProposal(proposal)}
+                      disabled={isApprovingThis || isRejectingThis}
+                    >
+                      {isRejectingThis ? (
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
+                      ) : (
+                        <X className="text-white w-4 h-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Reject Proposal</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </Center>
         );
       },
@@ -269,6 +304,29 @@ const ClientProposalsPage = () => {
           if (signingProposal) approveMutation.mutate({ id: signingProposal.id, signature });
         }}
       />
+
+      <AlertDialog open={!!rejectingProposal} onOpenChange={(open) => !open && setRejectingProposal(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject this proposal?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will let the agency know "{rejectingProposal?.projectTitle}" was not approved. You can discuss
+              changes with them directly — this action cannot be undone from your side.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-[#EF5350] hover:bg-red-600 text-white"
+              onClick={() => {
+                if (rejectingProposal) rejectMutation.mutate(rejectingProposal.id);
+              }}
+            >
+              Reject Proposal
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageWrapper>
   );
 };
