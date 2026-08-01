@@ -8,7 +8,7 @@ import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Flex } from "@/components/ui/flex";
 import { addDays, format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarIcon } from "@/components/customeIcons";
 
 export const ViewerCalendarPopOver: React.FC<{
@@ -24,14 +24,22 @@ export const ViewerCalendarPopOver: React.FC<{
   onApply,
   onReset,
 }) => {
-  const [uncontrolled, setUncontrolled] = useState<DateRange>({
-    from: addDays(new Date(), -2),
-    to: addDays(new Date(), 2),
-  });
-  const selected = controlled || uncontrolled;
+  // Local, always-editable selection driving the calendar UI. Seeded from the
+  // applied `controlled` range whenever it changes externally (e.g. Reset),
+  // but every date pick updates this directly — it must never be shadowed by
+  // `controlled`, or the calendar freezes on the first applied range and
+  // future picks stop showing (the bug this replaced).
+  const [selected, setSelectedState] = useState<DateRange>(
+    controlled || { from: addDays(new Date(), -2), to: addDays(new Date(), 2) }
+  );
+
+  useEffect(() => {
+    if (controlled) setSelectedState(controlled);
+  }, [controlled]);
+
   const setSelected = (r: DateRange) => {
+    setSelectedState(r);
     if (onChange) onChange(r);
-    else setUncontrolled(r);
   };
   const canApply = !!(selected?.from && selected?.to);
 
@@ -66,8 +74,7 @@ export const ViewerCalendarPopOver: React.FC<{
             className="flex-1 mt-5"
             variant="outline"
             onClick={() => {
-              if (!controlled)
-                setUncontrolled({ from: undefined, to: undefined });
+              setSelectedState({ from: undefined, to: undefined });
               if (onReset) onReset();
             }}
           >
