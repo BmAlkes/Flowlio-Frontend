@@ -39,7 +39,15 @@ interface Project {
   projectName: string;
 }
 
-export const ClientMediaCenter: React.FC = () => {
+interface ClientMediaCenterProps {
+  /** When set (org-admin viewing a specific client), scopes media to this
+   * client instead of inferring it from the logged-in user's own clientId. */
+  clientIdOverride?: string;
+}
+
+export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
+  clientIdOverride,
+}) => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [projectFilter, setProjectFilter] = useState<string>("all");
@@ -48,7 +56,7 @@ export const ClientMediaCenter: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<MediaCenterItem | null>(null);
 
   const { data: userData } = useUser();
-  const clientId = userData?.user?.clientId;
+  const clientId = clientIdOverride || userData?.user?.clientId;
 
   // Fetch projects
   const { data: projectsResponse, isLoading: projectsLoading } =

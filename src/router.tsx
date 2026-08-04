@@ -212,6 +212,7 @@ const ClientManagementPage = lazy(
   () => import("./pages/clientmanagement.page"),
 );
 const CreateClientPage = lazy(() => import("./pages/createclient.page"));
+const ClientDetailPage = lazy(() => import("./pages/clientdetail.page"));
 const LeadsPage = lazy(() => import("./pages/leads.page"));
 const LeadsWebhooksPage = lazy(() => import("./pages/leads-webhooks.page"));
 const LeadsWebhookDetailPage = lazy(() => import("./pages/leads-webhook-detail.page"));
@@ -518,6 +519,14 @@ const AppRoutes = () => {
             </AdminManagerOrOrgOwnerRoute>
           }
           path="client-management/create-client"
+        />
+        <Route
+          element={
+            <AdminManagerOrOrgOwnerRoute>
+              <LazyWrapper component={ClientDetailPage} />
+            </AdminManagerOrOrgOwnerRoute>
+          }
+          path="client-management/:clientId"
         />
         <Route
           element={

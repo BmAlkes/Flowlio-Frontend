@@ -11,27 +11,9 @@ import {
 } from "../ui/tooltip";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  FaRegTrashAlt,
-  FaInstagram,
-  FaTwitter,
-  FaFacebook,
-  FaLinkedin,
-  FaYoutube,
-  FaTiktok,
-  FaSnapchat,
-  FaPinterest,
-} from "react-icons/fa";
-import { Eye, Pencil, KeyRound, Bell, Trash2 } from "lucide-react";
-import { differenceInDays, isPast, format } from "date-fns";
-import { FollowUpPicker } from "./FollowUpPicker";
-import { useSetFollowUp } from "@/hooks/useCRM";
-import {
-  GeneralModal,
-  useGeneralModalDisclosure,
-} from "../common/generalmodal";
-import { useState, useEffect } from "react";
-import { Stack } from "../ui/stack";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { Eye, Pencil, KeyRound } from "lucide-react";
+import { useState } from "react";
 import { useFetchOrganizationClients } from "@/hooks/usefetchclients";
 import { useDeleteClient } from "@/hooks/usedeleteclient";
 import { useUpdateClient } from "@/hooks/useupdateclient";
@@ -48,7 +30,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { TableSkeleton, ErrorState } from "@/components/skeletons";
-import { ClientTimeline } from "./ClientTimeline";
 // import { GrantAccessModal } from "./GrantAccessModal";
 
 // Mock data for fallback (will be replaced by API data)
@@ -111,9 +92,6 @@ const PAGE_SIZE = 10;
 
 export const ClientManagementTable = () => {
   const { t } = useTranslation();
-  const props = useGeneralModalDisclosure();
-  const [selectedClient, setSelectedClient] = useState<Data | null>(null);
-  const [showFollowUp, setShowFollowUp] = useState(false);
 
   // Client-side pagination state
   const [pageIndex, setPageIndex] = useState(0);
@@ -142,7 +120,6 @@ export const ClientManagementTable = () => {
     useUpdateClient();
   const { mutate: bulkUpdatePositions, isPending: isUpdatingPositions } =
     useBulkUpdateClientPositions();
-  const setFollowUp = useSetFollowUp();
 
   const handleStatusChange = (clientId: string, newStatus: string) => {
     updateClient(
@@ -165,32 +142,8 @@ export const ClientManagementTable = () => {
     );
   };
 
-  const openViewClientModal = (client: Data) => {
-    setSelectedClient(client);
-    setShowFollowUp(false);
-    props.onOpenChange(true);
-  };
-
-  // selectedClient is a snapshot taken when the modal opened, so once a
-  // follow-up mutation refetches the list, pull the fresh followUpAt back
-  // into it (everything else about the client can't change from this modal).
-  useEffect(() => {
-    if (!selectedClient || !clientsData?.data) return;
-    const fresh = clientsData.data.find((c: any) => c.id === selectedClient.id);
-    if (fresh && (fresh.followUpAt !== selectedClient.followUpAt || fresh.followUpNote !== selectedClient.followUpNote)) {
-      setSelectedClient((prev) =>
-        prev ? { ...prev, followUpAt: fresh.followUpAt ?? null, followUpNote: fresh.followUpNote ?? null } : prev
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientsData]);
-
-  const handleCancelFollowUp = () => {
-    if (!selectedClient) return;
-    setFollowUp.mutate(
-      { clientId: selectedClient.id, followUpAt: null, followUpNote: null },
-      { onSuccess: () => refetch() }
-    );
+  const openViewClientPage = (client: Data) => {
+    navigate(`/dashboard/client-management/${client.id}`);
   };
 
   const openEditClientModal = (client: Data) => {
@@ -574,7 +527,7 @@ export const ClientManagementTable = () => {
                   <Button
                     variant="outline"
                     className="bg-[#2358B9] border-none w-9 h-9 hover:bg-[#2358B9]/80 cursor-pointer rounded-md "
-                    onClick={() => openViewClientModal(row.original)}
+                    onClick={() => openViewClientPage(row.original)}
                   >
                     <Eye className="text-white size-5 " />
                   </Button>
@@ -747,366 +700,7 @@ export const ClientManagementTable = () => {
           onPageChange: (newPage) => setPageIndex(newPage),
         }}
       />
-
-      {/* Edit Client Modal */}
-      {selectedClient && (
-        <GeneralModal open={props.open} onOpenChange={props.onOpenChange} contentProps={{ className: "sm:max-w-5xl w-[95vw] p-0" }}>
-          <Box className="w-full bg-card rounded-xl border-none overflow-y-auto max-h-[90vh]">
-            <Flex className="items-start max-md:flex-col h-full min-h-[600px]">
-              {/* Left Column: Profile, Social, Projects */}
-              <Box className="flex-1 p-8 space-y-8 min-w-0 border-e border-border/50 max-md:border-e-0 max-md:border-b">
-                <Stack className="items-center">
-                  <Box className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-4 ring-4 ring-indigo-50 shadow-lg dark:ring-indigo-900/20">
-                    <img
-                      src={selectedClient.image || "https://github.com/shadcn.png"}
-                      alt="Client"
-                      className="rounded-full w-full h-full object-cover"
-                    />
-                  </Box>
-                  <span className="text-4xl font-black text-foreground capitalize text-center tracking-tight">
-                    {selectedClient.name}
-                  </span>
-                  <span className="inline-block px-5 py-2 rounded-full text-xs font-black mt-3 bg-indigo-600 text-white shadow-md">
-                    {translateClientStatus(selectedClient.status)}
-                  </span>
-                </Stack>
-
-            {/* Social Media Links */}
-            {selectedClient.socialMediaLinks && (
-              <Box className="mt-6">
-                <span className="text-lg font-semibold text-foreground mb-2 block">
-                  {t("clientManagement.viewModal.socialMedia")}
-                </span>
-                <Box className="flex flex-wrap gap-3">
-                  {(() => {
-                    try {
-                      const links =
-                        typeof selectedClient.socialMediaLinks === "string"
-                          ? JSON.parse(selectedClient.socialMediaLinks)
-                          : selectedClient.socialMediaLinks;
-
-                      const socialIcons: Record<string, any> = {
-                        instagram: FaInstagram,
-                        twitter: FaTwitter,
-                        facebook: FaFacebook,
-                        linkedin: FaLinkedin,
-                        youtube: FaYoutube,
-                        tiktok: FaTiktok,
-                        snapchat: FaSnapchat,
-                        pinterest: FaPinterest,
-                      };
-
-                      const socialColors: Record<string, string> = {
-                        instagram: "#E4405F",
-                        twitter: "#1DA1F2",
-                        facebook: "#1877F2",
-                        linkedin: "#0077B5",
-                        youtube: "#FF0000",
-                        tiktok: "#000000",
-                        snapchat: "#FFFC00",
-                        pinterest: "#BD081C",
-                      };
-
-                      return Array.isArray(links) && links.length > 0 ? (
-                        links.map((link: any, index: number) => {
-                          const Icon = socialIcons[link.type] || FaInstagram;
-                          const color = socialColors[link.type] || "#000000";
-                          return (
-                            <a
-                              key={index}
-                              href={link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 p-2 border border-border rounded-lg hover:bg-muted/50 transition-colors"
-                            >
-                              <Icon className="w-5 h-5" style={{ color }} />
-                              <span className="text-sm text-foreground capitalize">
-                                {link.type}
-                              </span>
-                            </a>
-                          );
-                        })
-                      ) : (
-                        <Box className="text-center text-muted-foreground text-sm">
-                          {t("clientManagement.viewModal.noSocialLinks")}
-                        </Box>
-                      );
-                    } catch (err) {
-                      console.error("Error parsing social media links:", err);
-                      return (
-                        <Box className="text-center text-muted-foreground text-sm">
-                          {t("clientManagement.viewModal.loadSocialError")}
-                        </Box>
-                      );
-                    }
-                  })()}
-                </Box>
-              </Box>
-            )}
-
-            {/* Custom Fields Section */}
-            {customFieldsData?.data &&
-              customFieldsData.data.length > 0 &&
-              selectedClient.customFields &&
-              Object.keys(selectedClient.customFields).length > 0 && (
-                <Box className="mt-6">
-                  <span className="text-lg font-semibold text-gray-800 mb-2 block">
-                    {t("clientManagement.viewModal.customFields")}
-                  </span>
-                  <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-                    {customFieldsData.data.map((field) => {
-                      const value = selectedClient.customFields?.[field.id];
-                      if (value === undefined || value === null || value === "")
-                        return null;
-
-                      let displayValue = value;
-                      if (field.type === "boolean") {
-                        displayValue =
-                          value === "true" || value === true
-                            ? t("clientManagement.yes")
-                            : t("clientManagement.no");
-                      } else if (field.type === "date" && value) {
-                        try {
-                          displayValue = new Date(value).toLocaleDateString();
-                        } catch (e) {
-                          displayValue = value;
-                        }
-                      }
-
-                      return (
-                        <Box
-                          key={field.id}
-                          className="p-3 border border-border rounded-lg bg-gray-50/50 flex flex-col overflow-hidden min-w-0"
-                        >
-                          <span className="text-xs font-medium text-muted-foreground block truncate mb-1" title={field.name}>
-                            {field.name}
-                          </span>
-                          <Flex className="items-start gap-2">
-                            {field.type === "select" && field.options && (
-                              <div
-                                className="w-2 h-2 rounded-full mt-1.5 shrink-0"
-                                style={{
-                                  backgroundColor:
-                                    field.options.find(
-                                      (opt: any) => opt.label === value,
-                                    )?.color || "transparent",
-                                }}
-                              />
-                            )}
-                            <span className="text-sm text-gray-800 font-semibold break-words overflow-hidden break-all" style={{ wordBreak: 'break-word' }}>
-                              {String(displayValue)}
-                            </span>
-                          </Flex>
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                </Box>
-              )}
-
-            <Box className="mt-6">
-              <span className="text-lg font-semibold text-gray-800 mb-2 block">
-                {t("clientManagement.viewModal.projects")}
-              </span>
-              {!selectedClient.projects ||
-              selectedClient.projects.length === 0 ? (
-                <Box className="text-center text-muted-foreground">
-                  {t("clientManagement.viewModal.noProjects")}
-                </Box>
-              ) : (
-                <Stack className="gap-4">
-                  {selectedClient.projects?.map((project) => (
-                    <Box
-                      key={project.id}
-                      className="border rounded-lg p-4 shadow-sm bg-muted/50"
-                    >
-                      <Flex className="justify-between items-center mb-2">
-                        <span className="font-bold text-foreground">
-                          {project.name}
-                        </span>
-                        {project.status === "Completed" && (
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
-                            {t("clientManagement.viewModal.completed")}
-                          </span>
-                        )}
-                      </Flex>
-                      <Flex className="items-center gap-2 mb-2">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {t("clientManagement.viewModal.statusLabel")}
-                        </span>
-                        <span
-                          className="text-xs font-semibold"
-                          style={{
-                            color:
-                              project.status === "Completed"
-                                ? "#23B95D"
-                                : "#1797B9",
-                          }}
-                        >
-                          {translateClientStatus(project.status)}
-                        </span>
-                      </Flex>
-                      <Flex className="items-center gap-2 mb-2">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {t("clientManagement.viewModal.completionLabel")}
-                        </span>
-                        <Box className="w-32 h-2 bg-muted rounded">
-                          <Box
-                            className="h-2 bg-blue-500 rounded"
-                            style={{ width: `${project.completionRate}%` }}
-                          />
-                        </Box>
-                        <span className="text-xs font-semibold">
-                          {project.completionRate}%
-                        </span>
-                      </Flex>
-                      <Button
-                        className="bg-gradient-to-r from-blue-500/50 to-cyan-400 text-white py-1 px-4 rounded font-semibold shadow hover:from-blue-600 hover:to-cyan-500 transition cursor-pointer mt-2"
-                        onClick={async () => {
-                          const rawUrl = project.contractFile;
-                          if (!rawUrl) {
-                            alert(
-                              t("clientManagement.viewModal.noContractFile", {
-                                defaultValue: "No contract file available.",
-                              }),
-                            );
-                            return;
-                          }
-
-                          try {
-                            const urlFilename =
-                              rawUrl.split("/").pop()?.split("?")[0] ||
-                              `contract-${selectedClient.name}-${project.name}.pdf`;
-
-                            // Inject fl_attachment to Cloudinary URLs
-                            let downloadUrl = rawUrl;
-                            if (
-                              rawUrl.includes("cloudinary.com") &&
-                              !rawUrl.includes("fl_attachment")
-                            ) {
-                              downloadUrl = rawUrl.replace(
-                                "/upload/",
-                                "/upload/fl_attachment/",
-                              );
-                            }
-
-                            // Fetch as blob to force a local download instead of opening a new tab
-                            const response = await fetch(downloadUrl);
-                            if (!response.ok)
-                              throw new Error("Network response was not ok");
-                            const blob = await response.blob();
-                            const blobUrl = window.URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = blobUrl;
-                            a.download = urlFilename;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(blobUrl);
-                          } catch (err) {
-                            // Fallback to opening the modified URL
-                            let fallbackUrl = rawUrl;
-                            if (
-                              rawUrl.includes("cloudinary.com") &&
-                              !rawUrl.includes("fl_attachment")
-                            ) {
-                              fallbackUrl = rawUrl.replace(
-                                "/upload/",
-                                "/upload/fl_attachment/",
-                              );
-                            }
-                            window.open(fallbackUrl, "_blank");
-                          }
-                        }}
-                      >
-                        {t("clientManagement.viewModal.downloadContract")}
-                      </Button>
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-            </Box>
-
-              </Box>
-
-              {/* Right Column: Interaction Timeline */}
-              <Box className="w-[380px] max-md:w-full p-8 bg-muted/20 h-full flex flex-col border-s border-border/50 max-md:border-s-0">
-                {/* Follow-up reminder */}
-                <Box className="mb-6">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
-                    {t("dashboard.followUps")}
-                  </h3>
-
-                  {selectedClient.followUpAt && !showFollowUp && (() => {
-                    const date = new Date(selectedClient.followUpAt as string);
-                    const overdue = isPast(date);
-                    const daysLeft = differenceInDays(date, new Date());
-                    return (
-                      <Box className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                        overdue
-                          ? "bg-rose-50 dark:bg-rose-900/15 border-rose-200 dark:border-rose-500/30"
-                          : "bg-indigo-50 dark:bg-indigo-900/15 border-indigo-200 dark:border-indigo-500/30"
-                      }`}>
-                        <Bell className={`h-3.5 w-3.5 shrink-0 ${overdue ? "text-rose-500" : "text-indigo-500"}`} />
-                        <Box className="flex-1 min-w-0">
-                          <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
-                            {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
-                          {selectedClient.followUpNote && (
-                            <p className="text-xs text-foreground/80 mt-0.5 break-words">{selectedClient.followUpNote}</p>
-                          )}
-                        </Box>
-                        <button
-                          onClick={() => setShowFollowUp(true)}
-                          className={`text-xs font-semibold transition-colors shrink-0 ${overdue ? "text-rose-600 hover:text-rose-800" : "text-indigo-600 hover:text-indigo-800"}`}
-                        >
-                          {t("pipeline.followUpChange")}
-                        </button>
-                        <button
-                          onClick={handleCancelFollowUp}
-                          disabled={setFollowUp.isPending}
-                          className="text-muted-foreground/90 hover:text-rose-500 transition-colors shrink-0"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </Box>
-                    );
-                  })()}
-
-                  {!selectedClient.followUpAt && !showFollowUp && (
-                    <button
-                      onClick={() => setShowFollowUp(true)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/15 transition-colors w-full"
-                    >
-                      <Bell className="h-3.5 w-3.5 shrink-0" />
-                      <span className="text-xs font-semibold">{t("pipeline.followUpSet")}</span>
-                    </button>
-                  )}
-
-                  {showFollowUp && (
-                    <FollowUpPicker
-                      clientId={selectedClient.id}
-                      onDismiss={() => {
-                        setShowFollowUp(false);
-                        refetch();
-                      }}
-                    />
-                  )}
-                </Box>
-
-                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                  <span className="w-2 h-6 bg-indigo-600 rounded-full" />
-                  Activity Timeline
-                </h3>
-                <Box className="flex-1 overflow-y-auto pe-2 custom-scrollbar">
-                  <ClientTimeline clientId={selectedClient.id} />
-                </Box>
-              </Box>
-            </Flex>
-          </Box>
-        </GeneralModal>
-      )}
     </>
   );
 };
+
