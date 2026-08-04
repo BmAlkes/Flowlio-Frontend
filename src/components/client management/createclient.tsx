@@ -142,6 +142,22 @@ interface ClientFormProps {
   focusPortalAccess?: boolean;
 }
 
+/** `client.socialMediaLinks` is typed as a JSON string, but callers that
+ * fetch the raw client record straight from the API (rather than going
+ * through a table transform that stringifies it first) can hand this an
+ * already-parsed array/object — JSON.parse would then try to parse
+ * "[object Object]" and throw. Accept either shape safely. */
+function parseSocialMediaLinks(value: unknown): SocialMediaLink[] {
+  if (!value) return [];
+  if (typeof value !== "string") return value as SocialMediaLink[];
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.error("Error parsing social media links:", error);
+    return [];
+  }
+}
+
 export const ClientForm = ({
   mode,
   client,
@@ -177,19 +193,7 @@ export const ClientForm = ({
     return () => clearTimeout(timer);
   }, [focusPortalAccess]);
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLink[]>(
-    () => {
-      if (client?.socialMediaLinks) {
-        try {
-          return typeof client.socialMediaLinks === "string"
-            ? JSON.parse(client.socialMediaLinks)
-            : client.socialMediaLinks;
-        } catch (error) {
-          console.error("Error parsing social media links:", error);
-          return [];
-        }
-      }
-      return [];
-    },
+    () => parseSocialMediaLinks(client?.socialMediaLinks),
   );
 
   const isPending = isCreating || isUpdating;
@@ -203,9 +207,7 @@ export const ClientForm = ({
       cpfcnpj: client?.cpfcnpj,
       address: client?.address,
       industry: client?.businessIndustry,
-      socialMediaLinks: client?.socialMediaLinks
-        ? JSON.parse(client.socialMediaLinks)
-        : [],
+      socialMediaLinks: parseSocialMediaLinks(client?.socialMediaLinks),
       customFields: client?.customFields || {},
       portalPassword: "",
       portalAccessEnabled: client?.portalAccessEnabled ?? true,
@@ -215,9 +217,7 @@ export const ClientForm = ({
   // Update form when client data changes (for edit mode)
   useEffect(() => {
     if (client && mode === "edit") {
-      const parsedSocialLinks = client.socialMediaLinks
-        ? JSON.parse(client.socialMediaLinks)
-        : [];
+      const parsedSocialLinks = parseSocialMediaLinks(client.socialMediaLinks);
       form.reset({
         fullname: client.name,
         email: client.email,
