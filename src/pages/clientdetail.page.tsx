@@ -22,6 +22,8 @@ import {
   ChevronRight,
   MoreVertical,
   Plus,
+  Check,
+  FileText,
 } from "lucide-react";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
@@ -50,6 +52,12 @@ import { useFetchOrganizationClients } from "@/hooks/usefetchclients";
 import { useFetchClientProjects } from "@/hooks/useFetchClientProjects";
 import { useFetchClientTasks } from "@/hooks/useFetchClientTasks";
 import { useFetchClientInvoices, type ClientInvoice } from "@/hooks/useFetchClientInvoices";
+import { useFetchClientProposals } from "@/hooks/useFetchClientProposals";
+import {
+  useFetchProjectMilestones,
+  useUpdateMilestone,
+  type MilestoneStatus,
+} from "@/hooks/useProjectMilestones";
 import { useClientTimeline } from "@/hooks/useCRM";
 import { useUpdateClient } from "@/hooks/useupdateclient";
 import { useDeleteClient } from "@/hooks/usedeleteclient";
@@ -86,6 +94,14 @@ const INVOICE_STATUS_STYLES: Record<string, string> = {
   paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   overdue: "bg-rose-50 text-rose-700 border-rose-200",
+};
+
+const PROPOSAL_STATUS_STYLES: Record<string, string> = {
+  draft: "bg-gray-100 text-gray-600 border-gray-200",
+  sent: "bg-blue-50 text-blue-700 border-blue-200",
+  under_review: "bg-amber-50 text-amber-700 border-amber-200",
+  accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  rejected: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 const TASK_STATUS_ICON: Record<string, React.ReactNode> = {
@@ -143,16 +159,20 @@ const ClientDetailPage = () => {
     useFetchClientTasks(clientId, organizationId || undefined);
   const { data: invoicesResponse, isLoading: isLoadingInvoices } =
     useFetchClientInvoices(clientId, organizationId || undefined);
+  const { data: proposalsResponse, isLoading: isLoadingProposals } =
+    useFetchClientProposals(clientId);
   const { data: timeline, isLoading: isLoadingTimeline } = useClientTimeline(
     clientId || "",
   );
 
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
+  const updateMilestone = useUpdateMilestone();
 
   const projects = projectsResponse?.data?.projects || [];
   const tasks = tasksResponse?.data?.tasks || [];
   const invoices: ClientInvoice[] = invoicesResponse?.data?.invoices || [];
+  const proposals = proposalsResponse?.data?.proposals || [];
 
   const taskCounts = useMemo(() => {
     const norm = (s: string) => s?.toLowerCase().replace(" ", "_");
@@ -191,13 +211,26 @@ const ClientDetailPage = () => {
 
   const recentActivity = useMemo(() => (timeline || []).slice(0, 4), [timeline]);
 
-  const latestInvoice = useMemo(
+  const latestProposal = useMemo(
     () =>
-      [...invoices].sort(
+      [...proposals].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )[0],
-    [invoices],
+    [proposals],
   );
+
+  const { data: milestonesResponse, isLoading: isLoadingMilestones } =
+    useFetchProjectMilestones(activeProject?.id);
+  const milestones = milestonesResponse?.data || [];
+
+  const handleToggleMilestone = (milestoneId: string, status: MilestoneStatus) => {
+    if (!activeProject) return;
+    updateMilestone.mutate({
+      projectId: activeProject.id,
+      milestoneId,
+      data: { status: status === "completed" ? "pending" : "completed" },
+    });
+  };
 
   const outstandingBalance = useMemo(
     () =>
@@ -492,16 +525,16 @@ const ClientDetailPage = () => {
                         })}
                       </p>
                     ) : (
-                      <Stack
-                        className="gap-4 cursor-pointer group"
-                        onClick={() =>
-                          navigate(`/dashboard/project/view/${activeProject.id}`)
-                        }
-                      >
+                      <Stack className="gap-4">
                         <Flex className="items-center justify-between gap-2">
-                          <p className="font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+                          <button
+                            onClick={() =>
+                              navigate(`/dashboard/project/view/${activeProject.id}`)
+                            }
+                            className="font-semibold text-foreground hover:text-blue-600 transition-colors text-left"
+                          >
                             {activeProject.projectName}
-                          </p>
+                          </button>
                           <span
                             className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${
                               PROJECT_STATUS_STYLES[activeProject.status] ||
@@ -529,6 +562,62 @@ const ClientDetailPage = () => {
                             </span>
                           )}
                         </Flex>
+
+                        {/* Milestone checklist */}
+                        {isLoadingMilestones ? (
+                          <Stack className="gap-2">
+                            {[1, 2, 3].map((i) => (
+                              <Skeleton key={i} className="h-6 w-full rounded-md" />
+                            ))}
+                          </Stack>
+                        ) : milestones.length > 0 ? (
+                          <Stack className="gap-2.5">
+                            {milestones.map((m) => (
+                              <Flex
+                                key={m.id}
+                                className="items-center gap-2.5 cursor-pointer group/milestone"
+                                onClick={() => handleToggleMilestone(m.id, m.status)}
+                              >
+                                <span
+                                  className={`h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                    m.status === "completed"
+                                      ? "bg-emerald-500 border-emerald-500"
+                                      : m.status === "in_progress"
+                                        ? "border-blue-500"
+                                        : "border-muted-foreground/30 group-hover/milestone:border-muted-foreground/60"
+                                  }`}
+                                >
+                                  {m.status === "completed" && (
+                                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                                  )}
+                                  {m.status === "in_progress" && (
+                                    <span className="h-2 w-2 rounded-full bg-blue-500" />
+                                  )}
+                                </span>
+                                <Stack className="gap-0">
+                                  <span
+                                    className={`text-sm ${
+                                      m.status === "completed"
+                                        ? "text-muted-foreground line-through"
+                                        : "text-foreground font-medium"
+                                    }`}
+                                  >
+                                    {m.title}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {m.status === "completed" && m.completedAt
+                                      ? `${t("clientManagement.overview.completedOn", { defaultValue: "Completed on" })} ${format(new Date(m.completedAt), "MMM d, yyyy")}`
+                                      : t(`clientManagement.overview.milestoneStatus.${m.status}`, {
+                                          defaultValue:
+                                            m.status === "in_progress" ? "In Progress" : "Pending",
+                                        })}
+                                  </span>
+                                </Stack>
+                              </Flex>
+                            ))}
+                          </Stack>
+                        ) : null}
+
                         <div>
                           <Flex className="items-center justify-between mb-1.5">
                             <span className="text-xs text-muted-foreground">
@@ -545,51 +634,55 @@ const ClientDetailPage = () => {
                   </CardContent>
                 </Card>
 
-                {/* Latest invoice */}
+                {/* Latest proposal */}
                 <Card className="shadow-none">
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Receipt className="h-4 w-4 text-muted-foreground" />
-                      {t("clientManagement.overview.latestInvoice", { defaultValue: "Latest Invoice" })}
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      {t("clientManagement.overview.proposal", { defaultValue: "Proposal" })}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    {isLoadingInvoices ? (
+                    {isLoadingProposals ? (
                       <Skeleton className="h-20 w-full rounded-lg" />
-                    ) : !latestInvoice ? (
+                    ) : !latestProposal ? (
                       <p className="text-sm text-muted-foreground py-6 text-center">
-                        {t("clientManagement.overview.noInvoices", { defaultValue: "No invoices yet." })}
+                        {t("clientManagement.overview.noProposals", { defaultValue: "No proposals yet." })}
                       </p>
                     ) : (
                       <Stack className="gap-3">
-                        <Flex className="items-center justify-between">
-                          <span className="text-sm font-medium text-foreground">
-                            {latestInvoice.invoiceNumber}
+                        <Flex className="items-center justify-between gap-2">
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {latestProposal.title}
                           </span>
                           <span
-                            className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
-                              INVOICE_STATUS_STYLES[latestInvoice.status?.toLowerCase()] ||
+                            className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${
+                              PROPOSAL_STATUS_STYLES[latestProposal.status?.toLowerCase()] ||
                               "bg-muted text-foreground"
                             }`}
                           >
-                            {latestInvoice.status}
+                            {latestProposal.status?.replace("_", " ")}
                           </span>
                         </Flex>
-                        <p className="text-xs text-muted-foreground">
-                          {t("projects.dueDate", { defaultValue: "Due" })}:{" "}
-                          {format(new Date(latestInvoice.dueDate), "MMM d, yyyy")}
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          ${parseFloat(latestInvoice.amount).toLocaleString()}
-                        </p>
-                        {latestInvoice.pdfUrl && (
+                        {latestProposal.sentAt && (
+                          <p className="text-xs text-muted-foreground">
+                            {t("clientManagement.overview.sent", { defaultValue: "Sent" })}:{" "}
+                            {format(new Date(latestProposal.sentAt), "MMM d, yyyy")}
+                          </p>
+                        )}
+                        {latestProposal.totalValue && (
+                          <p className="text-2xl font-bold text-foreground">
+                            ${parseFloat(latestProposal.totalValue).toLocaleString()}
+                          </p>
+                        )}
+                        {latestProposal.pdfUrl && (
                           <Button
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            onClick={() => window.open(latestInvoice.pdfUrl, "_blank")}
+                            onClick={() => window.open(latestProposal.pdfUrl!, "_blank")}
                           >
-                            {t("clientManagement.overview.viewInvoice", { defaultValue: "View Invoice" })}
+                            {t("clientManagement.overview.viewProposal", { defaultValue: "View Proposal" })}
                           </Button>
                         )}
                       </Stack>
