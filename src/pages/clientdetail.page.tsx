@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { format, isPast } from "date-fns";
 import {
   ArrowLeft,
-  Building2,
   Mail,
   Phone,
   MapPin,
@@ -20,7 +19,9 @@ import {
   Download,
   AlertTriangle,
   Clock,
-  ExternalLink,
+  ChevronRight,
+  MoreVertical,
+  Plus,
 } from "lucide-react";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
@@ -38,6 +39,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFetchOrganizationClients } from "@/hooks/usefetchclients";
 import { useFetchClientProjects } from "@/hooks/useFetchClientProjects";
@@ -52,12 +59,12 @@ import { ClientMediaCenter } from "@/components/client management/clientmediacen
 import { toast } from "sonner";
 
 const STATUS_STYLES: Record<string, string> = {
-  Active: "text-white bg-green-600",
-  Onboarding: "text-white bg-blue-500",
-  "On Hold": "text-white bg-amber-500",
-  Inactive: "text-white bg-gray-500",
-  Completed: "text-white bg-emerald-600",
-  Churned: "text-white bg-rose-500",
+  Active: "bg-green-50 text-green-700 border-green-200",
+  Onboarding: "bg-blue-50 text-blue-700 border-blue-200",
+  "On Hold": "bg-amber-50 text-amber-700 border-amber-200",
+  Inactive: "bg-gray-100 text-gray-600 border-gray-200",
+  Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Churned: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 const STATUS_OPTIONS = [
@@ -70,9 +77,15 @@ const STATUS_OPTIONS = [
 ];
 
 const PROJECT_STATUS_STYLES: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  ongoing: "bg-blue-100 text-blue-800 border-blue-200",
-  completed: "bg-green-100 text-green-800 border-green-200",
+  pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  ongoing: "bg-blue-50 text-blue-700 border-blue-200",
+  completed: "bg-green-50 text-green-700 border-green-200",
+};
+
+const INVOICE_STATUS_STYLES: Record<string, string> = {
+  paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  overdue: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 const TASK_STATUS_ICON: Record<string, React.ReactNode> = {
@@ -83,6 +96,33 @@ const TASK_STATUS_ICON: Record<string, React.ReactNode> = {
   "to do": <CircleDashed className="h-4 w-4 text-muted-foreground" />,
 };
 
+/** Flat key/value row used in the "Client Overview" info list. */
+const InfoRow = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <Flex className="items-start justify-between gap-3 py-1.5">
+    <span className="text-sm text-muted-foreground shrink-0">{label}</span>
+    <span className="text-sm font-medium text-foreground text-right min-w-0">
+      {children}
+    </span>
+  </Flex>
+);
+
+/** "View all →" link that switches to another tab within this page. */
+const ViewAllLink = ({ onClick }: { onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="flex items-center gap-0.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+  >
+    View all
+    <ChevronRight className="h-3 w-3" />
+  </button>
+);
+
 const ClientDetailPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -91,6 +131,7 @@ const ClientDetailPage = () => {
   const organizationId = userData?.user?.organizationId;
 
   const [statusUpdating, setStatusUpdating] = useState(false);
+  const [tab, setTab] = useState("overview");
 
   const { data: clientsData, isLoading: isLoadingClients } =
     useFetchOrganizationClients();
@@ -148,7 +189,15 @@ const ClientDetailPage = () => {
     [projects],
   );
 
-  const recentActivity = useMemo(() => (timeline || []).slice(0, 5), [timeline]);
+  const recentActivity = useMemo(() => (timeline || []).slice(0, 4), [timeline]);
+
+  const latestInvoice = useMemo(
+    () =>
+      [...invoices].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )[0],
+    [invoices],
+  );
 
   const outstandingBalance = useMemo(
     () =>
@@ -221,10 +270,11 @@ const ClientDetailPage = () => {
   }
 
   const initials = client.name?.charAt(0)?.toUpperCase() || "?";
+  const statusStyle = STATUS_STYLES[client.status] || "bg-muted text-foreground border-border";
 
   return (
     <PageWrapper className="mt-6">
-      <Stack className="gap-6 p-6 pb-10">
+      <Stack className="gap-5 p-6 pb-10">
         {/* Back link */}
         <button
           onClick={() => navigate("/dashboard/client-management")}
@@ -235,279 +285,439 @@ const ClientDetailPage = () => {
         </button>
 
         {/* Header */}
-        <Card>
-          <CardContent className="p-6">
-            <Flex className="items-start justify-between gap-4 max-md:flex-col">
-              <Flex className="items-start gap-4 min-w-0">
-                <Avatar className="h-16 w-16 rounded-2xl shrink-0">
-                  <AvatarImage src={client.image} />
-                  <AvatarFallback className="rounded-2xl bg-muted text-muted-foreground text-xl font-semibold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <Stack className="gap-1.5 min-w-0">
-                  <Flex className="items-center gap-3 flex-wrap">
-                    <h1 className="text-2xl font-semibold text-foreground truncate">
-                      {client.name}
-                    </h1>
-                    <Select
-                      value={client.status}
-                      onValueChange={handleStatusChange}
-                      disabled={statusUpdating}
-                    >
-                      <SelectTrigger
-                        size="sm"
-                        className={`h-7 text-xs font-semibold border-none rounded-full px-3 ${
-                          STATUS_STYLES[client.status] || "bg-muted text-foreground"
-                        }`}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {t(`clientManagement.clientStatuses.${s}`, {
-                              defaultValue: s,
-                            })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Flex>
-                  <Flex className="items-center gap-1.5 text-sm text-muted-foreground">
-                    <Building2 className="h-3.5 w-3.5 shrink-0" />
-                    {client.businessIndustry || t("clientManagement.notAvailable")}
-                  </Flex>
-                  <Flex className="items-center gap-4 flex-wrap text-sm text-muted-foreground">
-                    {client.email && (
-                      <Flex className="items-center gap-1.5">
-                        <Mail className="h-3.5 w-3.5 shrink-0" />
-                        {client.email}
-                      </Flex>
-                    )}
-                    {client.phone && (
-                      <Flex className="items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        {client.phone}
-                      </Flex>
-                    )}
-                    {client.address && (
-                      <Flex className="items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 shrink-0" />
-                        {client.address}
-                      </Flex>
-                    )}
-                  </Flex>
-                </Stack>
-              </Flex>
-
-              <Flex className="gap-2 shrink-0">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    navigate("/dashboard/client-management/create-client", {
-                      state: { mode: "edit", client },
-                    })
-                  }
+        <Flex className="items-start justify-between gap-4 max-md:flex-col">
+          <Flex className="items-start gap-4 min-w-0">
+            <Avatar className="h-14 w-14 rounded-2xl shrink-0">
+              <AvatarImage src={client.image} />
+              <AvatarFallback className="rounded-2xl bg-slate-900 text-white text-lg font-semibold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <Stack className="gap-2 min-w-0">
+              <Flex className="items-center gap-3 flex-wrap">
+                <h1 className="text-2xl font-semibold text-foreground truncate">
+                  {client.name}
+                </h1>
+                <Select
+                  value={client.status}
+                  onValueChange={handleStatusChange}
+                  disabled={statusUpdating}
                 >
-                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                  {t("clientManagement.editClient")}
+                  <SelectTrigger
+                    size="sm"
+                    className={`h-6 text-xs font-semibold rounded-full px-2.5 border ${statusStyle}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {t(`clientManagement.clientStatuses.${s}`, {
+                          defaultValue: s,
+                        })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Flex>
+              <Flex className="items-center gap-4 flex-wrap text-sm text-muted-foreground">
+                {client.email && (
+                  <a
+                    href={`mailto:${client.email}`}
+                    className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                  >
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    {client.email}
+                  </a>
+                )}
+                {client.phone && (
+                  <Flex className="items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5 shrink-0" />
+                    {client.phone}
+                  </Flex>
+                )}
+                {client.address && (
+                  <Flex className="items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    {client.address}
+                  </Flex>
+                )}
+              </Flex>
+              <Flex className="items-center gap-4 flex-wrap text-xs text-muted-foreground">
+                <span>
+                  {t("clientManagement.overview.clientSince", { defaultValue: "Client since" })}:{" "}
+                  <span className="font-medium text-foreground">
+                    {format(new Date(client.createdAt), "MMM d, yyyy")}
+                  </span>
+                </span>
+                {recentActivity[0] && (
+                  <span>
+                    {t("clientManagement.overview.lastActivity", { defaultValue: "Last activity" })}:{" "}
+                    <span className="font-medium text-foreground">
+                      {format(new Date(recentActivity[0].createdAt), "MMM d, yyyy")}
+                    </span>
+                  </span>
+                )}
+              </Flex>
+            </Stack>
+          </Flex>
+
+          <Flex className="gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                navigate("/dashboard/client-management/create-client", {
+                  state: { mode: "edit", client },
+                })
+              }
+            >
+              <Pencil className="h-3.5 w-3.5 mr-1.5" />
+              {t("clientManagement.editClient")}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() =>
+                navigate(`/dashboard/project/create-project?clientId=${clientId}`)
+              }
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              {t("clientManagement.overview.newProject", { defaultValue: "New Project" })}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="shrink-0">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
                   onClick={() =>
                     navigate("/dashboard/client-management/create-client", {
                       state: { mode: "edit", client, focusPortalAccess: true },
                     })
                   }
                 >
-                  <KeyRound className="h-3.5 w-3.5 mr-1.5" />
+                  <KeyRound className="h-3.5 w-3.5 mr-2" />
                   {t("clientManagement.grantPortalAccess")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-rose-600 focus:text-rose-700"
                   onClick={handleDelete}
                   disabled={deleteClient.isPending}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </Flex>
-            </Flex>
-          </CardContent>
-        </Card>
-
-        {/* Tasks overview stat cards */}
-        {isLoadingTasks ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-indigo-100 text-indigo-600">
-                  <ListTodo className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-foreground">{taskCounts.total}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("clientManagement.overview.totalTasks", { defaultValue: "Total Tasks" })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-emerald-100 text-emerald-600">
-                  <CheckCircle2 className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-foreground">{taskCounts.completed}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("clientManagement.overview.completed", { defaultValue: "Completed" })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-blue-100 text-blue-600">
-                  <CircleDot className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-foreground">{taskCounts.inProgress}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("clientManagement.overview.inProgress", { defaultValue: "In Progress" })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-amber-100 text-amber-600">
-                  <CircleDashed className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-foreground">{taskCounts.pending}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("clientManagement.overview.pending", { defaultValue: "Pending" })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                  <Trash2 className="h-3.5 w-3.5 mr-2" />
+                  {t("clientManagement.deleteClient")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Flex>
+        </Flex>
 
         {/* Tabs */}
-        <Tabs defaultValue="overview">
-          <TabsList>
-            <TabsTrigger value="overview">
-              {t("clientManagement.tabs.overview", { defaultValue: "Overview" })}
-            </TabsTrigger>
-            <TabsTrigger value="projects">
-              {t("clientManagement.tabs.projects", { defaultValue: "Projects" })}
-            </TabsTrigger>
-            <TabsTrigger value="tasks">
-              {t("clientManagement.tabs.tasks", { defaultValue: "Tasks" })}
-            </TabsTrigger>
-            <TabsTrigger value="activity">
-              {t("clientManagement.tabs.activity", { defaultValue: "Activity" })}
-            </TabsTrigger>
-            <TabsTrigger value="files">
-              {t("clientManagement.tabs.files", { defaultValue: "Files" })}
-            </TabsTrigger>
-            <TabsTrigger value="invoices">
-              {t("clientManagement.tabs.invoices", { defaultValue: "Invoices" })}
-            </TabsTrigger>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none border-b border-border justify-start w-full">
+            {[
+              ["overview", t("clientManagement.tabs.overview", { defaultValue: "Overview" })],
+              ["projects", t("clientManagement.tabs.projects", { defaultValue: "Projects" })],
+              ["tasks", t("clientManagement.tabs.tasks", { defaultValue: "Tasks" })],
+              ["activity", t("clientManagement.tabs.activity", { defaultValue: "Activity" })],
+              ["files", t("clientManagement.tabs.files", { defaultValue: "Files" })],
+              ["invoices", t("clientManagement.tabs.invoices", { defaultValue: "Invoices" })],
+            ].map(([value, label]) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0.5 pb-3 text-sm text-muted-foreground data-[state=active]:text-foreground font-medium"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           {/* Overview */}
-          <TabsContent value="overview" className="mt-4">
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Active project */}
-              <Card>
+          <TabsContent value="overview" className="mt-5">
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5">
+              {/* Client Overview */}
+              <Card className="shadow-none">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                    {t("clientManagement.overview.activeProject", {
-                      defaultValue: "Active Project",
+                  <CardTitle className="text-sm">
+                    {t("clientManagement.overview.clientOverview", {
+                      defaultValue: "Client Overview",
                     })}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  {isLoadingProjects ? (
-                    <Skeleton className="h-28 w-full rounded-lg" />
-                  ) : !activeProject ? (
+                <CardContent className="pt-0">
+                  <InfoRow label={t("clientManagement.overview.status", { defaultValue: "Status" })}>
+                    <span className={`inline-flex text-xs px-2 py-0.5 rounded-full border font-semibold ${statusStyle}`}>
+                      {t(`clientManagement.clientStatuses.${client.status}`, { defaultValue: client.status })}
+                    </span>
+                  </InfoRow>
+                  <InfoRow label={t("table.industry")}>
+                    {client.businessIndustry || t("clientManagement.notAvailable")}
+                  </InfoRow>
+                  <InfoRow label={t("table.email")}>
+                    <span className="break-all">{client.email || t("clientManagement.notAvailable")}</span>
+                  </InfoRow>
+                  <InfoRow label={t("table.vat")}>
+                    {client.cpfcnpj || t("clientManagement.notAvailable")}
+                  </InfoRow>
+                  <InfoRow label={t("clientManagement.viewModal.phoneLabel", { defaultValue: "Phone" })}>
+                    {client.phone || t("clientManagement.notAvailable")}
+                  </InfoRow>
+                  <InfoRow label={t("table.address")}>
+                    {client.address || t("clientManagement.notAvailable")}
+                  </InfoRow>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_260px] gap-5 items-start">
+                {/* Active project */}
+                <Card className="shadow-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                      {t("clientManagement.overview.activeProject", {
+                        defaultValue: "Active Project",
+                      })}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {isLoadingProjects ? (
+                      <Skeleton className="h-28 w-full rounded-lg" />
+                    ) : !activeProject ? (
+                      <p className="text-sm text-muted-foreground py-6 text-center">
+                        {t("clientManagement.overview.noActiveProject", {
+                          defaultValue: "No active project.",
+                        })}
+                      </p>
+                    ) : (
+                      <Stack
+                        className="gap-4 cursor-pointer group"
+                        onClick={() =>
+                          navigate(`/dashboard/project/view/${activeProject.id}`)
+                        }
+                      >
+                        <Flex className="items-center justify-between gap-2">
+                          <p className="font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+                            {activeProject.projectName}
+                          </p>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${
+                              PROJECT_STATUS_STYLES[activeProject.status] ||
+                              "bg-muted text-foreground"
+                            }`}
+                          >
+                            {activeProject.status}
+                          </span>
+                        </Flex>
+                        <Flex className="items-center gap-5 text-xs text-muted-foreground">
+                          {activeProject.startDate && (
+                            <span>
+                              {t("projects.startDate")}:{" "}
+                              <span className="font-medium text-foreground">
+                                {format(new Date(activeProject.startDate), "MMM d, yyyy")}
+                              </span>
+                            </span>
+                          )}
+                          {activeProject.endDate && (
+                            <span>
+                              {t("projects.endDate")}:{" "}
+                              <span className="font-medium text-foreground">
+                                {format(new Date(activeProject.endDate), "MMM d, yyyy")}
+                              </span>
+                            </span>
+                          )}
+                        </Flex>
+                        <div>
+                          <Flex className="items-center justify-between mb-1.5">
+                            <span className="text-xs text-muted-foreground">
+                              {t("clientManagement.overview.overallProgress", { defaultValue: "Overall Progress" })}
+                            </span>
+                            <span className="text-xs font-bold text-foreground">
+                              {activeProject.progress ?? 0}%
+                            </span>
+                          </Flex>
+                          <Progress value={activeProject.progress ?? 0} />
+                        </div>
+                      </Stack>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Latest invoice */}
+                <Card className="shadow-none">
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Receipt className="h-4 w-4 text-muted-foreground" />
+                      {t("clientManagement.overview.latestInvoice", { defaultValue: "Latest Invoice" })}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {isLoadingInvoices ? (
+                      <Skeleton className="h-20 w-full rounded-lg" />
+                    ) : !latestInvoice ? (
+                      <p className="text-sm text-muted-foreground py-6 text-center">
+                        {t("clientManagement.overview.noInvoices", { defaultValue: "No invoices yet." })}
+                      </p>
+                    ) : (
+                      <Stack className="gap-3">
+                        <Flex className="items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">
+                            {latestInvoice.invoiceNumber}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full border font-medium ${
+                              INVOICE_STATUS_STYLES[latestInvoice.status?.toLowerCase()] ||
+                              "bg-muted text-foreground"
+                            }`}
+                          >
+                            {latestInvoice.status}
+                          </span>
+                        </Flex>
+                        <p className="text-xs text-muted-foreground">
+                          {t("projects.dueDate", { defaultValue: "Due" })}:{" "}
+                          {format(new Date(latestInvoice.dueDate), "MMM d, yyyy")}
+                        </p>
+                        <p className="text-2xl font-bold text-foreground">
+                          ${parseFloat(latestInvoice.amount).toLocaleString()}
+                        </p>
+                        {latestInvoice.pdfUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => window.open(latestInvoice.pdfUrl, "_blank")}
+                          >
+                            {t("clientManagement.overview.viewInvoice", { defaultValue: "View Invoice" })}
+                          </Button>
+                        )}
+                      </Stack>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Tasks overview */}
+            <Card className="shadow-none mt-5">
+              <CardHeader>
+                <CardTitle className="text-sm">
+                  {t("clientManagement.overview.tasksOverview", { defaultValue: "Tasks Overview" })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {isLoadingTasks ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      {
+                        icon: ListTodo,
+                        value: taskCounts.total,
+                        label: t("clientManagement.overview.totalTasks", { defaultValue: "Total Tasks" }),
+                        tint: "bg-blue-50 text-blue-600",
+                      },
+                      {
+                        icon: CheckCircle2,
+                        value: taskCounts.completed,
+                        label: t("clientManagement.overview.completed", { defaultValue: "Completed" }),
+                        tint: "bg-emerald-50 text-emerald-600",
+                      },
+                      {
+                        icon: CircleDot,
+                        value: taskCounts.inProgress,
+                        label: t("clientManagement.overview.inProgress", { defaultValue: "In Progress" }),
+                        tint: "bg-amber-50 text-amber-600",
+                      },
+                      {
+                        icon: CircleDashed,
+                        value: taskCounts.pending,
+                        label: t("clientManagement.overview.pending", { defaultValue: "Pending" }),
+                        tint: "bg-rose-50 text-rose-600",
+                      },
+                    ].map((stat) => (
+                      <Stack
+                        key={stat.label}
+                        className="items-center text-center gap-2 rounded-xl bg-muted/40 p-4"
+                      >
+                        <div className={`h-10 w-10 rounded-full flex items-center justify-center ${stat.tint}`}>
+                          <stat.icon className="h-4 w-4" />
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      </Stack>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent activity + Upcoming deadlines */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+              <Card className="shadow-none">
+                <CardHeader>
+                  <Flex className="items-center justify-between">
+                    <CardTitle className="text-sm">
+                      {t("clientManagement.overview.recentActivity", { defaultValue: "Recent Activity" })}
+                    </CardTitle>
+                    <ViewAllLink onClick={() => setTab("activity")} />
+                  </Flex>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {isLoadingTimeline ? (
+                    <Stack className="gap-3">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                      ))}
+                    </Stack>
+                  ) : recentActivity.length === 0 ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">
-                      {t("clientManagement.overview.noActiveProject", {
-                        defaultValue: "No active project.",
+                      {t("clientManagement.overview.noActivity", {
+                        defaultValue: "No recent activity yet.",
                       })}
                     </p>
                   ) : (
-                    <Stack
-                      className="gap-3 cursor-pointer"
-                      onClick={() =>
-                        navigate(`/dashboard/project/view/${activeProject.id}`)
-                      }
-                    >
-                      <Flex className="items-center justify-between">
-                        <p className="font-semibold text-foreground">
-                          {activeProject.projectName}
-                        </p>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full border font-medium ${
-                            PROJECT_STATUS_STYLES[activeProject.status] ||
-                            "bg-muted text-foreground"
-                          }`}
-                        >
-                          {activeProject.status}
-                        </span>
-                      </Flex>
-                      {activeProject.endDate && (
-                        <p className="text-xs text-muted-foreground">
-                          {t("projects.endDate")}:{" "}
-                          {format(new Date(activeProject.endDate), "MMM d, yyyy")}
-                        </p>
-                      )}
-                      <div>
-                        <Flex className="items-center justify-between mb-1">
-                          <span className="text-xs text-muted-foreground">
-                            {t("projects.progress")}
-                          </span>
-                          <span className="text-xs font-bold text-foreground">
-                            {activeProject.progress ?? 0}%
-                          </span>
-                        </Flex>
-                        <Progress value={activeProject.progress ?? 0} />
-                      </div>
-                      <Flex className="items-center gap-1 text-xs font-semibold text-indigo-600">
-                        {t("clientManagement.overview.viewProject", {
-                          defaultValue: "View project",
-                        })}
-                        <ExternalLink className="h-3 w-3" />
-                      </Flex>
-                    </Stack>
+                    <div className="divide-y divide-border">
+                      {recentActivity.map((item: any) => (
+                        <Box key={item.id} className="py-3 first:pt-0">
+                          <Flex className="items-center gap-2">
+                            <span className="text-xs font-semibold text-foreground">
+                              {item.user?.name || "Team"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {item.type}
+                            </span>
+                          </Flex>
+                          <p className="text-sm text-foreground/90 mt-0.5 line-clamp-2">
+                            {item.content}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(item.createdAt), "MMM d, yyyy · h:mm a")}
+                          </p>
+                        </Box>
+                      ))}
+                    </div>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Upcoming milestones (project deadlines) */}
-              <Card>
+              <Card className="shadow-none">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    {t("clientManagement.overview.upcomingDeadlines", {
-                      defaultValue: "Upcoming Deadlines",
-                    })}
-                  </CardTitle>
+                  <Flex className="items-center justify-between">
+                    <CardTitle className="text-sm">
+                      {t("clientManagement.overview.upcomingDeadlines", {
+                        defaultValue: "Upcoming Deadlines",
+                      })}
+                    </CardTitle>
+                    <ViewAllLink onClick={() => setTab("projects")} />
+                  </Flex>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   {isLoadingProjects ? (
                     <Stack className="gap-3">
                       {[1, 2].map((i) => (
@@ -528,7 +738,7 @@ const ClientDetailPage = () => {
                         return (
                           <Flex
                             key={project.id}
-                            className="items-center justify-between py-3 cursor-pointer hover:bg-muted/40 -mx-2 px-2 rounded-lg transition-colors"
+                            className="items-center justify-between py-3 first:pt-0 cursor-pointer hover:bg-muted/40 -mx-2 px-2 rounded-lg transition-colors"
                             onClick={() =>
                               navigate(`/dashboard/project/view/${project.id}`)
                             }
@@ -567,56 +777,11 @@ const ClientDetailPage = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Recent activity */}
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    {t("pipeline.activity", { defaultValue: "Recent Activity" })}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingTimeline ? (
-                    <Stack className="gap-3">
-                      {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="h-12 w-full rounded-lg" />
-                      ))}
-                    </Stack>
-                  ) : recentActivity.length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-6 text-center">
-                      {t("clientManagement.overview.noActivity", {
-                        defaultValue: "No recent activity yet.",
-                      })}
-                    </p>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {recentActivity.map((item: any) => (
-                        <Box key={item.id} className="py-3">
-                          <Flex className="items-center gap-2">
-                            <span className="text-xs font-semibold text-foreground">
-                              {item.user?.name || "Team"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {item.type}
-                            </span>
-                          </Flex>
-                          <p className="text-sm text-foreground/90 mt-0.5 line-clamp-2">
-                            {item.content}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(item.createdAt), "MMM d, yyyy · h:mm a")}
-                          </p>
-                        </Box>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
           {/* Projects */}
-          <TabsContent value="projects" className="mt-4">
+          <TabsContent value="projects" className="mt-5">
             {isLoadingProjects ? (
               <Stack className="gap-3">
                 {[1, 2, 3].map((i) => (
@@ -632,7 +797,7 @@ const ClientDetailPage = () => {
                 {projects.map((project) => (
                   <Card
                     key={project.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="shadow-none cursor-pointer hover:border-blue-300 transition-colors"
                     onClick={() =>
                       navigate(`/dashboard/project/view/${project.id}`)
                     }
@@ -675,7 +840,7 @@ const ClientDetailPage = () => {
           </TabsContent>
 
           {/* Tasks */}
-          <TabsContent value="tasks" className="mt-4">
+          <TabsContent value="tasks" className="mt-5">
             {isLoadingTasks ? (
               <Stack className="gap-3">
                 {[1, 2, 3].map((i) => (
@@ -687,7 +852,7 @@ const ClientDetailPage = () => {
                 {t("tasks.myTasksDesc", { defaultValue: "No tasks yet." })}
               </p>
             ) : (
-              <Card>
+              <Card className="shadow-none">
                 <CardContent className="p-0 divide-y divide-border">
                   {tasks.map((tk) => {
                     const key = tk.status?.toLowerCase();
@@ -719,8 +884,8 @@ const ClientDetailPage = () => {
           </TabsContent>
 
           {/* Activity */}
-          <TabsContent value="activity" className="mt-4">
-            <Card>
+          <TabsContent value="activity" className="mt-5">
+            <Card className="shadow-none">
               <CardContent className="p-6">
                 {clientId && <ClientTimeline clientId={clientId} mode="admin" />}
               </CardContent>
@@ -728,12 +893,12 @@ const ClientDetailPage = () => {
           </TabsContent>
 
           {/* Files */}
-          <TabsContent value="files" className="mt-4">
+          <TabsContent value="files" className="mt-5">
             {clientId && <ClientMediaCenter clientIdOverride={clientId} />}
           </TabsContent>
 
           {/* Invoices */}
-          <TabsContent value="invoices" className="mt-4">
+          <TabsContent value="invoices" className="mt-5">
             {isLoadingInvoices ? (
               <Stack className="gap-3">
                 {[1, 2, 3].map((i) => (
@@ -742,16 +907,14 @@ const ClientDetailPage = () => {
               </Stack>
             ) : invoices.length === 0 ? (
               <p className="text-sm text-muted-foreground py-10 text-center">
-                {t("clientManagement.viewModal.noContractFile", {
-                  defaultValue: "No invoices yet.",
-                })}
+                {t("clientManagement.overview.noInvoices", { defaultValue: "No invoices yet." })}
               </p>
             ) : (
               <Stack className="gap-4">
                 {outstandingBalance > 0 && (
-                  <Card>
+                  <Card className="shadow-none">
                     <CardContent className="p-4 flex items-center gap-3">
-                      <div className="p-2.5 rounded-lg bg-rose-100 text-rose-600">
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-rose-50 text-rose-600">
                         <Receipt className="h-4 w-4" />
                       </div>
                       <div>
@@ -769,7 +932,7 @@ const ClientDetailPage = () => {
                     </CardContent>
                   </Card>
                 )}
-                <Card>
+                <Card className="shadow-none">
                   <CardContent className="p-0 divide-y divide-border">
                     {invoices.map((inv) => (
                       <Flex key={inv.id} className="items-center gap-3 p-4">
@@ -783,10 +946,9 @@ const ClientDetailPage = () => {
                           </p>
                         </Box>
                         <span
-                          className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
-                            inv.status?.toLowerCase() === "paid"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-amber-100 text-amber-800"
+                          className={`text-xs px-2 py-1 rounded-full border font-medium shrink-0 ${
+                            INVOICE_STATUS_STYLES[inv.status?.toLowerCase()] ||
+                            "bg-muted text-foreground"
                           }`}
                         >
                           {inv.status}
