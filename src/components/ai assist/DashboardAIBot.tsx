@@ -1184,7 +1184,7 @@ Description: ${userInput}`,
                     className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                       message.type === "user"
                         ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-background text-gray-800 border border-border rounded-bl-sm shadow-sm"
+                        : "bg-background text-foreground border border-border rounded-bl-sm shadow-sm"
                     }`}
                   >
                     {typeof message.content === "string" ? (
@@ -1234,7 +1234,7 @@ Description: ${userInput}`,
               <Box className="bg-gradient-to-br from-blue-500/5 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
                 <Flex className="items-center gap-2 mb-3">
                   <Sparkles className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-foreground">
                     AI Client Creator
                   </h3>
                 </Flex>
@@ -1311,7 +1311,7 @@ Description: ${userInput}`,
               <Box className="bg-gradient-to-br from-blue-500/5 to-purple-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
                 <Flex className="items-center gap-2 mb-3">
                   <Sparkles className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-lg font-semibold text-foreground">
                     AI Project Creator
                   </h3>
                 </Flex>
