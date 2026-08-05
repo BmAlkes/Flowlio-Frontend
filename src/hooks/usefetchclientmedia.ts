@@ -59,3 +59,30 @@ export const useDeleteMedia = () => {
     },
   });
 };
+
+export interface UploadClientMediaParams {
+  clientId: string;
+  file: File;
+  projectId?: string;
+}
+
+export const useUploadClientMedia = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, file, projectId }: UploadClientMediaParams) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (projectId) formData.append("projectId", projectId);
+
+      const response = await axios.post(`clients/${clientId}/media`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["media-center"] });
+    },
+  });
+};

@@ -20,6 +20,7 @@ import {
   Eye,
   Calendar,
   Trash2,
+  Upload,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
@@ -27,6 +28,7 @@ import { Skeleton } from "../ui/skeleton";
 import {
   useFetchClientMedia,
   useDeleteMedia,
+  useUploadClientMedia,
   type MediaCenterItem,
 } from "@/hooks/usefetchclientmedia";
 import { toast } from "sonner";
@@ -54,6 +56,7 @@ export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
   const [sortBy, setSortBy] = useState<string>("newest");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<MediaCenterItem | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { data: userData } = useUser();
   const clientId = clientIdOverride || userData?.user?.clientId;
@@ -71,6 +74,7 @@ export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
   });
 
   const deleteMedia = useDeleteMedia();
+  const uploadMedia = useUploadClientMedia();
 
   const mediaItems: MediaCenterItem[] = mediaResponse?.data ?? [];
 
@@ -259,6 +263,35 @@ export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
     }
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !clientId) return;
+
+    for (const file of Array.from(files)) {
+      const toastId = toast.loading(t("media.uploading", { defaultValue: "Uploading..." }));
+      try {
+        await uploadMedia.mutateAsync({ clientId, file });
+        toast.success(t("media.uploadSuccess", { defaultValue: "File uploaded" }), {
+          id: toastId,
+        });
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message ||
+            t("media.uploadError", { defaultValue: "Failed to upload file" }),
+          { id: toastId },
+        );
+      }
+    }
+
+    e.target.value = "";
+  };
+
   const isLoading = mediaLoading || projectsLoading;
 
   return (
@@ -273,6 +306,21 @@ export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
             {t("media.desc")}
           </p>
         </Box>
+        <Button
+          className="rounded-xl gap-2"
+          onClick={handleUploadClick}
+          disabled={uploadMedia.isPending || !clientId}
+        >
+          <Upload className="w-4 h-4" />
+          {t("media.upload", { defaultValue: "Upload" })}
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileSelected}
+        />
       </Box>
 
       {/* Filters and Search */}

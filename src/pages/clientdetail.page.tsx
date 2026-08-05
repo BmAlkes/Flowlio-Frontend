@@ -461,7 +461,7 @@ const ClientDetailPage = () => {
               <TabsTrigger
                 key={value}
                 value={value}
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0.5 pb-3 text-sm text-muted-foreground data-[state=active]:text-foreground font-medium"
+                className="rounded-md border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1.5 pb-3 text-sm text-muted-foreground data-[state=active]:text-foreground font-medium"
               >
                 {label}
               </TabsTrigger>
