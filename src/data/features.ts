@@ -64,7 +64,7 @@ export const features: Feature[] = [
     title: "Contact & Client Management",
     description: "Store every client, lead and prospect in one searchable database. Add notes, files, tags and activity history to each contact.",
     category: "CRM",
-    videoId: "CRM_VIDEO_1",
+    videoId: "3UN_9tBx_Sc",
     duration: "1:55",
     uploadDate: "2024-11-12",
   },
