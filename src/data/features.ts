@@ -82,7 +82,7 @@ export const features: Feature[] = [
     title: "Task Creation & Assignment",
     description: "Create tasks from any screen, assign them to teammates, add due dates, subtasks, attachments and watchers — all in under 30 seconds.",
     category: "Tasks",
-    videoId: "TASKS_VIDEO_1",
+    videoId: "OFmvcyxJzIc",
     duration: "1:30",
     uploadDate: "2024-11-18",
   },
