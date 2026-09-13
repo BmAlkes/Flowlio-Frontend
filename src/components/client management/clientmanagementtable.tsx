@@ -483,7 +483,7 @@ export const ClientManagementTable = () => {
         } else if (field.type === "date" && val) {
           try {
             displayValue = new Date(val).toLocaleDateString();
-          } catch (e) {
+          } catch {
             displayValue = val;
           }
         }

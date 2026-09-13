@@ -5,11 +5,9 @@ import globals from "globals";
 import js from "@eslint/js";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
-  { ignores: ["dist"] },
+  { ignores: ["dist", ".claude/**", ".claude-flow/**", ".agents/**", ".swarm/**"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,tsx}"],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
@@ -21,11 +19,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "@typescript-eslint/no-explicit-any": "off",
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-explicit-any": "off",

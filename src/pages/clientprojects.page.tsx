@@ -108,7 +108,6 @@ const ClientProjectsPage = () => {
       openCommentModal(targetProjectId);
       navigate(location.pathname, { replace: true, state: null });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
   const projects = projectsResponse?.data?.projects || [];

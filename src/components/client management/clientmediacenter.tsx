@@ -175,7 +175,7 @@ export const ClientMediaCenter: React.FC<ClientMediaCenterProps> = ({
     const toastId = toast.loading(t("common.loading"));
 
     try {
-      let downloadUrl = file.fileUrl;
+      const downloadUrl = file.fileUrl;
 
       // Handle blob URLs
       if (downloadUrl.startsWith("blob:")) {

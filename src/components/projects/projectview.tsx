@@ -322,7 +322,7 @@ export const ProjectView = () => {
           file,
         });
         toast.success(t("projects.versionUploaded"));
-      } catch (error) {
+      } catch {
         toast.error(t("projects.uploadFailed"));
       }
     }
@@ -614,7 +614,7 @@ export const ProjectView = () => {
                         } else if (field.type === "date" && value) {
                           try {
                             displayValue = new Date(value).toLocaleDateString();
-                          } catch (e) {
+                          } catch {
                             displayValue = value;
                           }
                         }

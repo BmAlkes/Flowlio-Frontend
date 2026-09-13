@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo, ReactNode } from "react";
 import {
   DndContext,
   DragEndEvent,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -158,7 +157,7 @@ export const DraggableTable = React.forwardRef<
       })
     );
 
-    const handleDragStart = (_event: DragStartEvent) => {
+    const handleDragStart = () => {
       if (!shouldDisableDrag) {
         onExternalDragStart?.();
       }

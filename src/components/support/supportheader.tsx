@@ -378,7 +378,7 @@ const SupportHeader = () => {
       refetchSubmitted();
       refetchSentTickets();
       toast.success(t("support.ticketCreatedSuccess"));
-    } catch (error) {
+    } catch {
       toast.error(t("support.ticketCreateError"));
     }
   }

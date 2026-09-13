@@ -42,7 +42,6 @@ export const PlanPaymentConfirmPage = () => {
         setErrorMsg(err?.message ?? "Payment could not be confirmed.");
         setState("error");
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

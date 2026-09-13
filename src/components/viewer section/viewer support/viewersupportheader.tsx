@@ -240,7 +240,7 @@ export const ViewerSupportHeader = () => {
       createModalProps.onOpenChange(false);
       refetch();
       toast.success("Support ticket created. We'll get back to you soon!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create ticket. Please try again.");
     }
   }

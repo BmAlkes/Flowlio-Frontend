@@ -108,7 +108,12 @@ export const LeadsTable = () => {
   const bulkAction = useBulkLeadAction();
   const leads = data?.data ?? [];
 
-  const toggle = (id: string) => setSelected((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggle = (id: string) => setSelected((previous) => {
+    const next = new Set(previous);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
   const toggleAll = () => setSelected(selected.size === leads.length ? new Set() : new Set(leads.map((l: any) => l.id)));
   const doBulk = (action: "set_temperature" | "delete", payload?: any) => {
     bulkAction.mutate({ leadIds: Array.from(selected), action, payload }, {

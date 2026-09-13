@@ -108,7 +108,7 @@ export const UniversalSupportTicket: FC<UniversalSupportTicketProps> = ({
       createModalProps.onOpenChange(false);
       refetch();
       toast.success("Support ticket created successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create support ticket");
     }
   }

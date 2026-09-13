@@ -190,7 +190,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
           file,
         });
         toast.success("New version uploaded successfully");
-      } catch (error) {
+      } catch {
         toast.error("Failed to upload new version");
       }
     }
