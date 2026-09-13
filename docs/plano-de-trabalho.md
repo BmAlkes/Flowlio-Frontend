@@ -49,7 +49,7 @@ T02 foi antecipada por pedido explícito do usuário. T03 inicia a consolidaçã
 - Identidade: ficha lateral de contato; área principal ampla; navegação por abas; prioridades e entregas como foco.
 - Overview: projetos ativos, andamento das tarefas, prazos, propostas, arquivos, atividade e resumo das faturas disponíveis. Resumos financeiros devem respeitar moedas e estados reais; dados indisponíveis não equivalem a zero.
 - Preservar edição, status, portal, exclusão, criação/abertura de projeto, marcos, timeline e arquivos. Evitar links que percam o contexto ou ações que ainda não tenham suporte na API.
-- Design: superfícies claras/neutras e equivalentes dark, acento azul-petróleo do Flowlio, títulos precisos, números tabulares e espaçamento consistente. Layout lateral é a assinatura; evitar repetir grades de cartões equivalentes.
+- Design: cores semânticas globais (background, foreground, primary, secondary, border), fonte padrão do sistema, escala tipográfica em rem, números tabulares e espaçamento consistente. Layout lateral é a assinatura; evitar repetir grades de cartões equivalentes.
 
 ## Registro das entregas
 
@@ -58,3 +58,5 @@ T02 foi antecipada por pedido explícito do usuário. T03 inicia a consolidaçã
 - T01: commit `b524b7b`, integrado em `main`. Lint sem erros/avisos, 59 testes aprovados e build de produção aprovado. Cloudflare Pages: check `success`, deployment `e3281ee2-735c-456a-8200-c07deb489315`. Avisos existentes do build: anotações de biblioteca Gantt e chunk de PDF acima de 1 MB.
 - T02: componentes separados para perfil, overview, listas, carregamento/erro e transformação dos dados. Sete abas (incluindo propostas), seleção via query string, contato/portal/status preservados, marcos operáveis por teclado, traduções EN/PT/ES/HE. Faturas em aberto excluem rascunhos/canceladas/pagas; números não recebem moeda inventada porque o contrato atual não informa moeda. Fluxo completo de faturamento continua em T07/T16.
 - T02: validação local em navegador com API inteiramente simulada: sete abas, atualização de status e marco, link direto de aba, criação de projeto com clientId, desktop, mobile 390px sem overflow, dark/RTL com números na ordem correta, erro parcial e lista vazia; zero erros JavaScript. Validação final: lint sem erros/avisos, 65 testes em 12 arquivos aprovados e build de produção aprovado. Publicação será confirmada pelo check do Cloudflare Pages após merge. Permanecem os avisos preexistentes da biblioteca Gantt e do chunk de PDF.
+
+- Refinamento T02 — branch `fix/t02-client-design-system`: removida a paleta exclusiva e a fonte Outfit dos títulos; cores e raios usam tokens globais; textos usam escala 12/14 px, seções 18 px, títulos 24 px; botão principal usa o componente padrão. Revisão local com API simulada aprovada em desktop/mobile/dark/RTL, sete abas e ações existentes.

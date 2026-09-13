@@ -127,7 +127,7 @@ export default function ClientDetailPage() {
               <Pencil size={14} />
               {t("clientManagement.editClient")}
             </Button>
-            <Button size="sm" className="cd-primary" onClick={createProject}>
+            <Button size="sm" onClick={createProject}>
               <Plus size={16} />
               {t("clientDetail.newProject")}
             </Button>
