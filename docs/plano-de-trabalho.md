@@ -17,7 +17,7 @@
 | --- | --- | --- | --- | --- | --- |
 | T01 | Base de qualidade e plano — `chore/t01-quality-baseline` | FE | Remover erros e avisos atuais de lint; manter verificações para variáveis não utilizadas, permitindo argumentos intencionalmente prefixados por `_`; testes e build aprovados; registrar processo de publicação. | — | Publicada |
 | T02 | Redesenhar ficha do cliente — `feat/t02-client-detail-redesign` | FE | Nova composição integral de `/dashboard/client-management/:clientId`, overview integrado, abas e ações preservadas, propostas acessíveis, estados de erro/vazio/loading, mobile, dark e RTL; métricas sem dados inventados. | T01 | Implementada e validada |
-| T03 | Políticas de autorização — `fix/t03-resource-authorization` | FE + BE | Matriz por papel/ação/recurso; proteger financeiro, exclusões e recursos privados no servidor; testes negativos entre clientes, membros e organizações. | T01 | Pendente |
+| T03 | Políticas de autorização — `fix/t03-resource-authorization` | FE + BE | Matriz por papel/ação/recurso; proteger financeiro, exclusões e recursos privados no servidor; testes negativos entre clientes, membros e organizações. | T01 | Implementada e validada |
 | T04 | Sessão e organização ativa — `fix/t04-session-organization` | FE + BE | Unificar cliente auth; impedir fallback para vínculo inativo; revisar fluxo de cliente e revogação; cache privado isolado por identidade/organização; testar login, logout, OTP e 2FA. | T03 | Pendente |
 | T05 | Limitação de IA — `fix/t05-ai-rate-limits` | BE | Autenticação antes de limites por identidade; testes de 401/403/429, cotas e concorrência; não duplicar contabilização de uso. | T03 | Pendente |
 | T06 | Numeração de faturas — `fix/t06-invoice-sequences` | BE | Contador transacional por organização/série, migração e testes de concorrência/exclusão; emissão manual e recorrente usam a mesma regra. | T03 | Pendente |
@@ -62,3 +62,29 @@ T02 foi antecipada por pedido explícito do usuário. T03 inicia a consolidaçã
 - Refinamento T02 — branch `fix/t02-client-design-system`: removida a paleta exclusiva e a fonte Outfit dos títulos; cores e raios usam tokens globais; textos usam escala 12/14 px, seções 18 px, títulos 24 px; botão principal usa o componente padrão. Revisão local com API simulada aprovada em desktop/mobile/dark/RTL, sete abas e ações existentes.
 
 - Ajuste de marca T02 — branch `fix/t02-client-brand-accent`: azul `#1797ba` em ícones, progresso, aba ativa e ação principal; fundos suaves derivados da marca e variações de texto para contraste. Mantidas tipografia e superfícies aprovadas. Revisão em navegador com dados simulados aprovada, incluindo mobile e dark/RTL.
+
+## T03 — Matriz de autorização e implementação
+
+Branches: `fix/t03-resource-authorization` em FE e BE.
+
+| Papel | Projetos/tarefas | Exclusões | Financeiro | Colaboração |
+| --- | --- | --- | --- | --- |
+| Proprietário e administradores | Criar/editar; leitura respeita organização e visibilidade | Recursos acessíveis | Faturas/propostas e custos internos | Recursos acessíveis |
+| Gestor da organização | Criar/editar recursos acessíveis | Recursos acessíveis | Faturas/propostas; sem custos internos de projetos | Recursos acessíveis |
+| Membro | Criar/editar recursos acessíveis | Recursos acessíveis, conforme permissões existentes | Sem faturas/propostas administrativas ou custos internos | Recursos acessíveis |
+| Operador | Ler/editar recursos acessíveis | Sem exclusão de projetos/tarefas | Sem custos internos | Recursos acessíveis |
+| Viewer | Ler; registrar tempo nas próprias tarefas acessíveis | Sem exclusão de projetos/tarefas | Sem custos internos | Comentários/arquivos acessíveis; exclusão somente do próprio arquivo |
+| Cliente | Projetos do próprio cliente; tarefas públicas desses projetos | Sem exclusão de projetos/tarefas | Próprias faturas/propostas pelo portal | Próprios recursos; comentários e uploads; exclusão somente do próprio arquivo |
+| Papel desconhecido / sem organização | Negado | Negado | Negado | Negado |
+
+- Organização vem da sessão. O campo `organizationId` enviado no corpo não autoriza acesso.
+- Para equipe, projeto privado exige autoria ou atribuição; tarefa exige também acesso ao projeto e sua própria visibilidade/autoria/atribuição. O portal resolve o vínculo do usuário com o cliente no servidor; um projeto público de outro cliente continua inacessível.
+- As verificações são executadas antes dos controllers de alterações, despesas, marcos, comentários, versões e arquivos. Listagens usam filtros SQL equivalentes; referências de projeto, cliente, responsável e dependências são verificadas.
+- Orçamento não autorizado retorna `null` nos contratos de projeto e não pode ser enviado ou apagado por usuários sem acesso financeiro. Custos, alertas financeiros e relatórios detalhados exigem a mesma política do frontend.
+- Arquivos estruturados e anexos legados herdam o acesso ao projeto/tarefa/cliente. Um upload não pode vincular o arquivo ao projeto de outro cliente.
+- Interface: campo de orçamento, ações de criação/edição/exclusão, aba financeira de relatórios e consulta de alertas respeitam as permissões. Tipografia e cores da T02 preservadas.
+- Testes HTTP carregam as rotas reais e substituem sessão, repositório e controllers terminais por fixtures; requisições negadas não executam controllers. Testes de consulta usam Drizzle real com driver simulado e incluem o controller de tarefas por cliente com organização adulterada.
+- Não foram realizadas operações de teste em dados reais. A validação não substitui teste integrado com PostgreSQL e identidades de homologação. Autenticação, revogação e seleção de organização ativa permanecem na T04.
+- Nenhuma alteração de schema. Compilação BE usa `tsc` + `tsc-alias`; a geração automática de migrações do script legado `build` não foi executada nesta tarefa. A separação definitiva do processo permanece na T09.
+- Backend: usuário confirmou deploy automático após push em `main`; conferir resultado do provedor. Frontend: Cloudflare Pages. Status de publicação será confirmado após os checks finais.
+- Validação final T03: backend com 64 testes aprovados e compilação de produção (`tsc` + `tsc-alias`) aprovada; frontend com 75 testes aprovados, lint limpo e build aprovado. Nenhuma migração foi gerada ou aplicada.

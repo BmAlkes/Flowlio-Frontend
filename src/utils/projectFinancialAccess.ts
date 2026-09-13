@@ -14,6 +14,6 @@ export function canViewInternalProjectFinancials(user: {
   return (
     user.role === "superadmin" ||
     user.role === "subadmin" ||
-    user.isOrganizationOwner === true
+    (user.role === "user" && user.isOrganizationOwner === true)
   );
 }

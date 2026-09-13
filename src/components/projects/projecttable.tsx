@@ -1,3 +1,4 @@
+import { canDeleteResources, canUpdateResources } from "@/utils/resourcePermissions";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -618,7 +619,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
               </Tooltip>
             </TooltipProvider>
 
-            <TooltipProvider>
+            {canUpdateResources(userData?.user.role) && (<TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -635,7 +636,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
                   <p>{t("projects.editProject")}</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider>)}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -674,7 +675,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
                 </Tooltip>
               </TooltipProvider>
             )}
-            <TooltipProvider>
+            {canDeleteResources(userData?.user.role) && (<TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -695,7 +696,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
                   <p>{t("projects.deleteProject")}</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider>)}
           </Center>
         );
       },

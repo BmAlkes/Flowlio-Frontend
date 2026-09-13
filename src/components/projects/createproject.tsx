@@ -1,3 +1,4 @@
+import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess";
 import { IoArrowBack } from "react-icons/io5";
 import { Loader2 } from "lucide-react";
 import { PageWrapper } from "../common/pagewrapper";
@@ -112,6 +113,7 @@ export const CreateProject = () => {
 
   // Get user authentication data
   const { data: userData, isLoading: isLoadingUser } = useUser();
+  const showFinancials = canViewInternalProjectFinancials(userData?.user);
 
   // Fetch current user's organization details
   const { data: userOrgData, isLoading: isLoadingOrg } = useFetchUserOrganization();
@@ -300,7 +302,7 @@ export const CreateProject = () => {
         organizationId: finalOrganizationId,
         customFields: values.customFields,
         visibility: values.visibility,
-        ...(values.budget !== undefined && values.budget > 0 && { budget: values.budget }),
+        ...(showFinancials && values.budget !== undefined && values.budget > 0 && { budget: values.budget }),
         ...(values.templateId && values.templateId !== "none" && { templateId: values.templateId }),
       };
 
@@ -792,7 +794,7 @@ export const CreateProject = () => {
               />
             </Box>
 
-            <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
+            {showFinancials && (<Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
               <FormField
                 control={form.control}
                 name="budget"
@@ -819,7 +821,7 @@ export const CreateProject = () => {
                 )}
               />
               <Box />
-            </Box>
+            </Box>)}
 
             <Box className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
               <FormField

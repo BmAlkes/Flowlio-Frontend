@@ -1,3 +1,5 @@
+import { useUser } from "@/providers/user.provider";
+import { canCreateResources, canUpdateResources, canDeleteResources } from "@/utils/resourcePermissions";
 import React, { useState, useMemo } from "react";
 import {
   X,
@@ -76,6 +78,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { data: userData } = useUser();
   const [selectedAttachment, setSelectedAttachment] = useState<string | null>(
     null
   );
@@ -220,7 +223,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             </Box>
           </Flex>
           <Flex className="gap-2">
-            <Button
+            {canUpdateResources(userData?.user.role) && (<Button
               variant="ghost"
               size="sm"
               onClick={() => setShowEditModal(true)}
@@ -228,8 +231,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               title="Edit Task"
             >
               <Edit className="w-4 h-4" />
-            </Button>
-            <Button
+            </Button>)}
+            {canDeleteResources(userData?.user.role) && (<Button
               variant="ghost"
               size="sm"
               onClick={() => setShowDeleteConfirm(true)}
@@ -237,8 +240,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               title="Delete Task"
             >
               <Trash2 className="w-4 h-4" />
-            </Button>
-            {!task.parentId && (
+            </Button>)}
+            {!task.parentId && canCreateResources(userData?.user.role) && (
               <Button
                 variant="outline"
                 size="sm"
@@ -381,7 +384,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
               )}
 
               {/* Subtasks (only for main tasks) */}
-              {!task.parentId && (
+              {!task.parentId && canCreateResources(userData?.user.role) && (
                 <Box className="bg-muted/50 rounded-xl p-4">
                   <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                     <FileText className="w-4 h-4" />

@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { axios } from "@/configs/axios.config";
+import { useUser } from "@/providers/user.provider";
+import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess";
 
 export interface ProjectRiskAlert {
   id: string;
@@ -22,8 +24,10 @@ interface RiskAlertsResponse {
 }
 
 export const useProjectRiskAlerts = (projectId?: string) => {
+  const { data } = useUser();
   return useQuery({
-    queryKey: ["project-risk-alerts", projectId],
+    queryKey: ["project-risk-alerts", data?.user.id, data?.user.organizationId, projectId],
+    enabled: canViewInternalProjectFinancials(data?.user),
     queryFn: async (): Promise<RiskAlertsResponse> => {
       const response = await axios.get("/projects/risk-alerts", {
         params: projectId ? { projectId } : undefined,

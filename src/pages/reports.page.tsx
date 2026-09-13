@@ -1,3 +1,5 @@
+import { useUser } from "@/providers/user.provider";
+import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess";
 import React, { useState } from "react";
 import FinancialOverview from "@/components/admin/reports/FinancialOverview";
 import TeamProductivity from "@/components/admin/reports/TeamProductivity";
@@ -12,12 +14,14 @@ import type { ReportPeriod } from "@/hooks/useReports";
 
 const ReportsPage: React.FC = () => {
   const { t } = useTranslation();
+  const { data: userData, isLoading: userLoading } = useUser();
+  const showFinancials = canViewInternalProjectFinancials(userData?.user);
   const { data: featureAccess, isLoading } = useHasFeatureAccess("analyticsAccess");
   const navigate = useNavigate();
   const hasAccess = featureAccess?.data?.hasAccess ?? true;
   const [period, setPeriod] = useState<ReportPeriod>("30d");
 
-  if (isLoading) {
+  if (isLoading || userLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -55,12 +59,12 @@ const ReportsPage: React.FC = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="financial" className="space-y-4">
+      <Tabs key={String(showFinancials)} defaultValue={showFinancials ? "financial" : "productivity"} className="space-y-4">
         <TabsList className="bg-background border border-border shadow-sm p-1 h-auto">
-          <TabsTrigger value="financial" className="flex items-center gap-2 py-2">
+          {showFinancials && (<TabsTrigger value="financial" className="flex items-center gap-2 py-2">
             <DollarSign className="w-4 h-4" />
             Financial
-          </TabsTrigger>
+          </TabsTrigger>)}
           <TabsTrigger value="productivity" className="flex items-center gap-2 py-2">
             <Users className="w-4 h-4" />
             Team
@@ -70,9 +74,9 @@ const ReportsPage: React.FC = () => {
             Clients
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="financial" className="space-y-4">
+        {showFinancials && (<TabsContent value="financial" className="space-y-4">
           <FinancialOverview period={period} onPeriodChange={setPeriod} />
-        </TabsContent>
+        </TabsContent>)}
         <TabsContent value="productivity" className="space-y-4">
           <TeamProductivity period={period} onPeriodChange={setPeriod} />
         </TabsContent>

@@ -1,3 +1,4 @@
+import { canCreateResources } from "@/utils/resourcePermissions";
 import { PageWrapper } from "../common/pagewrapper";
 import { ProjectTable } from "./projecttable";
 import { Center } from "../ui/center";
@@ -38,7 +39,7 @@ export const ProjectHeader = () => {
           </h1>
         </Stack>
 
-        {!isClient && (
+        {!isClient && canCreateResources(userData?.user.role) && (
           <Flex className="gap-2 flex-wrap max-sm:justify-start">
             <Button
               variant="outline"
@@ -82,11 +83,11 @@ export const ProjectHeader = () => {
 
       {(!showGranttChart || isClient) && <ProjectTable isClient={isClient} />}
 
-      {!isClient && (
+      {!isClient && canCreateResources(userData?.user.role) && (
         <Box className="p-4">{showGranttChart && <GranttChart />}</Box>
       )}
 
-      {!isClient && (
+      {!isClient && canCreateResources(userData?.user.role) && (
         <GeneralModal {...customFieldsModal}>
           <Box className="p-1">
             <h2 className="text-xl font-semibold mb-4">Manage Custom Fields</h2>
