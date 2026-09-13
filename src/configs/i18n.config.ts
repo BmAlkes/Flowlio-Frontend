@@ -7,19 +7,23 @@ import enTranslations from "../locales/en.json";
 import esTranslations from "../locales/es.json";
 import ptTranslations from "../locales/pt.json";
 import heTranslations from "../locales/he.json";
+import enClientDetail from "../locales/client-detail/en.json";
+import ptClientDetail from "../locales/client-detail/pt.json";
+import esClientDetail from "../locales/client-detail/es.json";
+import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: enTranslations,
+    translation: { ...enTranslations, clientDetail: enClientDetail },
   },
   es: {
-    translation: esTranslations,
+    translation: { ...esTranslations, clientDetail: esClientDetail },
   },
   pt: {
-    translation: ptTranslations,
+    translation: { ...ptTranslations, clientDetail: ptClientDetail },
   },
   he: {
-    translation: heTranslations,
+    translation: { ...heTranslations, clientDetail: heClientDetail },
   },
 };
 

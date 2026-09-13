@@ -33,12 +33,18 @@ export interface MediaFilters {
   clientId?: string; // Added for client-specific endpoint
 }
 
-export const useFetchClientMedia = (filters?: MediaFilters) => {
+export const useFetchClientMedia = (
+  filters?: MediaFilters,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: ["media-center", filters],
+    enabled: options?.enabled ?? true,
     queryFn: async (): Promise<GetMediaCenterResponse> => {
       // Use client-specific endpoint if clientId is provided, otherwise org-wide
-      const url = filters?.clientId ? `clients/${filters.clientId}/media` : "media";
+      const url = filters?.clientId
+        ? `clients/${filters.clientId}/media`
+        : "media";
       const response = await axios.get(url, { params: filters });
       return response.data;
     },
@@ -51,7 +57,9 @@ export const useDeleteMedia = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (fileId: string) => {
-      const response = await axios.delete(`media/${encodeURIComponent(fileId)}`);
+      const response = await axios.delete(
+        `media/${encodeURIComponent(fileId)}`,
+      );
       return response.data;
     },
     onSuccess: () => {
@@ -69,7 +77,11 @@ export interface UploadClientMediaParams {
 export const useUploadClientMedia = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ clientId, file, projectId }: UploadClientMediaParams) => {
+    mutationFn: async ({
+      clientId,
+      file,
+      projectId,
+    }: UploadClientMediaParams) => {
       const formData = new FormData();
       formData.append("file", file);
       if (projectId) formData.append("projectId", projectId);
