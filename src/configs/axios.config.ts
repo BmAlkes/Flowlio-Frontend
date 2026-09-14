@@ -1,4 +1,4 @@
-import ax, { AxiosError } from "axios";
+import ax, { AxiosError, CanceledError } from "axios";
 
 export const environment = process.env.NODE_ENV as "production" | "development";
 export type ErrorWithMessage = AxiosError<WithMessage>;
@@ -38,14 +38,39 @@ export const axios = ax.create({
 
 // Track if user is logging out to prevent new requests
 let isLoggingOut = false;
+let requestScope = "";
+let requestIdentity = "";
+const requestScopes = new WeakMap<object, string>();
+
+export const setRequestScope = (scope: string, identity = scope) => {
+  requestScope = scope;
+  requestIdentity = identity;
+};
+const currentRequestScope = (config: { url?: string; method?: string }) =>
+  config.url === "/user/profile" && config.method === "get"
+    ? requestIdentity
+    : requestScope;
 
 export const setLoggingOut = (value: boolean) => {
   isLoggingOut = value;
 };
 
+export const SESSION_ACCESS_REVOKED = "flowlio:session-access-revoked";
+const sessionDenials = new Set([
+  "SESSION_INVALID",
+  "MEMBERSHIP_INACTIVE",
+  "PORTAL_ACCESS_DISABLED",
+  "USER_DEACTIVATED",
+  "SUBADMIN_DEACTIVATED",
+  "ORGANIZATION_DEACTIVATED",
+  "TRIAL_EXPIRED",
+  "SUBSCRIPTION_EXPIRED",
+]);
+
 // Add request interceptor to block requests during logout
 axios.interceptors.request.use(
   (config) => {
+    requestScopes.set(config, currentRequestScope(config));
     if (isLoggingOut) {
       return Promise.reject(new Error("User is logging out"));
     }
@@ -58,13 +83,30 @@ axios.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Add response interceptor to handle authentication errors
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (
+      requestScopes.get(response.config) !==
+      currentRequestScope(response.config)
+    ) {
+      throw new CanceledError("Session or organization changed");
+    }
+    return response;
+  },
   (error) => {
+    if (
+      error.config &&
+      requestScopes.has(error.config) &&
+      requestScopes.get(error.config) !== currentRequestScope(error.config)
+    ) {
+      return Promise.reject(
+        new CanceledError("Session or organization changed"),
+      );
+    }
     // Skip interceptor for logout requests to prevent page reload
     if (
       error.config?.url?.includes("/auth/sign-out") ||
@@ -76,6 +118,13 @@ axios.interceptors.response.use(
     // Don't process errors if user is logging out
     if (isLoggingOut) {
       return Promise.reject(error);
+    }
+
+    if (
+      error.config?.url !== "/user/profile" &&
+      sessionDenials.has(error.response?.data?.code)
+    ) {
+      window.dispatchEvent(new Event(SESSION_ACCESS_REVOKED));
     }
 
     // Handle specific sub admin deactivation error
@@ -103,5 +152,5 @@ axios.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

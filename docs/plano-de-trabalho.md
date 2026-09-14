@@ -17,8 +17,8 @@
 | --- | --- | --- | --- | --- | --- |
 | T01 | Base de qualidade e plano — `chore/t01-quality-baseline` | FE | Remover erros e avisos atuais de lint; manter verificações para variáveis não utilizadas, permitindo argumentos intencionalmente prefixados por `_`; testes e build aprovados; registrar processo de publicação. | — | Publicada |
 | T02 | Redesenhar ficha do cliente — `feat/t02-client-detail-redesign` | FE | Nova composição integral de `/dashboard/client-management/:clientId`, overview integrado, abas e ações preservadas, propostas acessíveis, estados de erro/vazio/loading, mobile, dark e RTL; métricas sem dados inventados. | T01 | Implementada e validada |
-| T03 | Políticas de autorização — `fix/t03-resource-authorization` | FE + BE | Matriz por papel/ação/recurso; proteger financeiro, exclusões e recursos privados no servidor; testes negativos entre clientes, membros e organizações. | T01 | Implementada e validada |
-| T04 | Sessão e organização ativa — `fix/t04-session-organization` | FE + BE | Unificar cliente auth; impedir fallback para vínculo inativo; revisar fluxo de cliente e revogação; cache privado isolado por identidade/organização; testar login, logout, OTP e 2FA. | T03 | Pendente |
+| T03 | Políticas de autorização — `fix/t03-resource-authorization` | FE + BE | Matriz por papel/ação/recurso; proteger financeiro, exclusões e recursos privados no servidor; testes negativos entre clientes, membros e organizações. | T01 | Publicada (confirmada pelo usuário) |
+| T04 | Sessão e organização ativa — `fix/t04-session-organization` | FE + BE | Unificar cliente auth; impedir fallback para vínculo inativo; revisar fluxo de cliente e revogação; cache privado isolado por identidade/organização; testar login, logout, OTP e 2FA. | T03 | Implementada; publicação em validação |
 | T05 | Limitação de IA — `fix/t05-ai-rate-limits` | BE | Autenticação antes de limites por identidade; testes de 401/403/429, cotas e concorrência; não duplicar contabilização de uso. | T03 | Pendente |
 | T06 | Numeração de faturas — `fix/t06-invoice-sequences` | BE | Contador transacional por organização/série, migração e testes de concorrência/exclusão; emissão manual e recorrente usam a mesma regra. | T03 | Pendente |
 | T07 | Faturar horas atomicamente — `feat/t07-time-invoicing` | FE + BE | Endpoint único, seleção autorizada de horas da equipe, itens/vínculos persistidos, cálculo no servidor, respeito a billable e tarifa, proteção a repetição/concorrência e rollback; sem cobrança duplicada. | T03, T06 | Pendente |
@@ -88,3 +88,30 @@ Branches: `fix/t03-resource-authorization` em FE e BE.
 - Nenhuma alteração de schema. Compilação BE usa `tsc` + `tsc-alias`; a geração automática de migrações do script legado `build` não foi executada nesta tarefa. A separação definitiva do processo permanece na T09.
 - Backend: usuário confirmou deploy automático após push em `main`; conferir resultado do provedor. Frontend: Cloudflare Pages. Status de publicação será confirmado após os checks finais.
 - Validação final T03: backend com 64 testes aprovados e compilação de produção (`tsc` + `tsc-alias`) aprovada; frontend com 75 testes aprovados, lint limpo e build aprovado. Nenhuma migração foi gerada ou aplicada.
+
+
+## T04 — Sessão, organização ativa e autenticação
+
+Branches: `fix/t04-session-organization` em FE e BE. T03 publicada conforme confirmação do usuário.
+
+- Um único cliente Better Auth no frontend atende senha, OTP, 2FA, sessão e logout. O export anterior do provider permanece compatível.
+- Perfil identificado por usuário e sessão, resposta conferida antes de compor o contexto. Cadastro pendente conserva plano/dados de pagamento e segue para checkout/pricing, sem permissões da organização.
+- Trocar conta, sessão, organização ou permissões cancela consultas, remove dados privados e remonta seus consumidores. Respostas atrasadas de alterações são descartadas; erros explícitos de revogação atualizam o contexto. Um 403 de recurso isolado não encerra a sessão.
+- Backend consulta sessão e permissões atuais, sem cache de autorização. Somente vínculo ativo é selecionado, com ordem determinística. Vínculo removido/inativo e falha de consulta não permitem continuar sem organização. Superadmin continua podendo administrar sem vínculo de organização; cadastro pendente continua acessível para pagamento.
+- Portal exige vínculo real e acesso habilitado em cada requisição, inclusive quando o usuário também possui vínculo de equipe. Suspensão, período de teste e assinatura são verificados também para clientes.
+- Conexões de notificações verificam o identificador real da sessão e o acesso no handshake; conexões abertas são revalidadas a cada 15 segundos e desconectadas após revogação.
+- Login trata o desafio de 2FA do Better Auth antes de consultar o perfil. O código de segundo fator é vinculado ao desafio após senha; não é reutilizado como senha nem como verificação simples de e-mail. Login só indica sucesso depois de confirmar a sessão da mesma conta. Verificação de e-mail não cria uma sessão automaticamente; OTP de login não contorna uma conta com 2FA habilitado.
+- Contas legadas com o sinalizador de 2FA recebem o registro necessário do plugin após validação das credenciais, usando a tabela existente. Nenhuma alteração de schema ou migração. E-mail de segundo fator usa o remetente Brevo já configurado.
+- Testes exercitam a configuração real de autenticação com adaptador em memória e envio de e-mail simulado, além dos guards reais com banco substituído por fixtures. Não foram utilizados dados reais nem envio de e-mail de produção. A compilação BE usa `tsc` + `tsc-alias`, sem executar o gerador legado de migrações.
+- Publicação: push de `main` aciona Cloudflare Pages no frontend e o deploy automático do backend informado pelo usuário. Confirmar resultado antes de declarar a versão publicada.
+
+### Onde conferir na aplicação
+
+Validação final: FE com lint sem erros/avisos, 98 testes em 18 arquivos e build aprovado; BE com 84 testes e compilação `tsc` + `tsc-alias` aprovada. Permanecem somente os avisos preexistentes do build FE sobre Gantt e tamanho do chunk de PDF. Commit BE: `911266c`. Nenhuma migração gerada ou aplicada.
+
+1. `/auth/signin`: entrar com senha; para conta com 2FA ativado, conferir o código em `/auth/signin-otp`. Código incorreto não libera acesso; voltar ao login funciona.
+2. Configurações → segurança/2FA (`/dashboard/settings` e telas equivalentes de cada papel): manter a ativação por e-mail e testar a entrada seguinte.
+3. Gestão de usuários (`/dashboard/user-management`): desativar um vínculo de teste e verificar que a sessão já aberta não consegue fazer a próxima consulta protegida.
+4. Gestão de clientes → abrir cliente (`/dashboard/client-management/:clientId`) → acesso ao portal: desabilitar para uma conta de teste; a sessão do portal deve perder acesso na próxima requisição. Notificações abertas são revogadas em até 15 segundos.
+5. Sair e entrar com outra conta no mesmo navegador: conferir projetos, tarefas, clientes e faturas sem dados da conta anterior. O logout com falha no servidor não é apresentado como concluído.
+6. Cadastro com pagamento pendente: continuar em `/checkout` ou `/pricing`, sem acesso antecipado ao dashboard.

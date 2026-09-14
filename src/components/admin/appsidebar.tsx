@@ -95,7 +95,8 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
       localStorage.removeItem("organizationId");
 
       // Sign out from Better Auth (this handles server-side session cleanup)
-      await authClient.signOut();
+      const result = await authClient.signOut();
+      if (result.error) throw result.error;
 
       // Small delay to ensure cleanup completes before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -107,14 +108,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
       console.error("Logout error:", error);
       toast.error("Logout failed. Please try again.");
 
-      // Force cleanup even if logout fails
-      setLoggingOut(true);
-      queryClient.cancelQueries();
-      queryClient.clear();
-      queryClient.removeQueries();
-
-      // Force redirect even if logout fails
-      navigate("/auth/signin", { replace: true });
+      // A failed server request has not revoked the session; allow another attempt.
     } finally {
       setIsLoggingOut(false);
       // Reset flag after a delay to allow navigation

@@ -1,10 +1,15 @@
-import { createAuthClient } from "better-auth/client";
-import { emailOTPClient, twoFactorClient } from "better-auth/client/plugins";
+import { createAuthClient } from "better-auth/react";
+import {
+  adminClient,
+  emailOTPClient,
+  twoFactorClient,
+} from "better-auth/client/plugins";
+import { ac, roles } from "@/configs/permission.config";
 import { backendURL } from "@/configs/axios.config";
 
 export const authClient = createAuthClient({
   baseURL: backendURL,
-  plugins: [emailOTPClient(), twoFactorClient()],
+  plugins: [adminClient({ ac, roles }), emailOTPClient(), twoFactorClient()],
 });
 
 // Export the email OTP methods for easy use

@@ -1,110 +1,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { sendSignInOTP, verifySignInOTP } from "@/lib/sign-in-otp";
 import { authClient } from "@/lib/auth-client";
 import { useUser } from "@/providers/user.provider";
 import { backendURL } from "@/configs/axios.config";
 
-// Generate OTP for sign-in (no user context required)
-export const useGenerateSignInOTP = () => {
-  return useMutation({
-    mutationFn: async ({ email }: { email: string }) => {
-      const result = await authClient.emailOtp.sendVerificationOtp({
-        email: email,
-        type: "email-verification",
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message || "Failed to send OTP");
-      }
-
-      return result.data;
-    },
-    onError: (error: any) => {
-      console.error("Failed to generate sign-in OTP:", error);
-      throw error;
-    },
+// Login verification uses the server-issued challenge, never email verification as a password.
+export const useGenerateSignInOTP = () =>
+  useMutation({
+    mutationFn: ({
+      email,
+      secondFactor = false,
+    }: {
+      email: string;
+      secondFactor?: boolean;
+    }) => sendSignInOTP(email, secondFactor),
   });
-};
 
-// Verify OTP for sign-in (no user context required)
-export const useVerifySignInOTP = () => {
-  return useMutation({
-    mutationFn: async ({ email, otp }: { email: string; otp: string }) => {
-      // For sign-in with OTP, we need to use the correct Better Auth flow
-      try {
-        // First verify the OTP
-        const verifyResult = await authClient.emailOtp.verifyEmail({
-          email: email,
-          otp: otp,
-        });
-
-        if (verifyResult.error) {
-          throw new Error(
-            verifyResult.error.message || "Invalid or expired OTP"
-          );
-        }
-
-        // After successful OTP verification, we need to establish a session
-        // The backend should handle session creation after OTP verification
-        // Let's wait a moment and then check for session
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        try {
-          const sessionResult = await authClient.getSession();
-
-          if (sessionResult.data) {
-            return sessionResult.data;
-          } else {
-            // Try to use the regular sign-in method with OTP as password
-            try {
-              const signInResult = await authClient.signIn.email({
-                email: email,
-                password: otp, // Use OTP as password
-              });
-
-              if (signInResult.data) {
-                return signInResult.data;
-              } else {
-                console.log(
-                  `⚠️ Sign-in with OTP failed, trying session refresh...`
-                );
-
-                // Fallback: try to refresh the session
-                const refreshResult = await authClient.getSession();
-
-                if (refreshResult.data) {
-                  return refreshResult.data;
-                } else {
-                  return verifyResult.data;
-                }
-              }
-            } catch (signInError) {
-              console.error(`❌ Sign-in with OTP failed:`, signInError);
-
-              // Fallback: try to refresh the session
-              const refreshResult = await authClient.getSession();
-
-              if (refreshResult.data) {
-                return refreshResult.data;
-              } else {
-                return verifyResult.data;
-              }
-            }
-          }
-        } catch (sessionError) {
-          console.error(`❌ Session handling failed:`, sessionError);
-          return verifyResult.data;
-        }
-      } catch (error) {
-        console.error(`❌ Sign-in OTP verification error:`, error);
-        throw error;
-      }
-    },
-    onError: (error: any) => {
-      console.error("Failed to verify sign-in OTP:", error);
-      throw error;
-    },
+export const useVerifySignInOTP = () =>
+  useMutation({
+    mutationFn: ({
+      email,
+      otp,
+      secondFactor = false,
+    }: {
+      email: string;
+      otp: string;
+      secondFactor?: boolean;
+    }) => verifySignInOTP(email, otp, secondFactor),
   });
-};
 
 // Generate OTP for 2FA using better-auth client
 export const useGenerateOTP = () => {
@@ -138,14 +61,17 @@ export const useGenerateOTP = () => {
 export const useVerifyCurrentPassword = () => {
   return useMutation({
     mutationFn: async ({ password }: { password: string }) => {
-      const response = await fetch(`${backendURL}/api/user/profile/verify-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${backendURL}/api/user/profile/verify-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ password }),
         },
-        credentials: "include",
-        body: JSON.stringify({ password }),
-      });
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -171,38 +97,13 @@ export const useVerifyOTP = () => {
         throw new Error("User email not found");
       }
 
-      // Try different verification approaches
-      try {
-        const result = await authClient.emailOtp.verifyEmail({
-          email: user.user.email,
-          otp: otp,
-        });
-
-        if (result.error) {
-          try {
-            const signInResult = await authClient.signIn.emailOtp({
-              email: user.user.email,
-              otp: otp,
-            });
-
-            if (signInResult.error) {
-              throw new Error(
-                signInResult.error.message || "Invalid or expired OTP"
-              );
-            }
-
-            return signInResult.data;
-          } catch (signInError) {
-            console.error(`❌ SignIn OTP also failed:`, signInError);
-            throw new Error(result.error.message || "Invalid or expired OTP");
-          }
-        }
-
-        return result.data;
-      } catch (error) {
-        console.error(`❌ OTP verification error:`, error);
-        throw error;
-      }
+      const result = await authClient.emailOtp.verifyEmail({
+        email: user.user.email,
+        otp,
+      });
+      if (result.error)
+        throw new Error(result.error.message || "Invalid or expired OTP");
+      return result.data;
     },
     onError: (error: any) => {
       console.error("Failed to verify OTP:", error);

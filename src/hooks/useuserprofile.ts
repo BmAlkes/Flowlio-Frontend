@@ -4,8 +4,10 @@ import {
   type ErrorWithMessage,
 } from "@/configs/axios.config";
 import { useQuery } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
+import { isAxiosError, isCancel } from "axios";
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
   name: string;
   email: string;
@@ -94,27 +96,66 @@ export function getMergedProfileFormValues(u: UserProfile): {
   };
 }
 
-export const useUserProfile = (options?: { enabled?: boolean }) => {
-  return useQuery<ApiResponse<UserProfile>, ErrorWithMessage>({
-    queryKey: ["user-profile"],
-    queryFn: async () => {
-      const response = await axios.get<ApiResponse<UserProfile>>(
-        "/user/profile",
-        {
-          headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-          },
+export const profileQueryKey = (userId?: string, sessionId?: string) =>
+  ["user-profile", userId ?? null, sessionId ?? null] as const;
+
+export async function fetchUserProfile(userId: string, signal?: AbortSignal) {
+  const request = () =>
+    axios.get<ApiResponse<UserProfile>>("/user/profile", {
+      signal,
+      headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+    });
+  const response = await request()
+    .catch((error: unknown) => {
+      // Login may finish while the session hook is catching up. Retry once;
+      // the response below must still match the requested user identity.
+      if (isCancel(error) && !signal?.aborted) return request();
+      throw error;
+    })
+    .catch((error: unknown) => {
+      const body = isAxiosError(error) ? error.response?.data : null;
+      if (
+        body?.data?.id !== userId ||
+        !["USER_PENDING", "USER_PENDING_NO_PLAN"].includes(body?.code)
+      )
+        throw error;
+      // Pending registration may enter checkout, but carries no organization privileges.
+      return {
+        data: {
+          message: body.message,
+          data: {
+            ...body.data,
+            role: "user",
+            status: "pending",
+            isSuperAdmin: false,
+            isOrganizationOwner: false,
+            isOrganizationManager: false,
+            organizationId: null,
+            organization: null,
+            clientId: null,
+            clientProfile: null,
+            subadminId: null,
+          } as UserProfile,
         },
-      );
-      return response.data;
-    },
+      };
+    });
+  if (response.data.data?.id !== userId) {
+    throw new Error("Profile does not belong to the current session");
+  }
+  return response.data;
+}
+
+export const useUserProfile = (options?: { enabled?: boolean }) => {
+  const { data: session } = authClient.useSession();
+  return useQuery<ApiResponse<UserProfile>, ErrorWithMessage>({
+    queryKey: profileQueryKey(session?.user.id, session?.session.id),
+    queryFn: ({ signal }) => fetchUserProfile(session!.user.id, signal),
     retry: 1,
     staleTime: 0, // No caching - always fetch fresh data
     gcTime: 0, // No garbage collection time - always fresh
     refetchOnWindowFocus: true, // Refetch when window gains focus
     refetchOnMount: true, // Refetch when component mounts
     refetchOnReconnect: true, // Refetch when reconnecting
-    ...options,
+    enabled: !!session?.user.id && options?.enabled !== false,
   });
 };

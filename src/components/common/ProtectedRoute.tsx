@@ -67,6 +67,16 @@ export const ProtectedRoute = ({
 
     const user = userData.user;
 
+    if (user.status === "pending") {
+      navigate(user.selectedPlanId ? "/checkout" : "/pricing", {
+        replace: true,
+        state: user.selectedPlanId
+          ? { planId: user.selectedPlanId, ...user.pendingOrganizationData }
+          : undefined,
+      });
+      return;
+    }
+
     // Check role requirements
     if (requiredRole && user.role) {
       if (!hasRole(user.role, requiredRole)) {
@@ -117,7 +127,9 @@ export const ProtectedRoute = ({
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground text-lg font-medium">Verifying access...</p>
+          <p className="text-foreground text-lg font-medium">
+            Verifying access...
+          </p>
         </div>
       </div>
     );
@@ -130,6 +142,8 @@ export const ProtectedRoute = ({
   }
 
   const user = userData.user;
+
+  if (user.status === "pending") return null;
 
   // Don't render if user doesn't have required role
   if (requiredRole && user.role && !hasRole(user.role, requiredRole)) {
@@ -222,7 +236,9 @@ export const AdminManagerOrOrgOwnerRoute = ({
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground text-lg font-medium">Verifying access...</p>
+          <p className="text-foreground text-lg font-medium">
+            Verifying access...
+          </p>
         </div>
       </div>
     );
@@ -272,7 +288,9 @@ export const OrgOwnerOnlyRoute = ({ children }: { children: ReactNode }) => {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground text-lg font-medium">Verifying access...</p>
+          <p className="text-foreground text-lg font-medium">
+            Verifying access...
+          </p>
         </div>
       </div>
     );

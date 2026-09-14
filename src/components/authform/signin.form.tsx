@@ -33,7 +33,7 @@ const formSchema = z.object({
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(
       /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     ),
   email: z
     .string()
@@ -83,10 +83,10 @@ export const SignInForm: FC = () => {
       sessionStorage.removeItem("userPendingError");
     } else if (message === "deactivated") {
       toast.error(
-        "Your account has been deactivated. Please contact the administrator for assistance."
+        "Your account has been deactivated. Please contact the administrator for assistance.",
       );
       setError(
-        "Your account has been deactivated. Please contact the administrator for assistance."
+        "Your account has been deactivated. Please contact the administrator for assistance.",
       );
     } else if (message === "organization_deactivated") {
       const errorMsg =
@@ -130,8 +130,16 @@ export const SignInForm: FC = () => {
         onRequest: () => {
           setIsLoading(true);
         },
-        onSuccess: async () => {
+        onSuccess: async ({ data: signInData }) => {
           setError(null);
+          if (signInData?.twoFactorRedirect) {
+            sessionStorage.setItem("otpEmail", email);
+            sessionStorage.setItem("otpSecondFactor", "true");
+            setIsLoading(false);
+            navigate("/auth/signin-otp", { replace: true });
+            return;
+          }
+          sessionStorage.removeItem("otpSecondFactor");
 
           try {
             // Wait for Better Auth session to be established
@@ -219,7 +227,7 @@ export const SignInForm: FC = () => {
             if (!userProfile) {
               console.error(
                 "❌ No user profile data received:",
-                profileResponse
+                profileResponse,
               );
               setIsLoading(false);
               return;
@@ -236,17 +244,6 @@ export const SignInForm: FC = () => {
               fullProfile: userProfile,
               profileResponseKeys: Object.keys(profileResponse.data || {}),
             });
-
-            // Check if user has 2FA enabled
-            if (userProfile.twoFactorEnabled) {
-              // Store email for OTP verification
-              sessionStorage.setItem("otpEmail", email);
-              setIsLoading(false);
-
-              // Redirect to OTP verification page
-              navigate("/auth/signin-otp", { replace: true });
-              return;
-            }
 
             // Skip pending payment check for:
             // 1. Super admins (they don't need payment)
@@ -331,12 +328,12 @@ export const SignInForm: FC = () => {
                   userProfile.pendingOrganizationData
                 ) {
                   console.log(
-                    "✅ User has payment data, redirecting to checkout"
+                    "✅ User has payment data, redirecting to checkout",
                   );
 
                   // User has pending payment, redirect to checkout
                   toast.info(
-                    "Please complete your payment to activate your account"
+                    "Please complete your payment to activate your account",
                   );
 
                   // Refresh user context first
@@ -358,12 +355,12 @@ export const SignInForm: FC = () => {
                   return; // IMPORTANT: Return early to prevent further execution
                 } else {
                   console.log(
-                    "✅ User has no payment data, redirecting to pricing"
+                    "✅ User has no payment data, redirecting to pricing",
                   );
 
                   // User is pending but has no payment data - redirect to pricing to select a plan
                   toast.info(
-                    "Please select a plan and complete payment to activate your account"
+                    "Please select a plan and complete payment to activate your account",
                   );
 
                   // Refresh user context first
@@ -382,7 +379,7 @@ export const SignInForm: FC = () => {
               } else {
                 // User is not pending, continue with normal login flow
                 console.log(
-                  "✅ User is not pending, continuing with normal login flow"
+                  "✅ User is not pending, continuing with normal login flow",
                 );
               }
             } else {
@@ -408,7 +405,7 @@ export const SignInForm: FC = () => {
 
             // Get comprehensive role-based redirect path
             const redirectPath = getRoleBasedRedirectPathAfterLogin(
-              userProfile.role
+              userProfile.role,
             );
 
             // Refresh user context to avoid stale state, then client-side navigate
@@ -495,7 +492,7 @@ export const SignInForm: FC = () => {
 
             // Still redirect but show warning
             toast.warning(
-              "Login successful, but some data may not be available yet"
+              "Login successful, but some data may not be available yet",
             );
 
             // Fallback to default dashboard if profile fetch fails
@@ -603,7 +600,7 @@ export const SignInForm: FC = () => {
             const firstLine = stack.split("\n")[0];
             // Pattern: Error: <full message>
             const firstLineMatch = firstLine.match(
-              /Error:\s*(.+?)(?:\s+at\s|$)/
+              /Error:\s*(.+?)(?:\s+at\s|$)/,
             );
             if (firstLineMatch && firstLineMatch[1]) {
               const extracted = firstLineMatch[1].trim();
@@ -637,7 +634,7 @@ export const SignInForm: FC = () => {
                   }
                   // Also try to extract just the message part if it's in the line
                   const messageMatch = line.match(
-                    /(?:trial period has expired|demo account|deactivated|pending payment)[^.]*/i
+                    /(?:trial period has expired|demo account|deactivated|pending payment)[^.]*/i,
                   );
                   if (messageMatch) {
                     stackMessage = messageMatch[0].trim();
@@ -711,7 +708,7 @@ export const SignInForm: FC = () => {
                 errorMessage: safeErrorMessage,
                 cause: (ctx.error as any)?.cause,
                 stack: (ctx.error as any)?.stack,
-              }
+              },
             );
 
             // Check if the error code/message is in the wrapped structure
@@ -738,7 +735,7 @@ export const SignInForm: FC = () => {
                 wrappedErrorCode === "TRIAL_EXPIRED" ||
                 lowerWrappedMessage.includes("trial period has expired") ||
                 lowerWrappedMessage.includes(
-                  "demo account's trial period has expired"
+                  "demo account's trial period has expired",
                 ) ||
                 (lowerWrappedMessage.includes("demo account") &&
                   lowerWrappedMessage.includes("expired"))
@@ -792,7 +789,7 @@ export const SignInForm: FC = () => {
               safeErrorMessage === "{}"
             ) {
               console.log(
-                "🔍 No wrapped error found - checking user status..."
+                "🔍 No wrapped error found - checking user status...",
               );
 
               try {
@@ -807,7 +804,7 @@ export const SignInForm: FC = () => {
                   ) {
                     // User has payment data, redirect to checkout
                     toast.info(
-                      "Please complete your payment to activate your account"
+                      "Please complete your payment to activate your account",
                     );
                     navigate("/checkout", {
                       state: {
@@ -822,7 +819,7 @@ export const SignInForm: FC = () => {
                   } else {
                     // User has no payment data, redirect to pricing
                     toast.info(
-                      "Please select a plan and complete payment to activate your account"
+                      "Please select a plan and complete payment to activate your account",
                     );
                     navigate("/pricing", {
                       state: {
@@ -856,28 +853,28 @@ export const SignInForm: FC = () => {
                   if (stack.includes("trial period has expired")) {
                     // Try to extract the full message - check for demo account first
                     const demoMatch = stack.match(
-                      /This demo account's trial period has expired[^.]*/i
+                      /This demo account's trial period has expired[^.]*/i,
                     );
                     if (demoMatch) {
                       toast.error(
-                        "This demo account's trial period has expired. Please contact the administrator for assistance."
+                        "This demo account's trial period has expired. Please contact the administrator for assistance.",
                       );
                       setError(
-                        "This demo account's trial period has expired. Please contact the administrator for assistance."
+                        "This demo account's trial period has expired. Please contact the administrator for assistance.",
                       );
                       return;
                     }
 
                     // Try regular trial expiration message
                     const regularMatch = stack.match(
-                      /Your trial period has expired[^.]*/i
+                      /Your trial period has expired[^.]*/i,
                     );
                     if (regularMatch) {
                       toast.error(
-                        "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+                        "Your trial period has expired. Please contact the administrator to upgrade your subscription.",
                       );
                       setError(
-                        "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+                        "Your trial period has expired. Please contact the administrator to upgrade your subscription.",
                       );
                       return;
                     }
@@ -885,19 +882,19 @@ export const SignInForm: FC = () => {
                     // Fallback: check if it contains "demo account" anywhere
                     if (stack.toLowerCase().includes("demo account")) {
                       toast.error(
-                        "This demo account's trial period has expired. Please contact the administrator for assistance."
+                        "This demo account's trial period has expired. Please contact the administrator for assistance.",
                       );
                       setError(
-                        "This demo account's trial period has expired. Please contact the administrator for assistance."
+                        "This demo account's trial period has expired. Please contact the administrator for assistance.",
                       );
                       return;
                     } else {
                       // Generic trial expiration
                       toast.error(
-                        "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+                        "Your trial period has expired. Please contact the administrator to upgrade your subscription.",
                       );
                       setError(
-                        "Your trial period has expired. Please contact the administrator to upgrade your subscription."
+                        "Your trial period has expired. Please contact the administrator to upgrade your subscription.",
                       );
                       return;
                     }
@@ -906,7 +903,7 @@ export const SignInForm: FC = () => {
 
                 // Also check the error message directly in case it's there but we missed it
                 const directMessage = extractString(
-                  (ctx.error as any)?.message
+                  (ctx.error as any)?.message,
                 );
                 if (
                   directMessage &&
@@ -1022,7 +1019,7 @@ export const SignInForm: FC = () => {
             errorCode === "TRIAL_EXPIRED" ||
             lowerSafeMessage.includes("trial period has expired") ||
             lowerSafeMessage.includes(
-              "demo account's trial period has expired"
+              "demo account's trial period has expired",
             ) ||
             (lowerSafeMessage.includes("demo account") &&
               lowerSafeMessage.includes("expired"))
@@ -1115,10 +1112,10 @@ export const SignInForm: FC = () => {
             errorCode === "SUBADMIN_DEACTIVATED"
           ) {
             toast.error(
-              "Your account has been deactivated. Please contact the administrator for assistance."
+              "Your account has been deactivated. Please contact the administrator for assistance.",
             );
             setError(
-              "Your account has been deactivated. Please contact the administrator for assistance."
+              "Your account has been deactivated. Please contact the administrator for assistance.",
             );
             return;
           }
@@ -1158,7 +1155,7 @@ export const SignInForm: FC = () => {
               } else {
                 // User has payment data, redirect to checkout
                 toast.info(
-                  "Please complete your payment to activate your account"
+                  "Please complete your payment to activate your account",
                 );
                 navigate("/checkout", {
                   state: {
@@ -1202,7 +1199,7 @@ export const SignInForm: FC = () => {
             } else {
               // User has payment data
               toast.info(
-                "Please complete your payment to activate your account"
+                "Please complete your payment to activate your account",
               );
               navigate("/checkout", {
                 state: {
@@ -1248,7 +1245,7 @@ export const SignInForm: FC = () => {
 
           console.log("🔍 Ultimate error check:", {
             hasTrialExpired: ultimateErrorCheck.includes(
-              "trial period has expired"
+              "trial period has expired",
             ),
             hasDemoAccount: ultimateErrorCheck.includes("demo account"),
             errorCode,
@@ -1317,7 +1314,7 @@ export const SignInForm: FC = () => {
           toast.error(finalErrorMessage);
           setError(finalErrorMessage);
         },
-      }
+      },
     );
   };
 

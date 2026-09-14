@@ -1,30 +1,31 @@
 import {
   FC,
   useState,
+  useLayoutEffect,
+  useRef,
+  Fragment,
   useEffect,
   useContext,
   createContext,
   PropsWithChildren,
 } from "react";
-import { createAuthClient, type BetterFetchError } from "better-auth/react";
+import { type BetterFetchError } from "better-auth/react";
+import { roles } from "@/configs/permission.config";
+import { authClient } from "@/lib/auth-client";
+export { authClient } from "@/lib/auth-client";
 import {
-  adminClient,
-  emailOTPClient,
-  twoFactorClient,
-} from "better-auth/client/plugins";
-import * as permissions from "@/configs/permission.config";
-import { backendURL } from "@/configs/axios.config";
-import { useUserProfile } from "@/hooks/useuserprofile";
+  useUserProfile,
+  fetchUserProfile,
+  profileQueryKey,
+} from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearLastVisitedPage } from "@/utils/sessionPersistence.util";
 import { usePortalActivityTracker } from "@/hooks/usePortalActivityTracker";
-
-const { ac, roles } = permissions;
-
-export const authClient = createAuthClient({
-  plugins: [adminClient({ ac, roles }), emailOTPClient(), twoFactorClient()],
-  baseURL: backendURL,
-});
+import { mergeSessionProfile, sessionScope } from "@/utils/sessionScope";
+import {
+  setRequestScope,
+  SESSION_ACCESS_REVOKED,
+} from "@/configs/axios.config";
 
 type SessionObject = typeof authClient.$Infer.Session;
 export type Role = keyof typeof roles;
@@ -99,32 +100,7 @@ interface BeterAuthProviderProps extends PropsWithChildren {
   onError?: (error: BetterFetchError) => void;
 }
 
-const UserAuthContext = createContext<ContextData>({} as any);
-
-/** Mirrors the merge logic in UserProvider's sync effect — pulled out so
- * forceRefreshUser can compute the final value directly from freshly-fetched
- * data instead of waiting for that effect to re-run on its own schedule. */
-function buildEnhancedUserData(authData: any, userProfileData: any): Data | null {
-  if (!authData?.user) return null;
-  if (!userProfileData?.data) return authData as Data;
-  return {
-    ...authData,
-    user: {
-      ...authData.user,
-      ...userProfileData.data,
-      role: userProfileData.data.role || authData.user.role,
-      subadminId: userProfileData.data.subadminId,
-      isSuperAdmin: userProfileData.data.isSuperAdmin,
-      isOrganizationManager: userProfileData.data.isOrganizationManager,
-      clientId:
-        userProfileData.data.clientId || userProfileData.data.clientProfile?.id,
-      organizationId:
-        userProfileData.data.organizationId ||
-        userProfileData.data.clientProfile?.organizationId ||
-        authData.user.organizationId,
-    },
-  } as unknown as Data;
-}
+const UserAuthContext = createContext<ContextData | null>(null);
 
 const PortalActivityTracker = () => {
   usePortalActivityTracker();
@@ -150,149 +126,135 @@ export const UserProvider: FC<BeterAuthProviderProps> = ({
   refetchOnError = false,
 }) => {
   const { data: authData, isPending, error, refetch } = authClient.useSession();
-  const [data, setData] = useState<ContextData["data"]>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [previousUserId, setPreviousUserId] = useState<string | null>(null);
-  const refetchUser = refetch;
   const queryClient = useQueryClient();
+  const profile = useUserProfile({ enabled: !!authData?.user.id });
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshVersion = useRef(0);
+  const identity = authData
+    ? authData.user.id + ":" + authData.session.id
+    : "anonymous";
+  const identityRef = useRef(identity);
+  identityRef.current = identity;
+  const data = (
+    profile.isError ? null : mergeSessionProfile(authData, profile.data)
+  ) as Data | null;
+  const scope = sessionScope(authData, data?.user);
+  const [readyScope, setReadyScope] = useState<string | null>(null);
 
-  // Fetch fresh user profile with subadminId
-  const {
-    data: userProfileData,
-    isLoading: profileLoading,
-    refetch: refetchProfile,
-  } = useUserProfile({
-    enabled: !!authData?.user?.id,
-  });
-
-  // Clear React Query cache when user changes (login/logout)
-  useEffect(() => {
-    const currentUserId = authData?.user?.id;
-
-    if (previousUserId && currentUserId !== previousUserId) {
-      // Clear all queries except auth-related ones
-      queryClient.removeQueries({ queryKey: ["user-profile"] });
-      queryClient.removeQueries({ queryKey: ["get-current-org-user-members"] });
-      queryClient.removeQueries({ queryKey: ["get-all-user-members"] });
-      queryClient.removeQueries({ queryKey: ["projects"] });
-      queryClient.removeQueries({ queryKey: ["project"] });
-      queryClient.removeQueries({ queryKey: ["organization-clients"] });
-      queryClient.removeQueries({ queryKey: ["organization-users"] });
-      queryClient.removeQueries({ queryKey: ["calendar-events"] });
-      queryClient.removeQueries({ queryKey: ["calendar-event"] });
-      queryClient.removeQueries({ queryKey: ["viewer-calendar-events"] });
-    }
-
-    setPreviousUserId(currentUserId || null);
-  }, [authData?.user?.id, previousUserId, queryClient]);
-
-  useEffect(() => {
-    // Show loading while any authentication process is running
-    if (isPending || profileLoading) {
-      setIsLoading(true);
-      return;
-    }
-
-    // Clear data when no session exists (logout scenario)
-    // Be more lenient - only clear if we're sure there's no session
-    if (!authData?.user) {
-      setData(null);
-      setIsLoading(false);
-
-      // Clear session persistence data on logout
-      clearLastVisitedPage();
-
-      // Cancel all ongoing queries and clear cache when logging out
-      queryClient.cancelQueries();
-      queryClient.clear();
-      queryClient.removeQueries();
-
-      return;
-    }
-
-    // User is logged in - process session data
-    if (authData?.user) {
-      setData(buildEnhancedUserData(authData, userProfileData));
-      setIsLoading(false);
-    }
-
-    if (error) {
-      onError?.(error);
-      if (refetchOnError) {
-        setTimeout(() => {
-          refetchUser();
-        }, 1000);
-      }
-    }
+  // Hide and remount consumers before exposing a new identity or organization.
+  // Removed queries are cancelled, so late results cannot enter the new cache.
+  useLayoutEffect(() => {
+    if (readyScope === scope) return;
+    setRequestScope(scope, identity);
+    const currentProfileKey = JSON.stringify(
+      profileQueryKey(authData?.user.id, authData?.session.id),
+    );
+    const obsolete = {
+      predicate: (query: { queryKey: readonly unknown[] }) =>
+        JSON.stringify(query.queryKey) !== currentProfileKey,
+    };
+    void queryClient.cancelQueries(obsolete);
+    queryClient.removeQueries(obsolete);
+    queryClient.getMutationCache().clear();
+    clearLastVisitedPage();
+    setReadyScope(scope);
   }, [
-    authData,
-    isPending,
-    error,
-    onError,
-    refetchOnError,
-    userProfileData,
-    profileLoading,
-    refetchUser,
+    scope,
+    identity,
+    readyScope,
     queryClient,
+    authData?.user.id,
+    authData?.session.id,
   ]);
 
-  // Function to force refresh user data (useful after login/logout). Computes
-  // the merged value directly from the freshly-resolved responses instead of
-  // relying on the sync effect above to re-run before the caller continues —
-  // that gap was a real race: on slower devices (seen consistently on mobile
-  // Safari), a caller's `navigate()` right after `await refetchUser()` could
-  // fire before the effect had processed the new session, so ProtectedRoute's
-  // guard read a still-stale "no user" context and bounced back to sign-in
-  // even though the login had actually succeeded.
+  useEffect(() => {
+    if (!error) return;
+    onError?.(error);
+    if (!refetchOnError) return;
+    const timeout = setTimeout(() => void refetch(), 1000);
+    return () => clearTimeout(timeout);
+  }, [error, onError, refetchOnError, refetch]);
+
+  useEffect(() => {
+    const revoke = () => {
+      queryClient.setQueriesData({ queryKey: ["user-profile"] }, null);
+      void queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      void refetch();
+    };
+    window.addEventListener(SESSION_ACCESS_REVOKED, revoke);
+    return () => window.removeEventListener(SESSION_ACCESS_REVOKED, revoke);
+  }, [queryClient, refetch]);
+
+  useEffect(
+    () => () => {
+      refreshVersion.current++;
+    },
+    [],
+  );
+
   const forceRefreshUser = async () => {
-    setIsLoading(true);
-    setData(null);
-
-    const [sessionResult, profileResult] = await Promise.all([
-      authClient.getSession(),
-      refetchProfile(),
-    ]);
-
-    setData(buildEnhancedUserData(sessionResult?.data, profileResult?.data));
-    setIsLoading(false);
-
-    // Keep the useSession() hook itself in sync for other consumers of authData.
-    refetchUser();
+    const version = ++refreshVersion.current;
+    const startingIdentity = identityRef.current;
+    setRefreshing(true);
+    try {
+      const result = await authClient.getSession({
+        query: { disableCookieCache: true },
+      });
+      if (result.error) throw result.error;
+      if (!result.data) {
+        await refetch();
+        return;
+      }
+      const session = result.data;
+      const response = await fetchUserProfile(session.user.id);
+      const confirmation = await authClient.getSession({
+        query: { disableCookieCache: true },
+      });
+      if (
+        version !== refreshVersion.current ||
+        confirmation.data?.session.id !== session.session.id ||
+        (identityRef.current !== startingIdentity &&
+          identityRef.current !== session.user.id + ":" + session.session.id)
+      )
+        return;
+      queryClient.setQueryData(
+        profileQueryKey(session.user.id, session.session.id),
+        response,
+      );
+      await refetch();
+    } finally {
+      if (version === refreshVersion.current) setRefreshing(false);
+    }
   };
 
+  const isLoading =
+    isPending ||
+    refreshing ||
+    (!!authData && profile.isLoading) ||
+    readyScope !== scope;
   return (
     <UserAuthContext.Provider
       value={{
-        data,
+        data: isLoading ? null : data,
         isLoading,
-        role: data?.user?.role || "",
-        refetchUser: forceRefreshUser, // Use our enhanced refresh function
-        isSuperAdmin: data?.user?.isSuperAdmin || false,
-        subadminId: data?.user?.subadminId || "",
+        role: data?.user.role || "",
+        refetchUser: forceRefreshUser,
+        isSuperAdmin: data?.user.isSuperAdmin || false,
+        subadminId: data?.user.subadminId || "",
       }}
     >
-      <PortalActivityTracker />
-      {children}
+      {readyScope === scope && (
+        <Fragment key={scope}>
+          <PortalActivityTracker />
+          {children}
+        </Fragment>
+      )}
     </UserAuthContext.Provider>
   );
 };
 
-/**
- * useUser is a custom hook that provides access to the current user, session, loading state, and a refetch function.
- *
- * Must be used within a UserProvider.
- *
- * @example
- *   const { data, isLoading, refetchUser } = useUser();
- *   if (isLoading) return <div>Loading...</div>;
- *   if (data?.user) return <div>Hello, {data.user.name}!</div>;
- *
- * @returns {ContextData}
- */
 export const useUser = () => {
   const context = useContext(UserAuthContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
+  if (!context) throw new Error("useUser must be used within a UserProvider");
   return context;
 };

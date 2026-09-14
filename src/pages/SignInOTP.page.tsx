@@ -7,7 +7,7 @@ import {
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { getRoleBasedRedirectPathAfterLogin } from "@/utils/sessionPersistence.util";
-import { axios } from "@/configs/axios.config";
+import { fetchUserProfile } from "@/hooks/useuserprofile";
 import { useUser } from "@/providers/user.provider";
 
 interface SignInOTPPageProps {
@@ -24,6 +24,7 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
   const [email, setEmail] = useState<string>("");
   const generateOTPMutation = useGenerateSignInOTP();
   const verifyOTPMutation = useVerifySignInOTP();
+  const secondFactor = sessionStorage.getItem("otpSecondFactor") === "true";
   const otpSentRef = useRef<boolean>(false);
 
   useEffect(() => {
@@ -43,14 +44,17 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
   useEffect(() => {
     if (email && !otpSentRef.current) {
       otpSentRef.current = true; // Mark as sent
-      generateOTPMutation.mutate({ email });
+      generateOTPMutation.mutate(
+        { email, secondFactor },
+        {
+          onError: (error) =>
+            toast.error(
+              error.message || "Failed to send OTP. Please try again.",
+            ),
+        },
+      );
     }
-
-    // Cleanup function to reset ref when component unmounts
-    return () => {
-      otpSentRef.current = false;
-    };
-  }, [email]);
+  }, [email, secondFactor, generateOTPMutation]);
 
   const handleBack = () => {
     if (propOnBack) {
@@ -63,94 +67,49 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
 
   const handleVerify = async (otp: string) => {
     try {
-      await verifyOTPMutation.mutateAsync({ email, otp });
-      toast.success("Login successful!");
-
-      // Clear stored email
+      const session = await verifyOTPMutation.mutateAsync({
+        email,
+        otp,
+        secondFactor,
+      });
+      const response = await fetchUserProfile(session.user.id);
+      const profile = response.data!;
+      await refetchUser();
       sessionStorage.removeItem("otpEmail");
-
-      try {
-        // Wait for Better Auth session to be established
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Fetch user profile to get role for role-based redirection
-        const profileResponse = await axios.get("/user/profile");
-
-        // Check if organization is deactivated or trial expired
-        if (profileResponse.status === 403) {
-          const errorCode = profileResponse.data?.code;
-          if (
-            errorCode === "ORGANIZATION_DEACTIVATED" ||
-            errorCode === "TRIAL_EXPIRED"
-          ) {
-            const errorMessage =
-              profileResponse.data?.message ||
-              "Access denied. Please contact the administrator for assistance.";
-            toast.error(errorMessage);
-
-            // Log out the user session that was created
-            try {
-              const { authClient } = await import("@/providers/user.provider");
-              await authClient.signOut();
-            } catch (signOutError) {
-              console.error("Error signing out:", signOutError);
-            }
-
-            navigate("/auth/signin");
-            return;
-          }
-        }
-
-        const userProfile = profileResponse.data.data;
-        const userRole = userProfile.role;
-
-        // Get comprehensive role-based redirect path
-        const redirectPath = getRoleBasedRedirectPathAfterLogin(userRole);
-
-        // Refresh user context, then client-side navigate without reload
-        await refetchUser();
-        navigate(redirectPath, { replace: true });
-      } catch (error: any) {
-        console.error("Error fetching user profile for redirection:", error);
-
-        // Check if organization is deactivated or trial expired
-        if (error?.response?.status === 403) {
-          const errorCode = error?.response?.data?.code;
-          if (
-            errorCode === "ORGANIZATION_DEACTIVATED" ||
-            errorCode === "TRIAL_EXPIRED"
-          ) {
-            const errorMessage =
-              error?.response?.data?.message ||
-              "Access denied. Please contact the administrator for assistance.";
-            toast.error(errorMessage);
-
-            // Log out the user session that was created
-            try {
-              const { authClient } = await import("@/providers/user.provider");
-              await authClient.signOut();
-            } catch (signOutError) {
-              console.error("Error signing out:", signOutError);
-            }
-
-            navigate("/auth/signin");
-            return;
-          }
-        }
-
-        // Fallback to default dashboard if profile fetch fails
-        await refetchUser();
-        navigate("/dashboard", { replace: true });
-      }
+      sessionStorage.removeItem("otpSecondFactor");
+      navigate("/auth/signin", { replace: true });
+      sessionStorage.removeItem("otpSecondFactor");
+      toast.success("Login successful!");
+      navigate(
+        profile.status === "pending"
+          ? profile.selectedPlanId
+            ? "/checkout"
+            : "/pricing"
+          : getRoleBasedRedirectPathAfterLogin(profile.role),
+        {
+          replace: true,
+          state:
+            profile.status === "pending"
+              ? {
+                  planId: profile.selectedPlanId,
+                  ...profile.pendingOrganizationData,
+                }
+              : undefined,
+        },
+      );
     } catch (error) {
-      console.error("OTP verification failed:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Sign-in failed. Please try again.",
+      );
       throw error;
     }
   };
 
   const handleResend = async () => {
     try {
-      await generateOTPMutation.mutateAsync({ email });
+      await generateOTPMutation.mutateAsync({ email, secondFactor });
       toast.success("OTP sent to your email");
     } catch (error) {
       console.error("Failed to resend OTP:", error);
