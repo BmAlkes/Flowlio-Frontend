@@ -146,7 +146,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   const handleToggle = async (enabled: boolean) => {
     // First, notify parent to open the modal (this updates parent's isModalOpen state)
     // Call onToggle without password to just open the modal
-    await onToggle(enabled);
+    if (!open) await onToggle(enabled);
 
     if (enabled && !isEnabled) {
       // Enabling 2FA - show password form first
@@ -164,6 +164,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
       toast.success(t("settings.twoFactorAuthenticationEnabled"));
 
       // Show success state
+      setShowOTPForm(false);
       setShowSuccessState(true);
 
       // Close modal after showing success
@@ -184,7 +185,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   };
 
   const handleEnablePasswordSubmit = async (
-    values: z.infer<typeof passwordSchema>
+    values: z.infer<typeof passwordSchema>,
   ) => {
     setIsLoading(true);
     try {
@@ -200,16 +201,14 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
         error instanceof Error
           ? error.message
           : t("settings.invalidPasswordDesc");
-      toast.error(t("settings.invalidPassword"), {
-        description: errorMessage,
-      });
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handlePasswordSubmit = async (
-    values: z.infer<typeof passwordSchema>
+    values: z.infer<typeof passwordSchema>,
   ) => {
     setIsLoading(true);
     try {
@@ -252,30 +251,32 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   return (
     <>
       {/* 2FA Switch */}
-      <Flex className="justify-between w-full rounded-md max-md:px-3">
-        <Stack className={`gap-0`}>
-          <span
-            className={`text-[#7184B4] ${
-              location.pathname === "/superadmin/settings" ? "hidden" : ""
-            }`}
-          >
-            {t("settings.twoFactorAuthentication")}
-          </span>
-          <h1
-            className={`text-md max-md:text-sm ${
-              location.pathname === "/superadmin/settings" ? "hidden" : ""
-            }`}
-          >
-            {t("settings.twoFactorAuthenticationDesc")}
-          </h1>
-        </Stack>
-        <Switch
-          checked={isEnabled}
-          className="cursor-pointer"
-          onCheckedChange={handleToggle}
-          disabled={isLoading}
-        />
-      </Flex>
+      {!open && (
+        <Flex className="justify-between w-full rounded-md max-md:px-3">
+          <Stack className={`gap-0`}>
+            <span
+              className={`text-[#7184B4] ${
+                location.pathname === "/superadmin/settings" ? "hidden" : ""
+              }`}
+            >
+              {t("settings.twoFactorAuthentication")}
+            </span>
+            <h1
+              className={`text-md max-md:text-sm ${
+                location.pathname === "/superadmin/settings" ? "hidden" : ""
+              }`}
+            >
+              {t("settings.twoFactorAuthenticationDesc")}
+            </h1>
+          </Stack>
+          <Switch
+            checked={isEnabled}
+            className="cursor-pointer"
+            onCheckedChange={handleToggle}
+            disabled={isLoading}
+          />
+        </Flex>
+      )}
 
       {/* 2FA Modal */}
       <GeneralModal
@@ -311,7 +312,10 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
             </Stack>
 
             <form
-              onSubmit={form.handleSubmit(handleOTPSubmit)}
+              onSubmit={(event) => {
+                event.stopPropagation();
+                void form.handleSubmit(handleOTPSubmit)(event);
+              }}
               className="space-y-4"
             >
               <Stack className="gap-2">
@@ -362,7 +366,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 >
                   {t("common.cancel")}
                 </Button>
-                 <Button
+                <Button
                   type="submit"
                   className="flex-1"
                   variant="default"
@@ -398,9 +402,12 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
             </Stack>
 
             <form
-              onSubmit={enablePasswordForm.handleSubmit(
-                handleEnablePasswordSubmit
-              )}
+              onSubmit={(event) => {
+                event.stopPropagation();
+                void enablePasswordForm.handleSubmit(
+                  handleEnablePasswordSubmit,
+                )(event);
+              }}
               className="space-y-4"
             >
               <Stack className="gap-2">
@@ -433,7 +440,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                 >
                   {t("common.cancel")}
                 </Button>
-                 <Button
+                <Button
                   type="submit"
                   className="flex-1 cursor-pointer"
                   variant="default"
@@ -489,7 +496,10 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
             </Stack>
 
             <form
-              onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
+              onSubmit={(event) => {
+                event.stopPropagation();
+                void passwordForm.handleSubmit(handlePasswordSubmit)(event);
+              }}
               className="space-y-4"
             >
               <Stack className="gap-2">

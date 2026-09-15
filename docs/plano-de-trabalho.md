@@ -109,6 +109,8 @@ Branches: `fix/t04-session-organization` em FE e BE. T03 publicada conforme conf
 
 Validação final: FE com lint sem erros/avisos, 98 testes em 18 arquivos e build aprovado; BE com 84 testes e compilação `tsc` + `tsc-alias` aprovada. Permanecem somente os avisos preexistentes do build FE sobre Gantt e tamanho do chunk de PDF. Commit BE: `911266c`. Nenhuma migração gerada ou aplicada.
 
+Correção de regressões T04 — branch `fix/t04-auth-regressions`: BrowserRouter permanece montado durante a troca de sessão, preservando a navegação do login; formulários de senha/OTP do modal não propagam submit ao formulário de perfil; erros de envio de OTP não são rotulados como senha incorreta; estado de sucesso do modal e descrição traduzida corrigidos. Lint limpo, 102 testes em 20 arquivos e build aprovados. Verificação em navegador com aplicação real e API simulada: login por senha → dashboard, senha incorreta seguida de nova tentativa e ativação por OTP sem atualização indevida de perfil, descrição traduzida e login com 2FA → dashboard. Conferir em `/auth/signin` e `/dashboard/settings`. A publicação original T04 (`3446c7a` FE / `911266c` BE) foi confirmada por Cloudflare e Railway; a correção altera somente o frontend.
+
 1. `/auth/signin`: entrar com senha; para conta com 2FA ativado, conferir o código em `/auth/signin-otp`. Código incorreto não libera acesso; voltar ao login funciona.
 2. Configurações → segurança/2FA (`/dashboard/settings` e telas equivalentes de cada papel): manter a ativação por e-mail e testar a entrada seguinte.
 3. Gestão de usuários (`/dashboard/user-management`): desativar um vínculo de teste e verificar que a sessão já aberta não consegue fazer a próxima consulta protegida.

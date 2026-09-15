@@ -292,21 +292,16 @@ export const SettingsHeader = () => {
 
   // 2FA handlers
   const handleToggle2FA = async (enabled: boolean, password?: string) => {
-    try {
-      if (enabled) {
-        if (!password) {
-          throw new Error("Password is required");
-        }
-
-        await verifyCurrentPasswordMutation.mutateAsync({ password });
-        await generateOTPMutation.mutateAsync();
-      } else {
-        // Disable 2FA directly
-        await disable2FAMutation.mutateAsync({ password: password || "" });
+    if (enabled) {
+      if (!password) {
+        throw new Error("Password is required");
       }
-    } catch (error) {
-      toast.error("Failed to update 2FA settings. Please try again.");
-      throw error;
+
+      await verifyCurrentPasswordMutation.mutateAsync({ password });
+      await generateOTPMutation.mutateAsync();
+    } else {
+      // Disable 2FA directly
+      await disable2FAMutation.mutateAsync({ password: password || "" });
     }
   };
 
@@ -481,7 +476,10 @@ export const SettingsHeader = () => {
 
       const currentPrefs = userData?.user?.notificationPreferences || {};
       await axios.patch("/user/profile", {
-        notificationPreferences: { ...currentPrefs, pushNotifications: enabled },
+        notificationPreferences: {
+          ...currentPrefs,
+          pushNotifications: enabled,
+        },
       });
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
@@ -493,7 +491,9 @@ export const SettingsHeader = () => {
       }
     } catch (error: any) {
       console.error("Failed to update push notifications:", error);
-      toast.error(error?.message || "Failed to update push notification preferences.");
+      toast.error(
+        error?.message || "Failed to update push notification preferences.",
+      );
     }
   };
 
@@ -705,7 +705,9 @@ export const SettingsHeader = () => {
                   onValueChange={(value) => setValue("country", value)}
                 >
                   <SelectTrigger className="bg-background border-border w-full !h-11 rounded-full">
-                    <SelectValue placeholder={t("settings.country", "Country")} />
+                    <SelectValue
+                      placeholder={t("settings.country", "Country")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {COUNTRIES.map((country) => (
@@ -983,8 +985,8 @@ export const SettingsHeader = () => {
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       {local2FAStatus
-                        ? t("settings.twoFactorDesc")
-                        : t("settings.twoFactorDesc")}
+                        ? t("settings.twoFactorAuthEnabled")
+                        : t("settings.twoFactorAuthDisabled")}
                     </p>
                   </div>
                   <Button
@@ -1027,7 +1029,9 @@ export const SettingsHeader = () => {
               <div className="p-2 rounded-xl bg-[#0c89af]/10">
                 <Sparkles className="size-5 text-[#0c89af]" />
               </div>
-              <h1 className="text-xl font-semibold">{t("settings.onboardingTitle")}</h1>
+              <h1 className="text-xl font-semibold">
+                {t("settings.onboardingTitle")}
+              </h1>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
               {t("settings.onboardingDesc")}

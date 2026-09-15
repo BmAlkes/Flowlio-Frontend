@@ -1,7 +1,7 @@
 import { lazy, useEffect, useRef } from "react";
 import { hasConsent } from "@/utils/cookieConsent";
 import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import { useTheme } from "next-themes";
 import { LazyWrapper } from "./components/common/LazyWrapper";
@@ -44,7 +44,9 @@ const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
 const VerifyEmailPage = lazy(() => import("./pages/verifyemail.page"));
 const VerifyCodePage = lazy(() => import("./pages/verifycode.page"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe.page"));
-const PaymentLinkPublicPage = lazy(() => import("./pages/paymentlinkpublic.page"));
+const PaymentLinkPublicPage = lazy(
+  () => import("./pages/paymentlinkpublic.page"),
+);
 const AiAssistPage = lazy(() =>
   import("./pages/aiassist.page").then((module) => ({
     default: module.AiAssistPage,
@@ -80,21 +82,13 @@ const UserLayout = lazy(() =>
   })),
 );
 const HomePage = lazy(() => import("./pages/home.page"));
-const WhatIsFlowlioPage = lazy(
-  () => import("./pages/whatisflowlio.page"),
-);
+const WhatIsFlowlioPage = lazy(() => import("./pages/whatisflowlio.page"));
 const ShowcasePage = lazy(() => import("./pages/showcase.page"));
 const BlogPage = lazy(() => import("./pages/blog.page"));
 const BlogPostPage = lazy(() => import("./pages/blogpost.page"));
-const WhatIsFlowlioENPage = lazy(
-  () => import("./pages/whatisflowlio-en.page"),
-);
-const WhatIsFlowlioPTPage = lazy(
-  () => import("./pages/whatisflowlio-pt.page"),
-);
-const WhatIsFlowlioHEPage = lazy(
-  () => import("./pages/whatisflowlio-he.page"),
-);
+const WhatIsFlowlioENPage = lazy(() => import("./pages/whatisflowlio-en.page"));
+const WhatIsFlowlioPTPage = lazy(() => import("./pages/whatisflowlio-pt.page"));
+const WhatIsFlowlioHEPage = lazy(() => import("./pages/whatisflowlio-he.page"));
 const WorkFlowPage = lazy(() =>
   import("./pages/workflow.page").then((module) => ({
     default: module.WorkFlowPage,
@@ -215,17 +209,25 @@ const CreateClientPage = lazy(() => import("./pages/createclient.page"));
 const ClientDetailPage = lazy(() => import("./pages/clientdetail.page"));
 const LeadsPage = lazy(() => import("./pages/leads.page"));
 const LeadsWebhooksPage = lazy(() => import("./pages/leads-webhooks.page"));
-const LeadsWebhookDetailPage = lazy(() => import("./pages/leads-webhook-detail.page"));
+const LeadsWebhookDetailPage = lazy(
+  () => import("./pages/leads-webhook-detail.page"),
+);
 const SubscriptionsPage = lazy(() => import("./pages/subscriptions.page"));
 const AITokenConfirmPage = lazy(() => import("./pages/ai-token-confirm.page"));
-const PlanPaymentConfirmPage = lazy(() => import("./pages/plan-payment-confirm.page"));
-const ClientMediaCenterPage = lazy(() => import("./pages/clientmediacenter.page"));
+const PlanPaymentConfirmPage = lazy(
+  () => import("./pages/plan-payment-confirm.page"),
+);
+const ClientMediaCenterPage = lazy(
+  () => import("./pages/clientmediacenter.page"),
+);
 const ClientPortalSettingsPage = lazy(
   () => import("./pages/clientportalsettings.page"),
 );
 const ReportsPage = lazy(() => import("./pages/reports.page"));
 const RevenuePage = lazy(() => import("./pages/revenue.page"));
-const ProjectTemplatesPage = lazy(() => import("./pages/projecttemplates.page"));
+const ProjectTemplatesPage = lazy(
+  () => import("./pages/projecttemplates.page"),
+);
 
 const ClientDashboardPage = lazy(() => import("./pages/clientdashboard.page"));
 const ClientProjectsPage = lazy(() => import("./pages/clientprojects.page"));
@@ -301,10 +303,19 @@ const AppRoutes = () => {
     <Routes>
       {/* Public routes fixed the workflow route*/}
       <Route path="/" element={<LazyWrapper component={HomePage} />} />
-      <Route path="/showcase" element={<LazyWrapper component={ShowcasePage} />} />
+      <Route
+        path="/showcase"
+        element={<LazyWrapper component={ShowcasePage} />}
+      />
       <Route path="/blog" element={<LazyWrapper component={BlogPage} />} />
-      <Route path="/blog/category/:category" element={<LazyWrapper component={BlogPage} />} />
-      <Route path="/blog/:slug" element={<LazyWrapper component={BlogPostPage} />} />
+      <Route
+        path="/blog/category/:category"
+        element={<LazyWrapper component={BlogPage} />}
+      />
+      <Route
+        path="/blog/:slug"
+        element={<LazyWrapper component={BlogPostPage} />}
+      />
       <Route
         path="/que-es-flowlio"
         element={<LazyWrapper component={WhatIsFlowlioPage} />}
@@ -592,10 +603,7 @@ const AppRoutes = () => {
           element={<LazyWrapper component={CommentsPage} />}
           path="comments"
         />
-        <Route
-          element={<LazyWrapper component={InboxPage} />}
-          path="inbox"
-        />
+        <Route element={<LazyWrapper component={InboxPage} />} path="inbox" />
         <Route index element={<LazyWrapper component={DashboardPage} />} />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
       </Route>
@@ -697,7 +705,10 @@ const AppRoutes = () => {
           </ClientRoute>
         }
       >
-        <Route index element={<LazyWrapper component={ClientDashboardPage} />} />
+        <Route
+          index
+          element={<LazyWrapper component={ClientDashboardPage} />}
+        />
         <Route
           path="projects"
           element={<LazyWrapper component={ClientProjectsPage} />}
@@ -806,7 +817,7 @@ const AppRoutes = () => {
 
 export const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -818,6 +829,6 @@ export const AppRouter = () => {
         <CookieConsentBanner />
         <AppRoutes />
       </ThemeProvider>
-    </BrowserRouter>
+    </>
   );
 };

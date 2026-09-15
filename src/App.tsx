@@ -5,6 +5,7 @@ import { AppRouter } from "./router";
 import { UserProvider } from "./providers/user.provider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter } from "react-router";
 
 const client = new QueryClient({
   defaultOptions: {
@@ -22,13 +23,15 @@ const App = () => {
   return (
     <HelmetProvider>
       <QueryClientProvider client={client}>
-        <UserProvider>
-          <ErrorBoundary section="the app" fullScreen>
-            <AppRouter />
-          </ErrorBoundary>
-          <Toaster />
-          <ReactQueryDevtools />
-        </UserProvider>
+        <BrowserRouter>
+          <UserProvider>
+            <ErrorBoundary section="the app" fullScreen>
+              <AppRouter />
+            </ErrorBoundary>
+            <Toaster />
+            <ReactQueryDevtools />
+          </UserProvider>
+        </BrowserRouter>
       </QueryClientProvider>
     </HelmetProvider>
   );
