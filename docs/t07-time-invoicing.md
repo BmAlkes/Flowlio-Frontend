@@ -34,4 +34,8 @@ Branch: `feat/t07-time-invoicing`, nos dois repositórios. Backend: `1a40867`.
 
 ## Publicação
 
-Backend `1a40867cdf760a27748242d643bd50e48192829c` integrado por fast-forward e enviado para `origin/main`. A consulta ao status do Railway foi recusada pelo usuário; sucesso do deploy ainda não confirmado. Frontend validado, aguardando essa confirmação antes do merge em `main` e publicação no Cloudflare.
+Backend `1a40867cdf760a27748242d643bd50e48192829c` integrado por fast-forward e enviado para `origin/main`; deploy no Railway confirmado pelo usuário em 17/09/2026.
+
+Frontend `0a5c8b7fc964c3eb8af16395910b082a806c598a` integrado por fast-forward e enviado para `origin/main` após a confirmação do backend. Check **Cloudflare Pages** concluído com **success**, registrado em 17/09/2026 às 11:17:32 UTC. [Deploy confirmado no Cloudflare](https://dash.cloudflare.com/?to=/3a6e0eb38c63bf937ab269786e305640/pages/view/flowlio-frontend/33e98edf-8d2a-4e98-829d-30060ea83c2f).
+
+O commit posterior de encerramento altera apenas a documentação; o código da aplicação corresponde à versão validada e publicada acima. Contêiner PostgreSQL, arquivos de prévia e capturas temporárias removidos. Alterações locais de `.claude-flow` preservadas fora dos commits.
