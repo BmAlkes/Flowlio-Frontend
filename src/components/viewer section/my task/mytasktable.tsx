@@ -162,7 +162,8 @@ export const MyTaskTable = ({ filteredTasks }: MyTaskTableProps) => {
   };
 
   const endTask = (taskId: string) => {
-    endTaskMutation.mutate(taskId);
+    const entry = activeTimeEntries?.data.find(item => item.taskId === taskId);
+    if (entry) endTaskMutation.mutate({ taskId, timeEntryId: entry.id });
   };
 
   // Handler to update status via API

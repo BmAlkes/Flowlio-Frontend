@@ -51,7 +51,7 @@ export default function TimeModal() {
         const elapsed = Math.floor(
           (now.getTime() - startTime.getTime()) / 1000
         );
-        setElapsedTime(elapsed);
+        setElapsedTime(Math.max(0, elapsed));
       };
 
       updateElapsed();
@@ -100,7 +100,7 @@ export default function TimeModal() {
     }
 
     try {
-      await endTaskMutation.mutateAsync(activeTimeEntry.taskId);
+      await endTaskMutation.mutateAsync({ taskId: activeTimeEntry.taskId, timeEntryId: activeTimeEntry.id });
     } catch (error) {
       console.error("Failed to stop task:", error);
     }

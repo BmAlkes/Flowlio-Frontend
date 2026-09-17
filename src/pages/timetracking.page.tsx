@@ -227,7 +227,7 @@ const TimeTrackingPage = () => {
     }
 
     try {
-      await endTaskMutation.mutateAsync(activeTimeEntry.taskId);
+      await endTaskMutation.mutateAsync({ taskId: activeTimeEntry.taskId, timeEntryId: activeTimeEntry.id });
     } catch (error) {
       console.error("Failed to stop task:", error);
     }
