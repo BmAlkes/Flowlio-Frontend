@@ -4,12 +4,13 @@ import { Box } from "../ui/box";
 import { ReusableTable } from "../reusable/reusabletable";
 import { Checkbox } from "../ui/checkbox";
 import { Flex } from "../ui/flex";
-import { FileText, Download, Trash2, CircleCheck, RotateCcw } from "lucide-react";
+import { FileText, Download, Trash2, CircleCheck, RotateCcw, Clock } from "lucide-react";
 import { useFetchInvoices, Invoice } from "@/hooks/usefetchinvoices";
 import { useDeleteInvoice } from "@/hooks/usedeleteinvoice";
 import { useGenerateSingleInvoicePDF } from "@/hooks/usegeneratesingleinvoicepdf";
 import { useUpdateInvoiceStatus } from "@/hooks/useupdateinvoicestatus";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { InvoiceTimeDetails } from "./InvoiceTimeDetails";
 import { toast } from "sonner";
 import { TableSkeleton, ErrorState } from "@/components/skeletons";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,7 @@ export function getStatusDisplay(invoice: Invoice) {
 
 // Actions component to properly use hooks
 const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
+  const [showTime, setShowTime] = useState(false);
   const deleteInvoiceMutation = useDeleteInvoice();
   const updateStatusMutation = useUpdateInvoiceStatus();
   const { generateSingleInvoicePDF } = useGenerateSingleInvoicePDF();
@@ -81,6 +83,8 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
 
   return (
     <Center className="gap-1.5">
+      {invoice.hasTrackedTime && <button type="button" onClick={() => setShowTime(true)} title="View tracked hours" aria-label="View tracked hours" className="h-8 w-8 flex items-center justify-center rounded-full bg-[#1797ba]/10 text-[#1797ba] hover:bg-[#1797ba]/20"><Clock className="size-4" /></button>}
+      {showTime && <InvoiceTimeDetails invoiceId={invoice.id} invoiceNumber={invoice.invoiceNumber} onClose={() => setShowTime(false)} />}
       <button
         onClick={handleDownloadPDF}
         title={invoice.pdfUrl ? "Download PDF" : "Generate PDF"}

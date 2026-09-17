@@ -1,255 +1,129 @@
-import { useMemo, useState } from "react";
-import { Box } from "@/components/ui/box";
-import { Flex } from "@/components/ui/flex";
+import { useRef, useState } from "react";
+import { isAxiosError } from "axios";
+import { Clock, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GeneralModal } from "../common/generalmodal";
-import { Loader2, Clock } from "lucide-react";
-import { toast } from "sonner";
 import { useFetchClients } from "@/hooks/usefetchclients";
-import { useFetchClientProjects } from "@/hooks/useFetchClientProjects";
-import { useAllTimeEntries } from "@/hooks/useAllTimeEntries";
-import { useCreateInvoice } from "@/hooks/usecreateinvoice";
-import { useMarkTimeEntriesInvoiced } from "@/hooks/usemarktimeentriesinvoiced";
-import { useUser } from "@/providers/user.provider";
+import { TimeInvoiceInput, useBillableTime, useInvoiceFromTime } from "@/hooks/useTimeInvoicing";
+import { displayCents, localDate, timeLineCents, timePeriod } from "./time-invoicing";
 
-interface GenerateInvoiceFromTimeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface Props { isOpen: boolean; onClose: () => void }
+export function GenerateInvoiceFromTimeModal({ isOpen, onClose }: Props) {
+  return isOpen ? <TimeInvoiceForm onClose={onClose} /> : null;
 }
-
-function startOfMonthISO() {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10);
-}
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-export interface TaskTimeAggregate {
-  taskTitle: string;
-  minutes: number;
-}
-
-/** Sums tracked minutes per task, so the same task's multiple time entries
- * collapse into one invoice description line instead of one per entry. */
-export function aggregateTimeEntriesByTask(
-  entries: { taskId: string; taskTitle: string; duration?: number }[],
-): TaskTimeAggregate[] {
-  const map = new Map<string, TaskTimeAggregate>();
-  for (const entry of entries) {
-    const existing = map.get(entry.taskId);
-    const minutes = entry.duration ?? 0;
-    if (existing) {
-      existing.minutes += minutes;
-    } else {
-      map.set(entry.taskId, { taskTitle: entry.taskTitle, minutes });
+function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
+  const today = new Date();
+  const [clientId, setClientId] = useState("");
+  const [startDate, setStartDate] = useState(localDate(new Date(today.getFullYear(), today.getMonth(), 1)));
+  const [endDate, setEndDate] = useState(localDate(today));
+  const [fallbackRate, setFallbackRate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [retryRequired, setRetryRequired] = useState(false);
+  const attempt = useRef<{ fingerprint: string; payload: TimeInvoiceInput } | null>(null);
+  const clients = useFetchClients();
+  const period = timePeriod(startDate, endDate);
+  const filter = clientId && period ? { clientId, ...period } : null;
+  const time = useBillableTime(filter);
+  const create = useInvoiceFromTime();
+  const entries = time.data?.entries ?? [];
+  const chosen = entries.filter(entry => selected[entry.id] === entry.version);
+  const needsRate = chosen.some(entry => entry.hourlyRate === null);
+  const prices = chosen.map(entry => timeLineCents(entry.duration, entry.hourlyRate ?? fallbackRate));
+  const total = prices.reduce<bigint>((sum, price) => sum + (price ?? 0n), 0n);
+  const valid = chosen.length > 0 && chosen.length === Object.keys(selected).length && prices.every(price => price !== null)
+    && total > 0n && total <= 9999999999n;
+  const locked = create.isPending || retryRequired;
+  function changeFilter(setter: (value: string) => void, value: string) { setter(value); setSelected({}); }
+  async function submit() {
+    if (create.isPending) return;
+    if (!retryRequired) {
+      if (!filter || !valid) return;
+      const payload = { ...filter, entries: chosen.map(({ id, version }) => ({ id, version })).sort((a, b) => a.id.localeCompare(b.id)),
+        ...(needsRate ? { fallbackRate } : {}), ...(dueDate ? { dueDate } : {}) };
+      const fingerprint = JSON.stringify(payload);
+      if (attempt.current?.fingerprint !== fingerprint) attempt.current = { fingerprint, payload: { ...payload, requestKey: crypto.randomUUID() } };
+    }
+    if (!attempt.current) return;
+    try {
+      await create.mutateAsync(attempt.current.payload);
+      toast.success("Invoice created successfully");
+      onClose();
+    } catch (error) {
+      const response = isAxiosError(error) ? error.response : undefined;
+      toast.error(response?.data?.message ?? "Could not confirm creation. Retry to check this same invoice.");
+      if (!response || response.status >= 500) setRetryRequired(true);
+      else {
+        setRetryRequired(false);
+        if ([409, 410].includes(response.status)) { attempt.current = null; setSelected({}); await time.refetch(); }
+      }
     }
   }
-  return Array.from(map.values());
+  return <GeneralModal open onOpenChange={open => { if (!open && !create.isPending) onClose(); }}
+    withoutCloseButton={create.isPending} contentProps={{ className: "sm:max-w-2xl max-h-[90dvh] overflow-y-auto", onSubmit: event => event.stopPropagation() }}>
+    <div className="space-y-5">
+      <div className="space-y-1 pe-5">
+        <DialogTitle className="flex items-center gap-2 text-lg font-semibold"><Clock className="size-4 text-[#1797ba]" />Invoice from tracked time</DialogTitle>
+        <DialogDescription className="text-xs">Select completed, billable hours from your team's accessible client projects.</DialogDescription>
+      </div>
+      <div className="space-y-1">
+        <label htmlFor="time-invoice-client" className="text-sm font-medium">Client</label>
+        <Select value={clientId} disabled={locked || clients.isLoading} onValueChange={value => changeFilter(setClientId, value)}>
+          <SelectTrigger id="time-invoice-client" className="w-full"><SelectValue placeholder="Select a client" /></SelectTrigger>
+          <SelectContent>{clients.data?.data?.map(client => <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>)}</SelectContent>
+        </Select>
+        {clients.isError && <p role="alert" className="text-xs text-destructive">Could not load clients. <button type="button" className="underline" onClick={() => void clients.refetch()}>Retry</button></p>}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1"><label htmlFor="time-from" className="text-sm font-medium">From</label><Input id="time-from" type="date" className="dark:[color-scheme:dark]" value={startDate} disabled={locked} onChange={e => changeFilter(setStartDate, e.target.value)} /></div>
+        <div className="space-y-1"><label htmlFor="time-to" className="text-sm font-medium">To</label><Input id="time-to" type="date" className="dark:[color-scheme:dark]" value={endDate} disabled={locked} onChange={e => changeFilter(setEndDate, e.target.value)} /></div>
+      </div>
+      {!period && <p role="alert" className="text-xs text-destructive">Choose a valid date range.</p>}
+      {time.data?.hasLegacyTimeInvoices && <p role="status" className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">This client has invoices from the previous time-billing workflow. Those invoices have no linked time records. Review them before selecting hours to avoid billing past work again.</p>}
+      {filter && <section aria-label="Billable time" className="rounded-lg border border-border overflow-hidden">
+        {time.isFetching && <p role="status" className="p-4 text-xs text-muted-foreground">Loading billable hours…</p>}
+        {time.isError ? <div role="alert" className="p-4 text-sm">Could not load billable hours. <button type="button" className="text-[#1797ba] underline" onClick={() => void time.refetch()}>Retry</button></div>
+          : !time.isFetching && entries.length === 0 ? <p className="p-4 text-sm text-muted-foreground">No unbilled, completed billable hours in this period.</p>
+          : entries.length > 0 && <>
+            <label className="flex items-center gap-2 bg-muted/30 px-3 py-2 text-xs font-medium">
+              <input type="checkbox" className="accent-[#1797ba]" disabled={locked || time.isFetching} checked={chosen.length === entries.length}
+                onChange={e => setSelected(e.target.checked ? Object.fromEntries(entries.map(entry => [entry.id, entry.version])) : {})} />Select all ({entries.length})
+            </label>
+            <div className="max-h-64 overflow-y-auto divide-y divide-border">{entries.map(entry => {
+              const price = timeLineCents(entry.duration, entry.hourlyRate ?? fallbackRate);
+              return <label key={entry.id} className="flex items-start gap-3 px-3 py-3 text-sm hover:bg-muted/20">
+                <input type="checkbox" className="mt-1 accent-[#1797ba]" disabled={locked || time.isFetching} checked={selected[entry.id] === entry.version}
+                  onChange={e => setSelected(previous => { const next = { ...previous }; if (e.target.checked) next[entry.id] = entry.version; else delete next[entry.id]; return next; })} />
+                <span className="min-w-0 flex-1"><span className="block font-medium break-words">{entry.taskTitle ?? entry.description ?? "Time entry"}</span>
+                  <span className="block text-xs text-muted-foreground break-words">{entry.projectName} · {entry.userName} · {new Date(entry.startTime).toLocaleDateString()}</span>
+                  <span className="block text-xs text-muted-foreground">{entry.duration} min · {entry.hourlyRate ?? (fallbackRate || "Rate needed")}{entry.hourlyRate || fallbackRate ? "/h" : ""}</span></span>
+                <span className="text-sm tabular-nums">{price === null ? "—" : displayCents(price)}</span>
+              </label>;
+            })}</div>
+          </>}
+        {time.data?.hasMore && <p className="p-3 text-xs text-muted-foreground">Showing the first 500 entries. Narrow the dates or invoice these entries first.</p>}
+      </section>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {needsRate && <div className="space-y-1"><label htmlFor="time-rate" className="text-sm font-medium">Fallback hourly rate</label>
+          <Input id="time-rate" type="number" min="0.01" step="0.01" value={fallbackRate} disabled={locked} onChange={e => setFallbackRate(e.target.value)} />
+          <p className="text-xs text-muted-foreground">Only used for entries without a recorded rate.</p></div>}
+        <div className="space-y-1"><label htmlFor="time-due" className="text-sm font-medium">Due date (optional)</label><Input id="time-due" type="date" className="dark:[color-scheme:dark]" value={dueDate} disabled={locked} onChange={e => setDueDate(e.target.value)} /></div>
+      </div>
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-[#1797ba]/20 bg-[#1797ba]/5 p-3">
+        <div><p className="text-sm font-medium">Total amount</p><p className="text-xs text-muted-foreground">{chosen.length} entries · {(chosen.reduce((sum, entry) => sum + entry.duration, 0) / 60).toFixed(2)}h</p></div>
+        <span className="text-lg font-semibold tabular-nums text-[#1797ba]">{prices.some(price => price === null) ? "—" : displayCents(total)}</span>
+      </div>
+      {retryRequired && <p role="alert" className="text-xs text-muted-foreground">The result could not be confirmed. Retry with this selection to recover the invoice safely.</p>}
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" disabled={create.isPending} onClick={onClose}>Cancel</Button>
+        <Button type="button" className="bg-[#1797ba] hover:bg-[#1797ba]/90 text-white" disabled={create.isPending || (!retryRequired && (!valid || time.isError || time.isFetching))} onClick={() => void submit()}>
+          {create.isPending && <Loader2 className="size-4 animate-spin me-2" />}{retryRequired ? "Retry creation" : "Create invoice"}
+        </Button>
+      </div>
+    </div>
+  </GeneralModal>;
 }
-
-/** Rounds to cents the same way currency amounts should always be rounded —
- * floating point multiplication (hours * rate) can otherwise leave e.g. 149.99999999999997. */
-export function computeInvoiceAmount(totalHours: number, hourlyRate: number): number {
-  return Math.round(totalHours * hourlyRate * 100) / 100;
-}
-
-export const GenerateInvoiceFromTimeModal: React.FC<GenerateInvoiceFromTimeModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
-  const { data: userData } = useUser();
-  const organizationId = userData?.user?.organizationId;
-
-  const [clientId, setClientId] = useState("");
-  const [startDate, setStartDate] = useState(startOfMonthISO());
-  const [endDate, setEndDate] = useState(todayISO());
-  const [hourlyRate, setHourlyRate] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { data: clientsData } = useFetchClients();
-  const { data: clientProjectsData } = useFetchClientProjects(clientId || undefined, organizationId);
-  const { data: timeEntriesData } = useAllTimeEntries();
-  const createInvoice = useCreateInvoice();
-  const markInvoiced = useMarkTimeEntriesInvoiced();
-
-  const eligibleEntries = useMemo(() => {
-    if (!clientId) return [];
-    const projectIds = new Set((clientProjectsData?.data?.projects ?? []).map((p) => p.id));
-    if (projectIds.size === 0) return [];
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-
-    return (timeEntriesData?.data ?? []).filter((entry) => {
-      if (entry.status !== "completed") return false;
-      if (entry.invoicedAt) return false;
-      if (!projectIds.has(entry.projectId)) return false;
-      const entryDate = new Date(entry.startTime);
-      return entryDate >= start && entryDate <= end;
-    });
-  }, [clientId, clientProjectsData, timeEntriesData, startDate, endDate]);
-
-  const byTask = useMemo(() => aggregateTimeEntriesByTask(eligibleEntries), [eligibleEntries]);
-
-  const totalMinutes = byTask.reduce((sum, t) => sum + t.minutes, 0);
-  const totalHours = totalMinutes / 60;
-  const rate = parseFloat(hourlyRate) || 0;
-  const amount = computeInvoiceAmount(totalHours, rate);
-
-  const description = useMemo(() => {
-    if (byTask.length === 0) return "";
-    const lines = byTask.map(
-      (t) => `- ${t.taskTitle}: ${(t.minutes / 60).toFixed(2)}h`,
-    );
-    return `Time tracking (${startDate} to ${endDate}), ${totalHours.toFixed(2)}h total:\n${lines.join("\n")}`;
-  }, [byTask, startDate, endDate, totalHours]);
-
-  const resetAndClose = () => {
-    setClientId("");
-    setHourlyRate("");
-    setDueDate("");
-    setStartDate(startOfMonthISO());
-    setEndDate(todayISO());
-    onClose();
-  };
-
-  const handleSubmit = async () => {
-    if (!clientId) return toast.error("Select a client");
-    if (eligibleEntries.length === 0) return toast.error("No unbilled tracked hours found for this client in this period");
-    if (rate <= 0) return toast.error("Enter an hourly rate greater than 0");
-
-    setIsSubmitting(true);
-    try {
-      const result = await createInvoice.mutateAsync({
-        clientId,
-        amount,
-        description,
-        dueDate: dueDate || undefined,
-      });
-
-      markInvoiced.mutate(
-        { entryIds: eligibleEntries.map((e) => e.id), invoiceId: result.data.id },
-        {
-          onError: () =>
-            toast.warning(
-              "Invoice created, but couldn't mark these hours as billed — they may show up again next time.",
-            ),
-        },
-      );
-
-      resetAndClose();
-    } catch {
-      // useCreateInvoice already toasts the error
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <GeneralModal open={isOpen} onOpenChange={(open) => !open && resetAndClose()}>
-      <Box className="space-y-5">
-        <Box>
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Clock className="w-4 h-4" /> Generate Invoice from Time Tracking
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Sums unbilled tracked hours for a client's projects into a single invoice amount.
-          </p>
-        </Box>
-
-        <Box>
-          <label className="text-sm font-medium text-foreground">Client *</label>
-          <Select value={clientId} onValueChange={setClientId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clientsData?.data?.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Box>
-
-        <Flex className="gap-3">
-          <Box className="flex-1">
-            <label className="text-sm font-medium text-foreground">From</label>
-            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          </Box>
-          <Box className="flex-1">
-            <label className="text-sm font-medium text-foreground">To</label>
-            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          </Box>
-        </Flex>
-
-        <Box>
-          <label className="text-sm font-medium text-foreground">Hourly Rate *</label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="e.g. 50.00"
-            value={hourlyRate}
-            onChange={(e) => setHourlyRate(e.target.value)}
-          />
-        </Box>
-
-        <Box>
-          <label className="text-sm font-medium text-foreground">Due Date</label>
-          <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        </Box>
-
-        {clientId && (
-          <Box className="rounded-lg border border-border bg-muted/30 p-3">
-            {byTask.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                No unbilled completed time entries found for this client in this period.
-              </p>
-            ) : (
-              <>
-                <p className="text-xs font-medium text-muted-foreground mb-2">
-                  {totalHours.toFixed(2)}h across {byTask.length} task(s)
-                </p>
-                <Box className="space-y-1 mb-3">
-                  {byTask.map((t) => (
-                    <Flex key={t.taskTitle} className="justify-between text-xs text-foreground">
-                      <span>{t.taskTitle}</span>
-                      <span className="text-muted-foreground">{(t.minutes / 60).toFixed(2)}h</span>
-                    </Flex>
-                  ))}
-                </Box>
-                <Flex className="justify-between items-center pt-2 border-t border-border">
-                  <span className="text-sm font-medium text-foreground">Total amount</span>
-                  <span className="text-lg font-bold text-foreground">${amount.toFixed(2)}</span>
-                </Flex>
-              </>
-            )}
-          </Box>
-        )}
-
-        <Flex className="justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={resetAndClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !clientId || byTask.length === 0 || rate <= 0}
-            className="bg-[#1797b9] hover:bg-[#1797b9]/80 text-white"
-          >
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : null}
-            Create Invoice
-          </Button>
-        </Flex>
-      </Box>
-    </GeneralModal>
-  );
-};

@@ -13,6 +13,7 @@ export interface Invoice {
   pdfFileName?: string;
   pdfFileSize?: number;
   dueDate?: string;
+  hasTrackedTime?: boolean;
 }
 
 interface FetchInvoicesResponse {
