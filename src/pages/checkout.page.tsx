@@ -36,6 +36,7 @@ import { usePlanSelectionStore } from "@/store/planSelection.store";
 import type { IPlan } from "@/types";
 import { useSubscriptionStatus, useActivateFreePlan } from "@/hooks/usesubscription";
 import { AlertCircle } from "lucide-react";
+import { clearPendingSubscription, readPendingSubscription, savePendingSubscription, type PendingSubscription } from "@/lib/pending-subscription";
 
 // Function to convert database features to display format
 const formatPlanFeatures = (planFeatures: any) => {
@@ -78,6 +79,11 @@ const CheckoutPage = () => {
   const activateSubscriptionMutation = useActivatePayPalSubscription();
   const activateFreePlanMutation = useActivateFreePlan();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [pendingApproval, setPendingApproval] = useState<PendingSubscription | null>(null);
+  const pendingSubscription = pendingApproval?.userId === userData?.user?.id ? pendingApproval : null;
+  useEffect(() => {
+    setPendingApproval(userData?.user?.id ? readPendingSubscription(userData.user.id) : null);
+  }, [userData?.user?.id]);
   const [isBackendDemoMode, setIsBackendDemoMode] = useState<boolean | null>(
     null
   );
@@ -374,7 +380,7 @@ const CheckoutPage = () => {
     try {
       const formData = form.getValues();
 
-      const activateResponse = await activateSubscriptionMutation.mutateAsync({
+      const approval = pendingSubscription ?? {
         subscriptionId,
         userId: userData.user.id,
         organizationName: createOrganization
@@ -382,9 +388,14 @@ const CheckoutPage = () => {
           : undefined,
         country: createOrganization ? formData.country : undefined,
         planId: selectedPlan.id,
-      });
+      };
+      setPendingApproval(approval);
+      savePendingSubscription(approval);
+      const activateResponse = await activateSubscriptionMutation.mutateAsync(approval);
 
       if (activateResponse.data?.status === "ACTIVE") {
+        clearPendingSubscription(userData.user.id);
+        setPendingApproval(null);
         toast.success("Subscription activated successfully!");
         setTimeout(() => {
           window.location.href = "/dashboard";
@@ -866,7 +877,21 @@ const CheckoutPage = () => {
                       </Box>
                     )}
                   {/* Free plan — bypass PayPal */}
-                  {isFreePlan ? (
+                  {pendingSubscription ? (
+                    <Box className="mb-4 rounded-lg border border-border bg-card p-4">
+                      <p className="text-sm text-muted-foreground mb-3" role="status">
+                        PayPal approval received. Confirm your subscription to finish checkout. This does not create another payment.
+                      </p>
+                      <button
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={() => handlePayPalApprove({ subscriptionID: pendingSubscription.subscriptionId })}
+                        className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                      >
+                        {isProcessing ? "Confirming subscription…" : "Confirm subscription"}
+                      </button>
+                    </Box>
+                  ) : isFreePlan ? (
                     <Box className="mb-4">
                       <button
                         onClick={handleActivateFreePlan}
