@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { axios } from "@/configs/axios.config";
+import { fetchCollection } from "@/lib/fetch-collection";
+import { useDataScope } from "./useDataScope";
 
 export interface TimeEntry {
   id: string;
@@ -26,31 +27,22 @@ export interface TimeEntriesResponse {
 }
 
 export const useAllTimeEntries = () => {
+  const scope = useDataScope();
   return useQuery<TimeEntriesResponse>({
-    queryKey: ["all-time-entries"],
+    queryKey: ["all-time-entries", scope],
     queryFn: async () => {
       try {
-        const response = await axios.get("/tasks/time-entries");
-        return response.data;
+        return await fetchCollection<TimeEntriesResponse>("/tasks/time-entries");
       } catch (error: any) {
         // Fallback for viewer routes
         if (error?.response?.status === 404) {
-          try {
-            const fallback = await axios.get("/viewer/tasks/time-entries");
-            return fallback.data;
-          } catch (fallbackError: any) {
-            // If both fail, return empty list gracefully
-            if (fallbackError?.response?.status === 404) {
-              return { success: true, message: "No entries", data: [] };
-            }
-            throw fallbackError;
-          }
+          return fetchCollection<TimeEntriesResponse>("/viewer/tasks/time-entries");
         }
         throw error;
       }
     },
-    staleTime: 0,           // always consider data stale
-    gcTime: 0,              // no garbage collection delay
+    staleTime: 30_000,           // share recent results between dashboards
+    gcTime: 5 * 60_000,              // retain inactive queries for five minutes
     refetchOnMount: true,   // re-fetch when component mounts
     refetchOnWindowFocus: true, // re-fetch when user returns to tab
   });

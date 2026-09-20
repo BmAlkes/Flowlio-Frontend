@@ -1,3 +1,5 @@
+import { fetchCollection } from "@/lib/fetch-collection";
+import { useDataScope } from "./useDataScope";
 import { projectsResponseSchema, projectResponseSchema, corePath, type ProjectStatus } from "@/contracts/core-api";
 import { parseResponse } from "@/contracts/parse-response";
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
@@ -51,30 +53,21 @@ const fetchProjects = async ({
   search,
   status,
 }: FetchProjectsParams): Promise<ProjectsResponse> => {
-  const params = new URLSearchParams();
-  if (search) {
-    params.append("search", search);
-  }
+  const response = await fetchCollection<ProjectsResponse>(corePath("projectsList"), { search, status });
+  return parseResponse<ProjectsResponse>(projectsResponseSchema, response);
 
-  if (status) {
-    params.append("status", status);
-  }
-
-  const response = await axios.get<ProjectsResponse>(
-    `${corePath("projectsList")}${params.toString() ? `?${params.toString()}` : ""}`,
-  );
-  return parseResponse<ProjectsResponse>(projectsResponseSchema, response.data);
 };
 
 export const useFetchProjects = (
   params: FetchProjectsParams = {},
   options?: Omit<UseQueryOptions<ProjectsResponse>, "queryKey" | "queryFn">,
 ) => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["projects", params],
+    queryKey: ["projects", scope, params],
     queryFn: () => fetchProjects(params),
-    staleTime: 0, // No caching - always fetch fresh data
-    gcTime: 0, // No garbage collection delay
+    staleTime: 30_000, // Share fresh reads across tables, calendars and selectors
+    gcTime: 5 * 60_000,
     refetchOnMount: true, // Always refetch when component mounts
     refetchOnWindowFocus: true, // Refetch when window gains focus
     ...options,
@@ -83,8 +76,9 @@ export const useFetchProjects = (
 
 // Hook for fetching a single project by ID
 export const useFetchProjectById = (projectId: string) => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", projectId, scope],
     queryFn: async () => {
       const response = await axios.get<{
         success: boolean;

@@ -77,11 +77,7 @@ axios.interceptors.request.use(
     if (isLoggingOut) {
       return Promise.reject(new Error("User is logging out"));
     }
-    // Bust HTTP cache on GET requests by appending a timestamp param
-    // Avoids 304 responses without triggering CORS preflights
-    if (!config.method || config.method.toLowerCase() === "get") {
-      config.params = { ...config.params, _t: Date.now() };
-    }
+    // Authenticated responses use Cache-Control: private, no-store on the server.
     return config;
   },
   (error) => {

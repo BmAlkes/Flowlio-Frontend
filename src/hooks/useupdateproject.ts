@@ -1,3 +1,5 @@
+import { fetchCollection } from "@/lib/fetch-collection";
+import type { GetTasksResponse } from "./usefetchtasks";
 import { corePath, type ProjectStatus } from "@/contracts/core-api";
 import { axios } from "@/configs/axios.config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,9 +67,7 @@ export const useUpdateProject = () => {
       if (data.data.status === "ongoing") {
         try {
           // Fetch existing tasks to prevent duplicates
-          const { data: existingTasksRes } = await axios.get(
-            `/tasks/all?projectId=${data.data.id}`,
-          );
+          const existingTasksRes = await fetchCollection<GetTasksResponse>("/tasks/all", { projectId: data.data.id });
           const existingTaskTitles = new Set(
             existingTasksRes.data.map((task: any) => task.title),
           );

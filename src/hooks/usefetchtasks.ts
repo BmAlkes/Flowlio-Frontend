@@ -1,3 +1,5 @@
+import { fetchCollection } from "@/lib/fetch-collection";
+import { useDataScope } from "./useDataScope";
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
@@ -61,8 +63,9 @@ export const useFetchTasks = (
   },
   options?: { enabled?: boolean }
 ) => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["tasks", params],
+    queryKey: ["tasks", scope, params],
     queryFn: async (): Promise<GetTasksResponse> => {
       const searchParams = new URLSearchParams();
       if (params?.projectId) searchParams.append("projectId", params.projectId);
@@ -74,8 +77,7 @@ export const useFetchTasks = (
         ? `/tasks/all?${searchParams.toString()}`
         : "/tasks/all";
 
-      const response = await axios.get(url);
-      return response.data;
+      return fetchCollection<GetTasksResponse>(url);
     },
     enabled: options?.enabled ?? true,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -84,14 +86,14 @@ export const useFetchTasks = (
 };
 
 export const useFetchTasksByAssignee = (assigneeId: string | undefined) => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["tasks", { assignedTo: assigneeId }],
+    queryKey: ["tasks", scope, { assignedTo: assigneeId }],
     queryFn: async (): Promise<GetTasksResponse> => {
       const searchParams = new URLSearchParams();
       if (assigneeId) searchParams.append("assignedTo", assigneeId);
       const url = `/tasks/all?${searchParams.toString()}`;
-      const response = await axios.get(url);
-      return response.data;
+      return fetchCollection<GetTasksResponse>(url);
     },
     enabled: !!assigneeId,
     staleTime: 2 * 60 * 1000,
