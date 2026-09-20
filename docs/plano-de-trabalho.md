@@ -200,3 +200,11 @@ Branch: `fix/t06-invoice-sequences` no backend; frontend somente para atualizar 
 - Modal com navegação por teclado, fechamento por Escape e retorno do foco. Capas em alta resolução com fallback; layout conferido em desktop, 320/390/768 px, RTL e preferência por movimento reduzido. APIs externas e iframe de reprodução foram simulados na revisão de navegador; carregamento real das capas mantido.
 - Validação: 110 testes existentes aprovados; build de produção aprovado, com os avisos preexistentes de Gantt e tamanho do PDF. TypeScript e lint dos arquivos alterados conferidos após o ajuste final das capas. Sem alterações no backend.
 - Onde conferir: `/showcase`, pelo link Showcase no menu público. T11 permanece pendente.
+
+## Ajuste solicitado antes da T12 — Pricing
+
+- Branch `redesign/pricing-page`, baseada em `main`, independente da T11. A conciliação de assinaturas continua na branch `fix/t11-subscription-reconciliation`, aguardando sandbox.
+- Pricing alinhada às páginas home, workflow e insights: abertura grafite com textura discreta, títulos em Outfit com pesos leves, destaque laranja e ações no azul `#1797ba`. Planos em colunas alinhadas, faixa Enterprise separada e dúvidas em acordeões acessíveis. Layout adaptado para celular e RTL.
+- Preços, moeda, períodos e recursos vêm dos planos reais. Retirados o desconto anual calculado apenas na tela, o selo de popularidade arbitrário e promessas comerciais não sustentadas pelos dados. Seleção do plano e encaminhamento para cadastro/checkout preservados.
+- Validação: 110 testes existentes aprovados; build de produção e lint conferidos. Revisão no navegador com planos simulados cobriu larguras de 320 a 1440 px, seleção e persistência do plano no cadastro, FAQ por teclado, lista vazia, erro e nova tentativa. Sem alterações no backend.
+- Onde conferir após o deploy: `/pricing`, pelo link Pricing do menu público.

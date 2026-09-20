@@ -51,7 +51,7 @@ export const Navbar: FC<NavbarProps> = ({
   const activeLang     = langPages.find((l) => l.path === location.pathname);
 
   useEffect(() => {
-    if (isShowcasePage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (isShowcasePage || isPricingPage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (navbarRef.current && typeof gsap !== "undefined") {
       try {
         gsap.fromTo(
@@ -81,7 +81,7 @@ export const Navbar: FC<NavbarProps> = ({
         console.warn("Navbar animation error:", error);
       }
     }
-  }, [isShowcasePage]);
+  }, [isShowcasePage, isPricingPage]);
 
   /* ── Shared lang dropdown trigger label ── */
   const langTriggerLabel = activeLang ? activeLang.code : null;
@@ -99,8 +99,8 @@ export const Navbar: FC<NavbarProps> = ({
         <Box className="w-full h-full bg-[url(/workflow/workflow-bg.svg)] bg-cover bg-center absolute top-0 left-0 -z-20 opacity-50" />
       )}
 
-      {!isShowcasePage && <Box className="absolute -z-10 top-0 -left-12 w-100 h-100 bg-[#2B2BA0]/30 blur-3xl opacity-20" />}
-      {!isShowcasePage && <Box className="absolute max-sm:hidden -z-10 top-30 right-8 w-60 h-90 bg-[#2B2BA0]/40 blur-3xl opacity-20" />}
+      {!isShowcasePage && !isPricingPage && <Box className="absolute -z-10 top-0 -left-12 w-100 h-100 bg-[#2B2BA0]/30 blur-3xl opacity-20" />}
+      {!isShowcasePage && !isPricingPage && <Box className="absolute max-sm:hidden -z-10 top-30 right-8 w-60 h-90 bg-[#2B2BA0]/40 blur-3xl opacity-20" />}
 
       <header className="flex h-20 w-full shrink-0 items-center px-5 md:px-32 md:py-12">
         <Flex className="justify-between w-full">
