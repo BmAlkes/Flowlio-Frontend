@@ -192,3 +192,11 @@ Branch: `fix/t06-invoice-sequences` no backend; frontend somente para atualizar 
 - Operação e recuperação documentadas em `Flowlio-Backend/docs/durable-jobs.md`. Não há nova tela de administração da fila nesta etapa.
 - Publicação: Railway confirmou sucesso de `50a0406` em 20/09/2026 às 05:31:30 UTC. [Deploy T10](https://railway.com/project/3595bd46-8b28-44e2-9c21-37cc7c5d89c2/service/3daf0a4e-4463-4d68-8c56-3ab91d5aab34?id=b9987fb2-ad43-4d36-a1f9-dbb262e48af9&environmentId=40908654-b4e2-42f7-b8b6-99c23bf7a4d1). O registro de encerramento no frontend não altera o código da aplicação.
 - Onde conferir: faturas recorrentes em `/dashboard/invoice`; lembretes em `/dashboard/inbox`; resultados dos retries em `/dashboard/leads/webhooks`, abrindo o webhook e seu histórico. Configuração das automações em `/dashboard/settings/automations`. A melhoria é de funcionamento e recuperação, sem redesenho dessas telas.
+
+## Ajuste solicitado antes da T11 — Showcase
+
+- Branch `redesign/showcase-page`, somente frontend. Página reorganizada em apresentação do produto, vídeo em destaque com navegação por capítulos, biblioteca filtrável e exemplos por tipo de equipe.
+- Identidade visual com azul `#1797ba`, títulos em Outfit e tipografia de apoio já utilizada no Flowlio. Retirados efeitos flutuantes, gradientes decorativos, métricas fictícias e interfaces simuladas. Vídeos ainda sem gravação são identificados, sem abrir players inválidos; dados estruturados incluem apenas vídeos disponíveis.
+- Modal com navegação por teclado, fechamento por Escape e retorno do foco. Capas em alta resolução com fallback; layout conferido em desktop, 320/390/768 px, RTL e preferência por movimento reduzido. APIs externas e iframe de reprodução foram simulados na revisão de navegador; carregamento real das capas mantido.
+- Validação: 110 testes existentes aprovados; build de produção aprovado, com os avisos preexistentes de Gantt e tamanho do PDF. TypeScript e lint dos arquivos alterados conferidos após o ajuste final das capas. Sem alterações no backend.
+- Onde conferir: `/showcase`, pelo link Showcase no menu público. T11 permanece pendente.
