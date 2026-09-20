@@ -90,4 +90,30 @@ describe("email sign-in orchestration", () => {
     expect(api.get).not.toHaveBeenCalled();
     expect(ports.navigate).not.toHaveBeenCalled();
   });
+  it.each([401, 403, 500])("does not invent a dashboard or OTP redirect after a profile failure (%s)", async (status) => {
+    api.get.mockRejectedValue({ response: { status, data: {} } });
+    const promise = completeEmailSignIn("user@example.com", {}, ports);
+    await vi.advanceTimersByTimeAsync(500); await promise;
+    expect(ports.navigate).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(ports.setError).toHaveBeenCalledWith("Could not confirm your session. Please try signing in again.");
+    expect(ports.setIsLoading).toHaveBeenLastCalledWith(false);
+    expect(sessionStorage.getItem("otpSecondFactor")).toBeNull();
+  });
+
+  it("keeps an absent profile retryable instead of silently stopping", async () => {
+    await complete(null);
+    expect(ports.navigate).not.toHaveBeenCalled();
+    expect(ports.setError).toHaveBeenCalledWith(expect.stringContaining("Could not confirm"));
+    expect(ports.setIsLoading).toHaveBeenLastCalledWith(false);
+  });
+
+  it("does not announce success if refreshing the authenticated context fails", async () => {
+    ports.refetchUser.mockRejectedValueOnce(new Error("Offline"));
+    await complete({ role: "user", status: "active" });
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(ports.navigate).not.toHaveBeenCalled();
+    expect(ports.setIsLoading).toHaveBeenLastCalledWith(false);
+  });
+
 });

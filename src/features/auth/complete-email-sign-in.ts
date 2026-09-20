@@ -4,6 +4,13 @@ import { toast } from "sonner";
 import type { SignInPorts } from "./sign-in-ports";
 import { getRoleBasedRedirectPathAfterLogin } from "@/utils/sessionPersistence.util";
 
+function reportUnconfirmedSession({ setError, setIsLoading }: Pick<SignInPorts, "setError" | "setIsLoading">) {
+  const message = "Could not confirm your session. Please try signing in again.";
+  setError(message);
+  setIsLoading(false);
+  toast.error(message);
+}
+
 export async function completeEmailSignIn(
   email: string,
   signInData: { twoFactorRedirect?: boolean } | null | undefined,
@@ -103,11 +110,7 @@ export async function completeEmailSignIn(
 
     // If profile response failed, log and continue
     if (!userProfile) {
-      console.error(
-        "❌ No user profile data received:",
-        profileResponse,
-      );
-      setIsLoading(false);
+      reportUnconfirmedSession({ setError, setIsLoading });
       return;
     }
 
@@ -278,9 +281,6 @@ export async function completeEmailSignIn(
       // This ensures demo accounts work correctly regardless of their status.
     }
 
-    // Show success message
-    toast.success("Login successful");
-
     // Get comprehensive role-based redirect path
     const redirectPath = getRoleBasedRedirectPathAfterLogin(
       userProfile.role,
@@ -288,6 +288,8 @@ export async function completeEmailSignIn(
 
     // Refresh user context to avoid stale state, then client-side navigate
     await refetchUser();
+    toast.success("Login successful");
+    setIsLoading(false);
     navigate(redirectPath, { replace: true });
   } catch (error) {
     // Check if organization is deactivated, trial expired, or payment pending
@@ -358,23 +360,8 @@ export async function completeEmailSignIn(
       }
     }
 
-    // Check if it's a 401 error (unauthorized) - might indicate 2FA is required
-    if ((error as any).response?.status === 401) {
-      // Store email for OTP verification
-      sessionStorage.setItem("otpEmail", email);
-
-      // Redirect to OTP verification page
-      navigate("/auth/signin-otp", { replace: true });
-      return;
-    }
-
-    // Still redirect but show warning
-    toast.warning(
-      "Login successful, but some data may not be available yet",
-    );
-
-    // Fallback to default dashboard if profile fetch fails
-    navigate("/dashboard", { replace: true });
+    // A missing/failed profile is not evidence of a second-factor challenge or a completed login.
+    reportUnconfirmedSession({ setError, setIsLoading });
   }
 
 }
