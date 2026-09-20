@@ -1,3 +1,4 @@
+import { clientStatusSchema } from "@/contracts/core-api";
 import {
   Form,
   FormItem,
@@ -350,7 +351,7 @@ export const ClientForm = ({
       cpfcnpj: values.cpfcnpj,
       businessIndustry: values.industry,
       address: values.address,
-      status: mode === "create" ? "Active" : client?.status || "Active",
+      status: clientStatusSchema.parse(mode === "create" ? "Active" : client?.status || "Active"),
       socialMediaLinks: JSON.stringify(
         socialMediaLinks.filter((link) => link.url.trim() !== ""),
       ),

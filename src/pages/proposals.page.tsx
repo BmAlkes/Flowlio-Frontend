@@ -1,3 +1,6 @@
+import { ErrorState } from "@/components/skeletons";
+import { corePath, proposalsResponseSchema, type ProposalStatus } from "@/contracts/core-api";
+import { parseResponse } from "@/contracts/parse-response";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { PageWrapper } from "@/components/common/pagewrapper";
@@ -32,7 +35,7 @@ interface Proposal {
   projectTitle: string;
   clientName: string;
   companyName: string;
-  status: "pending" | "approved" | "rejected";
+  status: ProposalStatus;
   proposalData: ProposalData & {
     isManual?: boolean;
     fileUrl?: string;
@@ -60,7 +63,7 @@ const OrgProposalsPage = () => {
   const hasAccess = featureAccess?.data?.hasAccess ?? true;
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => axios.delete(`/proposals/${id}`),
+    mutationFn: (id: string) => axios.delete(corePath("proposalDelete", { id })),
     onSuccess: () => {
       toast.success(t("proposal.deleteSuccess"));
       queryClient.invalidateQueries({ queryKey: ["org-proposals"] });
@@ -93,11 +96,11 @@ const OrgProposalsPage = () => {
     },
   };
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["org-proposals"],
     queryFn: async () => {
-      const res = await axios.get("/proposals/organization");
-      return res.data?.data as Proposal[];
+      const res = await axios.get(corePath("proposalsList"));
+      return parseResponse<{ data: Proposal[] }>(proposalsResponseSchema, res.data).data;
     },
   });
 
@@ -356,7 +359,7 @@ const OrgProposalsPage = () => {
       </div>
 
       {/* ── Table ── */}
-      {isLoading ? (
+      {isError ? (<ErrorState title="Could not load proposals" message="Please try again. If the problem continues, contact support." onRetry={() => void refetch()} />) : isLoading ? (
         <Box className="flex justify-center p-10 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
         </Box>

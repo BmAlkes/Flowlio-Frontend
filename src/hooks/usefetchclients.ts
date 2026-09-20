@@ -1,3 +1,5 @@
+import { clientsResponseSchema, corePath, type ClientStatus } from "@/contracts/core-api";
+import { parseResponse } from "@/contracts/parse-response";
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
@@ -10,7 +12,7 @@ interface Client {
   cpfcnpj?: string;
   businessIndustry?: string;
   address?: string;
-  status: string;
+  status: ClientStatus;
   createdAt: string;
   updatedAt: string;
   position: number;
@@ -48,9 +50,9 @@ export const useFetchClients = (params: FetchClientsParams = {}) => {
       if (params.sortOrder) searchParams.append("sortOrder", params.sortOrder);
 
       const response = await axios.get<ClientsResponse>(
-        `/clients?${searchParams.toString()}`
+        `${corePath("clientsList")}?${searchParams.toString()}`
       );
-      return response.data;
+      return parseResponse<ClientsResponse>(clientsResponseSchema, response.data);
     },
     staleTime: 0, // No caching - always fetch fresh data
     gcTime: 0, // No garbage collection delay
@@ -64,8 +66,8 @@ export const useFetchOrganizationClients = () => {
     queryKey: ["organization-clients"],
     queryFn: async () => {
       try {
-        const response = await axios.get<ClientsResponse>(`/clients?type=client`);
-        return response.data;
+        const response = await axios.get<ClientsResponse>(`${corePath("clientsList")}?type=client`);
+        return parseResponse<ClientsResponse>(clientsResponseSchema, response.data);
       } catch (error) {
         console.error("❌ Error fetching clients:", error);
         throw error;

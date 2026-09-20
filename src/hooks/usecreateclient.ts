@@ -1,3 +1,4 @@
+import { corePath, type ClientStatus } from "@/contracts/core-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios, type ErrorWithMessage } from "@/configs/axios.config";
 
@@ -9,7 +10,7 @@ interface CreateClientData {
   cpfcnpj?: string;
   businessIndustry?: string;
   address?: string;
-  status?: string;
+  status?: ClientStatus;
   image?: string | null;
   customFields?: Record<string, any>;
 }
@@ -26,7 +27,7 @@ interface CreateClientResponse {
     cpfcnpj?: string;
     businessIndustry?: string;
     address?: string;
-    status: string;
+    status: ClientStatus;
     customFields?: Record<string, any>;
     createdAt: string;
   };
@@ -38,7 +39,7 @@ export const useCreateClient = () => {
   return useMutation<CreateClientResponse, ErrorWithMessage, CreateClientData>({
     mutationFn: async (data: CreateClientData) => {
       const response = await axios.post<CreateClientResponse>(
-        "/clients/create",
+        corePath("clientCreate"),
         data,
       );
       return response.data;

@@ -26,7 +26,7 @@
 | T09 | Migrações e release — `chore/t09-release-migrations` | BE | Separar geração/build/aplicação; migrar antes de liberar tráfego; retirar patches paralelos do startup; validar banco novo e atualização de schema existente. | T06, T07 | Concluída e publicada |
 | T10 | Jobs persistentes — `feat/t10-durable-jobs` | BE | Separar workers de HTTP, reserva exclusiva de execução, retry e idempotência; testar reinício e duas instâncias em recorrência, notificações e webhooks. | T09 | Concluída e publicada |
 | T11 | Conciliação de assinaturas — `fix/t11-subscription-reconciliation` | BE | Eventos persistidos/deduplicados, identificação indexada do provedor, transições consistentes, falha recuperável e testes de sandbox; revisar renovação e calendário. | T09, T10 | Pendente |
-| T12 | Contratos e estados de domínio — `refactor/t12-api-contracts` | FE + BE | Contratos verificáveis, erros tipados, datas serializadas como strings, status canônicos de cliente/proposta/projeto e teste que detecte endpoint ausente. | T07 | Pendente |
+| T12 | Contratos e estados de domínio — `refactor/t12-api-contracts` | FE + BE | Contratos verificáveis, erros tipados, datas serializadas como strings, status canônicos de cliente/proposta/projeto e teste que detecte endpoint ausente. | T07 | Implementada e validada; deploy em acompanhamento |
 | T13 | Modularização incremental — `refactor/t13-domain-modules` | FE + BE | Extrair casos de uso de login, projetos, pagamentos e automações; componentes e serviços pequenos por responsabilidade; nenhuma alteração funcional inadvertida. | T12 | Pendente |
 | T14 | Cache, paginação e consultas — `perf/t14-data-access` | FE + BE | Paginar projetos/tarefas/horas; filtros reais no servidor; chaves de cache por escopo, invalidação direcionada, revisão do timestamp em GET e polling; medir consultas/latência antes e depois. | T04, T12 | Pendente |
 | T15 | Observabilidade — `feat/t15-observability` | FE + BE | Captura persistente de falhas UI/API/jobs, correlation ID e versão; métricas de erro/latência; redigir dados sensíveis; alertas acionáveis e teste do fluxo. | T10 | Pendente |
@@ -208,3 +208,16 @@ Branch: `fix/t06-invoice-sequences` no backend; frontend somente para atualizar 
 - Preços, moeda, períodos e recursos vêm dos planos reais. Retirados o desconto anual calculado apenas na tela, o selo de popularidade arbitrário e promessas comerciais não sustentadas pelos dados. Seleção do plano e encaminhamento para cadastro/checkout preservados.
 - Validação: 110 testes existentes aprovados; build de produção e lint conferidos. Revisão no navegador com planos simulados cobriu larguras de 320 a 1440 px, seleção e persistência do plano no cadastro, FAQ por teclado, lista vazia, erro e nova tentativa. Sem alterações no backend.
 - Onde conferir após o deploy: `/pricing`, pelo link Pricing do menu público.
+
+## T12 - Contratos e estados de dominio
+
+- Branch `refactor/t12-api-contracts` nos dois repositorios, baseada em `main`. T11 continua separada, aguardando sandbox.
+- Contrato Zod compartilhado para os campos essenciais das leituras de clientes, projetos e propostas, incluindo as abas do detalhe do cliente. Datas HTTP sao strings ISO; conversao para Date fica nos componentes que precisam calcular datas.
+- Status canonicos de cliente/projeto/proposta. Projetos legados `active` e `in_progress` sao apresentados como `ongoing`; estados antigos de cliente sao mapeados explicitamente. Nenhum registro existente e regravado. O pipeline de leads conserva seus estados.
+- Criacao/edicao rejeita status desconhecido antes da gravacao. Erros dos routers core recebem codigo, mensagem e success=false. Resposta incompativel nao vira uma lista vazia; propostas mostram erro com nova tentativa. URLs inexistentes sob /api retornam JSON 404.
+- Catalogo verifica metodo e caminho de 18 endpoints contra os routers montados. Backend e fonte do contrato; script sincroniza e detecta divergencia entre repositorios. Escopo incremental: nao e uma especificacao completa de todos os endpoints, nem altera os endpoints exclusivos de viewer.
+- Sem migracao SQL. Publicar backend antes do frontend. Procedimentos em `Flowlio-Backend/docs/api-contracts.md`.
+- Onde conferir: Dashboard > Client Management (lista e detalhe, abas Projects/Proposals), Projects e Proposals. Melhorias de consistencia e tratamento de erro, sem nova pagina ou redesenho.
+
+- Validacao: 114 testes do frontend e 130 do backend aprovados; seis suites PostgreSQL ignoradas por falta de banco de teste nesta rodada. Builds e lint dos arquivos frontend alterados aprovados. A repeticao do frontend com um worker eliminou o timeout observado durante execucao concorrente com build. Contratos dos dois repositorios conferidos pelo script --check.
+- Backend T12: `b1a51a1`, integrado em main; deploy Railway iniciado. Rotas para conferir no dashboard: `/dashboard/client-management`, `/dashboard/client-management/:id`, `/dashboard/project` e `/dashboard/proposals`.

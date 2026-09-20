@@ -16,7 +16,8 @@
     "start": "vite preview",
     "performance:audit": "lighthouse http://localhost:4000 --output=html --output-path=./lighthouse-report.html",
     "performance:budget": "vite build && npx bundle-buddy dist/assets/*.js",
-    "performance:check": "npm run build && npx webpack-bundle-analyzer dist/assets/*.js"
+    "performance:check": "npm run build && npx webpack-bundle-analyzer dist/assets/*.js",
+    "contracts:check": "vitest run src/contracts/core-api.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

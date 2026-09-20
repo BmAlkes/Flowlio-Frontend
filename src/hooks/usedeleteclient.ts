@@ -1,3 +1,4 @@
+import { corePath } from "@/contracts/core-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   axios,
@@ -20,7 +21,7 @@ export const useDeleteClient = () => {
   >({
     mutationFn: async (id: string) => {
       const response = await axios.delete<ApiResponse<DeleteClientResponse>>(
-        `/clients/${id}`
+        corePath("clientDelete", { id })
       );
       return response.data;
     },

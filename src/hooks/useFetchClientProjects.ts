@@ -1,3 +1,5 @@
+import { parseResponse } from "@/contracts/parse-response";
+import { corePath, clientProjectsResponseSchema, type ProjectStatus } from "@/contracts/core-api";
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
@@ -9,11 +11,11 @@ export interface Project {
   clientName: string;
   clientId: string;
   description: string;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   assignedProject: string;
   address: string;
-  status: "pending" | "ongoing" | "completed";
+  status: ProjectStatus;
   progress: number;
   createdBy: string;
   organizationId: string;
@@ -43,13 +45,13 @@ export const useFetchClientProjects = (
     queryFn: async () => {
       console.log("Hitting API with:", { clientId, organizationId });
       // axios instance already adds /api to baseUrl
-      // Using direct axios call to ensure data (body) is sent with GET request as per backend requirement
+      // This read endpoint uses POST with the organization context in the request body.
       const response = await axios<ApiResponse<ClientProjectsData>>({
         method: "POST",
-        url: `/projects/client/${clientId}`,
+        url: corePath("clientProjects", { clientId: clientId! }),
         data: { organizationId },
       });
-      return response.data;
+      return parseResponse<ApiResponse<ClientProjectsData>>(clientProjectsResponseSchema, response.data);
     },
     enabled: !!clientId && !!organizationId,
     staleTime: 5 * 60 * 1000,

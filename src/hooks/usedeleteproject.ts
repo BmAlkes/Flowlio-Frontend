@@ -1,3 +1,4 @@
+import { corePath } from "@/contracts/core-api";
 import {
   axios,
   type ApiResponse,
@@ -17,7 +18,7 @@ export const useDeleteProject = () => {
     mutationFn: async (projectId: string) => {
       const res = await axios.delete<
         ApiResponse<{ id: string; deleted: boolean }>
-      >(`/projects/${projectId}`);
+      >(corePath("projectDelete", { id: projectId }));
       return res.data;
     },
     onSuccess: () => {

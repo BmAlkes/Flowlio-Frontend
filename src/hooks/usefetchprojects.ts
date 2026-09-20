@@ -1,3 +1,5 @@
+import { projectsResponseSchema, projectResponseSchema, corePath, type ProjectStatus } from "@/contracts/core-api";
+import { parseResponse } from "@/contracts/parse-response";
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
@@ -8,16 +10,16 @@ export interface Project {
   clientName: string;
   clientImage?: string;
   description?: string;
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: string | null;
+  endDate: string | null;
   assignedProject: string;
   address: string;
-  status: "pending" | "completed" | "ongoing";
+  status: ProjectStatus;
   progress: number;
   createdBy: string;
   organizationId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   clientId?: string;
   assignedTo?: string;
   contractfile?: string;
@@ -59,9 +61,9 @@ const fetchProjects = async ({
   }
 
   const response = await axios.get<ProjectsResponse>(
-    `/projects/all${params.toString() ? `?${params.toString()}` : ""}`,
+    `${corePath("projectsList")}${params.toString() ? `?${params.toString()}` : ""}`,
   );
-  return response.data;
+  return parseResponse<ProjectsResponse>(projectsResponseSchema, response.data);
 };
 
 export const useFetchProjects = (
@@ -88,8 +90,8 @@ export const useFetchProjectById = (projectId: string) => {
         success: boolean;
         message: string;
         data: Project;
-      }>(`/projects/${projectId}`);
-      return response.data;
+      }>(corePath("projectDetail", { id: projectId }));
+      return parseResponse<{ success: boolean; message: string; data: Project }>(projectResponseSchema, response.data);
     },
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes

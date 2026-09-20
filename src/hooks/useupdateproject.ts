@@ -1,3 +1,4 @@
+import { corePath, type ProjectStatus } from "@/contracts/core-api";
 import { axios } from "@/configs/axios.config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ interface UpdateProjectData {
   contractfile?: string;
   organizationId?: string;
   visibility?: "public" | "private";
-  status?: "pending" | "completed" | "ongoing" | "active" | "delayed";
+  status?: ProjectStatus;
   progress?: number; // 0-100
   budget?: number;
 }
@@ -29,8 +30,8 @@ interface UpdateProjectResponse {
     projectNumber: string;
     clientId: string;
     description?: string;
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: string | null;
+    endDate: string | null;
     assignedTo: string;
     status: string;
     progress: number;
@@ -40,8 +41,8 @@ interface UpdateProjectResponse {
     organizationId: string;
     createdBy: string;
     budget?: number;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
@@ -54,7 +55,7 @@ export const useUpdateProject = () => {
     { id: string; data: UpdateProjectData }
   >({
     mutationFn: async ({ id, data }) => {
-      const response = await axios.put(`/projects/update/${id}`, data);
+      const response = await axios.put(corePath("projectUpdate", { id }), data);
       return response.data;
     },
     onSuccess: async (data) => {

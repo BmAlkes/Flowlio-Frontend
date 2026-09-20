@@ -1,3 +1,4 @@
+import { clientStatusSchema } from "@/contracts/core-api";
 import { useSearchParams, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -103,7 +104,7 @@ export default function ClientDetailPage() {
   const changeStatus = (status: string) => {
     if (!client || status === client.status) return;
     updateClient.mutate(
-      { clientId: client.id, data: { status } },
+      { clientId: client.id, data: { status: clientStatusSchema.parse(status) } },
       {
         onSuccess: () =>
           toast.success(t("clientManagement.toastStatusUpdated")),

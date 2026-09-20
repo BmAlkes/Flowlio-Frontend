@@ -1,3 +1,6 @@
+import { ErrorState } from "@/components/skeletons";
+import { corePath, proposalsResponseSchema, type ProposalStatus } from "@/contracts/core-api";
+import { parseResponse } from "@/contracts/parse-response";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
@@ -35,7 +38,7 @@ interface Proposal {
   projectTitle: string;
   clientName: string;
   companyName: string;
-  status: "pending" | "approved" | "rejected";
+  status: ProposalStatus;
   proposalData: ProposalData & {
     isManual?: boolean;
     fileUrl?: string;
@@ -69,11 +72,11 @@ const ClientProposalsPage = () => {
   const [signingProposal, setSigningProposal] = useState<Proposal | null>(null);
   const [rejectingProposal, setRejectingProposal] = useState<Proposal | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["client-proposals"],
     queryFn: async () => {
-      const res = await axios.get("/proposals/client");
-      return res.data?.data as Proposal[];
+      const res = await axios.get(corePath("portalProposals"));
+      return parseResponse<{ data: Proposal[] }>(proposalsResponseSchema, res.data).data;
     },
   });
 
@@ -81,7 +84,7 @@ const ClientProposalsPage = () => {
 
   const approveMutation = useMutation({
     mutationFn: async ({ id, signature }: { id: string; signature: SignaturePayload }) => {
-      await axios.put(`/proposals/${id}/approve`, signature);
+      await axios.put(corePath("proposalApprove", { id }), signature);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-proposals"] });
@@ -91,7 +94,7 @@ const ClientProposalsPage = () => {
 
   const rejectMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.put(`/proposals/${id}/reject`);
+      await axios.put(corePath("proposalReject", { id }));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["client-proposals"] });
@@ -274,7 +277,7 @@ const ClientProposalsPage = () => {
         </Box>
       </Stack>
 
-      {isLoading ? (
+      {isError ? (<ErrorState title="Could not load proposals" message="Please try again. If the problem continues, contact support." onRetry={() => void refetch()} />) : isLoading ? (
         <Box className="flex justify-center p-10 text-muted-foreground">Loading proposals...</Box>
       ) : proposals.length === 0 ? (
         <Box className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">

@@ -1,3 +1,5 @@
+import { clientStatusSchema } from "@/contracts/core-api";
+import { CLIENT_STATUSES, type ProjectStatus } from "@/contracts/core-api";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -53,16 +55,7 @@ const mockData: Data[] = [
 export type Project = {
   id: string;
   name: string;
-  status:
-    | "New Lead"
-    | "Contacted"
-    | "Qualified"
-    | "Proposal Sent"
-    | "Contract Signed"
-    | "Project In Progress"
-    | "Completed"
-    | "Inactive"
-    | "Lost";
+  status: ProjectStatus;
   completionRate: number; // 0-100
   contractFile: string; // file name or URL
 };
@@ -125,7 +118,7 @@ export const ClientManagementTable = () => {
     updateClient(
       {
         clientId,
-        data: { status: newStatus },
+        data: { status: clientStatusSchema.parse(newStatus) },
       },
       {
         onSuccess: () => {
@@ -381,14 +374,7 @@ export const ClientManagementTable = () => {
 
         const currentStyle = statusStyles[status] || defaultStyle;
 
-        const statusOptions: Array<{ value: string; label: string }> = [
-          { value: "Active", label: translateClientStatus("Active") },
-          { value: "Onboarding", label: translateClientStatus("Onboarding") },
-          { value: "On Hold", label: translateClientStatus("On Hold") },
-          { value: "Inactive", label: translateClientStatus("Inactive") },
-          { value: "Completed", label: translateClientStatus("Completed") },
-          { value: "Churned", label: translateClientStatus("Churned") },
-        ];
+        const statusOptions = CLIENT_STATUSES.map(value => ({ value, label: translateClientStatus(value) }));
 
         return (
           <Center>

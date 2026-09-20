@@ -1,3 +1,4 @@
+import { corePath } from "@/contracts/core-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios, type ErrorWithMessage } from "@/configs/axios.config";
 
@@ -56,7 +57,7 @@ export const useCreateProject = () => {
   >({
     mutationFn: async (data: CreateProjectData) => {
       const response = await axios.post<CreateProjectResponse>(
-        "/projects/create",
+        corePath("projectCreate"),
         data,
       );
       return response.data;

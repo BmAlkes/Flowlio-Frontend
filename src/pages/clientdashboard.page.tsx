@@ -116,7 +116,7 @@ const ClientDashboardPage = () => {
   const upcomingDeadlines = useMemo(
     () =>
       [...activeProjects]
-        .filter((p) => !!p.endDate)
+        .filter((p): p is typeof p & { endDate: string } => !!p.endDate)
         .sort((a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime())
         .slice(0, 5),
     [activeProjects],

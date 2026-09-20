@@ -1,3 +1,4 @@
+import { corePath, type ClientStatus } from "@/contracts/core-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
@@ -8,7 +9,7 @@ export interface UpdateClientData {
   cpfcnpj?: string;
   businessIndustry?: string;
   address?: string;
-  status?: string;
+  status?: ClientStatus;
   image?: string;
   customFields?: Record<string, any>;
   password?: string;
@@ -27,7 +28,7 @@ export interface UpdateClientResponse {
     cpfcnpj?: string;
     businessIndustry?: string;
     address?: string;
-    status: string;
+    status: ClientStatus;
     customFields?: Record<string, any>;
     createdAt: string; // Added for new clients
     updatedAt: string;
@@ -45,7 +46,7 @@ export const useUpdateClient = () => {
       clientId: string;
       data: UpdateClientData;
     }): Promise<UpdateClientResponse> => {
-      const response = await axios.put(`/clients/${clientId}`, data);
+      const response = await axios.put(corePath("clientUpdate", { id: clientId }), data);
       return response.data;
     },
     onSuccess: () => {

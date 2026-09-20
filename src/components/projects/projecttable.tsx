@@ -66,7 +66,7 @@ import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess
 import { TableSkeleton, ErrorState } from "@/components/skeletons";
 
 // Use the Project interface from the hook
-export type Data = Project & { customFields?: Record<string, any> };
+export type Data = Omit<Project, "startDate" | "endDate"> & { startDate: Date | null; endDate: Date | null; customFields?: Record<string, any> };
 
 const PAGE_SIZE = 10;
 
@@ -122,7 +122,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
   } | null>(null);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [activeProjectForExpenses, setActiveProjectForExpenses] =
-    useState<Project | null>(null);
+    useState<Data | null>(null);
 
   // API hooks for comments
   const { data: commentsData, isLoading: commentsLoading } =

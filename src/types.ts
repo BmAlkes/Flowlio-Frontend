@@ -31,8 +31,8 @@ export interface SupportTicket {
   submittedbyRole: string; // User role
   client: string;
   assignedto: string; // Assignee name (not user ID)
-  createdon: Date;
-  updatedAt: Date;
+  createdon: string;
+  updatedAt: string;
   // Optional user details for enriched responses
   assignedToUser?: {
     id: string;
@@ -128,8 +128,8 @@ export type ProjectComment = {
   userId: string;
   content: string;
   parentId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // Task related types
@@ -220,8 +220,8 @@ export type IPlan<T = {}> = {
   slug?: string;
   description: string;
   customPlanName?: string | null; // Custom display name
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   price: number;
   currency?: string;
   billingCycle?: "days" | "monthly" | "yearly";
@@ -245,8 +245,8 @@ export type ISubAdmin<T = {}> = {
   logoPublicId?: string | null;
   status: "active" | "inactive" | "suspended";
   createdBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   createdByUser?: {
     id: string;
     name: string;
@@ -259,14 +259,14 @@ export type IUser<T = {}> = {
   role: Role;
   name: string;
   email: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   phone: string;
   address: string;
   image: string | null;
   banned: boolean | null;
   emailVerified: boolean;
-  banExpires: Date | null;
+  banExpires: string | null;
   banReason: string | null;
   companyId: string | null;
   imagePublicId: string | null;
@@ -288,8 +288,8 @@ export type INotification<T = {}> = {
   read: boolean;
   title: string;
   userId: string;
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
   message: string;
   type: // tasks
     | "task_assigned"

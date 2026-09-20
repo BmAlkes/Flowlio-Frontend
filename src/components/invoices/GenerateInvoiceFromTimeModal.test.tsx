@@ -24,7 +24,7 @@ const entries = [
 afterEach(cleanup);
 beforeEach(() => {
   vi.clearAllMocks();
-  api.get.mockImplementation(async (url: string) => ({ data: { data: url.startsWith("/clients") ? [{ id: "client-a", name: "Client A" }] : { entries, hasMore: false } } }));
+  api.get.mockImplementation(async (url: string) => ({ data: { success: true, data: url.startsWith("/clients") ? [{ id: "client-a", name: "Client A", email: "client@example.com", status: "Active", createdAt: "2026-09-01T10:00:00Z" }] : { entries, hasMore: false } } }));
   api.post.mockResolvedValue({ data: { success: true, data: { id: "invoice" } } });
 });
 async function setup() {

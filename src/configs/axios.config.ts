@@ -4,6 +4,9 @@ export const environment = process.env.NODE_ENV as "production" | "development";
 export type ErrorWithMessage = AxiosError<WithMessage>;
 export interface WithMessage {
   message: string;
+  code?: string;
+  success?: false;
+  issues?: { path: string; message: string }[];
 }
 
 export interface ApiResponse<T = {}> {
