@@ -1,0 +1,10 @@
+{
+  "title": "Historial operativo", "window": "Últimas 24 horas · métricas actualizadas en un máximo de 5 segundos",
+  "refresh": "Actualizar", "attention": "Hay operaciones recientes que requieren atención", "action": "Revisa los fallos a continuación. Comparte una referencia con soporte antes de repetir un pago o una automatización con resultado incierto.",
+  "api": "Solicitudes", "ui": "Interfaz", "job": "Automatizaciones", "all": "Todos los orígenes", "failed": "fallidas", "recorded": "informes recientes",
+  "noMetrics": "Todavía no hay mediciones", "latency": "Media {{average}} ms · máximo {{max}} ms",
+  "history": "Fallos recientes", "filter": "Origen", "empty": "No hay fallos registrados en este período.",
+  "version": "Versión", "copy": "Copiar referencia", "copied": "Referencia copiada", "copyError": "No se pudo copiar. Selecciona la referencia y cópiala manualmente.",
+  "limit": "Se muestran los 100 fallos más recientes. El historial se conserva durante 30 días. Las fechas usan la zona horaria del navegador.",
+  "loadError": "No se pudo cargar el historial operativo", "retry": "Inténtalo de nuevo. Si el problema continúa, contacta con soporte."
+}

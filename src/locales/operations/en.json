@@ -1,0 +1,10 @@
+{
+  "title": "Operational history", "window": "Last 24 hours · metrics update within 5 seconds",
+  "refresh": "Refresh", "attention": "Recent operations need attention", "action": "Review the failures below. Share a reference with support before retrying an uncertain payment or automation.",
+  "api": "Requests", "ui": "Interface", "job": "Automations", "all": "All sources", "failed": "failed", "recorded": "recent reports",
+  "noMetrics": "No measurements yet", "latency": "Average {{average}} ms · maximum {{max}} ms",
+  "history": "Recent failures", "filter": "Source", "empty": "No failures recorded in this window.",
+  "version": "Version", "copy": "Copy reference", "copied": "Reference copied", "copyError": "Could not copy. Select the reference and copy it manually.",
+  "limit": "Showing the latest 100 failures. History is retained for 30 days. Dates use your browser's time zone.",
+  "loadError": "Could not load operational history", "retry": "Try again. If the problem continues, contact support."
+}

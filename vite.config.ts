@@ -12,6 +12,7 @@ const copyIndexTo404: import("vite").Plugin = {
 };
 
 export default defineConfig({
+  define: { "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.CF_PAGES_COMMIT_SHA || process.env.APP_VERSION || "development") },
   plugins: [react(), tailwindcss(), copyIndexTo404],
   resolve: {
     alias: {

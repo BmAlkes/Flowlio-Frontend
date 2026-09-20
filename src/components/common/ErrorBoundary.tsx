@@ -1,6 +1,7 @@
+import { reportUiError } from "@/lib/telemetry";
 import React from "react";
 
-type ErrorBoundaryState = { hasError: boolean; error?: any; retryKey: number };
+type ErrorBoundaryState = { hasError: boolean; error?: any; retryKey: number; reference?: string };
 
 type ErrorBoundaryProps = React.PropsWithChildren<{
   /** Human-readable label for what this boundary wraps, shown in the error UI and
@@ -31,6 +32,7 @@ export class ErrorBoundary extends React.Component<
   componentDidCatch(error: any, info: any) {
     const section = this.props.section ?? "app";
     console.error(`UI ErrorBoundary caught (${section}):`, error, info);
+    void reportUiError("REACT_ERROR").then(reference => { if(reference) this.setState({ reference }); });
   }
 
   componentDidUpdate(prevProps: ErrorBoundaryProps) {
@@ -48,6 +50,7 @@ export class ErrorBoundary extends React.Component<
     this.setState((prevState) => ({
       hasError: false,
       error: undefined,
+      reference: undefined,
       retryKey: prevState.retryKey + 1,
     }));
   };
@@ -75,12 +78,7 @@ export class ErrorBoundary extends React.Component<
             <p className="text-sm text-muted-foreground mb-4">
               Please try again. If the problem persists, refresh the page.
             </p>
-            <div className="text-start bg-red-50 border border-red-200 rounded-md p-3 mb-4 text-xs text-red-800 break-words">
-              <div className="font-medium mb-1">Error:</div>
-              <pre className="whitespace-pre-wrap">
-                {String(this.state.error?.message || this.state.error)}
-              </pre>
-            </div>
+            {this.state.reference && <p className="text-xs text-muted-foreground break-all mb-4" dir="ltr">Reference: {this.state.reference}</p>}
             <div className="flex gap-3 justify-center">
               <button
                 type="button"

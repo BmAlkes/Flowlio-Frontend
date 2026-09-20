@@ -1,3 +1,4 @@
+import { reportUiError, resetTelemetryScope } from "@/lib/telemetry";
 import ax, { AxiosError, CanceledError } from "axios";
 
 export const environment = process.env.NODE_ENV as "production" | "development";
@@ -46,6 +47,7 @@ let requestIdentity = "";
 const requestScopes = new WeakMap<object, string>();
 
 export const setRequestScope = (scope: string, identity = scope) => {
+  if (requestScope !== scope) resetTelemetryScope();
   requestScope = scope;
   requestIdentity = identity;
 };
@@ -150,6 +152,7 @@ axios.interceptors.response.use(
       // Let auth/session checks drive logout behavior explicitly.
     }
 
+    if (!ax.isCancel(error) && (!error.response || error.response.status >= 500)) void reportUiError("NETWORK_ERROR");
     return Promise.reject(error);
   },
 );

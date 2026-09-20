@@ -1,3 +1,4 @@
+import { installErrorReporting } from "./lib/telemetry";
 import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import App from "./App.tsx";
@@ -22,6 +23,8 @@ import "./configs/i18n.config";
 window.addEventListener("vite:preloadError", () => {
   window.location.reload();
 });
+
+installErrorReporting();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

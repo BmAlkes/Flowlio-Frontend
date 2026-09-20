@@ -1,3 +1,7 @@
+import heOperations from "../locales/operations/he.json";
+import esOperations from "../locales/operations/es.json";
+import ptOperations from "../locales/operations/pt.json";
+import enOperations from "../locales/operations/en.json";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -14,16 +18,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations },
   },
 };
 

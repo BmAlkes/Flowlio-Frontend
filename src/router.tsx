@@ -53,6 +53,7 @@ const AiAssistPage = lazy(() =>
   })),
 );
 const SettingsPage = lazy(() => import("./pages/settings.page"));
+const OperationsPage = lazy(() => import("./pages/operations.page"));
 const AutomationsPage = lazy(() => import("./pages/automations.page"));
 const IntegrationsPage = lazy(() => import("./pages/integrations.page"));
 const DashboardPage = lazy(() => import("./pages/dashboard.page"));
@@ -462,6 +463,7 @@ const AppRoutes = () => {
           }
           path="settings/automations"
         />
+        <Route path="settings/operations" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={OperationsPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route
           element={
             <AdminManagerOrOrgOwnerRoute>
@@ -677,6 +679,7 @@ const AppRoutes = () => {
           path="demo-accounts"
           element={<LazyWrapper component={SuperAdminDemoAccountsPage} />}
         />
+        <Route path="operations" element={<SuperAdminRoute><LazyWrapper component={OperationsPage} /></SuperAdminRoute>} />
         <Route
           path="ai-monitoring"
           element={<LazyWrapper component={SuperAdminAIMonitoringPage} />}

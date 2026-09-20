@@ -1,3 +1,4 @@
+vi.mock("@/lib/telemetry", () => ({ reportUiError: vi.fn(), resetTelemetryScope: vi.fn() }));
 import { describe, expect, it, vi } from "vitest";
 import { AxiosError, isCancel } from "axios";
 import { axios, setRequestScope, SESSION_ACCESS_REVOKED } from "./axios.config";
