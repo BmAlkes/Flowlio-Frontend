@@ -1,4 +1,8 @@
 import heCore from "../locales/core/he.json";
+import enProposalConversion from "../locales/proposal-conversion/en.json";
+import ptProposalConversion from "../locales/proposal-conversion/pt.json";
+import esProposalConversion from "../locales/proposal-conversion/es.json";
+import heProposalConversion from "../locales/proposal-conversion/he.json";
 import esCore from "../locales/core/es.json";
 import ptCore from "../locales/core/pt.json";
 import enCore from "../locales/core/en.json";
@@ -22,16 +26,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion },
   },
 };
 

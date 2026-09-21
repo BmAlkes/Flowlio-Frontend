@@ -1,4 +1,5 @@
 import { ErrorState } from "@/components/skeletons";
+import { ProposalProjectModal } from "@/components/proposals/ProposalProjectModal";
 import { corePath, proposalsResponseSchema, type ProposalStatus } from "@/contracts/core-api";
 import { parseResponse } from "@/contracts/parse-response";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -54,6 +55,7 @@ const OrgProposalsPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -205,6 +207,7 @@ const OrgProposalsPage = () => {
         return (
           <Center>
             <div className="flex items-center gap-1.5">
+              {proposal.status === "approved" && <Button variant="outline" size="sm" onClick={() => setConvertingId(proposal.id)}>{t("proposalConversion.create")}</Button>}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -384,6 +387,7 @@ const OrgProposalsPage = () => {
         isOpen={isProposalModalOpen}
         onClose={() => setIsProposalModalOpen(false)}
       />
+      {convertingId && <ProposalProjectModal key={convertingId} proposalId={convertingId} onClose={() => setConvertingId(null)} />}
       <ProposalUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
