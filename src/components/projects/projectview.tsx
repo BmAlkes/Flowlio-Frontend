@@ -33,7 +33,6 @@ import {
 import { useSaveProjectAsTemplate } from "@/hooks/useProjectTemplates";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
-import { Separator } from "../ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -260,13 +259,13 @@ export const ProjectView = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800";
       case "ongoing":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800";
       default:
-        return "bg-muted text-gray-800 border-border";
+        return "bg-muted text-foreground border-border";
     }
   };
 
@@ -376,67 +375,62 @@ export const ProjectView = () => {
   const projectComments = commentsData?.data || [];
 
   return (
-    <PageWrapper className="mt-6 p-6">
+    <PageWrapper className="mt-4 min-w-0 border-0 bg-transparent p-3 sm:p-5 lg:p-6">
       {/* Header */}
-      <Box className="flex items-center justify-between mb-6">
-        <Box className="flex items-center gap-4">
-          <Box
-            className="flex items-center gap-2 w-20 cursor-pointer transition-all duration-300 hover:bg-muted rounded-full hover:p-2"
+      <Box className="mb-5 flex min-w-0 items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 gap-2"
             onClick={() => navigate(-1)}
           >
             <IoArrowBack className="rtl:rotate-180" />
-            <p className="text-foreground">{t("common.back")}</p>
-          </Box>
+            {t("common.back")}
+          </Button>
 
           {/* Breadcrumb */}
-          <Box className="flex items-center gap-2 text-sm text-muted-foreground">
+          <nav aria-label={t("appSidebar.projects")} className="flex min-w-0 items-center gap-2 border-s border-border ps-3 text-sm text-muted-foreground">
             <Button
               variant="link"
-              className="p-0 h-auto text-muted-foreground hover:text-foreground"
+              className="h-auto shrink-0 p-0 text-muted-foreground hover:text-foreground"
               onClick={() => navigate("/dashboard/project")}
             >
               {t("appSidebar.projects")}
             </Button>
             <span>/</span>
-            <span className="text-foreground font-medium">
+            <span className="truncate font-medium text-foreground" aria-current="page">
               {project.projectName}
             </span>
-          </Box>
-        </Box>
+          </nav>
       </Box>
 
       {/* Project Header Card */}
-      <Card className="mb-6 border border-border/60 shadow-xl bg-gradient-to-r from-blue-500/5 via-white dark:via-card/80 to-purple-50 dark:from-blue-500/10 dark:to-purple-900/10">
-        <CardHeader className="pb-6">
-          <Box className="flex items-start justify-between max-sm:flex-col-reverse max-sm:gap-4">
-            <Box className="flex-1">
-              <CardTitle className="text-3xl font-bold text-foreground mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+      <Card className="mb-6 gap-0 overflow-hidden border-border p-0 shadow-sm">
+        <div className="h-1 bg-gradient-to-r from-[#1797ba] via-blue-600 to-purple-600" />
+        <CardHeader className="p-5 sm:p-6">
+          <Box className="flex flex-col items-start justify-between gap-5 xl:flex-row">
+            <Box className="min-w-0 flex-1">
+              <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground">{t("projects.projectNumber")} <span className="ms-1 text-foreground">{project.projectNumber || "—"}</span></p>
+              <h1 className="mb-4 break-words text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
                 {project.projectName || t("projects.untitled")}
-              </CardTitle>
-              <Box className="flex items-center gap-6 mb-6">
+              </h1>
+              <Box className="flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Badge
                   variant="outline"
                   className={`${getStatusColor(
                     project.status,
-                  )} flex items-center gap-2 px-4 py-2 text-sm font-medium`}
+                  )} flex items-center gap-2 rounded-md px-2.5 py-1 text-xs font-medium`}
                 >
                   {getStatusIcon(project.status)}
-                  {project.status?.charAt(0).toUpperCase() +
-                    project.status?.slice(1)}
+                  {t(`projects.statusValue.${project.status}`)}
                 </Badge>
-                <Box className="flex items-center gap-2 text-sm text-muted-foreground bg-card/70 px-3 py-2 rounded-full">
-                  <BarChart3 className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium">
-                    {t("projects.progress")}: {project.progress}%
-                  </span>
-                </Box>
-                <Box className="flex items-center gap-2 text-sm text-muted-foreground bg-card/70 px-3 py-2 rounded-full">
-                  <Building2 className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">
+                <Box className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+                  <span className="break-words font-medium">
                     {project.clientName || t("common.noClient")}
                   </span>
                 </Box>
-                <Box className="flex items-center gap-2 text-sm text-muted-foreground bg-card/70 px-3 py-2 rounded-full">
+                <Box className="flex items-center gap-2 text-sm text-muted-foreground">
                   {(project as any).visibility === "private" ? (
                     <Lock className="h-4 w-4 text-orange-500" />
                   ) : (
@@ -449,46 +443,44 @@ export const ProjectView = () => {
                   </span>
                 </Box>
               </Box>
-              <Box className="relative">
-                <Progress
-                  value={project.progress}
-                  className="w-full h-3 bg-muted rounded-full overflow-hidden"
-                />
-                <Box className="absolute inset-0 bg-gradient-to-r from-blue-300 to-purple-300 rounded-full opacity-20"></Box>
-              </Box>
             </Box>
-            <Box className="flex flex-col gap-3 ">
+            <Box className="flex w-full flex-wrap gap-2 xl:w-auto xl:justify-end">
+              {!isClient && <Button onClick={handleEdit} className="gap-2 bg-[#11718c] text-white hover:bg-[#0e6078]"><Edit className="h-4 w-4" />{t("projectView.edit")}</Button>}
+              <Button variant="outline" onClick={openCommentModal} className="gap-2"><MessageCircle className="h-4 w-4" />{t("projectView.comments")}<span className="rounded bg-muted px-1.5 text-xs tabular-nums">{projectComments.length}</span></Button>
               {project.contractfile && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handleDownload}
-                  className="flex items-center gap-2 bg-card hover:bg-blue-50 border-blue-200 text-blue-700"
+                  className="gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Contract
+                  {t("projectView.contract")}
                 </Button>
               )}
             </Box>
           </Box>
         </CardHeader>
+        <div className="flex flex-col gap-3 border-t border-border bg-muted/20 px-5 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-6">
+          <div className="flex items-center justify-between gap-4 text-sm sm:min-w-40"><span className="text-muted-foreground">{t("projects.progress")}</span><span className="font-semibold tabular-nums">{project.progress ?? 0}%</span></div>
+          <Progress aria-label={t("projects.progress")} value={project.progress} className="h-2 flex-1 bg-muted [&_[data-slot=progress-indicator]]:bg-[#1797ba]" />
+        </div>
       </Card>
 
       {/* Main Content Grid */}
-      <Box className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <Box className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* Left Column - Project Details */}
-        <Box className="lg:col-span-2 space-y-6">
+        <Box className="min-w-0 space-y-6">
           {/* Project Information */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-blue-50/30 dark:to-blue-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
+          <Card className="min-w-0 gap-0 overflow-hidden border-border bg-card p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-blue-50/60 px-5 py-4 dark:bg-blue-900/15">
+              <CardTitle className="flex items-center gap-3 text-base font-semibold text-foreground">
                 <FileText className="h-5 w-5" />
                 {t("projects.projectInfo")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 p-4">
+            <CardContent className="space-y-5 p-5 sm:p-6">
               <Box className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Box className="flex items-center gap-4 p-4 bg-card/70 rounded-lg border border-blue-100 dark:border-blue-900/40">
+                <Box className="flex min-w-0 items-start gap-3 rounded-lg bg-blue-50/40 p-4 dark:bg-blue-900/10">
                   <Box className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
                     <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </Box>
@@ -501,7 +493,7 @@ export const ProjectView = () => {
                     </p>
                   </Box>
                 </Box>
-                <Box className="flex items-center gap-4 p-4 bg-card/70 rounded-lg border border-green-100 dark:border-green-900/40">
+                <Box className="flex min-w-0 items-start gap-3 rounded-lg bg-green-50/40 p-4 dark:bg-green-900/10">
                   <Box className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <User className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </Box>
@@ -509,7 +501,7 @@ export const ProjectView = () => {
                     <p className="text-sm text-muted-foreground font-medium">
                       {t("projects.assignedTo")}
                     </p>
-                    <p className="font-semibold text-foreground">
+                    <div className="font-semibold text-foreground">
                       {(() => {
                         const assignee = usersData?.data?.userMembers?.find(
                           (u) =>
@@ -527,10 +519,10 @@ export const ProjectView = () => {
                           </Box>
                         );
                       })()}
-                    </p>
+                    </div>
                   </Box>
                 </Box>
-                <Box className="flex items-center gap-4 p-4 bg-card/70 rounded-lg border border-purple-100 dark:border-purple-900/40">
+                <Box className="flex min-w-0 items-start gap-3 rounded-lg bg-purple-50/40 p-4 dark:bg-purple-900/10">
                   <Box className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
                     <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </Box>
@@ -545,7 +537,7 @@ export const ProjectView = () => {
                     </p>
                   </Box>
                 </Box>
-                <Box className="flex items-center gap-4 p-4 bg-card/70 rounded-lg border border-orange-100 dark:border-orange-900/40">
+                <Box className="flex min-w-0 items-start gap-3 rounded-lg bg-orange-50/40 p-4 dark:bg-orange-900/10">
                   <Box className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
                     <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                   </Box>
@@ -579,11 +571,11 @@ export const ProjectView = () => {
               )}
 
               {project.description && (
-                <Box className="p-4 bg-card/70 rounded-lg border border-border">
+                <Box className="border-t border-border pt-5">
                   <p className="text-sm text-muted-foreground font-medium mb-3">
                     {t("projects.projectDescriptionLabel")}
                   </p>
-                  <p className="text-foreground leading-relaxed bg-card p-4 rounded-lg border border-border">
+                  <p className="whitespace-pre-wrap break-words text-sm leading-7 text-foreground">
                     {project.description}
                   </p>
                 </Box>
@@ -595,8 +587,8 @@ export const ProjectView = () => {
                 project.customFields &&
                 Object.keys(project.customFields).length > 0 && (
                   <Box className="mt-6 pt-6 border-t border-border">
-                    <span className="text-lg font-semibold text-gray-800 mb-4 block">
-                      {t("projects.customFields")}
+                    <span className="text-lg font-semibold text-foreground mb-4 block">
+                      {t("projectView.customFields")}
                     </span>
                     <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {customFieldsData.data.map((field) => {
@@ -640,7 +632,7 @@ export const ProjectView = () => {
                                   }}
                                 />
                               )}
-                              <span className="text-sm text-gray-800 font-semibold capitalize break-words overflow-hidden break-all" style={{ wordBreak: 'break-word' }}>
+                              <span className="text-sm text-foreground font-semibold capitalize break-words overflow-hidden break-all" style={{ wordBreak: 'break-word' }}>
                                 {String(displayValue)}
                               </span>
                             </Flex>
@@ -653,12 +645,15 @@ export const ProjectView = () => {
             </CardContent>
           </Card>
 
+
+          <DeliveryReviews key={project.id} projectId={project.id} />
+
           {/* Project Documents Showcase */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-purple-50/30 dark:to-purple-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
+          <Card className="min-w-0 gap-0 overflow-hidden border-border bg-card p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-purple-50/60 px-5 py-4 dark:bg-purple-900/15">
+              <CardTitle className="flex items-center gap-3 text-base font-semibold text-foreground">
                 <FileText className="h-5 w-5" />
-                Contract Document Showcase
+                {t("projectView.contract")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
@@ -669,14 +664,14 @@ export const ProjectView = () => {
                     {/* PDF Showcase */}
                     <Box className="border-2 border-border rounded-lg overflow-hidden shadow-sm">
                       <Box className="bg-muted/50 p-4 border-b">
-                        <Box className="flex items-center justify-between">
+                        <Box className="flex flex-col items-start gap-4">
                           <Box className="flex items-center gap-2">
                             <FileText className="h-5 w-5 text-red-600" />
                             <span className="font-medium text-foreground">
                               {project.projectName || "Project"}-Contract.pdf
                             </span>
                           </Box>
-                          <Flex className="max-sm:flex-col">
+                          <Flex className="flex-wrap gap-2">
                             <Button
                               variant="outline"
                               size="sm"
@@ -686,7 +681,7 @@ export const ProjectView = () => {
                               className="flex items-center gap-1"
                             >
                               <Eye className="h-4 w-4" />
-                              View Full Screen
+                              {t("projectView.fullscreen")}
                             </Button>
 
                             <Button
@@ -696,7 +691,7 @@ export const ProjectView = () => {
                               className="flex items-center gap-1"
                             >
                               <Clock className="h-4 w-4" />
-                              History
+                              {t("projectView.history")}
                             </Button>
                             <Button
                               variant="outline"
@@ -706,7 +701,7 @@ export const ProjectView = () => {
                               disabled={uploadVersion.isPending}
                             >
                               <Upload className="h-4 w-4" />
-                              Update
+                              {t("projectView.update")}
                             </Button>
                             <Button
                               variant="outline"
@@ -717,14 +712,14 @@ export const ProjectView = () => {
                               className="flex items-center gap-1"
                             >
                               <EyeIcon className="h-4 w-4" />
-                              Open in New Tab
+                              {t("projectView.newTab")}
                             </Button>
                           </Flex>
                         </Box>
                       </Box>
 
                       {/* PDF Preview */}
-                      <Box className="h-[500px] bg-card">
+                      <Box className="h-[320px] bg-muted/20 sm:h-[440px]">
                         <iframe
                           src={`${project.contractfile}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
                           className="w-full h-full border-0"
@@ -761,7 +756,7 @@ export const ProjectView = () => {
                             }
                           >
                             <EyeIcon className="h-4 w-4 me-2" />
-                            Open in New Tab
+                            {t("projectView.newTab")}
                           </Button>
                         </Box>
                       </Box>
@@ -771,50 +766,22 @@ export const ProjectView = () => {
                   <Box className="text-center py-8 border-2 border-dashed border-border rounded-lg">
                     <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                     <h3 className="text-lg font-medium text-foreground mb-2">
-                      No Contract File
+                      {t("projectView.noContract")}
                     </h3>
                     <p className="text-muted-foreground">
-                      This project doesn't have a contract file uploaded.
+                      {t("projectView.noContractDescription")}
                     </p>
                   </Box>
                 )}
 
-                {/* Document Information */}
-                {project.contractfile && (
-                  <Box className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4">
-                    <Box className="flex items-center gap-2 mb-2">
-                      <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm font-medium text-blue-900 dark:text-blue-300">
-                        Document Information
-                      </span>
-                    </Box>
-                    <Box className="text-sm text-blue-800 dark:text-blue-400 space-y-1">
-                      <p>
-                        • Contract document for{" "}
-                        {project.projectName || "this project"}
-                      </p>
-                      <p>
-                        • Click "View Full Screen" to open in modal with full
-                        PDF controls
-                      </p>
 
-                      <p>
-                        • Click "Open in New Tab" to view in your browser's PDF
-                        viewer
-                      </p>
-                    </Box>
-                  </Box>
-                )}
               </Box>
             </CardContent>
           </Card>
 
-          <DeliveryReviews key={project.id} projectId={project.id} />
-
           {/* Financial tracking: org owner / platform admins only — never clients */}
           {showProjectFinancials && (
             <div className="space-y-3">
-            <Button asChild variant="outline"><Link to={`/dashboard/project/view/${project.id}/profitability`}>{t("profitability.title")}</Link></Button>
             <ProjectExpenses
               projectId={project.id}
               budget={(project as any).budget || 0}
@@ -824,285 +791,79 @@ export const ProjectView = () => {
           )}
         </Box>
 
-        {/* Right Column - Sidebar */}
-        <Box className="space-y-6">
-          {/* Client Information */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-green-50/30 dark:to-green-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Building2 className="h-5 w-5" />
-                Client Information
-              </CardTitle>
+        {/* Project controls and supporting context */}
+        <aside className="min-w-0 space-y-5">
+          <Card className="gap-0 overflow-hidden border-border p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-blue-50/60 px-5 py-4 dark:bg-blue-900/15">
+              <CardTitle className="flex items-center gap-3 text-base"><BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />{t("projectView.tracking")}</CardTitle>
             </CardHeader>
-            <CardContent className="p-4">
-              <Box className="flex items-center gap-4 p-4 bg-card/70 rounded-lg border border-green-100 dark:border-green-900/40">
-                <Avatar className="h-12 w-12 bg-gradient-to-r from-green-500/50 to-emerald-500">
-                  <AvatarImage
-                    src={project.clientImage}
-                    alt={project.clientName}
-                  />
-                  <AvatarFallback className="text-white font-semibold">
-                    {project.clientName?.charAt(0) || "C"}
-                  </AvatarFallback>
-                </Avatar>
-                <Box>
-                  <p className="font-semibold text-foreground text-lg capitalize">
-                    {project.clientName || "Unknown Client"}
-                  </p>
-                  <p className="text-sm text-muted-foreground bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full inline-block">
-                    Client
-                  </p>
-                </Box>
-              </Box>
+            <CardContent className="space-y-5 p-5">
+              <div className="space-y-3">
+                <label htmlFor="project-progress" className="flex items-center justify-between text-sm font-medium">{t("projects.progress")}<span className="text-blue-600 dark:text-blue-400 tabular-nums">{editProgress}%</span></label>
+                <div className="flex items-center gap-3">
+                  {!isClient && <Input id="project-progress" type="number" min={0} max={100} value={editProgress || 0} onChange={event => {
+                    const value = Number(event.target.value);
+                    if (!isNaN(value)) setEditProgress(Math.max(0, Math.min(100, value)));
+                  }} className="w-20 shrink-0 tabular-nums" />}
+                  <Progress aria-label={t("projects.progress")} value={editProgress} className="h-2 min-w-0 flex-1 bg-muted [&_[data-slot=progress-indicator]]:bg-blue-600" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="project-status" className="text-sm font-medium">{t("projectView.status")}</label>
+                <Select value={editStatus} onValueChange={setEditStatus} disabled={isClient}>
+                  <SelectTrigger id="project-status" className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>{["pending", "ongoing", "completed"].map(status => <SelectItem key={status} value={status}>{t(`projects.statusValue.${status}`)}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {!isClient && <Button onClick={handleQuickUpdate} disabled={isUpdating} className="w-full bg-[#11718c] text-white hover:bg-[#0e6078]">{isUpdating ? t("projectView.saving") : t("projectView.save")}</Button>}
+              {isClient && editStatus === "completed" && <Button onClick={() => { handleApproveProject(); toast.success("Project approved!"); }} className="w-full bg-green-700 text-white hover:bg-green-800">{t("projectView.approve")}</Button>}
+              <dl className="space-y-3 border-t border-border pt-4 text-xs">
+                <div className="flex flex-wrap justify-between gap-2"><dt className="text-muted-foreground">{t("projectView.created")}</dt><dd>{format(new Date(project.createdAt), "MMM dd, yyyy")}</dd></div>
+                <div className="flex flex-wrap justify-between gap-2"><dt className="text-muted-foreground">{t("projectView.updated")}</dt><dd>{format(new Date(project.updatedAt), "MMM dd, yyyy")}</dd></div>
+              </dl>
             </CardContent>
           </Card>
 
-          {/* Project Stats */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-blue-50/30 dark:to-blue-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <BarChart3 className="h-5 w-5" />
-                Project Statistics
-              </CardTitle>
+          <Card className="gap-0 overflow-hidden border-border p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-green-50/60 px-5 py-4 dark:bg-green-900/15">
+              <CardTitle className="flex items-center gap-3 text-base"><Building2 className="h-5 w-5 text-green-600 dark:text-green-400" />{t("projectView.client")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 p-4">
-              <Box className="p-4 bg-card/70 rounded-lg border border-blue-100 dark:border-blue-900/40">
-                <Box className="flex justify-between items-center mb-3">
-                  <span className="text-sm text-muted-foreground font-medium">
-                    Progress
-                  </span>
-                  <span className="font-bold text-blue-600 text-lg">
-                    {editProgress}%
-                  </span>
-                </Box>
-                <Box className="flex items-center gap-3">
-                  {!isClient && (
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={editProgress || 0}
-                      onChange={(e) => {
-                        const value = Number(e.target.value);
-                        if (isNaN(value)) return;
-                        setEditProgress(Math.max(0, Math.min(100, value)));
-                      }}
-                      className="w-24 bg-card"
-                      placeholder="0"
-                    />
-                  )}
-                  <Progress
-                    value={editProgress}
-                    className="h-3 bg-muted flex-1"
-                  />
-                </Box>
-              </Box>
-
-              <Separator className="bg-muted" />
-
-              <Box className="p-4 bg-card/70 rounded-lg border border-border">
-                <Stack className="justify-between">
-                  <Flex className="text-sm text-muted-foreground font-medium justify-start items-start">
-                    Status
-                  </Flex>
-                  <Box className="flex items-center gap-3">
-                    <Select value={editStatus} onValueChange={setEditStatus}>
-                      <SelectTrigger className="w-36 bg-card">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="ongoing">Ongoing</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Badge
-                      variant="outline"
-                      className={`${getStatusColor(
-                        editStatus,
-                      )} flex items-center gap-1 px-3 py-1`}
-                    >
-                      {getStatusIcon(editStatus)}
-                      {editStatus?.charAt(0).toUpperCase() +
-                        editStatus?.slice(1)}
-                    </Badge>
-                  </Box>
-                </Stack>
-              </Box>
-
-              {!isClient && (
-                <Button
-                  onClick={handleQuickUpdate}
-                  disabled={isUpdating}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
-                >
-                  {isUpdating ? "Saving..." : "Save Changes"}
-                </Button>
-              )}
-
-              {isClient && editStatus === "completed" && (
-                <Button
-                  onClick={() => {
-                    handleApproveProject();
-                    toast.success("Project approved!");
-                  }}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer"
-                >
-                  Approve Project
-                </Button>
-              )}
-
-              <Box className="p-4 bg-card/70 rounded-lg border border-border">
-                <Box className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground font-medium">
-                    Created
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {format(new Date(project.createdAt), "MMM dd, yyyy")}
-                  </span>
-                </Box>
-              </Box>
-
-              <Box className="p-4 bg-card/70 rounded-lg border border-border">
-                <Box className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground font-medium">
-                    Last Updated
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {format(new Date(project.updatedAt), "MMM dd, yyyy")}
-                  </span>
-                </Box>
-              </Box>
+            <CardContent className="flex min-w-0 items-center gap-3 p-5">
+              <Avatar className="h-11 w-11 shrink-0"><AvatarImage src={project.clientImage} alt={project.clientName} /><AvatarFallback className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">{project.clientName?.charAt(0) || "—"}</AvatarFallback></Avatar>
+              <p className="min-w-0 break-words text-sm font-semibold">{project.clientName || t("common.noClient")}</p>
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-purple-50/30 dark:to-purple-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Users className="h-5 w-5" />
-                Quick Actions
-              </CardTitle>
+          {!isClient && <Card className="gap-0 overflow-hidden border-border p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-purple-50/60 px-5 py-4 dark:bg-purple-900/15">
+              <CardTitle className="flex items-center gap-3 text-base"><Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />{t("projectView.tools")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 p-6">
-              {!isClient && (
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-card hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-400 cursor-pointer"
-                  onClick={handleEdit}
-                >
-                  <Edit className="h-4 w-4 me-2" />
-                  Edit Project
-                </Button>
-              )}
+            <CardContent className="space-y-2 p-3">
+              {showProjectFinancials && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/project/view/${project.id}/profitability`}><BarChart3 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />{t("profitability.title")}</Link></Button>}
+              <Button variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start" onClick={() => { setTemplateNameInput(project.projectName || ""); setIsSaveTemplateModalOpen(true); }}><Copy className="h-4 w-4 shrink-0 text-purple-600 dark:text-purple-400" />{t("projectView.template")}</Button>
+            </CardContent>
+          </Card>}
 
-              {!isClient && (
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-card hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-400 cursor-pointer"
-                  onClick={() => {
-                    setTemplateNameInput(project.projectName || "");
-                    setIsSaveTemplateModalOpen(true);
-                  }}
-                >
-                  <Copy className="h-4 w-4 me-2" />
-                  Save as Template
-                </Button>
-              )}
-
-              <Button
-                variant="outline"
-                className="w-full justify-start bg-card hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800/50 text-blue-700 dark:text-blue-400 cursor-pointer"
-                onClick={openCommentModal}
-              >
-                <MessageCircle className="h-4 w-4 me-2" />
-                View Comments ({projectComments.length})
-              </Button>
+          <Card className="gap-0 overflow-hidden border-border p-0 shadow-sm">
+            <CardHeader className="border-b border-border bg-orange-50/60 px-5 py-4 dark:bg-orange-900/15">
+              <CardTitle className="flex items-center gap-3 text-base"><FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />{t("projectView.projectPdf")}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-5">
+              {project.projectFiles?.projectPdf ? <div className="space-y-4">
+                <p className="break-words text-sm text-muted-foreground">{project.projectFiles.projectPdf.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleOpenInNewTab(project.projectFiles?.projectPdf?.url || "")}><EyeIcon className="h-4 w-4" />{t("projectView.view")}</Button>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    const link = document.createElement("a");
+                    link.href = project.projectFiles?.projectPdf?.url || "";
+                    link.download = project.projectFiles?.projectPdf?.name || "";
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                  }}><Download className="h-4 w-4" />{t("projectView.download")}</Button>
+                </div>
+              </div> : <p className="rounded-lg border border-dashed border-border p-4 text-center text-sm leading-6 text-muted-foreground">{t("projectView.noPdf")}</p>}
             </CardContent>
           </Card>
-
-          {/* Additional Project PDFs */}
-          <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-orange-50/30 dark:to-orange-900/10 p-0">
-            <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-t-lg p-3">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <FileText className="h-5 w-5" />
-                Project PDF
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <Box className="space-y-4">
-                {/* Project PDF */}
-                {project.projectFiles?.projectPdf ? (
-                  <Box className="border border-border rounded-lg p-4 bg-gradient-to-r from-blue-500/5 to-indigo-50 dark:to-indigo-900/10">
-                    <Box className="flex items-center justify-between mb-3">
-                      <Box className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-600" />
-                        <span className="font-medium text-foreground">
-                          Project PDF
-                        </span>
-                      </Box>
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-blue-100 text-blue-800"
-                      >
-                        PDF Document
-                      </Badge>
-                    </Box>
-
-                    <Box className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        {project.projectFiles.projectPdf.name}
-                      </p>
-
-                      <Box className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleOpenInNewTab(
-                              project.projectFiles?.projectPdf?.url || "",
-                            )
-                          }
-                          className="flex items-center gap-1 bg-card hover:bg-blue-50 cursor-pointer"
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                          View PDF
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const link = document.createElement("a");
-                            link.href =
-                              project.projectFiles?.projectPdf?.url || "";
-                            link.download =
-                              project.projectFiles?.projectPdf?.name || "";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            toast.success("Project PDF downloaded!");
-                          }}
-                          className="flex items-center gap-1 bg-card hover:bg-blue-50 cursor-pointer"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </Button>
-                      </Box>
-                    </Box>
-                  </Box>
-                ) : (
-                  <Box className="border-2 border-dashed border-border rounded-lg p-6 text-center bg-muted/50">
-                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      No project PDF uploaded
-                    </p>
-                  </Box>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+        </aside>
       </Box>
 
       {/* PDF Showcase Modal */}

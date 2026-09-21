@@ -1,0 +1,10 @@
+{
+  "customFields": "Custom fields",
+  "edit": "Edit project", "comments": "Comments", "contract": "Contract",
+  "tracking": "Project tracking", "status": "Status", "saving": "Saving...", "save": "Save changes",
+  "approve": "Approve project", "created": "Created", "updated": "Last updated", "client": "Client",
+  "tools": "Project tools", "template": "Save as template", "projectPdf": "Project PDF",
+  "view": "View", "download": "Download", "noPdf": "No project PDF uploaded.",
+  "fullscreen": "Full screen", "newTab": "Open in new tab", "history": "History", "update": "Update",
+  "noContract": "No contract uploaded", "noContractDescription": "Contract documents will appear here when added."
+}

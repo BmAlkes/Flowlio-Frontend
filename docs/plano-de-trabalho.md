@@ -1,5 +1,9 @@
 # Plano de trabalho do Flowlio
 
+## Próximo ciclo: T25–T33
+
+O [plano de evolução do produto](plano-evolucao-produto.md) detalha o refinamento da página do projeto e as oito novas funcionalidades, com sequência, dependências e critérios de aceite. A T11 permanece separada, aguardando ambiente e validação Sandbox. Este histórico T01–T24 continua preservado.
+
 ## Acordo de execução
 
 - Executar uma tarefa por vez, com branch nova a partir da principal atualizada em cada repositório afetado.

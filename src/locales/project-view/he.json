@@ -1,0 +1,10 @@
+{
+  "customFields": "שדות מותאמים אישית",
+  "edit": "עריכת פרויקט", "comments": "תגובות", "contract": "חוזה",
+  "tracking": "מעקב פרויקט", "status": "סטטוס", "saving": "שומר...", "save": "שמירת שינויים",
+  "approve": "אישור פרויקט", "created": "נוצר בתאריך", "updated": "עדכון אחרון", "client": "לקוח",
+  "tools": "כלי הפרויקט", "template": "שמירה כתבנית", "projectPdf": "PDF של הפרויקט",
+  "view": "צפייה", "download": "הורדה", "noPdf": "לא הועלה קובץ PDF לפרויקט.",
+  "fullscreen": "מסך מלא", "newTab": "פתיחה בלשונית חדשה", "history": "היסטוריה", "update": "עדכון",
+  "noContract": "לא הועלה חוזה", "noContractDescription": "מסמכי החוזה יופיעו כאן לאחר הוספתם."
+}

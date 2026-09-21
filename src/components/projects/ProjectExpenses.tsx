@@ -188,17 +188,17 @@ export const ProjectExpenses = ({
 
   const content = (
     <>
-      <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-t-lg p-3">
-        <CardTitle className="flex items-center justify-between text-white">
+      <CardHeader className="border-b border-border bg-emerald-50/60 px-5 py-4 dark:bg-emerald-900/15">
+        <CardTitle className="flex flex-wrap items-center justify-between gap-3 text-base text-foreground">
           <Flex className="items-center gap-2">
-            <DollarSign className="h-5 w-5" />
+            <DollarSign className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             {t("expenses.financialTracking")}
           </Flex>
           {!isClient && (
             <Button
               variant="outline"
               size="sm"
-              className="bg-card/20 border-white/40 text-white hover:bg-card/30 cursor-pointer me-8 text-xs"
+              className="border-emerald-200 bg-card text-xs text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
               onClick={() => setShowAddForm(true)}
             >
               <Plus className="h-3 w-3 me-1" />
@@ -207,11 +207,11 @@ export const ProjectExpenses = ({
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-5">
+      <CardContent className="space-y-5 p-5 sm:p-6">
         {/* Budget Summary Cards */}
         {budget > 0 && (
           <Box className="space-y-4">
-            <Box className="grid grid-cols-3 gap-3">
+            <Box className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {/* Total Budget */}
               <Box className="p-3 bg-gradient-to-br from-blue-500/5 to-blue-500/10 rounded-xl border border-blue-200 dark:border-blue-900/40">
                 <Flex className="items-center gap-2 mb-1">
@@ -407,7 +407,7 @@ export const ProjectExpenses = ({
       {isModal ? (
         <Box className="space-y-5">{content}</Box>
       ) : (
-        <Card className="border border-border/60 shadow-lg bg-gradient-to-br from-white dark:from-card to-emerald-50/30 dark:to-emerald-900/10 p-0">
+        <Card className="min-w-0 gap-0 overflow-hidden border-border bg-card p-0 shadow-sm">
           {content}
         </Card>
       )}

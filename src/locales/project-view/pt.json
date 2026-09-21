@@ -1,0 +1,10 @@
+{
+  "customFields": "Campos personalizados",
+  "edit": "Editar projeto", "comments": "Comentários", "contract": "Contrato",
+  "tracking": "Acompanhamento", "status": "Status", "saving": "Salvando...", "save": "Salvar alterações",
+  "approve": "Aprovar projeto", "created": "Criado em", "updated": "Atualizado em", "client": "Cliente",
+  "tools": "Ferramentas do projeto", "template": "Salvar como modelo", "projectPdf": "PDF do projeto",
+  "view": "Visualizar", "download": "Baixar", "noPdf": "Nenhum PDF do projeto foi enviado.",
+  "fullscreen": "Tela cheia", "newTab": "Abrir em nova aba", "history": "Histórico", "update": "Atualizar",
+  "noContract": "Nenhum contrato enviado", "noContractDescription": "Os documentos do contrato aparecerão aqui quando forem adicionados."
+}
