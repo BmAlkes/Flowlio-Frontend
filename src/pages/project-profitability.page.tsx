@@ -9,6 +9,8 @@ import { canViewInternalProjectFinancials } from "@/utils/projectFinancialAccess
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ErrorState, TableSkeleton } from "@/components/skeletons";
+import { ArrowLeft, ChartNoAxesCombined, Wallet, Receipt, Clock3, TrendingUp } from "lucide-react";
+import { WorkspaceHeader, WorkspaceMetric, workspacePanel, workspaceToolbar } from "@/components/ui/workspace-page";
 
 type Settings = { currency: string; hourlyCost: string | null };
 export type ProfitabilityReport = {
@@ -34,14 +36,15 @@ export default function ProjectProfitabilityPage() {
     queryFn: async () => (await axios.get<{ data: ProfitabilityReport }>(`/projects/${encodeURIComponent(id)}/profitability`, { params: period })).data.data,
   });
   if (!allowed) return <p className="p-6">{t("profitability.forbidden")}</p>;
-  return <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 text-foreground">
-    <header className="space-y-2 border-b border-border pb-5"><Link className="text-sm text-[#11718c] dark:text-[#55bdd9] underline" to={`/dashboard/project/view/${id}`}>{t("profitability.back")}</Link><h1 className="text-2xl font-medium">{t("profitability.title")}</h1><p className="text-sm text-muted-foreground">{query.data?.projectName}</p></header>
-    <form className="flex flex-wrap items-end gap-3" onSubmit={event => { event.preventDefault(); setPeriod({ from, to }); }}>
+  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 text-foreground">
+    <Link className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]" to={`/dashboard/project/view/${id}`}><ArrowLeft aria-hidden="true" className="size-4 rtl:rotate-180" />{t("profitability.back")}</Link>
+    <WorkspaceHeader icon={ChartNoAxesCombined} title={t("profitability.title")} description={query.data?.projectName} />
+    <form className={workspaceToolbar} onSubmit={event => { event.preventDefault(); setPeriod({ from, to }); }}>
       <label className="text-sm">{t("profitability.from")}<Input type="date" required value={from} max={to} onChange={event => setFrom(event.target.value)} /></label>
       <label className="text-sm">{t("profitability.to")}<Input type="date" required value={to} min={from} onChange={event => setTo(event.target.value)} /></label>
-      <Button type="submit" variant="outline">{t("profitability.apply")}</Button>
+      <Button type="submit" className="bg-[#11718c] text-white hover:bg-[#0e6078]">{t("profitability.apply")}</Button>
+      <p className="basis-full text-xs leading-relaxed text-muted-foreground">{t("profitability.periodNote")}</p>
     </form>
-    <p className="text-xs text-muted-foreground">{t("profitability.periodNote")}</p>
     {query.isPending ? <TableSkeleton rows={3} columns={3} /> : query.isError ? <ErrorState title={t("profitability.error")} message={t("profitability.retry")} onRetry={() => void query.refetch()} /> : query.data && <>
       <ProfitabilityContent report={query.data} />
       <FinancialSettingsForm key={`${id}:${query.data.settings?.currency}:${query.data.settings?.hourlyCost}`} id={id} settings={query.data.settings} />
@@ -56,12 +59,12 @@ export function ProfitabilityContent({ report }: { report: ProfitabilityReport }
   const money = (amount: string | null | undefined, unit = currency) => amount == null ? "—" : new Intl.NumberFormat(i18n.language, { style: "currency", currency: unit }).format(Number(amount));
   const hours = (minutes = 0) => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(minutes / 60);
   return <section className="space-y-5" aria-label={t("profitability.title")}>
-    <dl className="grid divide-y divide-border border-y border-border sm:grid-cols-2 sm:divide-y-0">
-      {(["revenue", "expenses", "laborCost", "estimatedProfit"] as const).map(key => <div key={key} className="py-5 sm:pe-6"><dt className="text-sm text-muted-foreground">{t(`profitability.${key}`)}</dt><dd className="mt-2 text-xl font-medium tabular-nums">{money(report[key])}</dd></div>)}
+    <dl className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {(["revenue", "expenses", "laborCost", "estimatedProfit"] as const).map((key, index) => <WorkspaceMetric key={key} icon={[Wallet, Receipt, Clock3, TrendingUp][index]} label={t(`profitability.${key}`)} featured={key === "estimatedProfit"}>{money(report[key])}</WorkspaceMetric>)}
     </dl>
     {!report.complete && <p role="status" className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-sm">{t("profitability.incomplete")}</p>}
     <p className="text-sm text-muted-foreground">{t("profitability.formula")}</p>
-    <dl className="grid gap-4 text-sm sm:grid-cols-3"><div><dt>{t("profitability.hours")}</dt><dd className="mt-1 font-medium">{hours(report.minutes)}</dd></div><div><dt>{t("profitability.unbilledHours")}</dt><dd className="mt-1 font-medium">{hours(report.unbilledMinutes)}</dd></div><div><dt>{t("profitability.unbilledValue")}</dt><dd className="mt-1 font-medium">{money(report.unbilledValue)}</dd></div></dl>
+    <dl className={`${workspacePanel} grid gap-5 p-5 text-sm sm:grid-cols-3 sm:gap-0 sm:[&>div]:px-5 sm:[&>div+div]:border-s sm:[&>div+div]:border-border [&_dt]:text-muted-foreground [&_dd]:text-xl [&_dd]:tabular-nums`}><div><dt>{t("profitability.hours")}</dt><dd className="mt-2 font-medium">{hours(report.minutes)}</dd></div><div><dt>{t("profitability.unbilledHours")}</dt><dd className="mt-2 font-medium">{hours(report.unbilledMinutes)}</dd></div><div><dt>{t("profitability.unbilledValue")}</dt><dd className="mt-2 font-medium">{money(report.unbilledValue)}</dd></div></dl>
     <p className="text-xs text-muted-foreground">{t("profitability.unbilledNote")}</p>
     {!!report.unpricedMinutes && <p className="text-sm">{t("profitability.unpriced", { hours: hours(report.unpricedMinutes) })}</p>}
     {!!report.incompleteEntries && <p className="text-sm">{t("profitability.unfinished", { count: report.incompleteEntries })}</p>}
@@ -80,7 +83,7 @@ function FinancialSettingsForm({ id, settings }: { id: string; settings: Setting
     mutationFn: () => axios.put(`/projects/${encodeURIComponent(id)}/financial-settings`, { currency, hourlyCost: cost || null, confirmCurrency: confirmed }),
     onSuccess: () => { void client.invalidateQueries({ queryKey: ["profitability"] }); setConfirmed(false); },
   });
-  return <details open={!settings || undefined} className="rounded-lg border border-border p-4"><summary className="cursor-pointer text-sm font-medium">{t("profitability.settings")}</summary>
+  return <details open={!settings || undefined} className={`${workspacePanel} p-5`}><summary className="cursor-pointer text-sm font-medium text-[#11718c] dark:text-[#55bdd9]">{t("profitability.settings")}</summary>
     <form className="mt-4 space-y-4" onSubmit={event => { event.preventDefault(); if (!save.isPending) save.mutate(); }}>
       <p className="text-sm text-muted-foreground">{t("profitability.settingsNote")}</p>
       <fieldset disabled={save.isPending} className="grid gap-4 sm:grid-cols-2">

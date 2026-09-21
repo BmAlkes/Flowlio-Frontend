@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { RefreshCw, Copy, AlertTriangle } from "lucide-react";
+import { RefreshCw, Copy, AlertTriangle, Activity, Server, Monitor, Clock3 } from "lucide-react";
 import { axios } from "@/configs/axios.config";
 import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { ErrorState, TableSkeleton } from "@/components/skeletons";
+import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
 
 export interface OperationalSummary {
   events: { id:string; source:string; code:string; route:string; correlationId:string; release:string; occurredAt:string; status:number|null }[];
@@ -19,32 +20,29 @@ export function OperationsContent({ data, refresh, refreshing=false }: { data:Op
   const [copyError,setCopyError]=useState(false);
   const [source,setSource]=useState("all");
   const events=data.events.filter(event=>source==="all" || event.source===source);
-  return <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 text-foreground">
-    <header className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
-      <div><h1 className="text-2xl font-medium tracking-tight">{t("operations.title")}</h1><p className="mt-1 text-sm text-muted-foreground">{t("operations.window")}</p></div>
-      <Button variant="outline" onClick={refresh} disabled={refreshing}><RefreshCw className="size-4 me-2" />{t("operations.refresh")}</Button>
-    </header>
+  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 text-foreground">
+    <WorkspaceHeader icon={Activity} title={t("operations.title")} description={t("operations.window")} actions={<Button variant="outline" onClick={refresh} disabled={refreshing}><RefreshCw aria-hidden="true" className="size-4" />{t("operations.refresh")}</Button>} />
     {data.alerts.length>0 && <div role="status" className="my-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm"><AlertTriangle className="size-5 shrink-0 text-amber-600"/><div><p className="font-medium">{t("operations.attention")}</p><p className="mt-1 text-muted-foreground">{t("operations.action")}</p></div></div>}
-    <div className="grid gap-0 divide-y sm:divide-y-0 sm:divide-x divide-border border-b border-border sm:grid-cols-3">
-      {["api","ui","job"].map(kind=>{const metric=data.metrics.find(row=>row.source===kind);return <section key={kind} className="py-5 sm:px-5 first:ps-0"><h2 className="text-sm font-medium text-[#11718c] dark:text-[#55bdd9]">{t("operations."+kind)}</h2>
-        <p className="mt-2 text-sm">{kind === "ui" ? <>{data.events.filter(event=>event.source==="ui").length} {t("operations.recorded")}</> : metric ? <><span className="font-semibold tabular-nums">{metric.errors}</span> / {metric.requests} {t("operations.failed")}</> : t("operations.noMetrics")}</p>
-        {metric && <p className="mt-1 text-xs text-muted-foreground">{t("operations.latency",{average:metric.averageMs,max:metric.maxMs})}</p>}
+    <div className="grid gap-4 sm:grid-cols-3">
+      {["api","ui","job"].map((kind,index)=>{const metric=data.metrics.find(row=>row.source===kind);const Icon=[Server,Monitor,Clock3][index];return <section key={kind} className={`${workspacePanel} p-5`}><div className="flex items-center justify-between gap-3"><h2 className="text-sm font-medium">{t("operations."+kind)}</h2><span className="rounded-lg bg-[#1797ba]/10 p-2 text-[#11718c] dark:text-[#55bdd9]"><Icon aria-hidden="true" className="size-5" /></span></div>
+        <p className="mt-4 text-sm text-muted-foreground">{kind === "ui" ? <><span className="text-2xl font-medium tabular-nums text-foreground">{data.events.filter(event=>event.source==="ui").length}</span> {t("operations.recorded")}</> : metric ? <><span className="text-2xl font-medium tabular-nums text-foreground">{metric.errors}</span> / {metric.requests} {t("operations.failed")}</> : t("operations.noMetrics")}</p>
+        {metric && <p className="mt-4 border-t border-border pt-3 text-xs leading-relaxed text-muted-foreground">{t("operations.latency",{average:metric.averageMs,max:metric.maxMs})}</p>}
       </section>;})}
     </div>
-    <section className="mt-7" aria-labelledby="failure-history">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 id="failure-history" className="text-base font-medium">{t("operations.history")}</h2>
+    <section className={`${workspacePanel} overflow-hidden`} aria-labelledby="failure-history">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-secondary/30 p-5"><h2 id="failure-history" className="flex items-center gap-2 text-base font-medium"><Activity aria-hidden="true" className="size-4 text-[#1797ba]" />{t("operations.history")}</h2>
         <label className="flex items-center gap-2 text-sm"><span>{t("operations.filter")}</span><select value={source} onChange={event=>setSource(event.target.value)} className="rounded-md border border-border bg-background px-3 py-2 focus-visible:outline-2 focus-visible:outline-[#1797ba]">
           {["all","api","ui","job"].map(kind=><option value={kind} key={kind}>{t("operations."+kind)}</option>)}
         </select></label>
       </div>
-      {events.length===0 ? <p className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">{t("operations.empty")}</p> : <ul className="divide-y divide-border rounded-lg border border-border">
-        {events.map(event=><li key={event.id} className="grid gap-3 p-4 sm:grid-cols-[9rem_1fr_auto] sm:items-center">
-          <div><p className="text-sm font-medium">{t("operations."+event.source)}</p><time dateTime={event.occurredAt} className="text-xs text-muted-foreground">{new Intl.DateTimeFormat(i18n.language,{dateStyle:"short",timeStyle:"short"}).format(new Date(event.occurredAt))}</time></div>
+      {events.length===0 ? <div className="flex flex-col items-center gap-3 px-5 py-12 text-center"><Activity aria-hidden="true" className="size-8 text-[#1797ba]" /><p className="text-sm text-muted-foreground">{t("operations.empty")}</p></div> : <ul className="divide-y divide-border">
+        {events.map(event=><li key={event.id} className="grid gap-4 p-5 transition-colors hover:bg-secondary/25 sm:grid-cols-[9rem_1fr_auto] sm:items-center">
+          <div><p className="mb-2 inline-flex rounded-md border border-[#1797ba]/20 bg-[#1797ba]/5 px-2 py-1 text-xs font-medium text-[#11718c] dark:text-[#55bdd9]">{t("operations."+event.source)}</p><time dateTime={event.occurredAt} className="block text-xs text-muted-foreground">{new Intl.DateTimeFormat(i18n.language,{dateStyle:"short",timeStyle:"short"}).format(new Date(event.occurredAt))}</time></div>
           <div className="min-w-0"><p className="font-mono text-xs break-all" dir="ltr">{event.code} · {event.route}</p><p className="mt-1 font-mono text-xs text-muted-foreground break-all" dir="ltr">{event.correlationId}</p><p className="mt-1 text-xs text-muted-foreground">{t("operations.version")}: <span dir="ltr">{event.release.slice(0,12)}</span></p></div>
           <Button variant="ghost" className="justify-self-start sm:justify-self-end" aria-label={t("operations.copy")} onClick={()=>{void navigator.clipboard.writeText(event.correlationId).then(()=>{setCopied(event.id);setCopyError(false);}).catch(()=>setCopyError(true));}}><Copy className="size-4 me-2"/>{copied===event.id?t("operations.copied"):t("operations.copy")}</Button>
         </li>)}
       </ul>}
-      <p className="mt-3 text-xs text-muted-foreground">{t("operations.limit")}</p>
+      <p className="border-t border-border bg-secondary/20 px-5 py-3 text-xs text-muted-foreground">{t("operations.limit")}</p>
       <span role="status" className="sr-only">{copyError?t("operations.copyError"):copied?t("operations.copied"):""}</span>
     </section>
   </main>;
