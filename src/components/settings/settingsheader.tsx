@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OperationsSettingsLink } from "./OperationsSettingsLink";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ComponentWrapper } from "@/components/common/componentwrapper";
@@ -624,6 +625,8 @@ export const SettingsHeader = () => {
               : t("settings.saveChanges")}
           </Button>
         </Center>
+
+        <OperationsSettingsLink />
 
         <Stack className="gap-8 mt-4">
           <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3 ">

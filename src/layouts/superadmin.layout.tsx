@@ -19,6 +19,7 @@ import {
   Bot,
   Zap,
   Newspaper,
+  Activity,
 } from "lucide-react";
 import { useUser } from "@/providers/user.provider";
 
@@ -88,6 +89,11 @@ export const navItems: NavItem[] = [
     url: "/superadmin/settings",
     icon: <Settings />,
   },
+  {
+    title: "operationalHistory",
+    url: "/superadmin/operations",
+    icon: <Activity />,
+  },
 ];
 
 export const SuperAdminLayout = () => {
@@ -96,6 +102,9 @@ export const SuperAdminLayout = () => {
 
   // Filter navigation items based on user role
   const filteredNavItems = navItems.filter((item) => {
+    if (item.url === "/superadmin/operations") {
+      return userData?.user.role === "superadmin";
+    }
     if (userData?.user.subadminId) {
       const restrictedSections = [
         "/superadmin",

@@ -1,4 +1,5 @@
 import { ComponentWrapper } from "@/components/common/componentwrapper";
+import { OperationsSettingsLink } from "@/components/settings/OperationsSettingsLink";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
@@ -107,6 +108,8 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
   return (
     <ComponentWrapper className="mt-8 px-10 py-4 max-md:px-6">
       <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
+
+      <OperationsSettingsLink global />
 
       <Stack className="gap-8">
         {/* Profile Information Section */}

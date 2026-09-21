@@ -6,6 +6,10 @@ Branches FE e BE: `feat/t15-observability`.
 
 - Organização: Configurações → Histórico operacional (`/dashboard/settings/operations`), para proprietários, gestores e administradores autorizados.
 - Superadmin: Configurações → Histórico operacional (`/superadmin/operations`), visão global.
+
+### Correção de navegação (21/09/2026)
+
+O domínio de produção já servia a tela e as rotas da T15, mas faltava o item no menu lateral. O dashboard agora inclui **Configurações → Histórico operacional** no submenu de proprietários e gestores. No superadmin, **Histórico operacional** aparece junto de Configurações, apenas para o papel superadmin. As duas páginas de configurações também oferecem um acesso destacado abaixo do título, com permissões alinhadas às rotas.
 - Falhas de interface capturadas pelo ErrorBoundary exibem uma referência quando o registro é confirmado pelo servidor.
 
 ## Comportamento

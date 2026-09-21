@@ -40,6 +40,7 @@
     "goBack": "Voltar"
   },
   "appSidebar": {
+    "operationalHistory": "Histórico operacional",
     "dashboard": "Painel",
     "inbox": "Caixa de Entrada",
     "projects": "Projetos",

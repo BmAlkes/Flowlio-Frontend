@@ -1,4 +1,5 @@
 {
+  "settingsDescription": "View recent failures and request and automation metrics.",
   "title": "Operational history", "window": "Last 24 hours · metrics update within 5 seconds",
   "refresh": "Refresh", "attention": "Recent operations need attention", "action": "Review the failures below. Share a reference with support before retrying an uncertain payment or automation.",
   "api": "Requests", "ui": "Interface", "job": "Automations", "all": "All sources", "failed": "failed", "recorded": "recent reports",

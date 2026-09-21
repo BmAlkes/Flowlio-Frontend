@@ -1,4 +1,5 @@
 {
+  "settingsDescription": "Consulta fallos recientes y métricas de solicitudes y automatizaciones.",
   "title": "Historial operativo", "window": "Últimas 24 horas · métricas actualizadas en un máximo de 5 segundos",
   "refresh": "Actualizar", "attention": "Hay operaciones recientes que requieren atención", "action": "Revisa los fallos a continuación. Comparte una referencia con soporte antes de repetir un pago o una automatización con resultado incierto.",
   "api": "Solicitudes", "ui": "Interfaz", "job": "Automatizaciones", "all": "Todos los orígenes", "failed": "fallidas", "recorded": "informes recientes",
