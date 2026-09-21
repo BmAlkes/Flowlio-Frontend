@@ -341,6 +341,11 @@ const userOrgOwnerNavItems: NavItem[] = [
         icon: React.createElement(BadgeDollarSign),
       },
       {
+        url: "/dashboard/settings/workflows",
+        title: "workflows",
+        icon: React.createElement(Zap),
+      },
+      {
         url: "/dashboard/settings/automations",
         title: "automations",
         icon: React.createElement(Zap),
