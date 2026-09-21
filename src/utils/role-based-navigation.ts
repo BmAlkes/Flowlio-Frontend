@@ -252,6 +252,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     icon: React.createElement(Clock),
   },
   {
+    url: "/dashboard/team-capacity",
+    title: "teamCapacity",
+    icon: React.createElement(LuUsers),
+  },
+  {
     url: "/dashboard/user-management",
     title: "userManagement",
     icon: React.createElement(LuUsers),

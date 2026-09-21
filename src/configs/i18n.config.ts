@@ -1,3 +1,7 @@
+import heCapacity from "../locales/capacity/he.json";
+import esCapacity from "../locales/capacity/es.json";
+import ptCapacity from "../locales/capacity/pt.json";
+import enCapacity from "../locales/capacity/en.json";
 import heDelivery from "../locales/delivery/he.json";
 import esDelivery from "../locales/delivery/es.json";
 import ptDelivery from "../locales/delivery/pt.json";
@@ -34,16 +38,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, appSidebar: { ...enTranslations.appSidebar, teamCapacity: enCapacity.title } },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, appSidebar: { ...esTranslations.appSidebar, teamCapacity: esCapacity.title } },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, appSidebar: { ...ptTranslations.appSidebar, teamCapacity: ptCapacity.title } },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, appSidebar: { ...heTranslations.appSidebar, teamCapacity: heCapacity.title } },
   },
 };
 
