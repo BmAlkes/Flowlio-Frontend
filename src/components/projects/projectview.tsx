@@ -1,7 +1,7 @@
 import { IoArrowBack } from "react-icons/io5";
 import { PageWrapper } from "../common/pagewrapper";
 import { Box } from "../ui/box";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { Center } from "../ui/center";
 import { Button } from "../ui/button";
 import { useFetchProjectById } from "../../hooks/usefetchprojects";
@@ -810,11 +810,14 @@ export const ProjectView = () => {
 
           {/* Financial tracking: org owner / platform admins only — never clients */}
           {showProjectFinancials && (
+            <div className="space-y-3">
+            <Button asChild variant="outline"><Link to={`/dashboard/project/view/${project.id}/profitability`}>{t("profitability.title")}</Link></Button>
             <ProjectExpenses
               projectId={project.id}
               budget={(project as any).budget || 0}
               isClient={isClient}
             />
+            </div>
           )}
         </Box>
 

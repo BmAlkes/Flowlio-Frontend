@@ -1,3 +1,7 @@
+import heProfitability from "../locales/profitability/he.json";
+import esProfitability from "../locales/profitability/es.json";
+import ptProfitability from "../locales/profitability/pt.json";
+import enProfitability from "../locales/profitability/en.json";
 import heCore from "../locales/core/he.json";
 import enProposalConversion from "../locales/proposal-conversion/en.json";
 import ptProposalConversion from "../locales/proposal-conversion/pt.json";
@@ -26,16 +30,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability },
   },
 };
 

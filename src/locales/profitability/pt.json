@@ -1,0 +1,13 @@
+{
+  "title":"Rentabilidade do projeto", "back":"Voltar ao projeto", "from":"De", "to":"Até", "apply":"Aplicar período",
+  "periodNote":"UTC · até 367 dias corridos. Receitas e despesas usam a data registrada; horas usam a data de início e a duração integral registrada.",
+  "forbidden":"Seu perfil não pode consultar as finanças internas do projeto.", "error":"Não foi possível carregar a rentabilidade", "retry":"Confira as datas ou escolha um período menor e tente novamente.",
+  "setup":"Informe abaixo a moeda e o custo estimado por hora para preparar o relatório.", "revenue":"Receitas registradas", "expenses":"Despesas registradas", "laborCost":"Custo estimado do trabalho", "estimatedProfit":"Lucro estimado",
+  "incomplete":"O resultado está incompleto. Confira custos ausentes, horas inacabadas ou sem acesso e receitas em outras moedas abaixo.",
+  "formula":"Lucro estimado = receitas registradas do projeto − despesas − custo estimado do trabalho. Inclui somente receitas vinculadas explicitamente a este projeto. Não é um demonstrativo contábil.",
+  "hours":"Horas concluídas", "unbilledHours":"Horas faturáveis não faturadas", "unbilledValue":"Valor não faturado com tarifa registrada",
+  "unbilledNote":"Horas não faturadas não são somadas à receita. Os vínculos vêm do faturamento de horas; faturas antigas podem não possuir esses vínculos.",
+  "unpriced":"{{hours}} horas não faturadas estão sem tarifa.", "unfinished":"{{count}} registros de tempo estão inacabados ou possuem duração inválida.", "hidden":"Há horas de tarefas fora do seu acesso. O total do projeto não pode ser fechado.", "otherCurrencies":"Receitas excluídas desta moeda (sem conversão)",
+  "settings":"Premissas do relatório", "settingsNote":"Um custo estimado por hora será aplicado a todas as horas incluídas. Alterar estas premissas recalcula todos os períodos, sem modificar pagamentos ou registros de tempo anteriores.",
+  "currency":"Moeda (código ISO)", "hourlyCost":"Custo estimado por hora (opcional)", "confirm":"Confirmo que as despesas do projeto e as tarifas das horas estão registradas nesta moeda. Não haverá conversão cambial.", "settingsError":"Não foi possível salvar. Confira a moeda e um custo não negativo com até duas casas decimais.", "saved":"Premissas do relatório salvas."
+}

@@ -1,0 +1,13 @@
+{
+  "title":"Rentabilidad del proyecto", "back":"Volver al proyecto", "from":"Desde", "to":"Hasta", "apply":"Aplicar período",
+  "periodNote":"UTC · hasta 367 días. Ingresos y gastos usan su fecha registrada; las horas usan la fecha de inicio y toda su duración registrada.",
+  "forbidden":"Tu perfil no puede consultar las finanzas internas del proyecto.", "error":"No se pudo cargar la rentabilidad", "retry":"Revisa las fechas o elige un período más corto y vuelve a intentarlo.",
+  "setup":"Indica la moneda y el coste estimado por hora para preparar el informe.", "revenue":"Ingresos registrados", "expenses":"Gastos registrados", "laborCost":"Coste laboral estimado", "estimatedProfit":"Beneficio estimado",
+  "incomplete":"El resultado está incompleto. Revisa costes ausentes, horas sin terminar o sin acceso e ingresos en otras monedas.",
+  "formula":"Beneficio estimado = ingresos registrados del proyecto − gastos − coste laboral estimado. Solo incluye ingresos vinculados explícitamente a este proyecto. No es un estado contable.",
+  "hours":"Horas completadas", "unbilledHours":"Horas facturables sin facturar", "unbilledValue":"Valor sin facturar con tarifa registrada",
+  "unbilledNote":"Las horas sin facturar no se suman a los ingresos. Los vínculos vienen de la facturación de horas; las facturas antiguas pueden no tenerlos.",
+  "unpriced":"{{hours}} horas sin facturar no tienen tarifa.", "unfinished":"{{count}} registros de tiempo están incompletos o tienen duración inválida.", "hidden":"Hay horas de tareas fuera de tu acceso. No se puede completar el total del proyecto.", "otherCurrencies":"Ingresos excluidos de esta moneda (sin conversión)",
+  "settings":"Supuestos del informe", "settingsNote":"Un coste estimado por hora se aplica a todas las horas incluidas. Cambiar estos supuestos recalcula todos los períodos, sin modificar pagos ni registros históricos.",
+  "currency":"Moneda (código ISO)", "hourlyCost":"Coste estimado por hora (opcional)", "confirm":"Confirmo que los gastos del proyecto y las tarifas por hora están registrados en esta moneda. No se aplicará conversión de divisas.", "settingsError":"No se pudo guardar. Revisa la moneda y un coste no negativo con hasta dos decimales.", "saved":"Supuestos guardados."
+}

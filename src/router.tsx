@@ -54,6 +54,7 @@ const AiAssistPage = lazy(() =>
 );
 const SettingsPage = lazy(() => import("./pages/settings.page"));
 const OperationsPage = lazy(() => import("./pages/operations.page"));
+const ProjectProfitabilityPage = lazy(() => import("./pages/project-profitability.page"));
 const AutomationsPage = lazy(() => import("./pages/automations.page"));
 const IntegrationsPage = lazy(() => import("./pages/integrations.page"));
 const DashboardPage = lazy(() => import("./pages/dashboard.page"));
@@ -443,6 +444,7 @@ const AppRoutes = () => {
           element={<LazyWrapper component={ProjectViewPage} />}
           path="project/view/:id"
         />
+        <Route path="project/view/:id/profitability" element={<LazyWrapper component={ProjectProfitabilityPage} />} />
         <Route
           element={<LazyWrapper component={CalenderPage} />}
           path="calender"

@@ -1,0 +1,13 @@
+{
+  "title":"Project profitability", "back":"Back to project", "from":"From", "to":"To", "apply":"Apply period",
+  "periodNote":"UTC · up to 367 calendar days. Revenue and expenses use their recorded date; time uses its start date and full recorded duration.",
+  "forbidden":"Your role cannot view internal project finances.", "error":"Could not load profitability", "retry":"Check the dates or select a shorter period, then try again.",
+  "setup":"Set the reporting currency and estimated hourly cost below to prepare this report.", "revenue":"Recorded revenue", "expenses":"Recorded expenses", "laborCost":"Estimated labor cost", "estimatedProfit":"Estimated profit",
+  "incomplete":"The result is incomplete. Review missing costs, unfinished or inaccessible time entries, and revenue in other currencies below.",
+  "formula":"Estimated profit = recorded project revenue − expenses − estimated labor cost. Only revenue explicitly linked to this project is included. This report is not an accounting statement.",
+  "hours":"Completed hours", "unbilledHours":"Unbilled billable hours", "unbilledValue":"Unbilled value with a recorded rate",
+  "unbilledNote":"Unbilled time is not added to revenue. Billing links come from the tracked-time invoice workflow; older invoices may not have these links.",
+  "unpriced":"{{hours}} unbilled hours have no billing rate.", "unfinished":"{{count}} time entries are unfinished or have invalid durations.", "hidden":"Some task time is outside your access. The project total cannot be completed.", "otherCurrencies":"Revenue excluded from this currency (no conversion)",
+  "settings":"Reporting assumptions", "settingsNote":"One estimated labor cost per hour applies to all included time. Changing these assumptions recalculates all periods; it does not change historical payments or time entries.",
+  "currency":"Currency (ISO code)", "hourlyCost":"Estimated cost per hour (optional)", "confirm":"I confirm that project expenses and time billing rates are recorded in this currency. No currency conversion will be applied.", "settingsError":"Could not save. Check the currency code and a nonnegative cost with up to two decimals.", "saved":"Reporting assumptions saved."
+}
