@@ -1,3 +1,7 @@
+import heDelivery from "../locales/delivery/he.json";
+import esDelivery from "../locales/delivery/es.json";
+import ptDelivery from "../locales/delivery/pt.json";
+import enDelivery from "../locales/delivery/en.json";
 import heProfitability from "../locales/profitability/he.json";
 import esProfitability from "../locales/profitability/es.json";
 import ptProfitability from "../locales/profitability/pt.json";
@@ -30,16 +34,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery },
   },
 };
 

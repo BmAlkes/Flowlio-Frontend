@@ -1,4 +1,5 @@
 import { IoArrowBack } from "react-icons/io5";
+import { DeliveryReviews } from "./DeliveryReviews";
 import { PageWrapper } from "../common/pagewrapper";
 import { Box } from "../ui/box";
 import { Link, useNavigate, useParams } from "react-router";
@@ -807,6 +808,8 @@ export const ProjectView = () => {
               </Box>
             </CardContent>
           </Card>
+
+          <DeliveryReviews key={project.id} projectId={project.id} />
 
           {/* Financial tracking: org owner / platform admins only — never clients */}
           {showProjectFinancials && (
