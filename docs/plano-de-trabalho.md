@@ -30,8 +30,8 @@
 | T13 | Modularização incremental — `refactor/t13-domain-modules` | FE + BE | Extrair casos de uso de login, projetos, pagamentos e automações; componentes e serviços pequenos por responsabilidade; nenhuma alteração funcional inadvertida. | T12 | Publicada; Railway e Cloudflare confirmaram sucesso |
 | T14 | Cache, paginação e consultas — `perf/t14-data-access` | FE + BE | Paginar projetos/tarefas/horas; filtros reais no servidor; chaves de cache por escopo, invalidação direcionada, revisão do timestamp em GET e polling; medir consultas/latência antes e depois. | T04, T12 | Publicada; Railway e Cloudflare confirmaram sucesso |
 | T15 | Observabilidade — `feat/t15-observability` | FE + BE | Captura persistente de falhas UI/API/jobs, correlation ID e versão; métricas de erro/latência; redigir dados sensíveis; alertas acionáveis e teste do fluxo. | T10 | Publicada; Railway 278b84d e Cloudflare 1fee22f confirmados |
-| T16 | Localização e acessibilidade — `feat/t16-localization-accessibility` | FE + BE | Moeda e fuso explícitos, formatação consistente, traduções completas nos fluxos core, teclado/foco, contraste, RTL e limites de data testados. | T12 | Implementada e validada no escopo documentado; deploy em andamento |
-| T17 | CI e testes dos fluxos críticos — `test/t17-core-journeys` | FE + BE | Pipeline obrigatório de lint/test/build, banco de teste e contratos; jornadas de autenticação, autorização, execução e cobrança; nunca usar dados reais. | T03–T12 | Pendente |
+| T16 | Localização e acessibilidade — `feat/t16-localization-accessibility` | FE + BE | Moeda e fuso explícitos, formatação consistente, traduções completas nos fluxos core, teclado/foco, contraste, RTL e limites de data testados. | T12 | Publicada no escopo documentado; Railway 0044645 e Cloudflare c61cc9e confirmados |
+| T17 | CI e testes dos fluxos críticos — `test/t17-core-journeys` | FE + BE | Pipeline obrigatório de lint/test/build, banco de teste e contratos; jornadas de autenticação, autorização, execução e cobrança; nunca usar dados reais. | T03–T12 | Pipelines implementados; 237 testes BE e 147 FE aprovados; verificacao remota em andamento |
 | T18 | Proposta para projeto — `feat/t18-proposal-to-project` | FE + BE | Aprovação prepara projeto por template com tarefas/marcos/orçamento; revisão, rastreabilidade e proteção contra criação duplicada. | T03, T10, T12 | Pendente |
 | T19 | Rentabilidade — `feat/t19-profitability` | FE + BE | Relacionar receitas, despesas, custo das horas e saldo não faturado; distinguir custo de tarifa de venda; moeda/competência consistentes e fórmulas testadas. | T07, T11, T16 | Pendente |
 | T20 | Aprovação de entregas — `feat/t20-delivery-approval` | FE + BE | Cliente aprova/rejeita versão ou marco específico, histórico e pedido de ajuste; política de acesso e prevenção de aprovação de versão desatualizada. | T03, T12 | Pendente |
@@ -258,3 +258,7 @@ Detalhes, limites e validacao em [t15-observability.md](./t15-observability.md).
 ## T16 - Localizacao e acessibilidade
 
 Detalhes, validacao e limites em [t16-localization-accessibility.md](./t16-localization-accessibility.md). Backend `0044645` integrado. Frontend: 147 testes e lint aprovados.
+
+## T17 - CI e jornadas criticas
+
+Configuracao e reproducao em [t17-core-journeys.md](./t17-core-journeys.md). Validar protecao da main e confirmar checks remotos antes do merge.

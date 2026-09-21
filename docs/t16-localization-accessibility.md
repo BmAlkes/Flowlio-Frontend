@@ -26,4 +26,4 @@ Diálogos recebem texto na cor semântica do tema, fechamento traduzido, foco e 
 - Testes de datas incluem zonas opostas, ano bissexto, início/fim do horário de verão e validação de fuso.
 - A paridade cobre os namespaces listados; não comprova tradução de todo texto legado escrito diretamente nos componentes nem substitui auditoria completa de acessibilidade por leitores de tela.
 - Nenhuma migração de banco. Recuperação: reverter os commits de código preservando dados.
-- Publicação: aguardando validação final de build e confirmação dos provedores.
+- Publicação confirmada: Railway `0044645`, Cloudflare `c61cc9e`, em 21/09/2026. Builds aprovados.
