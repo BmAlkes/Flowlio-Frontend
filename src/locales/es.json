@@ -76,7 +76,6 @@
     "blog": "Blog",
     "demoAccounts": "Cuentas de demostración",
     "aiMonitoring": "Monitoreo de IA",
-    "automations": "Automatizaciones",
     "reports": "Informes y Análisis",
     "revenue": "Ingresos",
     "subscriptions": "Suscripciones",
@@ -291,6 +290,13 @@
     "failedToResendOTPDesc": "Error al reenviar el código de verificación. Por favor, inténtelo de nuevo.",
     "setup2FA": "Configurar 2FA",
     "validation": {
+      "fullNameRequired": "El nombre completo es obligatorio",
+      "invalidEmail": "Dirección de correo electrónico no válida",
+      "allPasswordFieldsRequired": "Si cambias la contraseña, todos los campos de contraseña deben estar completos.",
+      "currentPasswordLength": "La contraseña actual debe tener entre 8 y 12 caracteres.",
+      "newPasswordLength": "La nueva contraseña debe tener entre 8 y 12 caracteres.",
+      "confirmPasswordLength": "Confirmar contraseña debe tener entre 8 y 12 caracteres.",
+      "passwordsMustMatch": "La nueva contraseña y la confirmación de la contraseña deben coincidir.",
       "otpMustBe6Digits": "El OTP debe ser de 6 dígitos",
       "passwordRequired": "La contraseña es obligatoria"
     },
@@ -302,17 +308,9 @@
     "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
     "fillAllPasswords": "Por favor, completa todos los campos de contraseña",
     "passwordChangeError": "Error al cambiar la contraseña. Por favor, inténtalo de nuevo.",
-    "validation": {
-      "fullNameRequired": "El nombre completo es obligatorio",
-      "invalidEmail": "Dirección de correo electrónico no válida",
-      "allPasswordFieldsRequired": "Si cambias la contraseña, todos los campos de contraseña deben estar completos.",
-      "currentPasswordLength": "La contraseña actual debe tener entre 8 y 12 caracteres.",
-      "newPasswordLength": "La nueva contraseña debe tener entre 8 y 12 caracteres.",
-      "confirmPasswordLength": "Confirmar contraseña debe tener entre 8 y 12 caracteres.",
-      "passwordsMustMatch": "La nueva contraseña y la confirmación de la contraseña deben coincidir.",
-      "otpMustBe6Digits": "El OTP debe ser de 6 dígitos",
-      "passwordRequired": "La contraseña es obligatoria"
-    }
+    "languageSettings": "Idioma",
+    "selectLanguage": "Selecciona un idioma",
+    "languageChanged": "Idioma actualizado"
   },
   "dashboard": {
     "title": "Tablero",

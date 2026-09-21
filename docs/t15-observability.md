@@ -29,4 +29,4 @@ Métricas são diagnósticas, não contábeis: o buffer é limitado e pode perde
 - Frontend: lint aprovado, 138 testes aprovados; revisão visual local com dados fictícios em desktop, 320 px, tema escuro e RTL, sem overflow horizontal; navegação por Tab alcança os controles.
 - Backend: 162 testes aprovados na suíte completa, seis suítes opcionais de outros bancos não configuradas; teste adicional dos alertas executado separadamente.
 - Integração PostgreSQL dedicada cobre migração, isolamento entre organizações, permissões, ingestão, limites, falha HTTP, falha de job, persistência e retenção.
-- Publicação: pendente de confirmação dos provedores.
+- Publicação confirmada: Railway `278b84d` e Cloudflare `1fee22f`, ambos com sucesso em 20/09/2026.

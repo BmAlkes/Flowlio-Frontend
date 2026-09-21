@@ -1,71 +1,35 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
+import { validTimeZone } from "@/lib/locale-format";
 
 export const useTimezone = () => {
-  const [timezone, setTimezone] = useState<string>("UTC");
+  const [timezone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
   const [isUpdating, setIsUpdating] = useState(false);
-  const hasUpdated = useRef(false);
+  const scope = useDataScope();
+  const successful = useRef<string | undefined>(undefined);
+  const pending = useRef(new Set<string>());
 
-  // Detect user's timezone
-  useEffect(() => {
-    const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    setTimezone(detectedTimezone);
-  }, []);
-
-  // Update user timezone on server
-  const updateUserTimezone = async (newTimezone?: string) => {
-    const timezoneToUpdate = newTimezone || timezone;
-
-    if (!timezoneToUpdate || isUpdating || hasUpdated.current) {
-      return;
-    }
-
+  const updateUserTimezone = useCallback(async (newTimezone = timezone) => {
+    if (!validTimeZone(newTimezone)) return false;
+    const key = JSON.stringify([scope, newTimezone]);
+    if (successful.current === key) return true;
+    if (pending.current.has(key)) return false;
+    pending.current.add(key);
     setIsUpdating(true);
-    hasUpdated.current = true;
-
     try {
-      const response = await axios.put("/user/profile/timezone", {
-        timezone: timezoneToUpdate,
-      });
-
-      if (response.data.success) {
-        console.log("Timezone updated successfully:", timezoneToUpdate);
-      }
-    } catch (error) {
-      console.error("Failed to update timezone:", error);
-      hasUpdated.current = false; // Reset on error to allow retry
+      const response = await axios.put("/user/profile/timezone", { timezone: newTimezone });
+      if (response.data.success) successful.current = key;
+      return !!response.data.success;
+    } catch {
+      return false;
     } finally {
-      setIsUpdating(false);
+      pending.current.delete(key);
+      setIsUpdating(pending.current.size > 0);
     }
-  };
+  }, [scope, timezone]);
 
-  // Auto-update timezone when component mounts (only once)
-  useEffect(() => {
-    console.log("Timezone effect triggered:", {
-      timezone,
-      isUpdating,
-      hasUpdated: hasUpdated.current,
-    });
-    if (timezone && timezone !== "UTC" && !isUpdating && !hasUpdated.current) {
-      console.log("Calling updateUserTimezone...");
-      updateUserTimezone();
-    }
-  }, [timezone]);
+  useEffect(() => { void updateUserTimezone(); }, [updateUserTimezone]);
 
-  // Manual trigger for testing
-  const testTimezoneUpdate = () => {
-    hasUpdated.current = false; // Reset flag for manual test
-    updateUserTimezone();
-  };
-
-  // Expose test function to window for debugging
-  useEffect(() => {
-    (window as any).testTimezoneUpdate = testTimezoneUpdate;
-  }, []);
-
-  return {
-    timezone,
-    updateUserTimezone,
-    isUpdating,
-  };
+  return { timezone, updateUserTimezone, isUpdating };
 };

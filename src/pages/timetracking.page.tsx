@@ -1,3 +1,4 @@
+import { formatDateValue } from "@/lib/locale-format";
 import { Stack } from "@/components/ui/stack";
 import { Box } from "@/components/ui/box";
 import { Flex } from "@/components/ui/flex";
@@ -28,7 +29,8 @@ import { useFetchOrganizationWeeklyHoursTracked } from "@/hooks/useFetchOrganiza
 import { formatHours, formatDuration } from "@/utils/timeFormat";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
+import { enUS, es, ptBR, he } from "date-fns/locale";
 import {
   Select,
   SelectContent,
@@ -79,7 +81,8 @@ const ActiveTableTimer = ({ startTime }: { startTime: string }) => {
 };
 
 const TimeTrackingPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedTask, setSelectedTask] = useState<string>("");
   // History filters for custom table
@@ -331,7 +334,7 @@ const TimeTrackingPage = () => {
           const valid = !isNaN(d.getTime());
           return (
             <span className="text-sm text-muted-foreground px-2 py-2 block">
-              {valid ? format(d, "PPp") : "-"}
+              {valid ? formatDateValue(d.toISOString(), i18n.language, timeZone, true) : "-"}
             </span>
           );
         },
@@ -349,7 +352,7 @@ const TimeTrackingPage = () => {
           const valid = d ? !isNaN(d.getTime()) : false;
           return (
             <span className="text-sm text-muted-foreground px-2 py-2 block">
-              {valid ? format(d!, "PPp") : "-"}
+              {valid ? formatDateValue(d!.toISOString(), i18n.language, timeZone, true) : "-"}
             </span>
           );
         },
@@ -463,7 +466,7 @@ const TimeTrackingPage = () => {
           String(row.getValue(id) ?? "") === String(value),
       },
     ],
-    [isTracking, startTaskMutation.isPending, deleteEntryMutation.isPending]
+    [isTracking, startTaskMutation.isPending, deleteEntryMutation.isPending, t, i18n.language, timeZone]
   );
 
   // Build columnFilters for table (default show all)
@@ -486,7 +489,7 @@ const TimeTrackingPage = () => {
           {t("timeTracking.title")}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {t("timeTracking.subtitle")}
+          {t("timeTracking.subtitle")} <span className="block text-xs mt-1">{t("core.timeZone", { zone: timeZone })}</span>
         </p>
       </div>
 
@@ -556,8 +559,7 @@ const TimeTrackingPage = () => {
                 <p className="text-sm text-muted-foreground mt-0.5">{activeTimeEntry.projectName}</p>
                 <p className="text-xs text-muted-foreground mt-3">
                   {t("timeTracking.started")}{" "}
-                  {formatDistanceToNow(new Date(activeTimeEntry.startTime))}{" "}
-                  {t("timeTracking.ago")}
+                  {formatDistanceToNow(new Date(activeTimeEntry.startTime), { addSuffix: true, locale: ({ en: enUS, es, pt: ptBR, he } as Record<string, typeof enUS>)[i18n.language.split("-")[0]] ?? enUS })}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-4">

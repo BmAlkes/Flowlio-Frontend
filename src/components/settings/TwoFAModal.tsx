@@ -1,4 +1,5 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useId } from "react";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +41,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
   open,
 }) => {
   const { t } = useTranslation();
+  const fieldId = useId();
   const [isLoading, setIsLoading] = useState(false);
   const [showOTPForm, setShowOTPForm] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -293,6 +295,8 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
           className: "max-w-md w-[95vw]",
         }}
       >
+        <DialogTitle className="sr-only">{t("settings.twoFactorAuthentication")}</DialogTitle>
+        <DialogDescription className="sr-only">{t("settings.twoFactorAuthenticationDesc")}</DialogDescription>
         {showOTPForm ? (
           // OTP Verification Form
           <Box className="space-y-6">
@@ -319,11 +323,17 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-foreground">
+                <label htmlFor={`${fieldId}-otp`} className="text-sm font-medium text-foreground">
                   {t("settings.enterVerificationCode")}
                 </label>
                 <Input
                   {...form.register("otp")}
+                  id={`${fieldId}-otp`}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  dir="ltr"
+                  aria-invalid={!!form.formState.errors.otp}
+                  aria-describedby={form.formState.errors.otp ? `${fieldId}-otp-error` : undefined}
                   onChange={handleOTPChange}
                   value={form.watch("otp")}
                   className="text-center text-xl font-mono tracking-widest h-12"
@@ -332,7 +342,7 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
                   disabled={isLoading}
                 />
                 {form.formState.errors.otp && (
-                  <p className="text-red-500 text-sm">
+                  <p id={`${fieldId}-otp-error`} role="alert" className="text-red-600 dark:text-red-400 text-sm">
                     {form.formState.errors.otp.message}
                   </p>
                 )}
@@ -411,17 +421,21 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-foreground">
+                <label htmlFor={`${fieldId}-enable-password`} className="text-sm font-medium text-foreground">
                   {t("settings.password")}
                 </label>
                 <Input
                   {...enablePasswordForm.register("password")}
+                  id={`${fieldId}-enable-password`}
+                  autoComplete="current-password"
+                  aria-invalid={!!enablePasswordForm.formState.errors.password}
+                  aria-describedby={enablePasswordForm.formState.errors.password ? `${fieldId}-enable-error` : undefined}
                   type="password"
                   placeholder={t("settings.enterYourPassword")}
                   className="w-full"
                 />
                 {enablePasswordForm.formState.errors.password && (
-                  <p className="text-sm text-red-600">
+                  <p id={`${fieldId}-enable-error`} role="alert" className="text-sm text-red-600 dark:text-red-400">
                     {enablePasswordForm.formState.errors.password.message}
                   </p>
                 )}
@@ -503,17 +517,21 @@ export const TwoFAModal: FC<TwoFAModalProps> = ({
               className="space-y-4"
             >
               <Stack className="gap-2">
-                <label className="text-sm font-medium text-foreground">
+                <label htmlFor={`${fieldId}-disable-password`} className="text-sm font-medium text-foreground">
                   {t("settings.enterYourPassword")}
                 </label>
                 <Input
                   {...passwordForm.register("password")}
+                  id={`${fieldId}-disable-password`}
+                  autoComplete="current-password"
+                  aria-invalid={!!passwordForm.formState.errors.password}
+                  aria-describedby={passwordForm.formState.errors.password ? `${fieldId}-disable-error` : undefined}
                   type="password"
                   placeholder={t("settings.enterYourPassword")}
                   className="text-center h-12"
                 />
                 {passwordForm.formState.errors.password && (
-                  <p className="text-red-500 text-sm text-center">
+                  <p id={`${fieldId}-disable-error`} role="alert" className="text-red-600 dark:text-red-400 text-sm text-center">
                     {passwordForm.formState.errors.password.message}
                   </p>
                 )}

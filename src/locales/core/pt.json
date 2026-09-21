@@ -1,0 +1,13 @@
+{
+  "currencyUnknown": "Moeda não informada", "timeZone": "Fuso horário: {{zone}}", "retry": "Tentar novamente",
+  "timeInvoice": "Faturar horas registradas", "timeInvoiceDesc": "Selecione horas concluídas e faturáveis dos projetos de clientes acessíveis à equipe.",
+  "client": "Cliente", "selectClient": "Selecione um cliente", "clientsError": "Não foi possível carregar os clientes.", "from": "De", "to": "Até", "dateRange": "Selecione um período válido.",
+  "legacyInvoices": "Este cliente possui faturas do fluxo anterior de faturamento de horas, sem registros de tempo vinculados. Revise essas faturas antes de selecionar horas para evitar faturar o mesmo trabalho novamente.",
+  "billableTime": "Horas faturáveis", "loadingHours": "Carregando horas faturáveis…", "hoursError": "Não foi possível carregar as horas faturáveis.", "noHours": "Não há horas concluídas, faturáveis e ainda não faturadas neste período.",
+  "selectAll": "Selecionar tudo", "entry": "Registro de tempo", "rateNeeded": "Informe a tarifa", "firstEntries": "Exibindo os primeiros 500 registros. Reduza o período ou fature estes registros primeiro.",
+  "fallbackRate": "Tarifa horária alternativa", "fallbackDesc": "Usada somente nos registros sem tarifa informada.", "dueOptional": "Vencimento (opcional)", "total": "Valor total", "entries": "{{count}} registros", "hours": "{{value}} h", "rate": "{{value}}/h", "minutes": "{{value}} min",
+  "uncertain": "Não foi possível confirmar o resultado. Tente novamente com esta seleção para recuperar a fatura com segurança.", "created": "Fatura criada com sucesso", "creationError": "Não foi possível confirmar a criação. Tente novamente para verificar esta mesma fatura.",
+  "createInvoice": "Criar fatura", "retryCreation": "Tentar novamente com segurança", "creating": "Criando…",
+  "trackedHours": "Horas registradas", "trackedDesc": "Horas e tarifas registradas no momento da criação desta fatura.", "loadingTracked": "Carregando horas registradas…", "trackedError": "Não foi possível carregar as horas registradas.", "noTracked": "Esta fatura não possui registros de tempo vinculados.",
+  "deleteInvoice": "Tem certeza de que deseja excluir esta fatura?", "statusUpdated": "Status da fatura atualizado", "statusError": "Não foi possível atualizar o status da fatura", "downloadPdf": "Baixar PDF", "generatePdf": "Gerar PDF", "markDraft": "Marcar como rascunho", "markPaid": "Marcar como paga", "selectRow": "Selecionar linha", "notDue": "Sem vencimento", "invoiceError": "Erro ao carregar faturas", "paid": "Paga", "draft": "Rascunho", "overdue": "Vencida", "pending": "Pendente"
+}

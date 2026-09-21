@@ -1,0 +1,13 @@
+{
+  "currencyUnknown": "Currency not recorded", "timeZone": "Time zone: {{zone}}", "retry": "Retry",
+  "timeInvoice": "Invoice from tracked time", "timeInvoiceDesc": "Select completed, billable hours from your team's accessible client projects.",
+  "client": "Client", "selectClient": "Select a client", "clientsError": "Could not load clients.", "from": "From", "to": "To", "dateRange": "Choose a valid date range.",
+  "legacyInvoices": "This client has invoices from the previous time-billing workflow. Those invoices have no linked time records. Review them before selecting hours to avoid billing past work again.",
+  "billableTime": "Billable time", "loadingHours": "Loading billable hours…", "hoursError": "Could not load billable hours.", "noHours": "No unbilled, completed billable hours in this period.",
+  "selectAll": "Select all", "entry": "Time entry", "rateNeeded": "Rate needed", "firstEntries": "Showing the first 500 entries. Narrow the dates or invoice these entries first.",
+  "fallbackRate": "Fallback hourly rate", "fallbackDesc": "Only used for entries without a recorded rate.", "dueOptional": "Due date (optional)", "total": "Total amount", "entries": "{{count}} entries", "hours": "{{value}} h", "rate": "{{value}}/h", "minutes": "{{value}} min",
+  "uncertain": "The result could not be confirmed. Retry with this selection to recover the invoice safely.", "created": "Invoice created successfully", "creationError": "Could not confirm creation. Retry to check this same invoice.",
+  "createInvoice": "Create invoice", "retryCreation": "Retry safely", "creating": "Creating…",
+  "trackedHours": "Tracked hours", "trackedDesc": "Hours and rates recorded when this invoice was created.", "loadingTracked": "Loading tracked hours…", "trackedError": "Could not load tracked hours.", "noTracked": "This invoice has no linked time records.",
+  "deleteInvoice": "Are you sure you want to delete this invoice?", "statusUpdated": "Invoice status updated", "statusError": "Failed to update invoice status", "downloadPdf": "Download PDF", "generatePdf": "Generate PDF", "markDraft": "Mark as Draft", "markPaid": "Mark as Paid", "selectRow": "Select row", "notDue": "Not due", "invoiceError": "Error loading invoices", "paid": "Paid", "draft": "Draft", "overdue": "Overdue", "pending": "Pending"
+}

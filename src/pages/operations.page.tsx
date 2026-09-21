@@ -26,7 +26,7 @@ export function OperationsContent({ data, refresh, refreshing=false }: { data:Op
     </header>
     {data.alerts.length>0 && <div role="status" className="my-5 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm"><AlertTriangle className="size-5 shrink-0 text-amber-600"/><div><p className="font-medium">{t("operations.attention")}</p><p className="mt-1 text-muted-foreground">{t("operations.action")}</p></div></div>}
     <div className="grid gap-0 divide-y sm:divide-y-0 sm:divide-x divide-border border-b border-border sm:grid-cols-3">
-      {["api","ui","job"].map(kind=>{const metric=data.metrics.find(row=>row.source===kind);return <section key={kind} className="py-5 sm:px-5 first:ps-0"><h2 className="text-sm font-medium text-[#1797ba]">{t("operations."+kind)}</h2>
+      {["api","ui","job"].map(kind=>{const metric=data.metrics.find(row=>row.source===kind);return <section key={kind} className="py-5 sm:px-5 first:ps-0"><h2 className="text-sm font-medium text-[#11718c] dark:text-[#55bdd9]">{t("operations."+kind)}</h2>
         <p className="mt-2 text-sm">{kind === "ui" ? <>{data.events.filter(event=>event.source==="ui").length} {t("operations.recorded")}</> : metric ? <><span className="font-semibold tabular-nums">{metric.errors}</span> / {metric.requests} {t("operations.failed")}</> : t("operations.noMetrics")}</p>
         {metric && <p className="mt-1 text-xs text-muted-foreground">{t("operations.latency",{average:metric.averageMs,max:metric.maxMs})}</p>}
       </section>;})}

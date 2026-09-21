@@ -1,0 +1,13 @@
+{
+  "currencyUnknown": "Moneda no indicada", "timeZone": "Zona horaria: {{zone}}", "retry": "Reintentar",
+  "timeInvoice": "Facturar horas registradas", "timeInvoiceDesc": "Selecciona horas completadas y facturables de los proyectos de clientes accesibles al equipo.",
+  "client": "Cliente", "selectClient": "Selecciona un cliente", "clientsError": "No se pudieron cargar los clientes.", "from": "Desde", "to": "Hasta", "dateRange": "Selecciona un período válido.",
+  "legacyInvoices": "Este cliente tiene facturas del proceso anterior sin registros de tiempo vinculados. Revísalas antes de seleccionar horas para evitar facturar el mismo trabajo de nuevo.",
+  "billableTime": "Horas facturables", "loadingHours": "Cargando horas facturables…", "hoursError": "No se pudieron cargar las horas facturables.", "noHours": "No hay horas completadas, facturables y sin facturar en este período.",
+  "selectAll": "Seleccionar todo", "entry": "Registro de tiempo", "rateNeeded": "Indica la tarifa", "firstEntries": "Se muestran los primeros 500 registros. Reduce el período o factura estos registros primero.",
+  "fallbackRate": "Tarifa horaria alternativa", "fallbackDesc": "Solo se usa para registros sin tarifa indicada.", "dueOptional": "Vencimiento (opcional)", "total": "Importe total", "entries": "{{count}} registros", "hours": "{{value}} h", "rate": "{{value}}/h", "minutes": "{{value}} min",
+  "uncertain": "No se pudo confirmar el resultado. Reintenta con esta selección para recuperar la factura de forma segura.", "created": "Factura creada correctamente", "creationError": "No se pudo confirmar la creación. Reintenta para comprobar esta misma factura.",
+  "createInvoice": "Crear factura", "retryCreation": "Reintentar de forma segura", "creating": "Creando…",
+  "trackedHours": "Horas registradas", "trackedDesc": "Horas y tarifas registradas al crear esta factura.", "loadingTracked": "Cargando horas registradas…", "trackedError": "No se pudieron cargar las horas registradas.", "noTracked": "Esta factura no tiene registros de tiempo vinculados.",
+  "deleteInvoice": "¿Seguro que quieres eliminar esta factura?", "statusUpdated": "Estado de la factura actualizado", "statusError": "No se pudo actualizar el estado de la factura", "downloadPdf": "Descargar PDF", "generatePdf": "Generar PDF", "markDraft": "Marcar como borrador", "markPaid": "Marcar como pagada", "selectRow": "Seleccionar fila", "notDue": "Sin vencimiento", "invoiceError": "Error al cargar facturas", "paid": "Pagada", "draft": "Borrador", "overdue": "Vencida", "pending": "Pendiente"
+}

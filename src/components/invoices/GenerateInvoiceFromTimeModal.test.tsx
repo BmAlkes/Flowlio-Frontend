@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GenerateInvoiceFromTimeModal } from "./GenerateInvoiceFromTimeModal";
 import { InvoiceTimeDetails } from "./InvoiceTimeDetails";
+import i18n from "@/configs/i18n.config";
 
 const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
@@ -23,6 +24,7 @@ const entries = [
 ];
 afterEach(cleanup);
 beforeEach(() => {
+  void i18n.changeLanguage("en");
   vi.clearAllMocks();
   api.get.mockImplementation(async (url: string) => ({ data: { success: true, data: url.startsWith("/clients") ? [{ id: "client-a", name: "Client A", email: "client@example.com", status: "Active", createdAt: "2026-09-01T10:00:00Z" }] : { entries, hasMore: false } } }));
   api.post.mockResolvedValue({ data: { success: true, data: { id: "invoice" } } });
@@ -67,13 +69,13 @@ describe("time invoice creation", () => {
     const { user, onClose, cache } = await setup();
     await user.click(screen.getByRole("checkbox", { name: /Design/ }));
     await user.click(screen.getByRole("button", { name: "Create invoice" }));
-    await screen.findByRole("button", { name: "Retry creation" });
+    await screen.findByRole("button", { name: "Retry safely" });
     expect(onClose).not.toHaveBeenCalled();
     expect(toast.success).not.toHaveBeenCalled();
     const first = api.post.mock.calls[0][1];
     api.get.mockResolvedValue({ data: { data: { entries: [], hasMore: false } } });
     await cache.invalidateQueries({ queryKey: ["billable-time"] });
-    await user.click(screen.getByRole("button", { name: "Retry creation" }));
+    await user.click(screen.getByRole("button", { name: "Retry safely" }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(api.post.mock.calls[1][1]).toEqual(first);
   });

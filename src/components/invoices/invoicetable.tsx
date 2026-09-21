@@ -1,3 +1,7 @@
+import i18n from "@/configs/i18n.config";
+import { useTranslation } from "react-i18next";
+import { formatDateValue, formatMoney } from "@/lib/locale-format";
+import { isOverdue } from "@/components/client-detail/client-detail.utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -46,20 +50,21 @@ export function getStatusDisplay(invoice: Invoice) {
   const status = invoice.status.toLowerCase();
   if (status === "paid") return { label: "Paid", style: STATUS_STYLES.paid };
   if (status === "draft") return { label: "Draft", style: STATUS_STYLES.draft };
-  if (invoice.dueDate && new Date(invoice.dueDate) < new Date())
+  if (isOverdue(invoice.dueDate))
     return { label: "Overdue", style: STATUS_STYLES.overdue };
   return { label: "Pending", style: STATUS_STYLES.pending };
 }
 
 // Actions component to properly use hooks
 const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
+  const { t } = useTranslation();
   const [showTime, setShowTime] = useState(false);
   const deleteInvoiceMutation = useDeleteInvoice();
   const updateStatusMutation = useUpdateInvoiceStatus();
   const { generateSingleInvoicePDF } = useGenerateSingleInvoicePDF();
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this invoice?")) {
+    if (confirm(t("core.deleteInvoice"))) {
       deleteInvoiceMutation.mutate(invoice.id);
     }
   };
@@ -68,8 +73,8 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
     updateStatusMutation.mutate(
       { id: invoice.id, status },
       {
-        onSuccess: () => toast.success(`Invoice marked as ${status}`),
-        onError: () => toast.error(`Failed to update invoice status`),
+        onSuccess: () => toast.success(t("core.statusUpdated")),
+        onError: () => toast.error(t("core.statusError")),
       }
     );
   };
@@ -83,11 +88,11 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
 
   return (
     <Center className="gap-1.5">
-      {invoice.hasTrackedTime && <button type="button" onClick={() => setShowTime(true)} title="View tracked hours" aria-label="View tracked hours" className="h-8 w-8 flex items-center justify-center rounded-full bg-[#1797ba]/10 text-[#1797ba] hover:bg-[#1797ba]/20"><Clock className="size-4" /></button>}
+      {invoice.hasTrackedTime && <button type="button" onClick={() => setShowTime(true)} title={t("core.trackedHours")} aria-label={t("core.trackedHours")} className="h-8 w-8 flex items-center justify-center rounded-full bg-[#1797ba]/10 text-[#1797ba] hover:bg-[#1797ba]/20"><Clock className="size-4" /></button>}
       {showTime && <InvoiceTimeDetails invoiceId={invoice.id} invoiceNumber={invoice.invoiceNumber} onClose={() => setShowTime(false)} />}
       <button
         onClick={handleDownloadPDF}
-        title={invoice.pdfUrl ? "Download PDF" : "Generate PDF"}
+        title={invoice.pdfUrl ? t("core.downloadPdf") : t("core.generatePdf")} aria-label={invoice.pdfUrl ? t("core.downloadPdf") : t("core.generatePdf")}
         className="h-8 w-8 flex items-center justify-center rounded-full bg-[#1797b9]/10 text-[#1797b9] hover:bg-[#1797b9]/20 transition-colors cursor-pointer"
       >
         {invoice.pdfUrl ? <Download className="size-4" /> : <FileText className="size-4" />}
@@ -96,7 +101,7 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
       <button
         onClick={() => handleUpdateStatus(isPaid ? "draft" : "paid")}
         disabled={updateStatusMutation.isPending}
-        title={isPaid ? "Mark as Draft" : "Mark as Paid"}
+        title={isPaid ? t("core.markDraft") : t("core.markPaid")} aria-label={isPaid ? t("core.markDraft") : t("core.markPaid")}
         className={cn(
           "h-8 w-8 flex items-center justify-center rounded-full transition-colors cursor-pointer",
           isPaid
@@ -110,7 +115,7 @@ const InvoiceActions: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
       <button
         onClick={handleDelete}
         disabled={deleteInvoiceMutation.isPending}
-        title="Delete"
+        title={t("common.delete")} aria-label={t("common.delete")}
         className="h-8 w-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-500/15 dark:text-red-400 transition-colors cursor-pointer"
       >
         <Trash2 className="size-4" />
@@ -130,9 +135,9 @@ export const columns: ColumnDef<Data>[] = [
           className="bg-[#D9D9D9] border-none cursor-pointer"
           checked={table.getIsAllPageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
+          aria-label={i18n.t("core.selectAll")}
         />
-        <Box className="text-center text-foreground">Invoice Number</Box>
+        <Box className="text-center text-foreground">{i18n.t("invoices.invoiceNum")}</Box>
       </Flex>
     ),
     cell: ({ row }) => (
@@ -142,7 +147,7 @@ export const columns: ColumnDef<Data>[] = [
           checked={row.getIsSelected()}
           disabled={!row.getCanSelect()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
+          aria-label={i18n.t("core.selectRow")}
         />
         <Box className="text-center">{row.original.invoiceNumber}</Box>
       </Flex>
@@ -153,7 +158,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "clientname",
-    header: () => <Box className="text-foreground">Client Name</Box>,
+    header: () => <Box className="text-foreground">{i18n.t("invoices.clientName")}</Box>,
     cell: ({ row }) => {
       const name = row.original.clientname;
       return (
@@ -173,36 +178,32 @@ export const columns: ColumnDef<Data>[] = [
   },
   {
     accessorKey: "amount",
-    header: () => <Box className="text-center text-foreground">Amount</Box>,
+    header: () => <Box className="text-center text-foreground">{i18n.t("invoices.amount")}</Box>,
     cell: ({ row }) => {
-      return <Box className="text-center">$ {row.original.amount}</Box>;
+      return <Box className="text-center">{formatMoney(row.original.amount, i18n.language)}</Box>;
     },
   },
   {
     accessorKey: "dueDate",
-    header: () => <Box className="text-foreground text-center">Due Date</Box>,
+    header: () => <Box className="text-foreground text-center">{i18n.t("invoices.dueDate")}</Box>,
     cell: ({ row }) => (
       <Box className="captialize text-center">
         {row.original.dueDate
-          ? new Date(row.original.dueDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-          : "Not due"}
+          ? formatDateValue(row.original.dueDate, i18n.language, Intl.DateTimeFormat().resolvedOptions().timeZone)
+          : i18n.t("core.notDue")}
       </Box>
     ),
   },
 
   {
     accessorKey: "status",
-    header: () => <Box className="text-center text-foreground">Status</Box>,
+    header: () => <Box className="text-center text-foreground">{i18n.t("invoices.status")}</Box>,
     cell: ({ row }) => {
       const { label, style } = getStatusDisplay(row.original);
       return (
         <Center>
           <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full", style)}>
-            {label}
+            {i18n.t("core." + label.toLowerCase())}
           </span>
         </Center>
       );
@@ -211,7 +212,7 @@ export const columns: ColumnDef<Data>[] = [
 
   {
     accessorKey: "actions",
-    header: () => <Box className="text-center text-foreground">Actions</Box>,
+    header: () => <Box className="text-center text-foreground">{i18n.t("common.actions")}</Box>,
     cell: ({ row }) => <InvoiceActions invoice={row.original} />,
   },
 ];
@@ -225,6 +226,7 @@ interface InvoiceTableProps {
 }
 
 export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
+  const { t } = useTranslation();
   const orgInvoices = useFetchInvoices();
   const invoicesData = orgInvoices.data;
   const isLoading = orgInvoices.isLoading;
@@ -260,7 +262,7 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
   if (error) {
     return (
       <ErrorState
-        title="Error loading invoices"
+        title={t("core.invoiceError")}
         message={error.message}
       />
     );
@@ -269,6 +271,8 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
   const data = invoicesData?.data || [];
 
   return (
+    <div>
+    <p className="mb-3 text-xs text-muted-foreground">{t("core.currencyUnknown")} &middot; {t("core.timeZone", { zone: Intl.DateTimeFormat().resolvedOptions().timeZone })}</p>
     <ReusableTable
       data={data}
       columns={columns}
@@ -278,5 +282,6 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
       onRowClick={(row) => console.log("Row clicked:", row.original)}
       onTableStateChange={handleTableStateChange}
     />
+    </div>
   );
 };

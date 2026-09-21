@@ -1,3 +1,7 @@
+import heCore from "../locales/core/he.json";
+import esCore from "../locales/core/es.json";
+import ptCore from "../locales/core/pt.json";
+import enCore from "../locales/core/en.json";
 import heOperations from "../locales/operations/he.json";
 import esOperations from "../locales/operations/es.json";
 import ptOperations from "../locales/operations/pt.json";
@@ -18,20 +22,24 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore },
   },
 };
 
-const savedLanguage = localStorage.getItem("i18nextLng") || "en";
+function readLanguagePreference() {
+  try { return window.localStorage.getItem("i18nextLng") || "en"; }
+  catch { return "en"; }
+}
+const savedLanguage = readLanguagePreference();
 
 i18n
   .use(LanguageDetector) // Detects user language
@@ -50,18 +58,14 @@ i18n
     },
   });
 
-// Set initial HTML attributes for RTL support
-// Only set dir for Hebrew, others use default LTR
-if (typeof document !== "undefined") {
-  if (savedLanguage === "he") {
-    document.documentElement.setAttribute("dir", "rtl");
-    document.documentElement.setAttribute("lang", "he");
-    document.body.setAttribute("dir", "rtl");
-  } else {
-    document.documentElement.setAttribute("dir", "ltr");
-    document.documentElement.setAttribute("lang", savedLanguage);
-    document.body.setAttribute("dir", "ltr");
-  }
+function synchronizeDocumentLanguage() {
+  const language = i18n.resolvedLanguage || "en";
+  const direction = i18n.dir(language);
+  document.documentElement.lang = language;
+  document.documentElement.dir = direction;
+  document.body.dir = direction;
 }
+synchronizeDocumentLanguage();
+i18n.on("languageChanged", synchronizeDocumentLanguage);
 
 export default i18n;

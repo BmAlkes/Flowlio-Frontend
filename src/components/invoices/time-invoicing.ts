@@ -1,6 +1,8 @@
+import { parseCalendarDate } from "@/lib/locale-format";
+
 /** Local calendar dates become an inclusive start and exclusive end instant. */
 export function timePeriod(start: string, end: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) || start > end) return null;
+  if (!parseCalendarDate(start) || !parseCalendarDate(end) || start > end) return null;
   const first = new Date(`${start}T00:00:00`);
   const last = new Date(`${end}T00:00:00`);
   last.setDate(last.getDate() + 1);
