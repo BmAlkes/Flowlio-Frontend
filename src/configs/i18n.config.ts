@@ -1,3 +1,7 @@
+import heCoreOnboarding from "../locales/core-onboarding/he.json";
+import esCoreOnboarding from "../locales/core-onboarding/es.json";
+import ptCoreOnboarding from "../locales/core-onboarding/pt.json";
+import enCoreOnboarding from "../locales/core-onboarding/en.json";
 import heWorkflows from "../locales/workflows/he.json";
 import esWorkflows from "../locales/workflows/es.json";
 import ptWorkflows from "../locales/workflows/pt.json";
@@ -42,16 +46,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 
 const resources = {
   en: {
-    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, workflows: enWorkflows, appSidebar: { ...enTranslations.appSidebar, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
+    translation: { ...enTranslations, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, workflows: enWorkflows, coreOnboarding: enCoreOnboarding, appSidebar: { ...enTranslations.appSidebar, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
   },
   es: {
-    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, workflows: esWorkflows, appSidebar: { ...esTranslations.appSidebar, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
+    translation: { ...esTranslations, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, workflows: esWorkflows, coreOnboarding: esCoreOnboarding, appSidebar: { ...esTranslations.appSidebar, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
   },
   pt: {
-    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, workflows: ptWorkflows, appSidebar: { ...ptTranslations.appSidebar, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
+    translation: { ...ptTranslations, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, workflows: ptWorkflows, coreOnboarding: ptCoreOnboarding, appSidebar: { ...ptTranslations.appSidebar, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
   },
   he: {
-    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, workflows: heWorkflows, appSidebar: { ...heTranslations.appSidebar, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
+    translation: { ...heTranslations, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, workflows: heWorkflows, coreOnboarding: heCoreOnboarding, appSidebar: { ...heTranslations.appSidebar, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
   },
 };
 

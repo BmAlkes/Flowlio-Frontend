@@ -4,8 +4,10 @@ import { OnboardingWelcomeModal } from "./OnboardingWelcomeModal";
 import { OnboardingChecklist } from "./OnboardingChecklist";
 import { useUser } from "@/providers/user.provider";
 import { useUserProfile } from "@/hooks/useuserprofile";
+import { useDataScope } from "@/hooks/useDataScope";
 
 export function OnboardingProvider() {
+  const scope = useDataScope();
   const { data: userData } = useUser();
   const { data: userProfile } = useUserProfile();
   const { data, isLoading, isFirstVisit, showOnboarding, dismiss } = useOnboarding();
@@ -18,10 +20,8 @@ export function OnboardingProvider() {
 
   // Show welcome modal only on confirmed first visit
   useEffect(() => {
-    if (!isLoading && isFirstVisit && !passwordChangePending) {
-      setShowModal(true);
-    }
-  }, [isLoading, isFirstVisit, passwordChangePending]);
+    setShowModal(!isLoading && isFirstVisit && !passwordChangePending);
+  }, [scope, isLoading, isFirstVisit, passwordChangePending]);
 
   if (isLoading || !data || !showOnboarding || passwordChangePending) return null;
 
@@ -32,6 +32,7 @@ export function OnboardingProvider() {
       {showModal && (
         <OnboardingWelcomeModal
           organizationName={orgName}
+          member={data.role === "member"}
           onStart={() => setShowModal(false)}
           onDismiss={() => {
             setShowModal(false);
@@ -39,7 +40,7 @@ export function OnboardingProvider() {
           }}
         />
       )}
-      {!showModal && <OnboardingChecklist />}
+      {!showModal && <OnboardingChecklist key={scope} />}
     </>
   );
 }

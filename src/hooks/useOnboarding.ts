@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
+import { useUser } from "@/providers/user.provider";
 
 export interface OnboardingStep {
   completedAt: string | null;
 }
 
 export interface OnboardingData {
+  role: "admin" | "manager" | "member";
   dismissed: boolean;
   completedAt: string | null;
   steps: Record<string, OnboardingStep | null>;
@@ -15,14 +18,17 @@ const QUERY_KEY = ["onboarding"];
 
 export function useOnboarding() {
   const queryClient = useQueryClient();
+  const scope = useDataScope();
+  const { data: session } = useUser();
 
   const query = useQuery<OnboardingData>({
-    queryKey: QUERY_KEY,
+    queryKey: [...QUERY_KEY, scope],
+    enabled: session?.user?.role === "user" && !!(session.user.organizationId || session.user.organization?.id),
     queryFn: async () => {
       const res = await axios.get("/onboarding");
       return res.data.data as OnboardingData;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: false,
   });
 
@@ -43,8 +49,8 @@ export function useOnboarding() {
   const allDone = totalSteps > 0 && completedSteps === totalSteps;
   // Show as long as the user hasn't explicitly dismissed.
   // completedAt is set by the backend via auto-detection and should NOT hide the UI.
-  const isFirstVisit = !data?.dismissed && completedSteps === 0;
-  const showOnboarding = !data?.dismissed;
+  const isFirstVisit = !!data && !data.dismissed && totalSteps > 0 && completedSteps === 0;
+  const showOnboarding = !!data && !query.isError && !data.dismissed && totalSteps > 0;
 
   return {
     data,
@@ -57,6 +63,10 @@ export function useOnboarding() {
     showOnboarding,
     completeStep: completeStep.mutate,
     dismiss: dismiss.mutate,
+    dismissPending: dismiss.isPending,
+    dismissError: dismiss.isError,
+    refresh: () => void query.refetch(),
+    isRefreshing: query.isFetching,
   };
 }
 
