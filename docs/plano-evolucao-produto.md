@@ -6,7 +6,7 @@ Data: 21/09/2026. Complementa o [plano T01–T24](plano-de-trabalho.md), sem sub
 
 Conectar melhor vendas, execução, colaboração com o cliente e rentabilidade. Este documento planeja as oito funcionalidades propostas e o refinamento imediato de `/dashboard/project/view/:id`.
 
-A solicitação atual inclui elaborar este plano e refinar a tela do projeto. As demais funcionalidades estão planejadas; não estão implementadas nem publicadas. A T11 continua separada, dependente de validação PayPal Sandbox.
+A retomada de 22/09/2026 autoriza continuar a execução por etapas. T25, T26A e os refinamentos de clientes/leads estão publicados. A próxima etapa é T27A; as etapas seguintes continuam planejadas. A T11 continua separada, dependente de validação PayPal Sandbox.
 
 ## Base existente
 
@@ -24,8 +24,8 @@ As etapas de infraestrutura de auditoria vêm cedo para que os novos fluxos já 
 
 | Ordem | Entrega | Repositórios | Dependências | Porte relativo | Estado |
 | --- | --- | --- | --- | --- | --- |
-| 1 | T25 — Refinamento da página do projeto | FE | Componentes e permissões atuais | Médio | Implementada e validada; merge e publicação autorizados |
-| 2 | T26A — Fundação de auditoria de negócio | BE | T03, T09, T12 | Médio | Planejada |
+| 1 | T25 — Refinamento da página do projeto | FE | Componentes e permissões atuais | Médio | Publicada — `d5b7e84` |
+| 2 | T26A — Fundação de auditoria de negócio | BE | T03, T09, T12 | Médio | Publicada — `2fc444e` |
 | 3 | T27A/B — Central de atenção e gestão de pendências | FE + BE | T19, T20, T21, T26A | Grande | Planejada |
 | 4 | T26B — Consulta e exportação da auditoria | FE + BE | T26A | Médio | Planejada |
 | 5 | T28A/B — Solicitações extras e mudanças de escopo | FE + BE | T18, T20, T26A | Grande | Planejada |
@@ -157,6 +157,8 @@ Retomar em branch nova baseada na versão atual. Revisar e portar a implementaç
 
 ## Registro desta tarefa
 
-- T25: implementada e validada, sem alteração no backend. O usuário solicitou merge e push após a revisão. Evidências em [refinamento do projeto](project-detail-design.md); a publicação exige confirmação do CI, Cloudflare e versão servida.
-- T26–T33: planejamento somente. Nenhuma das oito novas funcionalidades foi implementada nesta tarefa.
+- T25: publicada no frontend `d5b7e84`, com CI, Cloudflare e versão servida confirmados. Evidências em [refinamento do projeto](project-detail-design.md).
+- Refinamentos adicionais publicados: cliente `9ed7734`; Leads e detalhes `788ee24`.
+- T26A: publicada em 22/09/2026, backend `2fc444e`; CI da branch/main e Railway aprovados. Catálogo, limites e evidências em [T26A — Auditoria](t26a-business-audit.md).
+- T26B e T27–T33: planejamento somente.
 - T11: continua pendente e separada.
