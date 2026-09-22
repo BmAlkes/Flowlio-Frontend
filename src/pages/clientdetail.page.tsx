@@ -65,6 +65,7 @@ export default function ClientDetailPage() {
   const tab = TABS.some(({ id }) => id === selectedTab)
     ? selectedTab
     : "overview";
+  const HeadingIcon = TABS.find(({ id }) => id === tab)!.icon;
   const setTab = (value: string) =>
     setSearchParams((previous) => {
       const next = new URLSearchParams(previous);
@@ -193,6 +194,7 @@ export default function ClientDetailPage() {
                   </TabsList>
                 </div>
                 <div className="cd-page-heading">
+                  <span className="cd-heading-icon" aria-hidden="true"><HeadingIcon size={25} /></span>
                   <div>
                     <p className="cd-eyebrow">
                       {t("clientDetail.relationship")}
@@ -206,6 +208,7 @@ export default function ClientDetailPage() {
                 </TabsContent>
                 <TabsContent value="projects">
                   <Section
+                    icon={FolderOpen}
                     title={t("clientDetail.projects")}
                     action={createProject}
                     actionLabel={t("clientDetail.newProject")}
@@ -223,7 +226,7 @@ export default function ClientDetailPage() {
                   </Section>
                 </TabsContent>
                 <TabsContent value="tasks">
-                  <Section title={t("clientDetail.tasks")}>
+                  <Section icon={ListTodo} tone="green" title={t("clientDetail.tasks")}>
                     <ResourceContent
                       state={data.tasksQuery}
                       empty={
@@ -237,7 +240,7 @@ export default function ClientDetailPage() {
                   </Section>
                 </TabsContent>
                 <TabsContent value="proposals">
-                  <Section title={t("clientDetail.proposals")}>
+                  <Section icon={FileText} tone="purple" title={t("clientDetail.proposals")}>
                     <ResourceContent
                       state={data.proposalsQuery}
                       empty={
@@ -251,7 +254,7 @@ export default function ClientDetailPage() {
                   </Section>
                 </TabsContent>
                 <TabsContent value="invoices">
-                  <Section title={t("clientDetail.invoices")}>
+                  <Section icon={Receipt} tone="amber" title={t("clientDetail.invoices")}>
                     <ResourceContent
                       state={data.invoicesQuery}
                       empty={
@@ -265,7 +268,7 @@ export default function ClientDetailPage() {
                   </Section>
                 </TabsContent>
                 <TabsContent value="activity">
-                  <Section title={t("clientDetail.activity")}>
+                  <Section icon={History} tone="purple" title={t("clientDetail.activity")}>
                     <ResourceContent state={data.activityQuery}>
                       <ClientTimeline
                         key={client.id}
@@ -276,7 +279,7 @@ export default function ClientDetailPage() {
                   </Section>
                 </TabsContent>
                 <TabsContent value="files">
-                  <Section title={t("clientDetail.files")}>
+                  <Section icon={Paperclip} title={t("clientDetail.files")}>
                     <ResourceContent state={data.filesQuery}>
                       <ClientMediaCenter
                         key={client.id}

@@ -6,6 +6,8 @@ import {
   ListChecks,
   Receipt,
   FileCheck2,
+  Paperclip,
+  MessagesSquare,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useUpdateMilestone } from "@/hooks/useProjectMilestones";
@@ -65,10 +67,9 @@ export function ClientDetailOverview({
     <div className="cd-overview">
       <div className="cd-metrics">
         {metrics.map(({ tab, icon: Icon, label, value }) => (
-          <button key={tab} onClick={() => onTab(tab)} className="cd-metric">
-            <span>
-              <Icon size={16} />
-              {label}
+          <button key={tab} onClick={() => onTab(tab)} className={`cd-metric cd-metric-${tab}`}>
+            <span className="cd-metric-top">
+              <span className="cd-metric-icon"><Icon size={20} /></span>
               <ArrowUpRight
                 size={13}
                 className="cd-metric-arrow rtl:-scale-x-100"
@@ -77,12 +78,14 @@ export function ClientDetailOverview({
             <strong>
               <bdi dir="ltr">{value}</bdi>
             </strong>
+            <span className="cd-metric-label">{label}</span>
           </button>
         ))}
       </div>
       <div className="cd-overview-columns">
         <div className="cd-column">
           <Section
+            icon={FolderOpen}
             title={t("clientDetail.delivery")}
             subtitle={t("clientDetail.deliveryDescription")}
             action={() => onTab("projects")}
@@ -160,6 +163,8 @@ export function ClientDetailOverview({
             </ResourceContent>
           </Section>
           <Section
+            icon={ListChecks}
+            tone="green"
             title={t("clientDetail.nextTasks")}
             action={() => onTab("tasks")}
           >
@@ -185,6 +190,7 @@ export function ClientDetailOverview({
             </ResourceContent>
           </Section>
           <Section
+            icon={Paperclip}
             title={t("clientDetail.recentFiles")}
             action={() => onTab("files")}
           >
@@ -198,6 +204,8 @@ export function ClientDetailOverview({
         </div>
         <div className="cd-column">
           <Section
+            icon={FileCheck2}
+            tone="purple"
             title={t("clientDetail.proposals")}
             subtitle={t("clientDetail.proposalsDescription")}
             action={() => onTab("proposals")}
@@ -214,6 +222,8 @@ export function ClientDetailOverview({
             </ResourceContent>
           </Section>
           <Section
+            icon={Receipt}
+            tone="amber"
             title={t("clientDetail.billing")}
             action={() => onTab("invoices")}
           >
@@ -245,6 +255,8 @@ export function ClientDetailOverview({
             </ResourceContent>
           </Section>
           <Section
+            icon={MessagesSquare}
+            tone="purple"
             title={t("clientDetail.recentActivity")}
             action={() => onTab("activity")}
           >

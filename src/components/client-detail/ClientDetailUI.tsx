@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowUpRight, RefreshCw } from "lucide-react";
+import { ArrowUpRight, RefreshCw, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { normalizeStatus } from "./client-detail.utils";
@@ -53,6 +53,8 @@ export function Section({
   actionLabel,
   children,
   className = "",
+  icon: Icon,
+  tone = "blue",
 }: {
   title: string;
   subtitle?: string;
@@ -60,14 +62,18 @@ export function Section({
   actionLabel?: string;
   children: ReactNode;
   className?: string;
+  icon?: LucideIcon;
+  tone?: "blue" | "green" | "purple" | "amber";
 }) {
   const { t } = useTranslation();
   return (
-    <section className={`cd-section ${className}`}>
+    <section className={`cd-section cd-tone-${tone} ${className}`}>
       <header className="cd-section-heading">
-        <div>
-          <h2>{title}</h2>
+        <div className="cd-section-title">
+          {Icon && <span className="cd-section-icon" aria-hidden="true"><Icon size={19} /></span>}
+          <div><h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
+          </div>
         </div>
         {action && (
           <button
