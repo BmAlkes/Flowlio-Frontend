@@ -42,7 +42,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
   return (
     <Box
       className={`
-        w-72 flex-shrink-0 rounded-2xl border flex flex-col max-h-[calc(100vh-220px)]
+        ld-pipeline-column w-72 flex-shrink-0 rounded-2xl border flex flex-col max-h-[calc(100vh-220px)]
         transition-colors duration-150
         ${isOver
           ? "border-indigo-300 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/10"
@@ -51,6 +51,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
       `}
     >
       {/* Column header */}
+      <div aria-hidden="true" className={`ld-column-stripe ${getStatusColor(title)}`} />
       <Box className="px-4 pt-4 pb-3">
         <Flex className="items-center justify-between mb-2">
           <Flex className="items-center gap-2 min-w-0">

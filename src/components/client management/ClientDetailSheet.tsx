@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sheet, SheetContent } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Select,
@@ -18,7 +18,8 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users } from "lucide-react";
+import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users, ContactRound, Thermometer, Workflow, History } from "lucide-react";
+import "@/components/leads/leads-layout.css";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -83,7 +84,7 @@ interface ClientDetailSheetProps {
 }
 
 export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }: ClientDetailSheetProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
   const updateValue = useUpdateLeadValue();
@@ -182,16 +183,19 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
   const formattedValue = formatValue(client.leadValue);
   const currentTemp = insights?.temperature;
   const tempCfg = TEMPERATURES.find((t) => t.value === currentTemp);
+  const TimelineContainer = isLead ? "div" : ScrollArea;
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="w-full sm:max-w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50">
+      <SheetContent side={i18n.dir() === "rtl" ? "left" : "right"} aria-describedby={undefined} className={`w-full sm:max-w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50 ${isLead ? "lead-details" : ""}`}>
+        {isLead && <div className="ld-sheet-top"><ContactRound size={19} aria-hidden="true" /><span>{t("leadsLayout.details")}</span></div>}
+        <div className={isLead ? "ld-sheet-scroll" : "contents"}>
 
         {/* Header */}
-        <div className="px-6 pt-7 pb-6 border-b border-border/40 shrink-0">
+        <div className="ld-sheet-overview px-6 pt-7 pb-6 border-b border-border/40 shrink-0">
 
           {/* Client identity */}
-          <div className="flex items-start gap-4 mb-6">
+          <div className="ld-sheet-identity flex items-start gap-4 mb-6">
             <div className="relative shrink-0">
               <Avatar className="h-14 w-14 rounded-xl">
                 <AvatarImage src={client.image} />
@@ -203,9 +207,9 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
             <div className="flex-1 min-w-0 pt-0.5">
               <div className="flex items-start justify-between gap-2">
-                <h2 className="font-semibold text-lg text-foreground leading-snug truncate">
+                <SheetTitle className="font-semibold text-lg text-foreground leading-snug break-words">
                   {client.name}
-                </h2>
+                </SheetTitle>
                 {currentTemp && tempCfg && (
                   <span className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <span className={`w-2 h-2 rounded-full ${tempCfg.dot}`} />
@@ -296,10 +300,10 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
           </div>
 
           {/* Temperature */}
-          <div className="mb-5">
+          <div className="ld-qualification mb-5">
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {t("pipeline.temperature")}
+                {isLead && <Thermometer size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.temperature")}
                 {insights?.isManualTemperature && (
                   <span className="ms-2 normal-case font-semibold text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
                     {t("pipeline.temperatureManual")}
@@ -326,6 +330,8 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     key={temp.value}
                     onClick={() => handleTemperatureChange(temp.value)}
                     disabled={updateTemperature.isPending}
+                    aria-pressed={isActive}
+                    data-temperature={temp.value}
                     className={`flex-1 h-8 rounded text-xs font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 ${
                       isActive ? temp.active : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -361,19 +367,19 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
           </div>
 
           {/* Pipeline stage */}
-          <div>
+          <div className="ld-stage-panel">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {t("pipeline.pipelineStage")}
+                {isLead && <Workflow size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.pipelineStage")}
               </span>
               <Select
                 value={currentStatus}
                 onValueChange={handleStatusChange}
                 disabled={updateStatus.isPending}
               >
-                <SelectTrigger size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
+                <SelectTrigger aria-label={t("pipeline.pipelineStage")} size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${STAGE_DOT[currentStatus] ?? "bg-gray-400"}`} />
+                    {!isLead && <span className={`w-2 h-2 rounded-full ${STAGE_DOT[currentStatus] ?? "bg-gray-400"}`} />}
                     <SelectValue />
                   </div>
                 </SelectTrigger>
@@ -481,11 +487,11 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
 
         {/* Assign to + Tags (leads only) */}
         {isLead && (
-          <div className="px-6 pt-4 pb-1 shrink-0 space-y-3">
+          <div className="ld-assignment px-6 pt-4 pb-1 shrink-0 space-y-3">
             {/* Assign to */}
             <div>
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                Assigned to
+                {t("leadsLayout.assigned")}
               </span>
               <Select
                 value={client.assignedTo ?? "unassigned"}
@@ -496,7 +502,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                   });
                 }}
               >
-                <SelectTrigger className="h-9 text-sm">
+                <SelectTrigger aria-label={t("leadsLayout.assigned")} className="h-9 text-sm">
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-muted-foreground" />
                     <SelectValue placeholder="Unassigned" />
@@ -515,7 +521,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
             {allTags.length > 0 && (
               <div>
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                  Tags
+                  {t("leadsLayout.tags")}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {allTags.map((tag) => {
@@ -564,30 +570,31 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
             >
               <UserCheck className="h-4 w-4" />
-              {convertLead.isPending ? "Converting..." : "Convert to Client"}
+              {convertLead.isPending ? t("leadsLayout.converting") : t("leadsLayout.convert")}
             </button>
           </div>
         )}
 
         {/* Custom fields (leads only) — scrollable when data is long */}
         {isLead && (
-          <div className="max-h-[200px] overflow-y-auto shrink-0">
+          <div className="ld-custom-fields shrink-0">
             <LeadCustomFieldsSection leadId={client.id} rawCustomFields={client.customFields} />
           </div>
         )}
 
         {/* Activity label */}
-        <div className="px-6 pt-4 pb-2 shrink-0">
+        <div className="ld-history-heading px-6 pt-4 pb-2 shrink-0">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            {t("pipeline.activity")}
+            {isLead && <History size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.activity")}
           </span>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
+        <TimelineContainer className={isLead ? "ld-sheet-history" : "flex-1 min-h-0"}>
           <div className="px-6 pb-4">
             <ClientTimeline clientId={client.id} />
           </div>
-        </ScrollArea>
+        </TimelineContainer>
+        </div>
       </SheetContent>
     </Sheet>
   );

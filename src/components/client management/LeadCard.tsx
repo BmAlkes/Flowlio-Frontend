@@ -60,7 +60,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
       ref={setNodeRef}
       style={style}
       className={`
-        relative bg-card rounded-lg border border-border/50 border-s-[3px] ${borderClass}
+        ld-lead-card relative bg-card rounded-lg border border-border/50 border-s-[3px] ${borderClass}
         group transition-all duration-150
         ${isOverlay ? "shadow-xl scale-[1.02] cursor-grabbing" : "hover:shadow-sm cursor-pointer"}
       `}

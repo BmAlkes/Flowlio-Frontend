@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { PageWrapper } from "@/components/common/pagewrapper";
-import { Center } from "@/components/ui/center";
-import { Stack } from "@/components/ui/stack";
-import { Flex } from "@/components/ui/flex";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Box } from "@/components/ui/box";
 import { GeneralModal, useGeneralModalDisclosure } from "@/components/common/generalmodal";
-import { CirclePlus, LayoutGrid, List, Settings2, Webhook, Download, Tag } from "lucide-react";
+import { CirclePlus, LayoutGrid, List, Settings2, Webhook, Download, Tag, ContactRound } from "lucide-react";
 import { LeadsPipeline } from "./LeadsPipeline";
 import { LeadsTable } from "./LeadsTable";
 import { CreateLeadDialog } from "./CreateLeadDialog";
@@ -15,8 +11,10 @@ import { LeadFieldsManager } from "./LeadFieldsManager";
 import { LeadTagsManager } from "./LeadTagsManager";
 import { useExportLeads } from "@/hooks/useLeadExtras";
 import { toast } from "sonner";
+import "./leads-layout.css";
 
 export const LeadsHeader = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [view, setView] = useState<"table" | "pipeline">("table");
   const [showCreate, setShowCreate] = useState(false);
@@ -25,107 +23,33 @@ export const LeadsHeader = () => {
   const exportLeads = useExportLeads();
 
   return (
-    <PageWrapper className="mt-6">
-      <Center className="justify-between px-4 py-6 max-sm:flex-col max-sm:items-start gap-2">
-        <Stack className="gap-1">
-          <h1 className="text-foreground text-3xl max-sm:text-xl font-medium">Leads</h1>
-          <p className="text-muted-foreground max-sm:text-sm max-w-[600px]">
-            Manage your prospective clients through the sales pipeline
-          </p>
-        </Stack>
-
-        <Flex className="gap-2 items-center flex-wrap">
-          {/* View Toggle */}
-          <Box className="bg-muted/50 p-1 rounded-full border border-border flex items-center me-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full h-8 px-4 flex items-center gap-2 ${view === "table" ? "bg-white dark:bg-gray-800 shadow-sm text-indigo-600" : "text-muted-foreground"}`}
-              onClick={() => setView("table")}
-            >
-              <List className="w-4 h-4" />
-              <span className="text-xs font-medium">Table</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full h-8 px-4 flex items-center gap-2 ${view === "pipeline" ? "bg-white dark:bg-gray-800 shadow-sm text-indigo-600" : "text-muted-foreground"}`}
-              onClick={() => setView("pipeline")}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span className="text-xs font-medium">Pipeline</span>
-            </Button>
-          </Box>
-
-          <Button
-            variant="outline"
-            className="rounded-full px-5 py-5 flex items-center gap-2 text-sm"
-            onClick={() => navigate("/dashboard/leads/webhooks")}
-          >
-            <Webhook className="w-4 h-4" />
-            Webhooks
-          </Button>
-
-          <Button
-            variant="outline"
-            className="rounded-full px-5 py-5 flex items-center gap-2 text-sm"
-            onClick={() => tagsModal.onOpenChange(true)}
-          >
-            <Tag className="w-4 h-4" />
-            Tags
-          </Button>
-
-          <Button
-            variant="outline"
-            className="rounded-full px-5 py-5 flex items-center gap-2 text-sm"
-            onClick={() => {
-              exportLeads.mutate({}, {
-                onSuccess: () => toast.success("Leads exported successfully"),
-                onError: (e) => toast.error("Export failed", { description: e.message }),
-              });
-            }}
-            disabled={exportLeads.isPending}
-          >
-            <Download className="w-4 h-4" />
-            {exportLeads.isPending ? "Exporting…" : "Export"}
-          </Button>
-
-          <Button
-            variant="outline"
-            className="bg-black text-white border border-border rounded-full px-5 py-5 flex items-center gap-2 hover:bg-muted/50"
-            onClick={() => fieldsModal.onOpenChange(true)}
-          >
-            <Settings2 className="w-4 h-4" />
-            Custom Fields
-          </Button>
-
-          <Button
-            className="rounded-full px-5 py-5 flex items-center gap-2"
-            onClick={() => setShowCreate(true)}
-          >
-            <CirclePlus className="w-5 h-5" />
-            New Lead
-          </Button>
-        </Flex>
-      </Center>
-
-      <Box className="px-4">
-        {view === "table" ? <LeadsTable /> : <LeadsPipeline />}
-      </Box>
-
+    <main className="leads-workspace">
+      <header className="ld-heading">
+        <div className="ld-heading-main">
+          <span className="ld-heading-icon" aria-hidden="true"><ContactRound size={27} /></span>
+          <div><h1>{t("leadsLayout.title")}</h1><p>{t("leadsLayout.description")}</p></div>
+        </div>
+        <Button className="ld-primary" onClick={() => setShowCreate(true)}><CirclePlus size={18} />{t("leadsLayout.newLead")}</Button>
+      </header>
+      <div className="ld-toolbar">
+        <div className="ld-view-toggle" role="group" aria-label={t("leadsLayout.view")}>
+          <Button variant="ghost" size="sm" aria-pressed={view === "table"} onClick={() => setView("table")}><List size={16} />{t("leadsLayout.table")}</Button>
+          <Button variant="ghost" size="sm" aria-pressed={view === "pipeline"} onClick={() => setView("pipeline")}><LayoutGrid size={16} />{t("leadsLayout.pipeline")}</Button>
+        </div>
+        <div className="ld-tools">
+          <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/leads/webhooks")}><Webhook size={15} />Webhooks</Button>
+          <Button variant="outline" size="sm" onClick={() => tagsModal.onOpenChange(true)}><Tag size={15} />{t("leadsLayout.tags")}</Button>
+          <Button variant="outline" size="sm" onClick={() => fieldsModal.onOpenChange(true)}><Settings2 size={15} />{t("leadsLayout.fields")}</Button>
+          <Button variant="outline" size="sm" disabled={exportLeads.isPending} onClick={() => exportLeads.mutate({}, {
+            onSuccess: () => toast.success(t("leadsLayout.exported")),
+            onError: error => toast.error(t("leadsLayout.exportError"), { description: error.message }),
+          })}><Download size={15} />{t(`leadsLayout.${exportLeads.isPending ? "exporting" : "export"}`)}</Button>
+        </div>
+      </div>
+      <div className="ld-content">{view === "table" ? <LeadsTable /> : <LeadsPipeline />}</div>
       <CreateLeadDialog open={showCreate} onClose={() => setShowCreate(false)} />
-
-      <GeneralModal {...fieldsModal}>
-        <Box className="p-1">
-          <LeadFieldsManager />
-        </Box>
-      </GeneralModal>
-
-      <GeneralModal {...tagsModal} contentProps={{ className: "max-w-lg" }}>
-        <Box className="p-1">
-          <LeadTagsManager />
-        </Box>
-      </GeneralModal>
-    </PageWrapper>
+      <GeneralModal {...fieldsModal}><div className="p-1"><LeadFieldsManager /></div></GeneralModal>
+      <GeneralModal {...tagsModal} contentProps={{ className: "max-w-lg" }}><div className="p-1"><LeadTagsManager /></div></GeneralModal>
+    </main>
   );
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLeads, useDeleteLead } from "@/hooks/useLeads";
 import { useWebhooks } from "@/hooks/useWebhooks";
 import { useLeadFields } from "@/hooks/useLeadFields";
@@ -94,6 +95,7 @@ function TempPicker({ leadId, current }: { leadId: string; current?: string | nu
 }
 
 export const LeadsTable = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [webhookId, setWebhookId] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<any>(null);
@@ -125,12 +127,12 @@ export const LeadsTable = () => {
   if (isLoading) return <TableSkeleton />;
 
   return (
-    <div className="space-y-3">
+    <div className="ld-table-layout space-y-3">
       {/* Bulk bar */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2 rounded-lg border border-border bg-muted/30">
+        <div className="flex flex-wrap items-center gap-3 px-4 py-2 rounded-lg border border-border bg-muted/30">
           <span className="text-sm font-medium">{selected.size} selected</span>
-          <div className="flex items-center gap-1.5 ms-auto">
+          <div className="flex flex-wrap items-center gap-1.5 ms-auto">
             <Select onValueChange={(v) => doBulk("set_temperature", { temperature: v })}>
               <SelectTrigger className="h-7 text-xs w-auto gap-1"><SelectValue placeholder="Set temp" /></SelectTrigger>
               <SelectContent>
@@ -146,10 +148,10 @@ export const LeadsTable = () => {
       )}
 
       {/* Filters */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="ld-filters flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="ps-9 h-9 text-sm" placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="ps-9 h-9 text-sm" aria-label={t("leadsLayout.searchLabel")} placeholder={t("leadsLayout.search")} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         {webhooks.length > 0 && (
           <Select value={webhookId} onValueChange={setWebhookId}>
@@ -164,7 +166,7 @@ export const LeadsTable = () => {
       </div>
 
       {/* Table */}
-      <div className="border border-border rounded-lg overflow-x-auto">
+      <div className="ld-table-scroll border border-border rounded-lg overflow-x-auto">
         <table className="w-full text-sm min-w-[900px]">
           <thead>
             <tr className="border-b border-border bg-muted/30">
@@ -213,7 +215,7 @@ export const LeadsTable = () => {
                           <AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-xs font-medium">{initials}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="font-medium text-foreground truncate">{lead.name}</p>
+                          <button type="button" className="block max-w-full truncate text-start font-medium text-foreground">{lead.name}</button>
                           {lead.email && !lead.email.includes("@noemail.invalid") && (
                             <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
                           )}
@@ -266,7 +268,7 @@ export const LeadsTable = () => {
                     </td>
 
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-1.5">
+                      <div className="ld-stage-badge flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
                         <span className="text-sm">{lead.status}</span>
                       </div>

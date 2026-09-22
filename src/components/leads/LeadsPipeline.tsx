@@ -145,7 +145,7 @@ export const LeadsPipeline = () => {
 
   return (
     <>
-      <Box className="h-full overflow-x-auto pb-8 pt-2 custom-scrollbar">
+      <Box className="ld-pipeline h-full overflow-x-auto pb-8 pt-2 custom-scrollbar">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
