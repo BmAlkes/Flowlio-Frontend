@@ -4,7 +4,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { LuWandSparkles } from "react-icons/lu";
 import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
-import { SquareKanban, UserPen, Clock, Users } from "lucide-react";
+import { SquareKanban, UserPen, Clock, Users, BellRing, Gauge } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, MessageCircleMore, Inbox, PlugZap } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
@@ -254,12 +254,12 @@ const userOrgOwnerNavItems: NavItem[] = [
   {
     url: "/dashboard/attention",
     title: "attention",
-    icon: React.createElement(Clock),
+    icon: React.createElement(BellRing),
   },
   {
     url: "/dashboard/team-capacity",
     title: "teamCapacity",
-    icon: React.createElement(LuUsers),
+    icon: React.createElement(Gauge),
   },
   {
     url: "/dashboard/user-management",
