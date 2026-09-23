@@ -28,4 +28,4 @@ Fila central com ícones e faixa lateral por tipo; regras e cobertura na lateral
 
 Validação local: 309 testes backend, 190 frontend, lint e builds aprovados. Testes adicionais após a revisão final em andamento. Revisão Chrome com dados fictícios: 1440/390/320 px, tema escuro, RTL, abertura por Enter, fechamento por Escape, atribuição e adiamento, vazio e erro; nenhum erro JavaScript ou overflow. Nenhuma mutação em dados reais.
 
-Migração aditiva `0013_attention_center`, com snapshot e journal. Publicar backend antes do frontend. Recuperação por correção adiante, sem apagar tabelas ou histórico de migrações. Branch `feat/t27-attention-center`; publicação em andamento.
+Migração aditiva `0013_attention_center`, com snapshot e journal. Backend publicado antes do frontend. Recuperação por correção adiante, sem apagar tabelas ou histórico de migrações. Branch `feat/t27-attention-center`; publicada em 23/09/2026, backend `11f23db` e frontend `b937560`, com Railway, saúde da API e versão servida confirmados. Os testes finais adicionais também passaram no CI antes da integração.

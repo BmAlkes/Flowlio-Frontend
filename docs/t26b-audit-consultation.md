@@ -1,6 +1,6 @@
 # T26B — Consulta e exportação da auditoria
 
-Implementação de 23/09/2026, nas branches `feat/t26b-audit-view` de frontend e backend. Publicação em validação.
+Publicada em 23/09/2026: frontend `b2bf2dfdde537e27974861c3866d8c9a066bc20f`, backend `ae94506fc827b277125bc895614f13f904f6a1d1`. Branches `feat/t26b-audit-view` integradas em `main`.
 
 ## Uso
 
@@ -27,4 +27,6 @@ Implementação de 23/09/2026, nas branches `feat/t26b-audit-view` de frontend e
 - Sete testes PostgreSQL novos: organização/papel/visibilidade, campos financeiros, filtros e datas UTC, paginação com microssegundos, resolução do autor, validação/imutabilidade, CSV e limite de exportação.
 - Sete testes da tela: comparação, filtros explícitos com escopo do projeto, paginação, erro, limite do CSV, cancelamento e acesso negado.
 - Revisão em Chrome com dados fictícios: desktop 1440 px, mobile 390/320 px, hebraico RTL/escuro, vazio/erro e teclado; sem overflow nem erros JavaScript.
-- Lint, build, testes completos e publicação: resultados finais registrados após conclusão.
+- Lint e builds aprovados nos dois repositórios. Frontend: oito testes locais direcionados aprovados; suíte completa aprovada no CI da branch e da main. Backend: sete testes novos aprovados; suíte completa de 317 testes aprovada no CI da branch e da main.
+- A primeira rodada local encontrou uma falha de inicialização, corrigida antes do commit, e uma falha intermitente no teste de automações. Os 16 testes de inicialização/jobs passaram na repetição; os checks completos remotos também passaram.
+- Railway confirmou o backend às 16:37:49 UTC; saúde da API com banco conectado. Cloudflare confirmou o frontend às 16:49:07 UTC; commit completo encontrado no bundle de produção `index-6QPiqT7G.js`.
