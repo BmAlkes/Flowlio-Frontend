@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { axios } from "@/configs/axios.config";
@@ -28,8 +28,9 @@ export default function ProjectProfitabilityPage() {
   const scope = useDataScope();
   const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
-  const [from, setFrom] = useState(today.slice(0, 8) + "01");
-  const [to, setTo] = useState(today);
+  const [params] = useSearchParams();
+  const [from, setFrom] = useState(params.get("from") ?? today.slice(0, 8) + "01");
+  const [to, setTo] = useState(params.get("to") ?? today);
   const [period, setPeriod] = useState({ from, to });
   const query = useQuery({
     queryKey: ["profitability", scope, id, period], enabled: allowed && !!id,

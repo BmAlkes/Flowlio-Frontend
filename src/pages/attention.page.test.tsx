@@ -1,0 +1,21 @@
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router";
+import AttentionPage, { attentionSource, type AttentionItem } from "./attention.page";
+import messages from "@/locales/attention/en.json";
+const api = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), allowed: true }));
+vi.mock("@/configs/axios.config", () => ({ axios: api }));
+vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: { id: "owner", role: "user", isOrganizationOwner: api.allowed } } }) }));
+vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "scope" }));
+vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { language: "en" }, t: (key: string) => key.split(".").slice(1).reduce<unknown>((v, k) => v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined, messages) ?? key }) }));
+const item: AttentionItem = { key: "unbilled:p:2026-09-01:2026-09-30", type: "unbilled", title: "Client portal", resource_id: "project", since: "2026-09-01", revision: "a".repeat(32), assignee_id: null, snoozed_until: null, details: { minutes: 120, incomplete: 1 } };
+const report = { items: [item], page: 1, hasMore: false, settings: { approvalDays: 7, proposalDays: 14, unbilledMinutes: 60, budgetPercent: 80 }, gaps: { financialProjects: 1, unknownCapacity: 1 }, week: { from: "2026-09-21", to: "2026-09-27" } };
+beforeEach(() => { vi.clearAllMocks(); api.allowed = true; api.get.mockImplementation(async (url: string) => ({ data: { data: url.endsWith("/members") ? [{ id: "owner", name: "Alex" }] : report } })); api.put.mockResolvedValue({}); });
+function setup() { render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}><MemoryRouter><AttentionPage /></MemoryRouter></QueryClientProvider>); return userEvent.setup(); }
+it("preserves financial and capacity source context in links", () => { const period = { from: "2026-09-01", to: "2026-09-30", week: "2026-09-23" }; expect(attentionSource(item, period)).toContain("?from=2026-09-01&to=2026-09-30"); expect(attentionSource({ ...item, type: "capacity" }, period)).toContain("week=2026-09-23&userId=project"); });
+it("shows incomplete values explicitly and prevents paging beyond the result", async () => { setup(); expect(await screen.findByText("Client portal")).toBeInTheDocument(); expect(screen.getByText(messages.partial)).toBeInTheDocument(); expect(screen.getByRole("button", { name: messages.next })).toBeDisabled(); });
+it("saves an assignee and explicit snooze with the current source revision", async () => { const user = setup(); await user.click(await screen.findByRole("button", { name: messages.assign })); const dialog = within(screen.getByRole("dialog")); await dialog.findByRole("option", { name: "Alex" }); await user.selectOptions(dialog.getByLabelText(messages.assigned), "owner"); await user.selectOptions(dialog.getByLabelText(messages.snooze), "1"); await user.click(dialog.getByRole("button", { name: "common.save" })); await waitFor(() => expect(api.put).toHaveBeenCalledWith("/attention/triage", expect.objectContaining({ assigneeId: "owner", key: item.key, revision: item.revision, snoozedUntil: expect.any(String) }))); });
+it("reports a failed source refresh instead of rendering an empty successful queue", async () => { api.get.mockRejectedValue(new Error("Network")); setup(); expect(await screen.findByRole("alert")).toHaveTextContent(messages.error); expect(screen.queryByText(messages.empty)).not.toBeInTheDocument(); });
+it("does not request organization data for an unauthorized member", () => { api.allowed = false; setup(); expect(screen.getByText(messages.forbidden)).toBeInTheDocument(); expect(api.get).not.toHaveBeenCalled(); });

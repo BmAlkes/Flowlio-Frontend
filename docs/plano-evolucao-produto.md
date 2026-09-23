@@ -6,7 +6,7 @@ Data: 21/09/2026. Complementa o [plano T01–T24](plano-de-trabalho.md), sem sub
 
 Conectar melhor vendas, execução, colaboração com o cliente e rentabilidade. Este documento planeja as oito funcionalidades propostas e o refinamento imediato de `/dashboard/project/view/:id`.
 
-A retomada de 22/09/2026 autoriza continuar a execução por etapas. T25, T26A e os refinamentos de clientes/leads estão publicados. A próxima etapa é T27A; as etapas seguintes continuam planejadas. A T11 continua separada, dependente de validação PayPal Sandbox.
+Em 23/09/2026, o usuário autorizou continuar todos os processos faltantes, executando e validando as etapas pela sequência de dependências. T25, T26A e os refinamentos de clientes/leads estão publicados. T27A/B está em implementação; as etapas seguintes permanecem no escopo autorizado. A T11 continua separada, dependente de validação PayPal Sandbox.
 
 ## Base existente
 
@@ -26,7 +26,7 @@ As etapas de infraestrutura de auditoria vêm cedo para que os novos fluxos já 
 | --- | --- | --- | --- | --- | --- |
 | 1 | T25 — Refinamento da página do projeto | FE | Componentes e permissões atuais | Médio | Publicada — `d5b7e84` |
 | 2 | T26A — Fundação de auditoria de negócio | BE | T03, T09, T12 | Médio | Publicada — `2fc444e` |
-| 3 | T27A/B — Central de atenção e gestão de pendências | FE + BE | T19, T20, T21, T26A | Grande | Planejada |
+| 3 | T27A/B — Central de atenção e gestão de pendências | FE + BE | T19, T20, T21, T26A | Grande | Implementada; validação/publicação em andamento |
 | 4 | T26B — Consulta e exportação da auditoria | FE + BE | T26A | Médio | Planejada |
 | 5 | T28A/B — Solicitações extras e mudanças de escopo | FE + BE | T18, T20, T26A | Grande | Planejada |
 | 6 | T29A/B — Contratos mensais e banco de horas | FE + BE | T07, T08, T10, T26A | Grande | Planejada |
@@ -36,7 +36,7 @@ As etapas de infraestrutura de auditoria vêm cedo para que os novos fluxos já 
 | 10 | T33A/B — IA contextual e revisável | FE + BE | T05, T19, T26A; T28 para comparação de escopo | Grande | Planejada |
 | Separada | T11 — Conciliação de assinaturas PayPal | FE + BE | Backend de teste, app e contas Sandbox | A reavaliar | Pendente de ambiente e validação |
 
-Porte expressa complexidade relativa, não prazo. Estimar dias após conferir o domínio, o banco e os contratos de cada etapa. A sequência considera valor de produto e dependências; não autoriza executar todas as etapas de uma vez.
+Porte expressa complexidade relativa, não prazo. A sequência considera valor de produto e dependências. A autorização de 23/09/2026 abrange as etapas restantes; preservar branches, validação e publicação por entrega.
 
 ## T25 — Página de projeto mais profissional
 
@@ -160,5 +160,6 @@ Retomar em branch nova baseada na versão atual. Revisar e portar a implementaç
 - T25: publicada no frontend `d5b7e84`, com CI, Cloudflare e versão servida confirmados. Evidências em [refinamento do projeto](project-detail-design.md).
 - Refinamentos adicionais publicados: cliente `9ed7734`; Leads e detalhes `788ee24`.
 - T26A: publicada em 22/09/2026, backend `2fc444e`; CI da branch/main e Railway aprovados. Catálogo, limites e evidências em [T26A — Auditoria](t26a-business-audit.md).
-- T26B e T27–T33: planejamento somente.
+- T27A/B: implementação e validação registradas em [Central de atenção](t27-attention-center.md).
+- T26B e T28–T33: execução autorizada, ainda não implementadas.
 - T11: continua pendente e separada.

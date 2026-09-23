@@ -17,7 +17,7 @@ import { useState } from "react";
 import { Download, CheckCircle2, XCircle, Clock, FileText, Upload, PenLine, Trash2, Lock, Loader2, BadgeCheck } from "lucide-react";
 import { GeneralModal } from "@/components/common/generalmodal";
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { generatePdfBlob } from "@/lib/generatePdf";
 import { ProposalPDF, type ProposalData } from "@/components/ai assist/ProposalPDF";
 import { ProposalGeneratorModal } from "@/components/ai assist/ProposalGeneratorModal";
@@ -54,6 +54,8 @@ const OrgProposalsPage = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const proposalId = params.get("proposalId");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -361,6 +363,7 @@ const OrgProposalsPage = () => {
         ))}
       </div>
 
+      {proposalId && <Button variant="outline" className="mx-6 mb-4" onClick={() => setParams({})}>{t("attention.all")}</Button>}
       {/* ── Table ── */}
       {isError ? (<ErrorState title="Could not load proposals" message="Please try again. If the problem continues, contact support." onRetry={() => void refetch()} />) : isLoading ? (
         <Box className="flex justify-center p-10 text-muted-foreground">
@@ -375,7 +378,7 @@ const OrgProposalsPage = () => {
       ) : (
         <Box className="mx-6 mb-10">
           <ReusableTable
-            data={proposals}
+            data={proposalId ? proposals.filter(proposal => proposal.id === proposalId) : proposals}
             columns={columns}
             searchClassName="rounded-lg"
             filterClassName="rounded-lg"

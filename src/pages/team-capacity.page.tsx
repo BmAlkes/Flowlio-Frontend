@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { axios } from "@/configs/axios.config";
@@ -24,13 +24,16 @@ export default function TeamCapacityPage() {
   const user = data?.user;
   const allowed = !!user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && (user.isOrganizationOwner || user.isOrganizationManager)));
   const scope = useDataScope();
-  const [week, setWeek] = useState(new Date().toISOString().slice(0, 10));
+  const [params, setParams] = useSearchParams();
+  const userId = params.get("userId") ?? "";
+  const [week, setWeek] = useState(params.get("week") ?? new Date().toISOString().slice(0, 10));
   const [team, setTeam] = useState("");
-  const query = useQuery({ queryKey: ["capacity", scope, week, team], enabled: allowed,
-    queryFn: async () => (await axios.get<{ data: Report }>("/capacity", { params: { week, ...(team ? { team } : {}) } })).data.data });
+  const query = useQuery({ queryKey: ["capacity", scope, week, team, userId], enabled: allowed,
+    queryFn: async () => (await axios.get<{ data: Report }>("/capacity", { params: { week, ...(userId ? { userId } : {}), ...(team ? { team } : {}) } })).data.data });
   if (!allowed) return <p className="p-6">{t("capacity.forbidden")}</p>;
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
     <WorkspaceHeader icon={UsersRound} title={t("capacity.title")} description={t("capacity.description")} />
+    {userId && <Button variant="outline" onClick={() => setParams({ week })}>{t("attention.all")}</Button>}
     <div className={workspaceToolbar}>
       <label className="text-sm">{t("capacity.week")}<Input type="date" required value={week} onChange={event => { if (event.target.value) setWeek(event.target.value); }} /></label>
       <label className="text-sm">{t("capacity.team")}<select className="block h-9 rounded-md border border-border bg-background px-3" value={team} onChange={event => setTeam(event.target.value)}><option value="">{t("capacity.allTeams")}</option>{query.data?.teams.map(value => <option key={value}>{value}</option>)}</select></label>
