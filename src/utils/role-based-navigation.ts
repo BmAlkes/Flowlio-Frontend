@@ -9,7 +9,7 @@ import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, MessageCircleMore, Inbox, PlugZap } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
 import { BadgeDollarSign, TrendingUp } from "lucide-react";
-import { FolderOpen, ListTodo, FileText, Zap, Activity } from "lucide-react";
+import { FolderOpen, ListTodo, FileText, Zap, Activity, History } from "lucide-react";
 
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
 const clientNavItems: NavItem[] = [
@@ -364,6 +364,11 @@ const userOrgOwnerNavItems: NavItem[] = [
         url: "/dashboard/settings/operations",
         title: "operationalHistory",
         icon: React.createElement(Activity),
+      },
+      {
+        url: "/dashboard/settings/audit",
+        title: "audit",
+        icon: React.createElement(History),
       },
     ],
   },

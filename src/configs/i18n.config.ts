@@ -1,3 +1,7 @@
+import enAudit from "../locales/audit/en.json";
+import ptAudit from "../locales/audit/pt.json";
+import esAudit from "../locales/audit/es.json";
+import heAudit from "../locales/audit/he.json";
 import heAttention from "../locales/attention/he.json";
 import heLeadsLayout from "../locales/leads-layout/he.json";
 import esAttention from "../locales/attention/es.json";
@@ -59,16 +63,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 const resources = {
   en: {
     // Project detail labels are kept separate from the legacy project forms.
-    translation: { ...enTranslations, attention: enAttention, leadsLayout: enLeadsLayout, projectView: enProjectView, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, workflows: enWorkflows, coreOnboarding: enCoreOnboarding, appSidebar: { ...enTranslations.appSidebar, attention: enAttention.title, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
+    translation: { ...enTranslations, audit: enAudit, attention: enAttention, leadsLayout: enLeadsLayout, projectView: enProjectView, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, workflows: enWorkflows, coreOnboarding: enCoreOnboarding, appSidebar: { ...enTranslations.appSidebar, audit: enAudit.title, attention: enAttention.title, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
   },
   es: {
-    translation: { ...esTranslations, attention: esAttention, leadsLayout: esLeadsLayout, projectView: esProjectView, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, workflows: esWorkflows, coreOnboarding: esCoreOnboarding, appSidebar: { ...esTranslations.appSidebar, attention: esAttention.title, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
+    translation: { ...esTranslations, audit: esAudit, attention: esAttention, leadsLayout: esLeadsLayout, projectView: esProjectView, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, workflows: esWorkflows, coreOnboarding: esCoreOnboarding, appSidebar: { ...esTranslations.appSidebar, audit: esAudit.title, attention: esAttention.title, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
   },
   pt: {
-    translation: { ...ptTranslations, attention: ptAttention, leadsLayout: ptLeadsLayout, projectView: ptProjectView, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, workflows: ptWorkflows, coreOnboarding: ptCoreOnboarding, appSidebar: { ...ptTranslations.appSidebar, attention: ptAttention.title, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
+    translation: { ...ptTranslations, audit: ptAudit, attention: ptAttention, leadsLayout: ptLeadsLayout, projectView: ptProjectView, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, workflows: ptWorkflows, coreOnboarding: ptCoreOnboarding, appSidebar: { ...ptTranslations.appSidebar, audit: ptAudit.title, attention: ptAttention.title, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
   },
   he: {
-    translation: { ...heTranslations, attention: heAttention, leadsLayout: heLeadsLayout, projectView: heProjectView, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, workflows: heWorkflows, coreOnboarding: heCoreOnboarding, appSidebar: { ...heTranslations.appSidebar, attention: heAttention.title, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
+    translation: { ...heTranslations, audit: heAudit, attention: heAttention, leadsLayout: heLeadsLayout, projectView: heProjectView, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, workflows: heWorkflows, coreOnboarding: heCoreOnboarding, appSidebar: { ...heTranslations.appSidebar, audit: heAudit.title, attention: heAttention.title, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
   },
 };
 
