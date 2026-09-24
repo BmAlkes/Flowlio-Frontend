@@ -1,6 +1,6 @@
 # T28A/B — Solicitações extras e mudanças de escopo
 
-Implementação de 24/09/2026, branches `feat/t28-change-requests` no frontend e backend. Em validação para publicação.
+Publicada em 24/09/2026: frontend `7c360d9817f83a0af79a8c74eec0a1aed4801aac` e backend `2c9db7f1c6e9e91f59d2ffc984ad2ccb5bf2047a`, integrados à `main` após aprovação do CI.
 
 ## Onde usar
 
@@ -44,4 +44,5 @@ Aplicação registra o ID da tarefa criada, prazo aplicado e rascunho. Repetir a
 - PostgreSQL: fluxo completo, idempotência, versão obsoleta, revisão/aceite concorrentes, cliente/organização/projeto privado, acesso financeiro, substituição de cliente, conflito de prazo, preço zero, cancelamento, anexos, revisão após aprovação, auditoria, paginação, trigger desativado e rollback.
 - Frontend: aprovação com confirmação/versão, aplicação seletiva, estimativa com moeda, upload, erro de versão, troca de cliente, falha de consulta e acesso negado.
 - Chrome com dados fictícios: desktop 1440 px, mobile 390/320 px, popup de aplicação, teclado, HE/RTL/escuro, aprovação pelo portal, vazio e erro; sem overflow nem erros JavaScript.
-- EN/PT/ES/HE. Backend: 333 testes aprovados na rodada completa inicial, incluindo 16 cenários da T28, lint e build; um cenário adicional de cota incluído na revisão final. Frontend: 16 testes direcionados aprovados (oito da T28), lint e build. Checks remotos e publicação em andamento.
+- EN/PT/ES/HE. Backend: 333 testes aprovados na rodada completa inicial, incluindo 16 cenários da T28, lint e build; cenário adicional de cota aprovado na revisão final. Frontend: 16 testes direcionados aprovados (oito da T28), lint e build. CI completo aprovado nos commits finais das branches e da `main` de ambos os repositórios.
+- Railway confirmou o backend `2c9db7f` em produção; `/api/health` retornou `healthy` e banco conectado. Cloudflare Pages aprovado; o JavaScript servido por `flowlioapp.com` contém o SHA completo do frontend `7c360d9`.
