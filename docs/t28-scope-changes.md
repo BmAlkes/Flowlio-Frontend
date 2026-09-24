@@ -34,6 +34,7 @@ Aplicação registra o ID da tarefa criada, prazo aplicado e rascunho. Repetir a
 - Prazo oficial alterado após a estimativa exige revisão antes de aplicar o prazo; pode-se aplicar apenas os outros efeitos selecionados. Estimativas aprovadas podem ser revistas, exigindo novo aceite.
 - Estimativas e decisões concluídas são imutáveis no banco. Nenhuma API de exclusão; excluir o projeto remove seus pedidos/versões por cascata, mas os eventos da auditoria são preservados.
 - Estado, criação de tarefa, alteração de prazo, rascunho e auditoria na mesma transação. Falha na auditoria reverte a aplicação inteira.
+- Criação da tarefa verifica a cota efetiva do plano/override dentro da transação, usando o mesmo bloqueio de organização da conversão de propostas. Aplicações simultâneas da T28 não ultrapassam essa cota; falha não grava rascunho nem prazo. Reenvio de aplicação já concluída continua idempotente mesmo com a cota preenchida.
 - Lista de dez pedidos e histórico paginado de dez versões. Sem carregamento integral da organização.
 - Auditoria T26B inclui o novo recurso; preço/moeda são mascarados no servidor para gestores sem acesso financeiro. Descrições e anexos completos não são copiados para a auditoria.
 - Migração aditiva `0014_scope_changes`, com snapshot, journal e verificação de trigger no startup. Publicar backend antes do frontend; correção adiante sem reescrever migrações publicadas.
@@ -43,4 +44,4 @@ Aplicação registra o ID da tarefa criada, prazo aplicado e rascunho. Repetir a
 - PostgreSQL: fluxo completo, idempotência, versão obsoleta, revisão/aceite concorrentes, cliente/organização/projeto privado, acesso financeiro, substituição de cliente, conflito de prazo, preço zero, cancelamento, anexos, revisão após aprovação, auditoria, paginação, trigger desativado e rollback.
 - Frontend: aprovação com confirmação/versão, aplicação seletiva, estimativa com moeda, upload, erro de versão, troca de cliente, falha de consulta e acesso negado.
 - Chrome com dados fictícios: desktop 1440 px, mobile 390/320 px, popup de aplicação, teclado, HE/RTL/escuro, aprovação pelo portal, vazio e erro; sem overflow nem erros JavaScript.
-- EN/PT/ES/HE. Backend: 333 testes aprovados, incluindo 16 cenários da T28, lint e build. Frontend: 16 testes direcionados aprovados (oito da T28), lint e build. Checks remotos e publicação em andamento.
+- EN/PT/ES/HE. Backend: 333 testes aprovados na rodada completa inicial, incluindo 16 cenários da T28, lint e build; um cenário adicional de cota incluído na revisão final. Frontend: 16 testes direcionados aprovados (oito da T28), lint e build. Checks remotos e publicação em andamento.
