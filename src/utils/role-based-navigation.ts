@@ -4,7 +4,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { LuWandSparkles } from "react-icons/lu";
 import { TbInvoice, TbReportSearch } from "react-icons/tb";
 import { LuUsers } from "react-icons/lu";
-import { SquareKanban, UserPen, Clock, Users, BellRing, Gauge } from "lucide-react";
+import { SquareKanban, UserPen, Clock, Users, BellRing, Gauge, CalendarRange } from "lucide-react";
 import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, MessageCircleMore, Inbox, PlugZap } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
@@ -13,6 +13,7 @@ import { FolderOpen, ListTodo, FileText, Zap, Activity, History } from "lucide-r
 
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
 const clientNavItems: NavItem[] = [
+  { title: "retainers", url: "/clients/contracts", icon: React.createElement(CalendarRange) },
   {
     title: "dashboard",
     url: "/clients",

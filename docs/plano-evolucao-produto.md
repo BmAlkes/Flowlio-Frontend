@@ -29,7 +29,7 @@ As etapas de infraestrutura de auditoria vêm cedo para que os novos fluxos já 
 | 3 | T27A/B — Central de atenção e gestão de pendências | FE + BE | T19, T20, T21, T26A | Grande | Publicada — FE `b937560`, BE `11f23db` |
 | 4 | T26B — Consulta e exportação da auditoria | FE + BE | T26A | Médio | Publicada — FE `b2bf2df`, BE `ae94506` |
 | 5 | T28A/B — Solicitações extras e mudanças de escopo | FE + BE | T18, T20, T26A | Grande | Publicada: FE `7c360d9`, BE `2c9db7f` |
-| 6 | T29A/B — Contratos mensais e banco de horas | FE + BE | T07, T08, T10, T26A | Grande | Planejada |
+| 6 | T29A/B — Contratos mensais e banco de horas | FE + BE | T07, T08, T10, T26A | Grande | Implementada; validação final e publicação pendentes |
 | 7 | T30A/B — Ações entre módulos nas automações | FE + BE | T10, T22, T26A; T28/T29 para eventos desses módulos | Grande | Planejada |
 | 8 | T31A/B — Fila de pendências do cliente | FE + BE | T20, T28; T30 para lembretes configuráveis | Grande | Planejada |
 | 9 | T32A/B — Planejamento com simulação de capacidade | FE + BE | T21, T26A | Grande | Planejada |
@@ -163,5 +163,6 @@ Retomar em branch nova baseada na versão atual. Revisar e portar a implementaç
 - T27A/B: publicada em 23/09/2026, FE `b937560`, BE `11f23db`; versão de produção confirmada também na publicação posterior do Showcase `db1ec75`. Implementação e validação em [Central de atenção](t27-attention-center.md).
 - T26B: publicada em 23/09/2026, FE `b2bf2df`, BE `ae94506`; CI branch/main, Railway, saúde da API, Cloudflare e versão servida confirmados. Detalhes em [Auditoria — Consulta](t26b-audit-consultation.md).
 - T28A/B: publicada em 24/09/2026, FE `7c360d9`, BE `2c9db7f`; CI branch/main, Railway, saúde da API, Cloudflare e versão servida confirmados. Implementação e validação em [Mudanças de escopo](t28-scope-changes.md). Rascunho comercial preserva moeda no pedido; emissão de fatura segue o processo da equipe, sem cobrança automática.
-- T29–T33: execução autorizada, ainda não implementadas.
+- T29A/B: implementação em validação final; detalhes, regras comerciais e limites em [Contratos mensais e banco de horas](t29-retainer-hours.md). Ainda não publicada.
+- T30–T33: execução autorizada, ainda não implementadas.
 - T11: continua pendente e separada.

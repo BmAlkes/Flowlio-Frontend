@@ -18,8 +18,8 @@ export type AuditEvent = {
 };
 type Report = { events: AuditEvent[]; nextCursor: string | null };
 type Filters = { from: string; to: string; person: string; action: string; resourceType: string; resourceId: string };
-const resourceTypes = ["project", "delivery_review", "organization_membership", "organization_member", "change_request"];
-const actions = ["project.update", "delivery_review.insert", "delivery_review.update", "organization_membership.insert", "organization_membership.update", "organization_membership.delete", "organization_member.update", "change_request.requested", "change_request.analysis", "change_request.estimated", "change_request.approved", "change_request.rejected", "change_request.cancelled", "change_request.applied"];
+const resourceTypes = ["project", "delivery_review", "organization_membership", "organization_member", "change_request", "retainer"];
+const actions = ["project.update", "delivery_review.insert", "delivery_review.update", "organization_membership.insert", "organization_membership.update", "organization_membership.delete", "organization_member.update", "change_request.requested", "change_request.analysis", "change_request.estimated", "change_request.approved", "change_request.rejected", "change_request.cancelled", "change_request.applied", "retainer.created", "retainer.state", "retainer.opened", "retainer.allocated", "retainer.removed", "retainer.adjusted", "retainer.closed", "retainer.decided"];
 const selectClass = "mt-1 block h-9 w-full min-w-0 rounded-md border border-border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-[#1797ba]";
 
 export default function AuditPage() {

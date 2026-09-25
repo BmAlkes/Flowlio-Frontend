@@ -15,6 +15,7 @@ import {
   MoreHorizontal,
   Trash2,
   KeyRound,
+  CalendarRange,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,6 +126,10 @@ export default function ClientDetailPage() {
         </button>
         {client && (
           <div className="cd-actions">
+            <Button variant="outline" size="sm" onClick={() => navigate(`/dashboard/client-management/${encodeURIComponent(client.id)}/contracts`)}>
+              <CalendarRange size={14} />
+              {t("retainers.title")}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => edit()}>
               <Pencil size={14} />
               {t("clientManagement.editClient")}

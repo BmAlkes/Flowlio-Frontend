@@ -59,6 +59,7 @@ const WorkflowsPage = lazy(() => import("./pages/workflows.page"));
 const AttentionPage = lazy(() => import("./pages/attention.page"));
 const AuditPage = lazy(() => import("./pages/audit.page"));
 const ScopeChangesPage = lazy(() => import("./pages/scope-changes.page"));
+const RetainersPage = lazy(() => import("./pages/retainers.page"));
 const TeamCapacityPage = lazy(() => import("./pages/team-capacity.page"));
 const AutomationsPage = lazy(() => import("./pages/automations.page"));
 const IntegrationsPage = lazy(() => import("./pages/integrations.page"));
@@ -451,6 +452,7 @@ const AppRoutes = () => {
         />
         <Route path="project/view/:id/profitability" element={<LazyWrapper component={ProjectProfitabilityPage} />} />
         <Route path="project/view/:id/changes" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={ScopeChangesPage} /></AdminManagerOrOrgOwnerRoute>} />
+        <Route path="client-management/:clientId/contracts" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={RetainersPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route path="attention" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={AttentionPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route path="settings/audit" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={AuditPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route path="team-capacity" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={TeamCapacityPage} /></AdminManagerOrOrgOwnerRoute>} />
@@ -733,6 +735,7 @@ const AppRoutes = () => {
           element={<LazyWrapper component={ProjectViewPage} />}
         />
         <Route path="projects/view/:id/changes" element={<LazyWrapper component={ScopeChangesPage} />} />
+        <Route path="contracts" element={<LazyWrapper component={RetainersPage} />} />
         <Route
           path="tasks"
           element={<LazyWrapper component={ClientTasksPage} />}
