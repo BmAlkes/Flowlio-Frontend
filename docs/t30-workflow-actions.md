@@ -1,6 +1,6 @@
 # T30 — Ações entre módulos
 
-Status: implementação concluída, validação e publicação em andamento. Branch `feat/t30a-workflow-actions` nos dois repositórios reúne T30A/B.
+Status: publicada em 25/09/2026. A branch `feat/t30a-workflow-actions` reuniu T30A/B e foi integrada à `main` nos dois repositórios. Frontend `712c4a88cd701ec1620eee4b8bd802ac3c69030c`; backend `7f32e5415e64d0e52565e8addea5356079b89680`.
 
 ## Onde conferir
 
@@ -38,10 +38,11 @@ Envios externos usam o outbox persistente. Antes do envio, a regra, o acesso do 
 
 ## Validação
 
-- PostgreSQL local isolado: 20 testes de workflows aprovados; 17 de escopo e 17 de contratos aprovados.
+- PostgreSQL isolado: 22 testes de workflows aprovados, incluindo fila real com provedor simulado e invalidação da versão de entrega; 17 de escopo e 17 de contratos aprovados.
 - Frontend: 7 testes aprovados, incluindo responsável explícito, simulação, histórico financeiro e ausência de retry para envio incerto.
 - Builds de frontend/backend e lint aprovados. Revisão com Chrome: desktop 1440 px, mobile 390/320 px, tema escuro/RTL, teclado, histórico, vazio e erro; sem erros de página ou rolagem horizontal.
 - 10 testes da migração aprovados: banco vazio/legado, inicializações concorrentes, snapshot e proteções obrigatórias.
-- CI e versões de produção: registro pendente da conclusão.
+- CI completo aprovado na branch e na main de ambos os repositórios. Railway confirmou `7f32e54` às 17:08:02 UTC; `/api/health` confirmou `healthy` e banco conectado às 17:09:19 UTC, com o processo novo em execução.
+- Cloudflare Pages aprovado às 17:12:47 UTC; o JavaScript de produção `/assets/js/index-CoSPJPY9.js` contém o SHA completo `712c4a88cd701ec1620eee4b8bd802ac3c69030c`. CI da main do frontend concluído às 17:12:57 UTC.
 
 Nenhum teste envia mensagens reais nem chama um provedor pago.
