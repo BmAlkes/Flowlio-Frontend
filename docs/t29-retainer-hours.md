@@ -1,6 +1,6 @@
 # T29A/B — Contratos mensais e banco de horas
 
-Implementação em validação final, branch `feat/t29a-retainer-hours` nos dois repositórios. Ainda não publicada.
+Publicada em 25/09/2026: frontend `c47c4ea7cd3263ddd562cc0844d8a71943e2a0b5` e backend `de53692caa588ce9984cbfbc116f5c16db7044ec`, integrados à `main` após aprovação do CI. Implementação A/B entregue em conjunto pela branch `feat/t29a-retainer-hours` nos dois repositórios.
 
 ## Onde usar
 
@@ -45,5 +45,7 @@ Pausar/cancelar o contrato também pausa sua recorrência. Retomar o consumo **n
 
 - Cenários PostgreSQL: fluxo completo, moeda e arredondamento, transferência/expiração, isolamento de organização/cliente, acesso financeiro, concorrência entre contratos e faturamento avulso, alteração de timer, mudança de contrato, limites de mês/DST, pausa/cancelamento, idempotência, fechamento, ajustes, recorrência, rollback e paginação.
 - Interface: criação sem regras comerciais implícitas, seleção de tempo com versão, aprovação pelo cliente, erro de versão, pausa, ajuste com seleção de origem, confirmação preservada em atualização de segundo plano, falhas de consulta e acesso negado.
-- Chrome com dados fictícios: desktop 1440 px, mobile 390/320 px, diálogos, teclado, HE/RTL/escuro, aprovação pelo portal, vazio/erro. Sem overflow nem erros JavaScript na rodada inicial; revisão visual concluída.
-- Suítes finais e publicação em andamento. Registrar SHAs e evidências após aprovação dos checks e confirmação de produção.
+- Chrome com dados fictícios: desktop 1440 px, mobile 390/320 px, diálogos, teclado, HE/RTL/escuro, aprovação pelo portal, vazio/erro. Sem overflow nem erros JavaScript; rodada final e inspeção visual concluídas, incluindo datas no idioma selecionado.
+- Backend: 17 cenários PostgreSQL de contratos aprovados, teste de reconhecimento dos guards e doze cenários de faturamento avulso aprovados. A fixture antiga de faturamento passou a incluir a dependência de alocação da T29 e ganhou cobertura para exclusão das horas vinculadas. CI completo, lint e build aprovados no commit final da branch e da `main`.
+- Frontend: 17 testes direcionados aprovados (dez da T29 e sete de auditoria), lint e build; CI completo aprovado no commit final da branch e da `main`.
+- Railway confirmou `de53692` em produção; `/api/health` retornou `healthy` e banco conectado. Cloudflare Pages aprovado; o artefato JavaScript servido por `flowlioapp.com` contém o SHA completo `c47c4ea7cd3263ddd562cc0844d8a71943e2a0b5`.
