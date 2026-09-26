@@ -5,12 +5,13 @@ export const OPEN_AGENT_EVENT='flowlio-open-agent';
 export function openAgentContext(scope:AgentScope,prompt?:string){window.dispatchEvent(new CustomEvent(OPEN_AGENT_EVENT,{detail:{scope,prompt}}));}
 export function agentScopeForPath(path: string): AgentScope {
   const project = path.match(/^\/dashboard\/project\/(?:view|edit)\/([^/]+)/) ?? path.match(/^\/viewer\/projects\/([^/]+)/);
-  const client = path.match(/^\/dashboard\/client-management\/([^/]+)/);
+  const client = path.match(/^\/dashboard\/client-management\/(?!media-center(?:\/|$)|create-client(?:\/|$))([^/]+)/);
   let area: AgentArea = 'dashboard';
   if (path.includes('profitability') || /\/(invoice|payment-links)(\/|$)/.test(path)) area = 'financial';
   else if (path.endsWith('/changes')) area = 'scope';
   else if (path.endsWith('/pending')) area = 'pending';
   else if (path.includes('team-capacity') || path.includes('user-management')) area = 'capacity';
+  else if (path.includes('media-center')) area = 'documents';
   else if (path.includes('client-management')) area = 'clients';
   else if (path.includes('leads')) area = 'leads';
   else if (path.includes('proposals')) area = 'proposals';
@@ -18,7 +19,6 @@ export function agentScopeForPath(path: string): AgentScope {
   else if (path.includes('project')) area = 'projects';
   else if (path.includes('time-tracking')) area = 'time';
   else if (/calend[ae]r/.test(path)) area = 'calendar';
-  else if (path.includes('media-center')) area = 'documents';
   else if (path.includes('attention')) area = 'attention';
   else if (path.includes('support')) area = 'support';
   else if (path.includes('settings')) area = 'settings';
