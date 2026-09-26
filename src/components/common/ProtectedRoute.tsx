@@ -92,7 +92,7 @@ export const ProtectedRoute = ({
             fallbackPath = "/viewer";
             break;
           case "client":
-            fallbackPath = "/clients/projects";
+            fallbackPath = "/clients";
             break;
           case "subadmin":
           case "operator":

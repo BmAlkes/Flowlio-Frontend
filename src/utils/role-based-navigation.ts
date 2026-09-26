@@ -13,13 +13,13 @@ import { FolderOpen, ListTodo, FileText, Zap, Activity, History } from "lucide-r
 
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
 const clientNavItems: NavItem[] = [
-  { title: "pending", url: "/clients/pending", icon: React.createElement(ClipboardList) },
-  { title: "retainers", url: "/clients/contracts", icon: React.createElement(CalendarRange) },
   {
     title: "dashboard",
     url: "/clients",
     icon: React.createElement(SquareKanban),
   },
+  { title: "pending", url: "/clients/pending", icon: React.createElement(ClipboardList) },
+  { title: "retainers", url: "/clients/contracts", icon: React.createElement(CalendarRange) },
   {
     title: "projectManagement",
     url: "/clients/projects",

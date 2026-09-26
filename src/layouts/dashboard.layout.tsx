@@ -45,7 +45,7 @@ export const DashboardLayout = () => {
       if (user.role === "client") {
         setNavItems(getNavigationItemsByRole("client"));
         if (location.pathname.startsWith("/dashboard")) {
-          navigate("/clients/projects", { replace: true });
+          navigate("/clients", { replace: true });
         }
         return;
       }

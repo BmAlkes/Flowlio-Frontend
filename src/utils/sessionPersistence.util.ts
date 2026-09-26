@@ -77,7 +77,7 @@ export const getAndClearRedirectFrom = (): string | null => {
 
 /**
  * Get the appropriate redirect path after login based on user role
- * Priority: redirect from ProtectedRoute > last visited page > role-based dashboard
+ * Clients start on their dashboard; other roles restore their previous route.
  */
 // Validate whether a path is accessible for a given role
 const isPathAccessibleForRole = (path: string, userRole?: string): boolean => {
@@ -96,6 +96,7 @@ export const getRoleBasedRedirectPathAfterLogin = (
   validateAccess: boolean = true,
 ): string => {
   const redirectFrom = getAndClearRedirectFrom();
+  if (userRole === "client") return "/clients";
   if (redirectFrom) {
     if (!validateAccess || isPathAccessibleForRole(redirectFrom, userRole)) {
       return redirectFrom;
@@ -117,9 +118,6 @@ export const getRoleBasedRedirectPathAfterLogin = (
       break;
     case "viewer":
       defaultPath = "/viewer";
-      break;
-    case "client":
-      defaultPath = "/clients/projects";
       break;
     case "subadmin":
     case "operator":
