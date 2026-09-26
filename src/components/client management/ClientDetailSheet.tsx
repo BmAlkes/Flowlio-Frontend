@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -210,6 +211,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                 <SheetTitle className="font-semibold text-lg text-foreground leading-snug break-words">
                   {client.name}
                 </SheetTitle>
+                <AgentContextButton scope={{area:isLead?'leads':'clients',clientId:client.id}} onOpen={onClose}/>
                 {currentTemp && tempCfg && (
                   <span className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <span className={`w-2 h-2 rounded-full ${tempCfg.dot}`} />

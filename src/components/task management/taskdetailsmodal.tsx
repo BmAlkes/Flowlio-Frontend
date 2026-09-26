@@ -1,4 +1,5 @@
 import { useUser } from "@/providers/user.provider";
+import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 import { canCreateResources, canUpdateResources, canDeleteResources } from "@/utils/resourcePermissions";
 import React, { useState, useMemo } from "react";
 import {
@@ -223,6 +224,7 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
             </Box>
           </Flex>
           <Flex className="gap-2">
+            <AgentContextButton scope={{area:'tasks',projectId:task.projectId}} prompt={task.title} onOpen={onClose}/>
             {canUpdateResources(userData?.user.role) && (<Button
               variant="ghost"
               size="sm"

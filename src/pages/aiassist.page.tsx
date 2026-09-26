@@ -1,3 +1,4 @@
+import { canUseAgent } from "@/components/ai assist/agent-context";
 import {
   GeneralModal,
   useGeneralModalDisclosure,
@@ -27,6 +28,12 @@ import { useNavigate } from "react-router";
 import newChatIcon from "/dashboard/newchaticon.svg";
 
 export const AiAssistPage = () => {
+  const { data } = useUser();
+  if (!canUseAgent(data?.user)) return null;
+  return <InternalAiAssistPage />;
+};
+
+const InternalAiAssistPage = () => {
   const modalProps = useGeneralModalDisclosure();
   const {
     addChat,

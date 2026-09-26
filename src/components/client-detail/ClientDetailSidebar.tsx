@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate, normalizeStatus } from "./client-detail.utils";
+import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 
 export interface ClientProfile {
   id: string;
@@ -74,6 +75,7 @@ export function ClientDetailSidebar({
         </Avatar>
         <p className="cd-eyebrow">{t("clientDetail.clientProfile")}</p>
         <h1>{client.name}</h1>
+        <AgentContextButton scope={{area:'clients',clientId:client.id}} />
         <p className="cd-industry">
           {client.businessIndustry || t("clientDetail.client")}
         </p>

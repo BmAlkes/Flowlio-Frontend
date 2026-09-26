@@ -174,9 +174,8 @@ const WelcomeContent = () => {
       <h2 className="text-muted-foreground text-sm mt-6">Hi there, 👋</h2>
       <h2 className="text-xl">What would you like to explore today?</h2>
       <p className="text-muted-foreground text-sm text-center max-w-md">
-        I'm Flowlio AI, powered by GPT-5! I can help you with absolutely
-        anything - answer questions, analyze files (PDFs, images, documents),
-        generate images with DALL-E. What would you like to explore today?
+        Use Flowlio AI to draft content, discuss attached files and generate images.
+        For workspace data and actions, open the Flowlio AI panel in the top bar.
       </p>
       <Flex className="flex-wrap w-full gap-2 justify-center max-sm:flex-col overflow-hidden">
         {content.map((a, i) => (

@@ -9,6 +9,7 @@ export interface CreateTaskRequest {
   assignedTo?: string;
   startDate?: string;
   endDate?: string;
+  estimatedHours?: number;
   attachments?: Array<{
     id: string;
     file: string;

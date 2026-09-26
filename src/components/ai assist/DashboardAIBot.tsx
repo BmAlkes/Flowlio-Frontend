@@ -1,3 +1,4 @@
+import { LegacyDraftReview, type LegacyDraft } from "./LegacyDraftReview";
 import { useState, useRef, useEffect } from "react";
 import { Box } from "../ui/box";
 import botGif from "/dashboard/botgif.gif";
@@ -43,6 +44,7 @@ interface AIOption {
 }
 
 export const DashboardAIBot = () => {
+  const [draft, setDraft] = useState<LegacyDraft | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -567,6 +569,7 @@ export const DashboardAIBot = () => {
       // Create task directly
       const result = await createTask.mutateAsync({
         title: taskData.title,
+        estimatedHours: taskData.estimatedHours,
         description: taskData.description,
         projectId: taskData.projectId,
         assignedTo: taskData.assignedTo,
@@ -647,7 +650,7 @@ Description: ${userInput}`,
           return;
         }
 
-        await handleClientGenerated(clientData);
+        setDraft({ type: "client", data: clientData });
         setUserInput("");
       } else {
         addBotMessage(
@@ -1015,7 +1018,7 @@ Description: ${userInput}`,
           return;
         }
 
-        await handleProjectGenerated(projectData);
+        setDraft({ type: "project", data: projectData });
         setUserInput("");
       } else {
         addBotMessage(
@@ -1219,7 +1222,7 @@ Description: ${userInput}`,
           {activeOption === "task-creator" ? (
             <Box className="p-4 border-t border-border bg-card">
               <AITaskCreator
-                onTaskGenerated={handleTaskGenerated}
+                onTaskGenerated={data => setDraft({ type: "task", data })}
                 onClose={() => {
                   setActiveOption(null);
                   addBotMessage("What else can I help you with?");
@@ -1414,6 +1417,11 @@ Description: ${userInput}`,
           )}
         </>
       )}
+      {draft && <LegacyDraftReview draft={draft} onCancel={() => setDraft(null)} onApply={async value => {
+        if (value.type === "task") await handleTaskGenerated(value.data as Parameters<typeof handleTaskGenerated>[0]);
+        else if (value.type === "client") await handleClientGenerated(value.data as Parameters<typeof handleClientGenerated>[0]);
+        else await handleProjectGenerated(value.data as Parameters<typeof handleProjectGenerated>[0]);
+      }} />}
     </Box>
   );
 };

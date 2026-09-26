@@ -14,6 +14,7 @@ import { useUser } from "@/providers/user.provider";
 import { CompactLanguageSwitcher } from "../../common/CompactLanguageSwitcher";
 
 import { ModeToggle } from "@/components/mode-toggle";
+import { GlobalAgent } from "@/components/ai assist/GlobalAgent";
 
 // Flexbox on purpose, not CSS grid: the set of items rendered here changes
 // per route (project selector only on some pages, quick actions only on
@@ -60,6 +61,7 @@ export const HorizontalNavbar = () => {
       </Flex>
 
       <Flex className="items-center gap-2 ms-auto shrink-0 flex-wrap justify-end">
+        <GlobalAgent />
         <CompactLanguageSwitcher />
 
         {/* Quick Actions - Show only on dashboard routes */}
