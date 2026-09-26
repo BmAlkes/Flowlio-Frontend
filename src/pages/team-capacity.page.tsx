@@ -11,7 +11,7 @@ import { UsersRound, RefreshCw, CalendarDays } from "lucide-react";
 import { WorkspaceHeader, workspacePanel, workspaceToolbar } from "@/components/ui/workspace-page";
 
 export type CapacityMember = {
-  id: string; name: string; team: string; availableMinutes: number | null;
+  id: string; name: string; team: string; weeklyMinutes?: number | null; absenceMinutes?: number | null; availableMinutes: number | null;
   plannedMinutes: number; remainingMinutes: number | null; overloaded: boolean;
   partial: boolean; unestimated: number; unscheduled: number; blocked: number;
   taskCount: number; tasks: { id: string; title: string; projectId: string; projectName: string; blocked: boolean }[];
@@ -28,11 +28,11 @@ export default function TeamCapacityPage() {
   const userId = params.get("userId") ?? "";
   const [week, setWeek] = useState(params.get("week") ?? new Date().toISOString().slice(0, 10));
   const [team, setTeam] = useState("");
-  const query = useQuery({ queryKey: ["capacity", scope, week, team, userId], enabled: allowed,
+  const query = useQuery({ queryKey: ["capacity", scope, week, team, userId], enabled: !!allowed,
     queryFn: async () => (await axios.get<{ data: Report }>("/capacity", { params: { week, ...(userId ? { userId } : {}), ...(team ? { team } : {}) } })).data.data });
   if (!allowed) return <p className="p-6">{t("capacity.forbidden")}</p>;
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
-    <WorkspaceHeader icon={UsersRound} title={t("capacity.title")} description={t("capacity.description")} />
+    <WorkspaceHeader icon={UsersRound} title={t("capacity.title")} description={t("capacity.description")} actions={<Button asChild variant="outline"><Link to="/dashboard/team-capacity/scenarios">{t("scenarios.title")}</Link></Button>} />
     {userId && <Button variant="outline" onClick={() => setParams({ week })}>{t("attention.all")}</Button>}
     <div className={workspaceToolbar}>
       <label className="text-sm">{t("capacity.week")}<Input type="date" required value={week} onChange={event => { if (event.target.value) setWeek(event.target.value); }} /></label>
@@ -45,7 +45,7 @@ export default function TeamCapacityPage() {
       {!!query.data.hiddenTasks && <p className="rounded-md border border-border p-3 text-sm">{t("capacity.hidden")}</p>}
       {!!query.data.unassigned && <p className="text-sm">{t("capacity.unassigned", { count: query.data.unassigned })}</p>}
       {!query.data.members.length && <p>{t("capacity.empty")}</p>}
-      <div className="grid items-start gap-5 lg:grid-cols-2">{query.data.members.map(member => <CapacityMemberRow key={`${member.id}:${member.availableMinutes}:${member.team}`} member={member} />)}</div>
+      <div className="grid items-start gap-5 lg:grid-cols-2">{query.data.members.map(member => <CapacityMemberRow key={`${member.id}:${member.weeklyMinutes}:${member.availableMinutes}:${member.team}`} member={member} />)}</div>
     </>}
   </main>;
 }
@@ -53,7 +53,8 @@ export default function TeamCapacityPage() {
 export function CapacityMemberRow({ member }: { member: CapacityMember }) {
   const { t, i18n } = useTranslation();
   const client = useQueryClient();
-  const [hours, setHours] = useState(member.availableMinutes == null ? "" : String(member.availableMinutes / 60));
+  const weekly = member.weeklyMinutes === undefined ? member.availableMinutes : member.weeklyMinutes;
+  const [hours, setHours] = useState(weekly == null ? "" : String(weekly / 60));
   const [team, setTeam] = useState(member.team);
   const formatHours = (minutes: number | null) => minutes == null ? t("capacity.unknown") : t("capacity.hours", { value: new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(minutes / 60) });
   const mutation = useMutation({ mutationFn: () => axios.put(`/capacity/${encodeURIComponent(member.id)}`, { weeklyMinutes: hours.trim() === "" ? null : Math.round(Number(hours) * 60), team }), onSuccess: () => { void client.invalidateQueries({ queryKey: ["capacity"] }); } });
@@ -62,6 +63,7 @@ export function CapacityMemberRow({ member }: { member: CapacityMember }) {
     <div className="space-y-4 p-5">
     <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">{[["planned", member.plannedMinutes], ["available", member.availableMinutes], ["remaining", member.remainingMinutes]].map(([label, minutes]) => <div key={label as string}><dt className="text-muted-foreground">{t(`capacity.${label}`)}</dt><dd className="mt-2 text-lg font-medium tabular-nums">{formatHours(minutes as number | null)}</dd></div>)}</dl>
     {member.availableMinutes != null && member.availableMinutes > 0 && <div role="meter" aria-label={`${t("capacity.planned")} / ${t("capacity.available")}`} aria-valuemin={0} aria-valuemax={member.availableMinutes} aria-valuenow={Math.min(member.plannedMinutes, member.availableMinutes)} aria-valuetext={`${formatHours(member.plannedMinutes)} / ${formatHours(member.availableMinutes)}`} className="h-2 overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full ${member.overloaded ? "bg-amber-500" : "bg-[#1797ba]"}`} style={{ width: `${Math.min(100, member.plannedMinutes / member.availableMinutes * 100)}%` }} /></div>}
+    {!!member.absenceMinutes && <p className="text-xs text-muted-foreground">{t("scenarios.absent", { hours: formatHours(member.absenceMinutes) })}</p>}
     {member.partial && <p className="text-sm text-muted-foreground">{t("capacity.partial", { estimates: member.unestimated, dates: member.unscheduled })}</p>}
     <details><summary className="cursor-pointer text-sm text-[#11718c] dark:text-[#55bdd9]">{t("capacity.tasks", { count: member.taskCount, blocked: member.blocked })}</summary><ul className="mt-3 space-y-2">{member.tasks.map(task => <li key={task.id} className="text-sm"><Link className="underline" to={`/dashboard/project/view/${task.projectId}`}>{task.projectName} · {task.title}</Link>{task.blocked && <span> · {t("capacity.blocked")}</span>}</li>)}</ul>{member.taskCount > 10 && <p className="mt-2 text-xs">{t("capacity.taskLimit")}</p>}</details>
     <details><summary className="cursor-pointer text-sm">{t("capacity.configure")}</summary><form className="mt-3 space-y-3" onSubmit={event => { event.preventDefault(); if (!mutation.isPending) mutation.mutate(); }}><p className="text-xs text-muted-foreground">{t("capacity.settingsNote")}</p><fieldset disabled={mutation.isPending} className="flex flex-wrap items-end gap-3"><label className="text-sm">{t("capacity.weeklyHours")}<Input type="number" min="0" max="168" step="any" value={hours} onChange={event => setHours(event.target.value)} /></label><label className="text-sm">{t("capacity.team")}<Input maxLength={80} value={team} onChange={event => setTeam(event.target.value)} /></label><Button type="submit">{t("common.save")}</Button></fieldset>{mutation.isError && <p role="alert" className="text-sm">{t("capacity.saveError")}</p>}{mutation.isSuccess && <p role="status" className="text-sm">{t("capacity.saved")}</p>}</form></details>

@@ -6,7 +6,8 @@ Disponível para donos e gestores em **Capacidade da equipe**, `/dashboard/team-
 - Estimativas das tarefas abertas distribuídas proporcionalmente pelos dias corridos entre início e fim, para a semana UTC de segunda a domingo. Horas já registradas não são descontadas. A consulta reflete o estado atual, não um retrato histórico.
 - Dependências pendentes, sobrecarga, tarefas sem estimativa/datas e tarefas sem responsável ativo aparecem explicitamente. Detalhes mostram as primeiras dez tarefas por membro.
 - Visibilidade de projeto e tarefa respeitada. Havendo trabalho inacessível, o saldo não é apresentado como tempo livre. Nenhum título inacessível é retornado.
-- A disponibilidade é uma referência recorrente, sem calendário de férias/feriados ou capacidade diária. Alterá-la afeta todas as semanas.
+- A disponibilidade configurada é uma referência recorrente. A T32 acrescenta ausências/férias de dia inteiro, descontadas por dias corridos sem duplicar sobreposições. Feriados e horários diários não são automáticos. Alterar as horas de referência continua afetando todas as semanas.
+- Com a T32, somente tarefas abertas sem subtarefas contribuem para os totais, evitando dupla contagem de tarefas divididas. Trabalho sem responsável ativo torna o saldo desconhecido. Detalhes em [Cenários de capacidade](t32-capacity-scenarios.md).
 - API `GET /api/capacity?week=YYYY-MM-DD&team=...&userId=...`; `PUT /api/capacity/:userId` com `weeklyMinutes` (nulo ou inteiro entre 0 e 10080) e `team`. Organização e permissão vêm da sessão. Relatório limitado a 500 membros e 10 mil tarefas; acima disso retorna erro explícito.
 - Migração `0008_member_capacity.sql`, sem alteração das estimativas existentes. Leitura em snapshot consistente; configuração transacional com validação de vínculo ativo.
 

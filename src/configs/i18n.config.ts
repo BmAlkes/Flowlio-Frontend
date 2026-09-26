@@ -34,9 +34,13 @@ import heWorkflows from "../locales/workflows/he.json";
 import esWorkflows from "../locales/workflows/es.json";
 import ptWorkflows from "../locales/workflows/pt.json";
 import enWorkflows from "../locales/workflows/en.json";
+import heScenarios from "../locales/scenarios/he.json";
 import heCapacity from "../locales/capacity/he.json";
+import esScenarios from "../locales/scenarios/es.json";
 import esCapacity from "../locales/capacity/es.json";
+import ptScenarios from "../locales/scenarios/pt.json";
 import ptCapacity from "../locales/capacity/pt.json";
+import enScenarios from "../locales/scenarios/en.json";
 import enCapacity from "../locales/capacity/en.json";
 import heDelivery from "../locales/delivery/he.json";
 import esDelivery from "../locales/delivery/es.json";
@@ -75,16 +79,16 @@ import heClientDetail from "../locales/client-detail/he.json";
 const resources = {
   en: {
     // Project detail labels are kept separate from the legacy project forms.
-    translation: { ...enTranslations, pending: enPending, retainers: enRetainers, scope: enScope, audit: enAudit, attention: enAttention, leadsLayout: enLeadsLayout, projectView: enProjectView, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, workflows: enWorkflows, coreOnboarding: enCoreOnboarding, appSidebar: { ...enTranslations.appSidebar, pending: enPending.portalTitle, retainers: enRetainers.portalTitle, audit: enAudit.title, attention: enAttention.title, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
+    translation: { ...enTranslations, pending: enPending, retainers: enRetainers, scope: enScope, audit: enAudit, attention: enAttention, leadsLayout: enLeadsLayout, projectView: enProjectView, clientDetail: enClientDetail, operations: enOperations, core: enCore, proposalConversion: enProposalConversion, profitability: enProfitability, delivery: enDelivery, capacity: enCapacity, scenarios: enScenarios, workflows: enWorkflows, coreOnboarding: enCoreOnboarding, appSidebar: { ...enTranslations.appSidebar, pending: enPending.portalTitle, retainers: enRetainers.portalTitle, audit: enAudit.title, attention: enAttention.title, teamCapacity: enCapacity.title, workflows: enWorkflows.title } },
   },
   es: {
-    translation: { ...esTranslations, pending: esPending, retainers: esRetainers, scope: esScope, audit: esAudit, attention: esAttention, leadsLayout: esLeadsLayout, projectView: esProjectView, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, workflows: esWorkflows, coreOnboarding: esCoreOnboarding, appSidebar: { ...esTranslations.appSidebar, pending: esPending.portalTitle, retainers: esRetainers.portalTitle, audit: esAudit.title, attention: esAttention.title, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
+    translation: { ...esTranslations, pending: esPending, retainers: esRetainers, scope: esScope, audit: esAudit, attention: esAttention, leadsLayout: esLeadsLayout, projectView: esProjectView, clientDetail: esClientDetail, operations: esOperations, core: esCore, proposalConversion: esProposalConversion, profitability: esProfitability, delivery: esDelivery, capacity: esCapacity, scenarios: esScenarios, workflows: esWorkflows, coreOnboarding: esCoreOnboarding, appSidebar: { ...esTranslations.appSidebar, pending: esPending.portalTitle, retainers: esRetainers.portalTitle, audit: esAudit.title, attention: esAttention.title, teamCapacity: esCapacity.title, workflows: esWorkflows.title } },
   },
   pt: {
-    translation: { ...ptTranslations, pending: ptPending, retainers: ptRetainers, scope: ptScope, audit: ptAudit, attention: ptAttention, leadsLayout: ptLeadsLayout, projectView: ptProjectView, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, workflows: ptWorkflows, coreOnboarding: ptCoreOnboarding, appSidebar: { ...ptTranslations.appSidebar, pending: ptPending.portalTitle, retainers: ptRetainers.portalTitle, audit: ptAudit.title, attention: ptAttention.title, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
+    translation: { ...ptTranslations, pending: ptPending, retainers: ptRetainers, scope: ptScope, audit: ptAudit, attention: ptAttention, leadsLayout: ptLeadsLayout, projectView: ptProjectView, clientDetail: ptClientDetail, operations: ptOperations, core: ptCore, proposalConversion: ptProposalConversion, profitability: ptProfitability, delivery: ptDelivery, capacity: ptCapacity, scenarios: ptScenarios, workflows: ptWorkflows, coreOnboarding: ptCoreOnboarding, appSidebar: { ...ptTranslations.appSidebar, pending: ptPending.portalTitle, retainers: ptRetainers.portalTitle, audit: ptAudit.title, attention: ptAttention.title, teamCapacity: ptCapacity.title, workflows: ptWorkflows.title } },
   },
   he: {
-    translation: { ...heTranslations, pending: hePending, retainers: heRetainers, scope: heScope, audit: heAudit, attention: heAttention, leadsLayout: heLeadsLayout, projectView: heProjectView, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, workflows: heWorkflows, coreOnboarding: heCoreOnboarding, appSidebar: { ...heTranslations.appSidebar, pending: hePending.portalTitle, retainers: heRetainers.portalTitle, audit: heAudit.title, attention: heAttention.title, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
+    translation: { ...heTranslations, pending: hePending, retainers: heRetainers, scope: heScope, audit: heAudit, attention: heAttention, leadsLayout: heLeadsLayout, projectView: heProjectView, clientDetail: heClientDetail, operations: heOperations, core: heCore, proposalConversion: heProposalConversion, profitability: heProfitability, delivery: heDelivery, capacity: heCapacity, scenarios: heScenarios, workflows: heWorkflows, coreOnboarding: heCoreOnboarding, appSidebar: { ...heTranslations.appSidebar, pending: hePending.portalTitle, retainers: heRetainers.portalTitle, audit: heAudit.title, attention: heAttention.title, teamCapacity: heCapacity.title, workflows: heWorkflows.title } },
   },
 };
 
