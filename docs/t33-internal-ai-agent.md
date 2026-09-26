@@ -51,7 +51,7 @@ Não há cobrança, envio de e-mail, aprovação de escopo, exclusão, mudança 
 - Sem retry automático do provedor; resposta inválida ou citação inexistente não pode executar ações. Cancelamento não promete estornar tokens já usados.
 - Reutiliza T05 para plano, orçamento, reserva e contabilização. API key permanece no backend.
 - Contextos e saídas são validados; documentos são instruídos como dados não confiáveis, não comandos. Esses controles não garantem ausência de erro factual: há fontes e revisão.
-- Revogação de acesso bloqueia leitura de respostas antigas. Relatórios agregados alterados exigem novo contexto, por poderem conter informação aninhada cujo acesso mudou.
+- Revogação de acesso bloqueia leitura de respostas antigas. Relatórios agregados alterados exigem novo contexto, por poderem conter informação aninhada cujo acesso mudou. A comparação do snapshot normaliza a ordem das propriedades JSON, preservando a leitura após persistência em JSONB.
 - Gerador antigo de tarefas usa IDs reais de usuários ativos, preserva estimativas e passa por revisão.
 - Resumo semanal manual, insights e geração antiga de tarefas respeitam visibilidade por recurso. Calendário usa condições SQL conjuntas e escopo de usuário/organização.
 - Resumos automáticos compartilhados usam projetos/tarefas públicos e destinatários internos ativos.
@@ -66,6 +66,15 @@ Testes PostgreSQL com dados fictícios e provedor simulado: isolamento, bloqueio
 
 Migrações testadas em banco vazio, upgrade legado, inicialização concorrente e rollback. Conferência visual do componente real com respostas fictícias: desktop, 320 px, teclado, hebraico e modo escuro. Não representa teste com dados reais nem avaliação factual de respostas ao vivo do provedor.
 
+Resultado local final: 17 testes do agente em PostgreSQL e 10 testes React aprovados, além dos testes de acesso, contabilização e migrações. A regressão de gravação/releitura de relatórios reproduziu a falha antes da correção e passou depois, incluindo rejeição quando o conteúdo aninhado realmente muda. Build e lint aprovados nos dois projetos; suites completas aprovadas pelo CI da entrega inicial.
+
 ## Publicação
 
-Branches frontend/backend: `feat/t33-contextual-agent`. Checks e identificadores de publicação serão registrados após o deploy.
+Entrega inicial publicada em 26/09/2026:
+
+- Frontend `21de5b90d7e75efef8422d4e4badc95cbce38151`, incluindo implementação `8665718` e correção do contexto de rotas. CI branch/main e Cloudflare aprovados; SHA confirmado no bundle servido por `flowlioapp.com`.
+- Backend `7ebee6caf0c34b4eae78faea36908dbea79bc71f`. CI branch/main e Railway aprovados; `/api/health` saudável e banco conectado após a migração.
+- Branch de implementação nos dois projetos: `feat/t33-contextual-agent`.
+- Correção adicional do histórico: backend `44a8f76`, branch `fix/t33-report-history`; normalização de JSONB com teste de regressão. O estado dos checks/deploy dessa correção pode ser conferido no commit do backend.
+
+Próximas expansões de autonomia, fora deste incremento: ampliar ações permitidas por módulo e permitir configurar rotinas recorrentes por linguagem natural com regras por organização. O agente atual não executa operações arbitrárias nem transforma orientações textuais em ações não implementadas.
