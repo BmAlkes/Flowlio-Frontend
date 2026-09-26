@@ -7,16 +7,32 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { getNavigationItemsByRole } from "@/utils/role-based-navigation";
 import { useUser } from "@/providers/user.provider";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 // import { SubscriptionGuard } from "@/components/common/subscriptionguard";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { GlobalCommandPalette } from "@/components/common/GlobalCommandPalette";
 
 export const DashboardLayout = () => {
+  const { t } = useTranslation();
   const { data: userData, isLoading } = useUser();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (userData?.user?.role !== "client") return;
+
+    const currentPage = getNavigationItemsByRole("client")
+      .filter(
+        (item) =>
+          location.pathname === item.url ||
+          location.pathname.startsWith(`${item.url}/`),
+      )
+      .sort((a, b) => b.url.length - a.url.length)[0];
+
+    document.title = `${t(`appSidebar.${currentPage?.title ?? "dashboard"}`)} - Flowlio`;
+  }, [userData?.user?.role, location.pathname, t]);
 
   useEffect(() => {
     // Don't redirect while still loading user data
