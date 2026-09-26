@@ -1,6 +1,6 @@
 # T31 — Pendências e solicitações do cliente
 
-Status: implementação e validação local concluídas; publicação em andamento na branch `feat/t31a-client-pending`, que reúne T31A/B.
+Status: publicada em 26/09/2026. A branch `feat/t31a-client-pending` reuniu T31A/B e foi integrada à `main` nos dois repositórios. Frontend `601c41e433d7e7685c62a96cb267bfb42cad1810`; backend `8d6074c5f57a8810f72b87ca56d32058a08f1d2b`.
 
 ## Onde conferir
 
@@ -35,4 +35,7 @@ Limites: 500 pedidos abertos/aguardando conferência por organização; 25 itens
 
 ## Publicação
 
-Registrar aqui os SHAs, resultados de CI, Railway, saúde da API, Cloudflare e versão efetivamente servida após a publicação.
+- CI da branch e da `main` aprovado nos dois repositórios; frontend main concluído às 08:05:29 UTC, backend main às 07:55:10 UTC.
+- Railway confirmou o backend `8d6074c` às 07:54:16 UTC. A API respondeu `healthy`, banco `connected`, às 07:55:34 UTC.
+- Cloudflare confirmou a publicação às 08:04:25 UTC. O artefato `/assets/js/index-JxjjTJGa.js` servido em produção contém o SHA completo `601c41e433d7e7685c62a96cb267bfb42cad1810`.
+- Próxima etapa: T32A/B, cenários e simulação de capacidade. T11 permanece separada, dependente da validação PayPal Sandbox.
