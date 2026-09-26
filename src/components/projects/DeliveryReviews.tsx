@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { axios } from "@/configs/axios.config";
@@ -26,14 +27,15 @@ export function DeliveryReviews({ projectId }: { projectId: string }) {
   const [milestoneId, setMilestoneId] = useState("");
   const [note, setNote] = useState("");
   const path = `/projects/${encodeURIComponent(projectId)}/delivery-reviews`;
-  const query = useQuery({ queryKey: ["delivery-reviews", scope, projectId, page], queryFn: async () => (await axios.get<{ data: ReviewList }>(path, { params: { page } })).data.data });
+  const [search] = useSearchParams(); const reviewId = search.get("reviewId") || undefined;
+  const query = useQuery({ queryKey: ["delivery-reviews", scope, projectId, page, reviewId], queryFn: async () => (await axios.get<{ data: ReviewList }>(path, { params: { page, reviewId } })).data.data });
   const refresh = () => { void client.invalidateQueries({ queryKey: ["delivery-reviews"] }); };
   const request = useMutation({
     mutationFn: () => axios.post(path, { milestoneId, version: query.data?.milestones.find(row => row.id === milestoneId)?.version, note }),
     onSuccess: () => { setNote(""); setPage(1); refresh(); },
     onError: refresh,
   });
-  return <section className="space-y-4 rounded-xl border border-border bg-card p-5 text-foreground" aria-labelledby="delivery-reviews-title">
+  return <section id="delivery-reviews" className="space-y-4 rounded-xl border border-border bg-card p-5 text-foreground" aria-labelledby="delivery-reviews-title">
     <header className="flex flex-wrap items-center justify-between gap-3"><h2 id="delivery-reviews-title" className="text-lg font-medium">{t("delivery.title")}</h2><Button variant="ghost" size="sm" disabled={query.isFetching} onClick={refresh}>{t("operations.refresh")}</Button></header>
     <p className="text-sm text-muted-foreground">{t("delivery.description")}</p>
     {query.isPending ? <p role="status" className="text-sm">{t("common.loading")}</p> : query.isError ? <p role="alert" className="text-sm">{t("delivery.error")}</p> : query.data && <>

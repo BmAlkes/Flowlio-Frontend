@@ -24,6 +24,7 @@ import {
   BarChart3,
   History,
   GitPullRequestArrow,
+  ClipboardList,
   Eye,
   EyeIcon,
   Globe,
@@ -837,12 +838,14 @@ export const ProjectView = () => {
             </CardContent>
           </Card>
 
+          {isClient && <Button asChild variant="outline" className="h-auto min-h-12 w-full justify-start whitespace-normal p-4 text-start"><Link to={`/clients/pending?projectId=${encodeURIComponent(project.id)}`}><ClipboardList className="size-5 shrink-0 text-[#1797ba]" />{t("pending.portalTitle")}</Link></Button>}
           {isClient && <Button asChild variant="outline" className="h-auto min-h-12 w-full justify-start whitespace-normal border-[#1797ba]/25 bg-[#1797ba]/5 p-4 text-start"><Link to={`/clients/projects/view/${encodeURIComponent(project.id)}/changes`}><GitPullRequestArrow className="size-5 shrink-0 text-[#1797ba]" />{t("scope.title")}</Link></Button>}
           {!isClient && <Card className="gap-0 overflow-hidden border-border p-0 shadow-sm">
             <CardHeader className="border-b border-border bg-purple-50/60 px-5 py-4 dark:bg-purple-900/15">
               <CardTitle className="flex items-center gap-3 text-base"><Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />{t("projectView.tools")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 p-3">
+              {showAudit && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/project/view/${encodeURIComponent(project.id)}/pending`}><ClipboardList className="size-4 shrink-0 text-[#1797ba]" />{t("pending.teamTitle")}</Link></Button>}
               {showProjectFinancials && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/project/view/${project.id}/profitability`}><BarChart3 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />{t("profitability.title")}</Link></Button>}
               {showAudit && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/settings/audit?projectId=${encodeURIComponent(project.id)}`}><History className="h-4 w-4 shrink-0 text-[#1797ba]" />{t("audit.title")}</Link></Button>}
               {(showAudit || isClient) && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`${isClient ? "/clients/projects/view" : "/dashboard/project/view"}/${encodeURIComponent(project.id)}/changes`}><GitPullRequestArrow className="h-4 w-4 shrink-0 text-[#1797ba]" />{t("scope.title")}</Link></Button>}

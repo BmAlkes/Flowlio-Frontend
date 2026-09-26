@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { GitPullRequestArrow, Plus, ArrowLeft, Paperclip, History, FileText, RefreshCw } from "lucide-react";
@@ -25,8 +25,9 @@ export default function ScopeChangesPage() {
 }
 function ScopeWorkspace({ projectId, portal, userId }: { projectId: string; portal: boolean; userId: string }) {
   const { t } = useTranslation(); const scope = useDataScope(); const [page, setPage] = useState(1); const [modal, setModal] = useState<{ action: Action; row?: ScopeChange } | null>(null);
+  const [search] = useSearchParams(); const changeId = search.get("changeId") || undefined;
   const path = `/projects/${encodeURIComponent(projectId)}/changes`;
-  const query = useQuery({ queryKey: ["scope-changes", scope, projectId, page], queryFn: async ({ signal }) => (await axios.get<{ data: Report }>(path, { params: { page }, signal })).data.data });
+  const query = useQuery({ queryKey: ["scope-changes", scope, projectId, page, changeId], queryFn: async ({ signal }) => (await axios.get<{ data: Report }>(path, { params: { page, changeId }, signal })).data.data });
   const report = query.data;
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
     <Link className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]" to={`${portal ? "/clients/projects/view" : "/dashboard/project/view"}/${encodeURIComponent(projectId)}`}><ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />{t("scope.back")}</Link>

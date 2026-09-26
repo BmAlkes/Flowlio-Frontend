@@ -159,6 +159,10 @@ export const NotificationsDropdown: React.FC<{ className?: string }> = ({
 
     const ticketId = notification.data?.ticketId;
     const userRole = user?.user.role;
+    if (userRole === "client" && typeof notification.data?.clientRequestId === "string") {
+      navigate(`/clients/pending?requestId=${encodeURIComponent(notification.data.clientRequestId)}`);
+      return;
+    }
 
     if (ticketId && notification.type.includes("support_ticket")) {
       if (userRole === "superadmin" || userRole === "subadmin") {
