@@ -9,7 +9,7 @@ import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceAside, WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
 type Question = { id: string; label: string; type: "text" | "choice"; required: boolean; options: string[] };
 type Attachment = { id: string; versionId: string; name: string; url: string };
@@ -31,11 +31,11 @@ export default function ClientPendingPage() {
   const select = (requestId: string | null) => { const next = new URLSearchParams(search); if (requestId) next.set("requestId", requestId); else next.delete("requestId"); setSearch(next); };
   if (!allowed) return <p className="p-6">{t("pending.forbidden")}</p>;
   const report = query.data;
-  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     {projectId && <Link className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]" to={`${portal ? "/clients/projects/view/" : "/dashboard/project/view/"}${encodeURIComponent(projectId)}`}><ArrowLeft aria-hidden="true" className="size-4 rtl:rotate-180" />{t("pending.back")}</Link>}
     <WorkspaceHeader icon={ClipboardList} title={t(portal ? "pending.portalTitle" : "pending.teamTitle")} description={report?.project?.name || t("pending.description")} actions={report?.canManage && projectId ? <Button disabled={!report.project?.clientId} onClick={() => setCreating(true)}><Plus aria-hidden="true" className="size-4" />{t("pending.create")}</Button> : undefined} />
-    {report && <dl className="flex flex-wrap gap-x-8 gap-y-3 border-b border-border pb-4 text-sm">{([['open', report.summary.open], ['answered', report.summary.answered], ['overdue', report.summary.overdue]] as const).map(([key, value]) => <div key={key} className="flex items-baseline gap-2"><dt className="text-muted-foreground">{t(`pending.${key}`)}</dt><dd className="text-lg font-semibold tabular-nums">{value}</dd></div>)}<div className="flex items-baseline gap-2"><dt className="text-muted-foreground">{t("pending.responseTime")}</dt><dd className="font-medium tabular-nums">{report.summary.responseHours === null ? "—" : `${Number(report.summary.responseHours).toLocaleString(i18n.language)} h`}</dd></div></dl>}
-    <section className={`${workspacePanel} overflow-hidden`} aria-label={t("pending.queue")}>
+    {report&&<dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{([['open',report.summary.open,ClipboardList,'cyan'],['answered',report.summary.answered,CheckCheck,'violet'],['overdue',report.summary.overdue,Clock3,'rose']] as const).map(([key,value,Icon,tone])=><WorkspaceMetric key={key} icon={Icon} label={t(`pending.${key}`)} tone={tone}>{value}</WorkspaceMetric>)}<WorkspaceMetric icon={Clock3} label={t('pending.responseTime')}>{report.summary.responseHours===null?'—':`${Number(report.summary.responseHours).toLocaleString(i18n.language)} h`}</WorkspaceMetric></dl>}
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_280px]"><section className={`${workspacePanel} min-w-0 overflow-hidden`} aria-label={t("pending.queue")}>
       <div className="flex flex-wrap items-end gap-3 border-b border-border bg-secondary/20 p-4">
         <label className="min-w-0 text-xs">{t("pending.state")}<select className={field} value={state} onChange={e => { setState(e.target.value); setPage(1); }}>{["open", "answered", "completed", "cancelled", "all"].map(v => <option key={v} value={v}>{t(`pending.${v}`)}</option>)}</select></label>
         <label className="min-w-0 text-xs">{t("pending.kind")}<select className={field} value={kind} onChange={e => { setKind(e.target.value); setPage(1); }}>{kinds.map(v => <option key={v} value={v}>{t(`pending.${v}`)}</option>)}</select></label>
@@ -45,7 +45,7 @@ export default function ClientPendingPage() {
       {query.isPending ? <p role="status" className="p-8">{t("pending.loading")}</p> : query.isError ? <p role="alert" className="p-6 text-sm text-destructive">{t("pending.error")}</p> : report?.items.length ? <ul className="divide-y divide-border">{report.items.map(item => <PendingRow key={`${item.kind}:${item.id}`} item={item} open={() => select(item.id)} />)}</ul> : <div className="space-y-3 px-6 py-14 text-center"><CheckCheck aria-hidden="true" className="mx-auto size-9 text-[#1797ba]" /><h2 className="font-medium">{t("pending.empty")}</h2><p className="text-sm text-muted-foreground">{t("pending.emptyHint")}</p></div>}
       <nav className="flex items-center justify-between gap-3 border-t border-border p-4" aria-label={t("pending.pagination")}><Button variant="outline" disabled={page === 1 || query.isFetching} onClick={() => setPage(page - 1)}>{t("pending.previous")}</Button><span className="text-sm tabular-nums">{page}</span><Button variant="outline" disabled={!report?.hasMore || query.isFetching} onClick={() => setPage(page + 1)}>{t("pending.next")}</Button></nav>
     </section>
-    <p className="text-xs leading-relaxed text-muted-foreground">{t("pending.sourceNote")}</p>
+    <aside><WorkspaceAside icon={ClipboardList} title={t('workspace.pendingGuide')}><p>{t('pending.sourceNote')}</p><ol className="space-y-3 border-s-2 border-primary/20 ps-4">{['open','answered','completed'].map(k=><li key={k}>{t(`pending.${k}`)}</li>)}</ol><p>{t('workspace.pendingGuideNote')}</p></WorkspaceAside></aside></div>
     {selected && <RequestDialog key={`${scope}:${selected}`} id={selected} close={() => select(null)} />}
     {creating && projectId && user && <CreateDialog projectId={projectId} userId={user.id} close={() => setCreating(false)} />}
   </main>;

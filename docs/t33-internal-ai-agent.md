@@ -8,6 +8,8 @@ Clientes podem receber solicitações de briefing/informação preparadas pela e
 
 ## Experiência entregue
 
+Refinamento de 26/09/2026: o botão superior abre um único painel com **Assistente** e **Ferramentas**. O bot flutuante foi removido; rotas antigas de AI Assist abrem a aba Ferramentas desse painel. Cadastro assistido, relatórios semanais, análise de projetos, conteúdo, imagens e propostas continuam disponíveis. Relatórios só são gerados sob solicitação explícita. O histórico oferece uma navegação conjunta para execuções no servidor e conversas locais, sem migrar o armazenamento. Veja o [guia funcional](guia-funcional-flowlio.md) e o [registro do refinamento](unified-ai-workspace-design.md).
+
 - **Flowlio AI** na barra superior de todas as rotas internas de dashboard e viewer, com contexto da página e seleção de área/projeto.
 - Atalhos nos detalhes de cliente, lead e tarefa; selecionam o registro sem gerar automaticamente.
 - Resposta com fontes reais autorizadas, informações faltantes, prévia editável e seleção de ações.

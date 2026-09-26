@@ -8,7 +8,7 @@ import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
 export type AuditEvent = {
   id: string; actor_kind: "human" | "system" | "unknown"; actor_id: string | null;
@@ -68,9 +68,10 @@ function AuditWorkspace({ projectId }: { projectId: string }) {
       setExportError(code === "EXPORT_TOO_LARGE" ? "exportLimit" : "exportError");
     } finally { if (!controller.signal.aborted) setExporting(false); }
   }
-  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     {projectId && <Link to={`/dashboard/project/view/${encodeURIComponent(projectId)}`} className="inline-flex text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]">{t("audit.back")}</Link>}
     <WorkspaceHeader icon={History} title={t("audit.title")} description={t("audit.description")} actions={<Button variant="outline" onClick={() => void download()} disabled={exporting || query.isPending || query.isError || !events.length}><Download className="size-4" aria-hidden="true" />{t(exporting ? "audit.exporting" : "audit.export")}</Button>} />
+    {query.data&&<dl className="grid gap-3 sm:grid-cols-3"><WorkspaceMetric icon={History} label={t('workspace.loadedItems')} note={t('workspace.loadedAudit')}>{events.length}</WorkspaceMetric><WorkspaceMetric icon={ShieldCheck} label={t('workspace.people')} tone="violet" note={t('workspace.loadedAudit')}>{new Set(events.filter(e=>e.actor_id).map(e=>e.actor_id)).size}</WorkspaceMetric><WorkspaceMetric icon={ArrowUpRight} label={t('workspace.resources')} tone="amber" note={t('workspace.loadedAudit')}>{new Set(events.map(e=>e.resource_type+':'+e.resource_id)).size}</WorkspaceMetric></dl>}
     <form className={`${workspacePanel} grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3`} onSubmit={event => {
       event.preventDefault();
       if (!draft.from || !draft.to || draft.from > draft.to || (Date.parse(draft.to) - Date.parse(draft.from)) / 86400000 > 366) { setInvalid(true); return; }
@@ -85,7 +86,7 @@ function AuditWorkspace({ projectId }: { projectId: string }) {
       {invalid && <p role="alert" className="text-sm text-destructive sm:col-span-2 lg:col-span-3">{t("audit.invalidPeriod")}</p>}
     </form>
     {exportError && <p role="alert" className="text-sm text-destructive">{t(`audit.${exportError}`)}</p>}
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_15rem]">
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
       <section className={`${workspacePanel} min-w-0 overflow-hidden`} aria-labelledby="audit-history">
         <div className="flex items-center justify-between gap-3 border-b border-border bg-secondary/30 p-5"><h2 id="audit-history" className="font-medium">{t("audit.history")}</h2><Button variant="ghost" size="sm" disabled={query.isFetching} onClick={() => void query.refetch()}><RefreshCw aria-hidden="true" className="size-4" />{t("audit.refresh")}</Button></div>
         {query.isPending ? <p role="status" className="p-6 text-sm text-muted-foreground">{t("audit.loading")}</p> : query.isError && !query.isFetchNextPageError ? <p role="alert" className="p-6 text-sm text-destructive">{t("audit.error")}</p> : <>
@@ -94,7 +95,7 @@ function AuditWorkspace({ projectId }: { projectId: string }) {
           {query.hasNextPage && <div className="border-t border-border p-4 text-center"><Button variant="outline" disabled={query.isFetching} onClick={() => void query.fetchNextPage()}>{t(query.isFetchingNextPage ? "audit.loading" : "audit.more")}</Button></div>}
         </>}
       </section>
-      <aside className="space-y-3 rounded-xl border border-[#1797ba]/20 bg-[#1797ba]/5 p-5"><ShieldCheck className="size-6 text-[#11718c] dark:text-[#55bdd9]" aria-hidden="true" /><h2 className="text-sm font-semibold">{t("audit.readOnly")}</h2><p className="text-sm leading-relaxed text-muted-foreground">{t("audit.coverage")}</p><p className="border-t border-[#1797ba]/15 pt-3 text-xs leading-relaxed text-muted-foreground">{t("audit.scope")}</p></aside>
+      <aside className={`${workspacePanel} space-y-3 p-5`}><ShieldCheck className="size-6 text-[#11718c] dark:text-[#55bdd9]" aria-hidden="true" /><h2 className="text-sm font-semibold">{t("audit.readOnly")}</h2><p className="text-sm leading-relaxed text-muted-foreground">{t("audit.coverage")}</p><p className="border-t border-[#1797ba]/15 pt-3 text-xs leading-relaxed text-muted-foreground">{t("audit.scope")}</p></aside>
     </div>
   </main>;
 }

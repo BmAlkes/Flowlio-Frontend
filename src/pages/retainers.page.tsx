@@ -6,7 +6,7 @@ import { ArrowLeft, CalendarRange, Plus, RefreshCw, LockKeyhole, ArrowUpRight } 
 import { axios } from "@/configs/axios.config";
 import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -35,12 +35,13 @@ function RetainerWorkspace({ clientId, portal }: { clientId: string; portal: boo
   const query = useQuery({ queryKey: ["retainers", scope, clientId, page], queryFn: async ({ signal }) => (await axios.get<{ data: Report }>(path, { params: { page }, signal })).data.data });
   const report = query.data;
   const active = selected && report?.items.some(r => r.id === selected) ? selected : report?.items[0]?.id;
-  return <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <Link className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]" to={portal ? "/clients" : `/dashboard/client-management/${encodeURIComponent(clientId)}`}><ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />{t("retainers.back")}</Link>
     <WorkspaceHeader icon={CalendarRange} title={t(portal ? "retainers.portalTitle" : "retainers.title")} description={report?.client.name || t("retainers.description")} actions={<>{report?.canManage && <Button onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" />{t("retainers.create")}</Button>}<Button variant="outline" disabled={query.isFetching} onClick={() => { void query.refetch(); void cache.invalidateQueries({ queryKey: ["retainer-detail"] }); }} aria-label={t("retainers.refresh")}><RefreshCw className="size-4" aria-hidden="true" /></Button></>} />
+    {report&&<dl className="grid gap-3 sm:grid-cols-3"><WorkspaceMetric icon={CalendarRange} label={t('retainers.contracts')} note={t('workspace.currentPage')}>{report.items.length}</WorkspaceMetric><WorkspaceMetric icon={CalendarRange} label={t('retainers.active')} note={t('workspace.currentPage')} tone="violet">{report.items.filter(r=>r.state==='active').length}</WorkspaceMetric><WorkspaceMetric icon={LockKeyhole} label={t('retainers.paused')} note={t('workspace.currentPage')} tone="amber">{report.items.filter(r=>r.state==='paused').length}</WorkspaceMetric></dl>}
     {query.isPending ? <p role="status">{t("retainers.loading")}</p> : query.isError ? <p role="alert" className="text-destructive">{t("retainers.error")}</p> : report && <>
-      {!report.items.length ? <div className={`${workspacePanel} space-y-3 p-10 text-center`}><CalendarRange className="mx-auto size-9 text-[#1797ba]" aria-hidden="true" /><h2 className="font-semibold">{t("retainers.empty")}</h2><p className="text-sm text-muted-foreground">{t(portal ? "retainers.emptyPortal" : "retainers.emptyHint")}</p></div> : <div className="grid items-start gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <aside className="min-w-0 space-y-3"><h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("retainers.contracts")}</h2>
+      {!report.items.length ? <div className={`${workspacePanel} space-y-3 p-10 text-center`}><CalendarRange className="mx-auto size-9 text-[#1797ba]" aria-hidden="true" /><h2 className="font-semibold">{t("retainers.empty")}</h2><p className="text-sm text-muted-foreground">{t(portal ? "retainers.emptyPortal" : "retainers.emptyHint")}</p></div> : <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <aside className={`${workspacePanel} min-w-0 space-y-3 p-4 xl:order-2`}><h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("retainers.contracts")}</h2>
           {report.items.map(r => <button key={r.id} onClick={() => setSelected(r.id)} aria-pressed={active === r.id} className={`w-full rounded-xl border p-4 text-start focus-visible:outline-2 focus-visible:outline-[#1797ba] ${active === r.id ? "border-[#1797ba]/50 bg-[#1797ba]/10" : "border-border bg-card hover:bg-secondary/40"}`}><span className="block break-words text-sm font-semibold">{r.name}</span><span className="mt-2 block text-xs text-muted-foreground">{t(`retainers.${r.state}`)} · {hour(r.included_minutes)}/{t("retainers.month")}</span>{r.latest && <span className="mt-3 block text-xs tabular-nums">{r.latest.month} · {t("retainers.used")} {hour(r.latest.totals.used)}</span>}</button>)}
           <Pager page={page} more={report.hasMore} change={n => { setPage(n); setSelected(null); }} />
         </aside>

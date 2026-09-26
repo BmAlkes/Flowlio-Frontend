@@ -9,7 +9,7 @@ const api = vi.hoisted(() => ({ get: vi.fn(), allowed: true }));
 vi.mock("@/configs/axios.config", () => ({ axios: api }));
 vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: { id: "owner", role: "user", isOrganizationOwner: api.allowed } } }) }));
 vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "scope" }));
-vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { language: "en" }, t: (key: string) => key.split(".").slice(1).reduce<unknown>((v, k) => v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined, messages) ?? key }) }));
+vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { language: "en" }, t: (key: string) => !key.startsWith("audit.") ? key : key.split(".").slice(1).reduce<unknown>((v, k) => v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined, messages) ?? key }) }));
 const event: AuditEvent = { id: "a1", actor_kind: "human", actor_id: "owner", actor_name: "Alex", action: "project.update", resource_type: "project", resource_id: "project", project_id: "project", project_name: "Client portal", operation_id: "op1", occurred_at: "2026-09-23T10:00:00Z", changes: { status: { before: "todo", after: "completed" }, budget: { before: null, after: "123.45" } } };
 beforeEach(() => { vi.clearAllMocks(); api.allowed = true; api.get.mockResolvedValue({ data: { data: { events: [event], nextCursor: null } } }); });
 function setup(path = "/dashboard/settings/audit") {

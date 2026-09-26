@@ -1,4 +1,16 @@
 @import "tailwindcss";
+
+/* Operational workspace: quiet blue canvas, white surfaces and readable data. */
+.workspace-canvas { background-color: #f7faff; border-radius: 1rem; }
+.workspace-canvas, .workspace-ai { --primary: #11718c; --primary-foreground: #ffffff; }
+.dark .workspace-canvas, .dark .workspace-ai { --primary: #55bdd9; --primary-foreground: #092f3b; }
+.dark .workspace-canvas { background-color: var(--background); }
+.workspace-canvas :where(input, select, textarea) { min-width: 0; max-width: 100%; }
+.workspace-canvas :where(table) { border-collapse: separate; border-spacing: 0; }
+.workspace-canvas :where(button, a, summary):focus-visible { outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .workspace-canvas *, .workspace-canvas *::before, .workspace-canvas *::after { scroll-behavior: auto; transition-duration: 0.01ms; }
+}
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:is(.dark *));
 

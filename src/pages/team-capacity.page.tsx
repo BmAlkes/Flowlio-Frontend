@@ -7,8 +7,8 @@ import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UsersRound, RefreshCw, CalendarDays } from "lucide-react";
-import { WorkspaceHeader, workspacePanel, workspaceToolbar } from "@/components/ui/workspace-page";
+import { UsersRound, RefreshCw, CalendarDays, Info, AlertTriangle, Clock3 } from "lucide-react";
+import { WorkspaceAside, WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel, workspaceToolbar } from "@/components/ui/workspace-page";
 
 export type CapacityMember = {
   id: string; name: string; team: string; weeklyMinutes?: number | null; absenceMinutes?: number | null; availableMinutes: number | null;
@@ -19,7 +19,7 @@ export type CapacityMember = {
 type Report = { weekStart: string; weekEnd: string; teams: string[]; members: CapacityMember[]; hiddenTasks: number; unassigned: number };
 
 export default function TeamCapacityPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data } = useUser();
   const user = data?.user;
   const allowed = !!user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && (user.isOrganizationOwner || user.isOrganizationManager)));
@@ -31,8 +31,9 @@ export default function TeamCapacityPage() {
   const query = useQuery({ queryKey: ["capacity", scope, week, team, userId], enabled: !!allowed,
     queryFn: async () => (await axios.get<{ data: Report }>("/capacity", { params: { week, ...(userId ? { userId } : {}), ...(team ? { team } : {}) } })).data.data });
   if (!allowed) return <p className="p-6">{t("capacity.forbidden")}</p>;
-  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <WorkspaceHeader icon={UsersRound} title={t("capacity.title")} description={t("capacity.description")} actions={<Button asChild variant="outline"><Link to="/dashboard/team-capacity/scenarios">{t("scenarios.title")}</Link></Button>} />
+    {query.data&&<dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><WorkspaceMetric icon={UsersRound} label={t('workspace.teamMembers')} note={t('workspace.filteredView')}>{query.data.members.length}</WorkspaceMetric><WorkspaceMetric icon={AlertTriangle} label={t('capacity.overloaded')} tone="rose" note={t('workspace.filteredView')}>{query.data.members.filter(m=>m.overloaded).length}</WorkspaceMetric><WorkspaceMetric icon={Clock3} label={t('workspace.incomplete')} tone="amber" note={t('workspace.filteredView')}>{query.data.members.filter(m=>m.partial).length}</WorkspaceMetric><WorkspaceMetric icon={CalendarDays} label={t('capacity.planned')} note={t('workspace.knownEstimates')}>{new Intl.NumberFormat(i18n.language,{maximumFractionDigits:1}).format(query.data.members.reduce((sum,m)=>sum+m.plannedMinutes,0)/60)} h</WorkspaceMetric></dl>}
     {userId && <Button variant="outline" onClick={() => setParams({ week })}>{t("attention.all")}</Button>}
     <div className={workspaceToolbar}>
       <label className="text-sm">{t("capacity.week")}<Input type="date" required value={week} onChange={event => { if (event.target.value) setWeek(event.target.value); }} /></label>
@@ -45,7 +46,7 @@ export default function TeamCapacityPage() {
       {!!query.data.hiddenTasks && <p className="rounded-md border border-border p-3 text-sm">{t("capacity.hidden")}</p>}
       {!!query.data.unassigned && <p className="text-sm">{t("capacity.unassigned", { count: query.data.unassigned })}</p>}
       {!query.data.members.length && <p>{t("capacity.empty")}</p>}
-      <div className="grid items-start gap-5 lg:grid-cols-2">{query.data.members.map(member => <CapacityMemberRow key={`${member.id}:${member.weeklyMinutes}:${member.availableMinutes}:${member.team}`} member={member} />)}</div>
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]"><div className="grid min-w-0 items-start gap-4 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">{query.data.members.map(member => <CapacityMemberRow key={`${member.id}:${member.weeklyMinutes}:${member.availableMinutes}:${member.team}`} member={member} />)}</div><aside><WorkspaceAside icon={Info} title={t('workspace.capacityGuide')}><p>{t('capacity.method')}</p><p>{t('capacity.settingsNote')}</p><Link className="block border-t border-border pt-4 font-medium text-primary hover:underline" to="/dashboard/team-capacity/scenarios">{t('scenarios.title')}</Link></WorkspaceAside></aside></div>
     </>}
   </main>;
 }

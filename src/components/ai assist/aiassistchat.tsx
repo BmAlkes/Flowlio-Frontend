@@ -46,8 +46,9 @@ const content = [
   },
 ];
 
-export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean }> = ({
+export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean; sessionManaged?: boolean }> = ({
   withoutWelcomeGrids = false,
+  sessionManaged = false,
 }) => {
   const {
     chats,
@@ -65,6 +66,7 @@ export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean }> = ({
 
   // Load user chats when component mounts or user changes
   useEffect(() => {
+    if (sessionManaged) return;
     if (session?.user?.id) {
       // Always load chats for the current user, even if userId is already set
       // This ensures we load the correct user's chats when switching users
@@ -73,7 +75,7 @@ export const AiAssistChat: React.FC<{ withoutWelcomeGrids?: boolean }> = ({
       // If no session, clear the chats
       clearUserSession();
     }
-  }, [session?.user?.id, loadUserChats, clearUserSession]);
+  }, [session?.user?.id, loadUserChats, clearUserSession, sessionManaged]);
 
   // Only show welcome grid if there are no messages and not explicitly hidden
   const showWelcome =

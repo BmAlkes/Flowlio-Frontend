@@ -9,7 +9,7 @@ import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceAside, WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
 type Member = { id: string; name: string; weeklyMinutes: number | null; team: string };
 type Work = { id: string; title: string; projectId: string; projectName: string; assignedTo: string | null; startDate: string | null; endDate: string | null; estimatedHours: string | null; blocked: boolean };
@@ -31,14 +31,16 @@ export default function CapacityScenariosPage() {
   const query = useQuery({ queryKey: ["scenarios", scope], enabled: !!allowed, queryFn: async () => (await axios.get<{ data: Summary[] }>(path)).data.data });
   const selected = query.data?.find(r => r.id === params.get("id"));
   if (!allowed) return <p className="p-6">{t("scenarios.forbidden")}</p>;
-  return <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <Link to="/dashboard/team-capacity" className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]"><ArrowLeft aria-hidden="true" className="size-4 rtl:rotate-180" />{t("scenarios.back")}</Link>
     <WorkspaceHeader icon={GitCompareArrows} title={t("scenarios.title")} description={t("scenarios.description")} actions={<Button onClick={() => setCreating(true)}><Plus aria-hidden="true" className="size-4" />{t("scenarios.create")}</Button>} />
+    {query.data&&<dl className="grid gap-3 sm:grid-cols-3"><WorkspaceMetric icon={GitCompareArrows} label={t('scenarios.scenarios')} note={t('workspace.loadedItems')}>{query.data.length}</WorkspaceMetric><WorkspaceMetric icon={GitCompareArrows} label={t('scenarios.draft')} tone="amber" note={t('workspace.loadedItems')}>{query.data.filter(r=>r.state==='draft').length}</WorkspaceMetric><WorkspaceMetric icon={GitCompareArrows} label={t('scenarios.applied')} tone="violet" note={t('workspace.loadedItems')}>{query.data.filter(r=>r.state==='applied').length}</WorkspaceMetric></dl>}
     <div className="flex flex-wrap gap-2 border-b border-border pb-3">{["scenarios", "absences"].map(v => <Button key={v} variant={tab === v ? "default" : "ghost"} aria-pressed={tab === v} onClick={() => setTab(v)}>{v === "absences" && <CalendarOff aria-hidden="true" className="size-4" />}{t(`scenarios.${v}`)}</Button>)}</div>
-    {tab === "absences" ? <Absences /> : <>
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_280px]"><div className="min-w-0 space-y-4">{tab === "absences" ? <Absences /> : <>
       <label className="block max-w-xl text-sm">{t("scenarios.select")}<select className={field} value={params.get("id") || ""} onChange={e => setParams(e.target.value ? { id: e.target.value } : {})}><option value="">{t("scenarios.choose")}</option>{query.data?.map(r => <option key={r.id} value={r.id}>{r.title} · {t(`scenarios.${r.state}`)}</option>)}</select></label>
       {query.isPending ? <p role="status">{t("scenarios.loading")}</p> : query.isError ? <ErrorNotice error={query.error} /> : selected ? <ScenarioWorkspace key={`${scope}:${selected.id}`} summary={selected} /> : <div className={`${workspacePanel} space-y-3 p-8`}><h2 className="font-medium">{t("scenarios.empty")}</h2><p className="text-sm text-muted-foreground">{t("scenarios.emptyNote")}</p></div>}
     </>}
+    </div><aside><WorkspaceAside icon={GitCompareArrows} title={t('scenarios.comparison')}><p>{t('scenarios.method')}</p><p>{t('scenarios.proposalOnly')}</p><p className="border-t border-border pt-4">{t('scenarios.confirmApply')}</p></WorkspaceAside></aside></div>
     {creating && <CreateScenario close={() => setCreating(false)} opened={id => { setParams({ id }); setTab("scenarios"); setCreating(false); }} />}
   </main>;
 }

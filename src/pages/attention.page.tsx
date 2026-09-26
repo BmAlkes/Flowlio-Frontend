@@ -2,14 +2,14 @@
 import { Link } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Inbox, ArrowUpRight, Clock3, CheckCheck, UsersRound, FileText, Wallet, Settings2, RefreshCw } from "lucide-react";
+import { Inbox, ArrowUpRight, Clock3, CheckCheck, UsersRound, FileText, Wallet, Settings2, RefreshCw, Info } from "lucide-react";
 import { axios } from "@/configs/axios.config";
 import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceAside, WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
 const types = ["approval", "unbilled", "capacity", "proposal", "budget"] as const;
 type Kind = typeof types[number];
@@ -47,6 +47,7 @@ function AttentionWorkspace() {
   const [type, setType] = useState("all");
   const [state, setState] = useState("active");
   const [assigned, setAssigned] = useState("all");
+  const [search, setSearch] = useState("");
   const [grouped, setGrouped] = useState(false);
   const [editing, setEditing] = useState<AttentionItem | null>(null);
   const query = useQuery({ queryKey: ["attention", scope, period, page, type, state, assigned], refetchInterval: 60000,
@@ -56,29 +57,46 @@ function AttentionWorkspace() {
     const d = item.details;
     return t(`attention.reason.${item.type}`, { ...d, hours: number((d.minutes ?? 0) / 60), available: number((d.available ?? 0) / 60), cost: d.currency ? new Intl.NumberFormat(i18n.language, { style: "currency", currency: d.currency }).format(Number(d.cost)) : d.cost });
   };
-  const rows = query.data?.items ?? [];
+  const rows = (query.data?.items ?? []).filter(item => !search.trim() || `${item.title} ${item.assignee_name ?? ""} ${describe(item)}`.toLocaleLowerCase(i18n.language).includes(search.trim().toLocaleLowerCase(i18n.language)));
   const groups = grouped ? types.map(kind => ({ label: t(`attention.types.${kind}`), rows: rows.filter(row => row.type === kind) })).filter(group => group.rows.length) : [{ label: "", rows }];
-  return <main className="mx-auto max-w-7xl space-y-5 px-3 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <WorkspaceHeader icon={Inbox} title={t("attention.title")} description={t("attention.description")} actions={<Button variant="outline" disabled={query.isFetching} onClick={() => void query.refetch()}><RefreshCw aria-hidden="true" className="size-4" />{t("attention.refresh")}</Button>} />
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
       <div className="min-w-0 space-y-4">
+        <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <WorkspaceMetric icon={Inbox} label={t('workspace.loadedItems')} note={t('workspace.currentPage')} tone="rose">{query.data ? query.data.items.length : '—'}</WorkspaceMetric>
+          <WorkspaceMetric icon={Wallet} label={t('attention.types.budget')} note={t('workspace.currentPage')} tone="amber">{query.data ? query.data.items.filter(i=>i.type==='budget').length : '—'}</WorkspaceMetric>
+          <WorkspaceMetric icon={CheckCheck} label={t('attention.types.approval')} note={t('workspace.currentPage')} tone="violet">{query.data ? query.data.items.filter(i=>i.type==='approval').length : '—'}</WorkspaceMetric>
+          <WorkspaceMetric icon={UsersRound} label={t('attention.unassigned')} note={t('workspace.currentPage')}>{query.data ? query.data.items.filter(i=>!i.assignee_id).length : '—'}</WorkspaceMetric>
+        </dl>
         <form className={`${workspacePanel} space-y-4 p-4`} onSubmit={event => { event.preventDefault(); setPage(1); setPeriod(draft); }}>
-          <div className="grid gap-3 sm:grid-cols-3">{(["from", "to", "week"] as const).map(key => <label key={key} className="space-y-2 text-sm">{t(`attention.${key}`)}<Input type="date" required value={draft[key]} onChange={event => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</div>
-          <div className="flex flex-wrap items-center justify-between gap-3"><p className="max-w-xl text-xs leading-relaxed text-muted-foreground">{t("attention.periodNote")}</p><Button type="submit" variant="outline">{t("attention.apply")}</Button></div>
+          <div className="grid items-end gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <label className="space-y-1.5 text-xs text-muted-foreground">{t('workspace.searchPage')}<Input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t('workspace.searchPage')} /></label>
+            {[["type", type, setType, ["all", ...types]], ["state", state, setState, ["active", "snoozed", "all"]], ["assigned", assigned, setAssigned, ["all", "mine", "unassigned"]]].map(([key, value, setter, options]) => <label key={key as string} className="space-y-1.5 text-xs text-muted-foreground">{t(`attention.${key as string}`)}<select className={selectClass} value={value as string} onChange={event => { (setter as (v: string) => void)(event.target.value); setPage(1); }}>{(options as string[]).map(option => <option key={option} value={option}>{t(`attention.${key === "type" && option !== "all" ? "types." : ""}${option}`)}</option>)}</select></label>)}
+          </div>
+          <div className="grid items-end gap-3 border-t border-border/60 pt-4 sm:grid-cols-3">{(["from", "to", "week"] as const).map(key => <label key={key} className="space-y-1.5 text-xs text-muted-foreground">{t(`attention.${key}`)}<Input type="date" required value={draft[key]} onChange={event => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={grouped} onChange={event => setGrouped(event.target.checked)} />{t("attention.group")}</label><Button type="submit">{t("attention.apply")}</Button></div>
+          <p className="text-xs leading-relaxed text-muted-foreground">{t("attention.periodNote")}</p>
         </form>
-        <div className="grid gap-3 sm:grid-cols-3">{[["type", type, setType, ["all", ...types]], ["state", state, setState, ["active", "snoozed", "all"]], ["assigned", assigned, setAssigned, ["all", "mine", "unassigned"]]].map(([key, value, setter, options]) => <label key={key as string} className="space-y-2 text-sm">{t(`attention.${key as string}`)}<select className={selectClass} value={value as string} onChange={event => { (setter as (v: string) => void)(event.target.value); setPage(1); }}>{(options as string[]).map(option => <option key={option} value={option}>{t(`attention.${key === "type" && option !== "all" ? "types." : ""}${option}`)}</option>)}</select></label>)}</div>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={grouped} onChange={event => setGrouped(event.target.checked)} />{t("attention.group")}</label>
-        {query.isPending ? <p role="status" className="p-6">{t("common.loading")}</p> : query.isError ? <p role="alert" className={`${workspacePanel} p-5`}>{t("attention.error")}</p> : <>
-          {!rows.length && <div className={`${workspacePanel} p-8 text-center`}><Inbox aria-hidden="true" className="mx-auto mb-4 size-8 text-[#1797ba]" /><h2 className="text-lg font-medium">{t("attention.empty")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("attention.emptyHint")}</p></div>}
-          {groups.map(group => <section key={group.label} className="space-y-3">{group.label && <h2 className="text-base font-medium">{group.label}</h2>}{group.rows.map(item => { const Icon = symbols[item.type]; return <article key={item.key} className={`${workspacePanel} overflow-hidden border-s-4 ${item.type === "budget" || item.type === "capacity" ? "border-s-amber-500" : "border-s-[#1797ba]"}`}>
-            <div className="flex items-start gap-3 p-4 sm:p-5"><span className="rounded-lg bg-[#1797ba]/10 p-2.5 text-[#11718c] dark:text-[#55bdd9]"><Icon aria-hidden="true" className="size-5" /></span><div className="min-w-0 flex-1"><p className="text-xs font-medium text-muted-foreground">{t(`attention.types.${item.type}`)}</p><h3 className="mt-1 break-words text-base font-medium">{item.title}</h3><p className="mt-2 text-sm leading-relaxed">{describe(item)}</p>{!!item.details.incomplete && <p className="mt-2 text-xs text-muted-foreground">{t("attention.partial")}</p>}{item.assignee_id && <p className="mt-2 text-xs text-muted-foreground">{t("attention.assigned")}: {item.assignee_name ?? t("attention.currentAssignee")}</p>}{item.snoozed_until && <p className="mt-2 text-xs text-muted-foreground">{t("attention.snoozedUntil", { date: new Date(item.snoozed_until).toLocaleString(i18n.language) })}</p>}</div></div>
-            <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-secondary/25 px-4 py-3"><Button size="sm" variant="ghost" onClick={() => setEditing(item)}>{item.assignee_id ? t("attention.manage") : t("attention.assign")}</Button><Link className="inline-flex items-center gap-2 text-sm font-medium text-[#11718c] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 dark:text-[#55bdd9]" to={attentionSource(item, period)}>{t("attention.openSource")}<ArrowUpRight aria-hidden="true" className="size-4 rtl:-scale-x-100" /></Link></footer>
-          </article>; })}</section>)}
-          <nav aria-label={t("attention.pagination")} className="flex items-center justify-between gap-3"><Button variant="outline" disabled={page === 1 || query.isFetching} onClick={() => setPage(page - 1)}>{t("attention.previous")}</Button><span className="text-sm">{t("attention.page", { page })}</span><Button variant="outline" disabled={!query.data?.hasMore || query.isFetching} onClick={() => setPage(page + 1)}>{t("attention.next")}</Button></nav>
-        </>}
+        <section className={`${workspacePanel} overflow-hidden`}>
+          <header className="flex flex-wrap items-center justify-between gap-3 p-4"><h2 className="text-sm font-semibold">{t('workspace.visibleItems',{count:rows.length})}</h2><span className="text-xs text-muted-foreground">{t('workspace.currentPage')}</span></header>
+          {query.isPending ? <p role="status" className="p-6">{t("common.loading")}</p> : query.isError ? <p role="alert" className="p-5">{t("attention.error")}</p> : !rows.length ? <div className="p-10 text-center"><Inbox aria-hidden="true" className="mx-auto mb-4 size-8 text-primary" /><h3 className="font-medium">{t("attention.empty")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("attention.emptyHint")}</p></div> : <div className="overflow-x-auto px-4" role="region" aria-label={t('attention.title')} tabIndex={0}>
+            <table className="w-full min-w-[740px] text-sm"><caption className="sr-only">{t('attention.title')}</caption><thead className="bg-slate-50 text-xs text-muted-foreground dark:bg-secondary/50"><tr>{['item','issue','type','assignee','actions'].map(k=><th key={k} scope="col" className="px-3 py-3 text-start font-medium first:rounded-s-lg last:rounded-e-lg">{t(`workspace.${k}`)}</th>)}</tr></thead>
+            {groups.map(group=><tbody key={group.label} className="divide-y divide-border/60">{group.label&&<tr><th colSpan={5} className="bg-secondary/30 px-3 py-2 text-start text-xs font-semibold">{group.label}</th></tr>}{group.rows.map(item=>{const Icon=symbols[item.type];return <tr key={item.key} className="align-top transition-colors hover:bg-sky-50/40 dark:hover:bg-secondary/30">
+              <th scope="row" className="max-w-64 px-3 py-4 text-start font-medium"><div className="flex items-start gap-3"><span className="rounded-md bg-sky-50 p-1.5 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300"><Icon className="size-4" aria-hidden="true"/></span><span className="break-words">{item.title}<span className="mt-1 block text-xs font-normal text-muted-foreground">{new Date(item.since).toLocaleDateString(i18n.language)}</span></span></div></th>
+              <td className="max-w-72 px-3 py-4"><p className="text-xs leading-5">{describe(item)}</p>{!!item.details.incomplete&&<p className="mt-1 text-xs text-muted-foreground">{t('attention.partial')}</p>}{item.snoozed_until&&<p className="mt-1 text-xs text-muted-foreground">{t('attention.snoozedUntil',{date:new Date(item.snoozed_until).toLocaleString(i18n.language)})}</p>}</td>
+              <td className="px-3 py-4"><span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs ${item.type==='budget'||item.type==='capacity'?'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300':'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-300'}`}><Icon aria-hidden="true" className="size-3"/>{t(`attention.types.${item.type}`)}</span></td>
+              <td className="px-3 py-4"><div className="flex items-center gap-2"><span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold">{item.assignee_name?item.assignee_name.split(/\s+/).slice(0,2).map(p=>p[0]).join(''):'—'}</span><span className="text-xs">{item.assignee_id?item.assignee_name??t('attention.currentAssignee'):t('attention.unassigned')}</span></div></td>
+              <td className="px-3 py-3"><div className="flex flex-col items-start gap-1"><Button size="sm" variant="outline" asChild><Link to={attentionSource(item,period)}>{t('attention.openSource')}<ArrowUpRight aria-hidden="true" className="size-3"/></Link></Button><Button size="sm" variant="ghost" onClick={()=>setEditing(item)}>{t(item.assignee_id?'attention.manage':'attention.assign')}</Button></div></td>
+            </tr>;})}</tbody>)}
+            </table>
+          </div>}
+          <nav aria-label={t("attention.pagination")} className="flex items-center justify-between gap-3 p-4"><Button variant="outline" disabled={page === 1 || query.isFetching} onClick={() => setPage(page - 1)}>{t("attention.previous")}</Button><span className="text-xs">{t("attention.page", { page })}</span><Button variant="outline" disabled={!query.data?.hasMore || query.isFetching} onClick={() => setPage(page + 1)}>{t("attention.next")}</Button></nav>
+        </section>
       </div>
-      <aside className="space-y-4">{query.data && <><div className={`${workspacePanel} space-y-3 border-t-2 border-t-[#1797ba] p-5`}><h2 className="text-base font-medium">{t("attention.coverage")}</h2><p className="text-sm leading-relaxed text-muted-foreground">{t("attention.coverageNote")}</p>{!!query.data.gaps.financialProjects && <p className="text-sm">{t("attention.financialGaps", { count: query.data.gaps.financialProjects })}</p>}{!!query.data.gaps.unknownCapacity && <p className="text-sm">{t("attention.capacityGaps", { count: query.data.gaps.unknownCapacity })}</p>}<p className="text-xs text-muted-foreground">{t("attention.capacityWeek")} <span dir="ltr">{query.data.week.from} — {query.data.week.to}</span></p></div><AttentionSettings key={JSON.stringify(query.data.settings)} settings={query.data.settings} /></>}</aside>
+      <aside className="min-w-0 space-y-4">{query.data&&<><WorkspaceAside icon={Info} title={t('attention.coverage')}><p>{t('attention.coverageNote')}</p><div className="space-y-3 border-y border-border/60 py-4"><p>{t('attention.financialGaps',{count:query.data.gaps.financialProjects})}</p><p>{t('attention.capacityGaps',{count:query.data.gaps.unknownCapacity})}</p></div><p className="text-xs">{t('attention.capacityWeek')}<span className="mt-1 block" dir="ltr">{query.data.week.from} — {query.data.week.to}</span></p><p className="text-xs">{t('workspace.updated')}<span className="mt-1 block">{new Date(query.dataUpdatedAt).toLocaleString(i18n.language)}</span></p></WorkspaceAside><AttentionSettings key={JSON.stringify(query.data.settings)} settings={query.data.settings}/></>}</aside>
     </div>
+
     <Dialog open={!!editing} onOpenChange={open => { if (!open) setEditing(null); }}><DialogContent className="max-h-[90dvh] overflow-y-auto"><DialogTitle>{t("attention.manage")}</DialogTitle><DialogDescription>{editing?.title}</DialogDescription>{editing && <TriageForm key={editing.key} item={editing} period={period} onSaved={() => setEditing(null)} />}</DialogContent></Dialog>
   </main>;
 }

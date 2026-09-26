@@ -7,7 +7,7 @@ import { useUser } from "@/providers/user.provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Workflow, Bell, GitBranch, Zap, Play, History, Pause, ListTodo, UserRoundCheck, FileCheck2, ArrowUpRight } from "lucide-react";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
 export type WorkflowRule = { id: string; name: string; trigger: string; projectStatus: string | null; title: string; message: string; enabled: boolean; actionType?: string; channel?: string; recipientName?: string; targetProjectName?: string };
 const triggers = ["proposal_project", "delivery_approved", "delivery_changes_requested", "milestone_completed", "scope_approved", "retainer_80", "retainer_100", "retainer_closed", "retainer_overage_approved"];
@@ -41,10 +41,11 @@ export default function WorkflowsPage() {
   const query = useQuery({ queryKey: ["workflows", scope], enabled: !!allowed, queryFn: async () => (await axios.get<{ data: WorkflowRule[] }>("/workflows")).data.data });
   const create = useMutation({ mutationFn: () => axios.post("/workflows", { name, trigger, projectStatus: retainer && !needsProject ? null : projectStatus || null, title, message, actionType, channel: actionType === "notify" ? channel : "internal", ...(actionType !== "prepare_billing" ? { recipientId: recipient?.id } : {}), targetProjectId: needsProject ? project?.id : null }), onSuccess: () => { setName(""); setTitle(""); setMessage(""); void client.invalidateQueries({ queryKey: ["workflows"] }); } });
   if (!allowed) return <p className="p-6">{t("workflows.forbidden")}</p>;
-  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <WorkspaceHeader icon={Workflow} title={t("workflows.title")} description={t("workflows.description")} />
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-    <details open className={`${workspacePanel} p-5 [&_label]:space-y-2`}><summary className="cursor-pointer text-base font-medium text-[#11718c] dark:text-[#55bdd9]">{t("workflows.create")}</summary>
+    {query.data&&<dl className="grid gap-3 sm:grid-cols-3"><WorkspaceMetric icon={Workflow} label={t('workflows.title')} note={t('workspace.loadedItems')}>{query.data.length}</WorkspaceMetric><WorkspaceMetric icon={Zap} label={t('workflows.active')} tone="violet">{query.data.filter(r=>r.enabled).length}</WorkspaceMetric><WorkspaceMetric icon={Bell} label={t('workflows.paused')} tone="amber">{query.data.filter(r=>!r.enabled).length}</WorkspaceMetric></dl>}
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <details open className={`${workspacePanel} xl:order-2 p-5 [&_label]:space-y-2`}><summary className="cursor-pointer text-base font-medium text-[#11718c] dark:text-[#55bdd9]">{t("workflows.create")}</summary>
       <form className="mt-4 space-y-4" onSubmit={event => { event.preventDefault(); if (!create.isPending) create.mutate(); }}>
         <fieldset disabled={create.isPending} className="space-y-4">
           <label className="block text-sm">{t("workflows.name")}<Input required maxLength={100} value={name} onChange={event => setName(event.target.value)} /></label>

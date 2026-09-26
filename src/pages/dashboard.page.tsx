@@ -29,7 +29,6 @@ import { useState, useEffect } from "react";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { DashboardAIBot } from "@/components/ai assist/DashboardAIBot";
 import { DashboardSkeleton, SkeletonWrapper } from "@/components/skeletons";
 import { FollowUpWidget } from "@/components/admin/dashboard/FollowUpWidget";
 import { ProjectRiskAlertsWidget } from "@/components/admin/dashboard/ProjectRiskAlertsWidget";
@@ -195,7 +194,6 @@ const DashboardPage = () => {
           }}
         />
 
-        <DashboardAIBot />
       </Stack>
     </SkeletonWrapper>
   );

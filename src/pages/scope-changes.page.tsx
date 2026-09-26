@@ -6,7 +6,7 @@ import { GitPullRequestArrow, Plus, ArrowLeft, Paperclip, History, FileText, Ref
 import { axios } from "@/configs/axios.config";
 import { useUser } from "@/providers/user.provider";
 import { useDataScope } from "@/hooks/useDataScope";
-import { WorkspaceHeader, workspacePanel } from "@/components/ui/workspace-page";
+import { WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -29,10 +29,11 @@ function ScopeWorkspace({ projectId, portal, userId }: { projectId: string; port
   const path = `/projects/${encodeURIComponent(projectId)}/changes`;
   const query = useQuery({ queryKey: ["scope-changes", scope, projectId, page, changeId], queryFn: async ({ signal }) => (await axios.get<{ data: Report }>(path, { params: { page, changeId }, signal })).data.data });
   const report = query.data;
-  return <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 text-foreground sm:px-6">
+  return <main className={workspacePage}>
     <Link className="inline-flex items-center gap-2 text-sm text-[#11718c] hover:underline dark:text-[#55bdd9]" to={`${portal ? "/clients/projects/view" : "/dashboard/project/view"}/${encodeURIComponent(projectId)}`}><ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />{t("scope.back")}</Link>
     <WorkspaceHeader icon={GitPullRequestArrow} title={t("scope.title")} description={report?.project.name || t("scope.description")} actions={<Button disabled={!report?.project.clientId || query.isError} onClick={() => setModal({ action: "create" })}><Plus className="size-4" aria-hidden="true" />{t("scope.create")}</Button>} />
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+    {report&&<dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{(['requested','awaiting','approved','applied'] as const).map((state,i)=><WorkspaceMetric key={state} icon={GitPullRequestArrow} label={t(`scope.states.${state}`)} tone={(['cyan','amber','violet','cyan'] as const)[i]} note={t('workspace.currentPage')}>{report.items.filter(r=>r.state===state).length}</WorkspaceMetric>)}</dl>}
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
       <section className="min-w-0 space-y-4" aria-label={t("scope.requests")}>
         <div className="flex items-center justify-between gap-2"><h2 className="text-base font-medium">{t("scope.requests")}</h2><Button size="sm" variant="ghost" disabled={query.isFetching} onClick={() => void query.refetch()}><RefreshCw className="size-4" aria-hidden="true" />{t("scope.refresh")}</Button></div>
         {query.isPending ? <p role="status">{t("scope.loading")}</p> : query.isError ? <p role="alert" className="text-sm text-destructive">{t("scope.error")}</p> : report && <>
@@ -62,7 +63,7 @@ function ScopeWorkspace({ projectId, portal, userId }: { projectId: string; port
           <nav className="flex items-center justify-between gap-3" aria-label={t("scope.pagination")}><Button variant="outline" disabled={page === 1 || query.isFetching} onClick={() => setPage(page - 1)}>{t("scope.previous")}</Button><span className="text-sm tabular-nums">{page}</span><Button variant="outline" disabled={!report.hasMore || query.isFetching} onClick={() => setPage(page + 1)}>{t("scope.next")}</Button></nav>
         </>}
       </section>
-      <aside className="space-y-4 rounded-xl border border-[#1797ba]/20 bg-[#1797ba]/5 p-5"><h2 className="text-sm font-semibold">{t("scope.flowTitle")}</h2><ol className="space-y-3 border-s-2 border-[#1797ba]/25 ps-4 text-sm">{["requested", "analysis", "awaiting", "approved", "applied"].map(state => <li key={state}>{t(`scope.states.${state}`)}</li>)}</ol><p className="border-t border-[#1797ba]/20 pt-4 text-xs leading-relaxed text-muted-foreground">{t("scope.flowNote")}</p></aside>
+      <aside className={`${workspacePanel} space-y-4 p-5`}><h2 className="text-sm font-semibold">{t("scope.flowTitle")}</h2><ol className="space-y-3 border-s-2 border-[#1797ba]/25 ps-4 text-sm">{["requested", "analysis", "awaiting", "approved", "applied"].map(state => <li key={state}>{t(`scope.states.${state}`)}</li>)}</ol><p className="border-t border-[#1797ba]/20 pt-4 text-xs leading-relaxed text-muted-foreground">{t("scope.flowNote")}</p></aside>
     </div>
     {modal && report && <Dialog open onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"><DialogTitle>{t(`scope.${modal.action}`)}</DialogTitle><DialogDescription>{modal.row?.title || t("scope.createHint")}</DialogDescription>{modal.action === "history" && modal.row ? <VersionHistory path={path} id={modal.row.id} /> : <ChangeForm key={`${modal.action}:${modal.row?.id ?? "new"}`} action={modal.action} row={modal.row} path={path} projectId={projectId} clientId={report.project.clientId} close={() => setModal(null)} />}</DialogContent></Dialog>}
   </main>;

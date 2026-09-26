@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, Link } from 'react-router';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { useLocation, Link, useSearchParams } from 'react-router';
+const AgentTools=lazy(()=>import('./AgentTools').then(module=>({default:module.AgentTools})));
+import {AgentContentHistory} from './AgentContentHistory';
+import { useAiAssistChatStore } from '@/store/aiassistchat.store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowUpRight, Loader2, History, Check, Square, BookOpen } from 'lucide-react';
@@ -21,28 +24,41 @@ export function GlobalAgent() {
 }
 function AgentLauncher(){
   const [open,setOpen]=useState(false);const {t,i18n}=useTranslation();const {pathname}=useLocation();
+  const [params,setParams]=useSearchParams();const [initialTab,setInitialTab]=useState('assistant');
+  useEffect(()=>{if(params.get('ai')==='tools'){setInitialTab('tools');setOpen(true);const next=new URLSearchParams(params);next.delete('ai');setParams(next,{replace:true});}},[params,setParams]);
   const [context,setContext]=useState<{scope:AgentScope;prompt?:string}>({scope:agentScopeForPath(pathname)});
-  useEffect(()=>{const handler=(e:Event)=>{const detail=(e as CustomEvent).detail;if(!detail?.scope||!agentAreas.includes(detail.scope.area))return;setContext(detail);setOpen(true);};window.addEventListener(OPEN_AGENT_EVENT,handler);return()=>window.removeEventListener(OPEN_AGENT_EVENT,handler);},[]);
+  useEffect(()=>{const handler=(e:Event)=>{const detail=(e as CustomEvent).detail;if(!detail?.scope||!agentAreas.includes(detail.scope.area))return;setContext(detail);setInitialTab('assistant');setOpen(true);};window.addEventListener(OPEN_AGENT_EVENT,handler);return()=>window.removeEventListener(OPEN_AGENT_EVENT,handler);},[]);
   return <Sheet open={open} onOpenChange={setOpen}>
     <SheetTrigger asChild><Button variant="outline" className="gap-2 border-primary/25 text-primary"><Sparkles className="size-4"/><span>Flowlio AI</span></Button></SheetTrigger>
-    <SheetContent side={i18n.dir()==='rtl'?'left':'right'} className="w-full sm:max-w-[640px] gap-0 p-0 overflow-hidden">
+    <SheetContent side={i18n.dir()==='rtl'?'left':'right'} className="workspace-ai w-full sm:max-w-[640px] gap-0 p-0 overflow-hidden">
       <SheetHeader className="border-b px-6 py-5 pe-12"><SheetTitle className="flex items-center gap-2"><Sparkles className="size-5 text-primary"/>Flowlio AI</SheetTitle><SheetDescription>{t('agent.subtitle')}</SheetDescription></SheetHeader>
-      {open&&<AgentAccess key={JSON.stringify(context)} initialScope={context.scope} initialPrompt={context.prompt}/>}
+      {open&&<AgentAccess key={JSON.stringify(context)} initialScope={context.scope} initialPrompt={context.prompt} initialTab={initialTab}/>}
     </SheetContent>
   </Sheet>;
 }
-function AgentAccess({initialScope,initialPrompt}:{initialScope:AgentScope;initialPrompt?:string}){
+function AgentAccess({initialScope,initialPrompt,initialTab}:{initialScope:AgentScope;initialPrompt?:string;initialTab:string}){
  const {data,isLoading,isError}=useHasFeatureAccess('aiAssist');const {t}=useTranslation();
  if(isLoading)return <p className="p-6" role="status">{t('agent.loading')}</p>;
  if(isError||!data?.data?.hasAccess)return <p className="p-6" role="alert">{t('agent.unavailable')}</p>;
- return <AgentWorkspace initialScope={initialScope} initialPrompt={initialPrompt}/>;
+ return <AgentHub initialScope={initialScope} initialPrompt={initialPrompt} initialTab={initialTab}/>;
 }
-export function AgentWorkspace({initialScope,initialPrompt=''}:{initialScope:AgentScope;initialPrompt?:string}){
+function AgentHub({initialScope,initialPrompt,initialTab}:{initialScope:AgentScope;initialPrompt?:string;initialTab:string}){
+ const {t}=useTranslation();const {data}=useUser();const [tab,setTab]=useState(initialTab),[context,setContext]=useState({scope:initialScope,prompt:initialPrompt}),[contentOpen,setContentOpen]=useState(0),[historyRequest,setHistoryRequest]=useState(0),[visitedTools,setVisitedTools]=useState(initialTab==='tools');
+ const load=useAiAssistChatStore(s=>s.loadUserChats),selectChat=useAiAssistChatStore(s=>s.setActiveChat);
+ useEffect(()=>{if(data?.user.id)void load(data.user.id);},[data?.user.id,load]);
+ const openTools=()=>{setVisitedTools(true);setTab('tools');};
+ return <div className="flex min-h-0 flex-1 flex-col"><div role="tablist" aria-label="Flowlio AI" className="flex gap-1 border-b px-5 pt-3">{['assistant','tools'].map(value=><button key={value} role="tab" id={`ai-tab-${value}`} aria-controls={`ai-panel-${value}`} aria-selected={tab===value} tabIndex={tab===value?0:-1} className={`border-b-2 px-4 pb-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-primary ${tab===value?'border-primary text-primary':'border-transparent text-muted-foreground'}`} onClick={()=>value==='tools'?openTools():setTab('assistant')} onKeyDown={e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?'assistant':e.key==='End'?'tools':tab==='assistant'?'tools':'assistant';if(next==='tools')openTools();else setTab('assistant');document.getElementById(`ai-tab-${next}`)?.focus();}}}>{t(`hub.${value}`)}</button>)}</div>
+  <div role="tabpanel" id="ai-panel-assistant" aria-labelledby="ai-tab-assistant" className={tab==='assistant'?'flex min-h-0 flex-1 flex-col':'hidden'}><AgentWorkspace key={JSON.stringify(context)} initialScope={context.scope} initialPrompt={context.prompt} historyRequest={historyRequest} onTools={openTools} extraHistory={<AgentContentHistory onOpen={id=>{selectChat(id);setContentOpen(v=>v+1);openTools();}}/>}/></div>
+  <div role="tabpanel" id="ai-panel-tools" aria-labelledby="ai-tab-tools" className={tab==='tools'?'flex min-h-0 flex-1 flex-col':'hidden'}>{visitedTools&&<Suspense fallback={<p className="p-5" role="status">{t('agent.loading')}</p>}><AgentTools contentOpen={contentOpen} onAssistant={(scope,prompt)=>{setContext({scope,prompt});setTab('assistant');}} onHistory={()=>{setHistoryRequest(v=>v+1);setTab('assistant');}}/></Suspense>}</div>
+ </div>;
+}
+export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,historyRequest=0,onTools}:{initialScope:AgentScope;initialPrompt?:string;extraHistory?:React.ReactNode;historyRequest?:number;onTools?:()=>void}){
  const {t,i18n}=useTranslation();const dataScope=useDataScope();const cache=useQueryClient();
  const {pathname}=useLocation();
  const [scope,setScope]=useState(initialScope),[prompt,setPrompt]=useState(initialPrompt),[automatic,setAutomatic]=useState(false),[run,setRun]=useState<AgentRun|null>(null),[busy,setBusy]=useState(false),[applying,setApplying]=useState(false),[error,setError]=useState(''),[historyOpen,setHistoryOpen]=useState(false);
  const [selected,setSelected]=useState<number[]>([]),[confirmed,setConfirmed]=useState(false),[sharing,setSharing]=useState(false),[edits,setEdits]=useState<Record<string,AgentAction>>({});
  const request=useRef<{id:string;controller:AbortController}|null>(null);
+ useEffect(()=>{if(historyRequest)setHistoryOpen(true);},[historyRequest]);
  const context=useQuery({queryKey:['agent-context',dataScope,scope],queryFn:async()=> (await axios.get<{data:{sources:AgentSource[];members:{id:string;name:string}[];capabilities:string[]}}>('/ai/agent/context',{params:scope})).data.data,retry:false});
  const history=useQuery({queryKey:['agent-history',dataScope],queryFn:async()=> (await axios.get<{data:{id:string;state:string;area:string;created_at:string}[]}>('/ai/agent')).data.data,enabled:historyOpen,retry:false});
  useEffect(()=>()=>{const pending=request.current;if(pending){pending.controller.abort();void axios.post(`/ai/agent/${pending.id}/cancel`).catch(()=>{});}},[]);
@@ -71,7 +87,7 @@ export function AgentWorkspace({initialScope,initialPrompt=''}:{initialScope:Age
     {scope.clientId&&<p className="text-xs text-muted-foreground">{t('agent.clientContext')}</p>}
     <p className="flex gap-2 text-xs text-muted-foreground"><BookOpen className="size-4 shrink-0"/>{context.isPending?t('agent.loading'):context.isError?t('agent.contextFailed'):t('agent.sourceCount',{count:context.data?.sources.length??0})}</p>
    </div>
-   {historyOpen&&<div className="space-y-2"><h3 className="font-semibold">{t('agent.history')}</h3>{history.isError&&<p role="alert">{t('agent.failed')}</p>}{history.data?.length===0&&<p className="text-sm text-muted-foreground">{t('agent.noHistory')}</p>}{history.data?.map(item=><button key={item.id} className="flex w-full items-center justify-between rounded-lg border p-3 text-start text-sm hover:bg-muted focus-visible:outline-primary" onClick={()=>load(item.id)}><span>{t(`agent.areas.${item.area}`)}<span className="block text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString(i18n.language)}</span></span><span>{t(`agent.states.${item.state}`)}</span></button>)}</div>}
+   {historyOpen&&<div className="space-y-2"><h3 className="font-semibold">{t('agent.history')}</h3>{history.isError&&<p role="alert">{t('agent.failed')}</p>}{history.data?.length===0&&<p className="text-sm text-muted-foreground">{t('agent.noHistory')}</p>}{history.data?.map(item=><button key={item.id} className="flex w-full items-center justify-between rounded-lg border p-3 text-start text-sm hover:bg-muted focus-visible:outline-primary" onClick={()=>load(item.id)}><span>{t(`agent.areas.${item.area}`)}<span className="block text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString(i18n.language)}</span></span><span>{t(`agent.states.${item.state}`)}</span></button>)}{extraHistory}</div>}
    {!run&&!busy&&<div className="space-y-3"><h3 className="text-lg font-semibold tracking-tight">{t('agent.helpTitle')}</h3><p className="text-sm text-muted-foreground">{t('agent.helpDescription')}</p><div className="grid gap-2">{['analyze','act','brief'].map(key=><button key={key} className="rounded-lg border px-3 py-3 text-start text-sm hover:border-primary/50 hover:bg-primary/5 focus-visible:outline-primary" onClick={()=>setPrompt(t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)}))}>{t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)})}</button>)}</div></div>}
    {busy&&<p role="status" className="flex items-center gap-2 text-sm"><Loader2 className="size-4 animate-spin"/>{t('agent.working')}</p>}
    {error&&<p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}
@@ -94,7 +110,7 @@ export function AgentWorkspace({initialScope,initialPrompt=''}:{initialScope:Age
   <div className="border-t bg-background p-4 space-y-3">
    <label htmlFor="agent-prompt" className="text-sm font-medium">{t('agent.request')}</label><Textarea id="agent-prompt" maxLength={8000} rows={3} value={prompt} disabled={busy||applying} onChange={e=>setPrompt(e.target.value)} placeholder={t('agent.placeholder')} onKeyDown={e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();if(!busy&&!applying&&!context.isError&&!context.isPending)void generate();}}}/>
    {canAuto&&<label className="flex items-start gap-2 text-xs text-muted-foreground"><input type="checkbox" className="mt-0.5" checked={automatic} disabled={busy||applying} onChange={e=>setAutomatic(e.target.checked)}/>{t('agent.automatic')}</label>}
-   <div className="flex gap-2 justify-between items-center"><Link to={pathname.startsWith('/viewer')?'/viewer/ai-assistant':'/dashboard/ai-assist'} className="text-xs text-muted-foreground hover:underline">{t('agent.otherTools')}</Link>{busy?<Button variant="outline" onClick={cancel}><Square className="size-3"/>{t('agent.cancel')}</Button>:<Button onClick={generate} disabled={!prompt.trim()||applying||context.isPending||context.isError}><Sparkles className="size-4"/>{t('agent.generate')}</Button>}</div>
+   <div className="flex gap-2 justify-between items-center">{onTools?<button type="button" className="text-xs text-muted-foreground hover:underline" disabled={busy||applying} onClick={onTools}>{t('hub.tools')}</button>:<Link to={pathname.startsWith('/viewer')?'/viewer/ai-assistant':'/dashboard/ai-assist'} className="text-xs text-muted-foreground hover:underline">{t('agent.otherTools')}</Link>}{busy?<Button variant="outline" onClick={cancel}><Square className="size-3"/>{t('agent.cancel')}</Button>:<Button onClick={generate} disabled={!prompt.trim()||applying||context.isPending||context.isError}><Sparkles className="size-4"/>{t('agent.generate')}</Button>}</div>
   </div>
  </div>;
 }
