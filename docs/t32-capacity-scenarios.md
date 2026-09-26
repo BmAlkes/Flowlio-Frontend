@@ -1,6 +1,6 @@
 # T32 — Cenários de capacidade
 
-Status: implementação concluída e validação local aprovada na branch `feat/t32a-capacity-scenarios`, reunindo T32A/B. Publicação em andamento.
+Status: publicada em 26/09/2026. A branch `feat/t32a-capacity-scenarios` reuniu T32A/B e foi integrada à `main` nos dois repositórios. Frontend `6bbb5b137a5da1bab0b3622f336585ff8c0ebb25`; backend `9eec4ac56e8afaf0edf9616ea1e18ecd3253089e`.
 
 ## Onde conferir
 
@@ -41,4 +41,7 @@ Migração aditiva `0018_capacity_scenarios`. Cenários não mudam prazos oficia
 - Builds, TypeScript e lint dos dois repositórios. Navegador com dados fictícios em desktop, 320 px, formulário, teclado, hebraico e tema escuro; sem erros JavaScript ou transbordamento horizontal da página. A comparação usa rolagem horizontal interna em telas estreitas.
 - Traduções EN/PT/ES/HE. Testes locais não representam sessão autenticada de produção.
 
-Registrar os commits e evidências de CI/deploy após a publicação.
+- CI de branch e `main` aprovado nos dois repositórios; frontend main concluído às 08:58:54 UTC e backend main às 08:55:35 UTC.
+- Railway confirmou o backend `9eec4ac` às 08:54:18 UTC. A API respondeu `healthy`, banco `connected`, às 08:55:18 UTC.
+- Cloudflare confirmou a publicação às 08:59:01 UTC. O artefato `/assets/js/index-27NVXwO_.js` servido em produção contém o SHA completo `6bbb5b137a5da1bab0b3622f336585ff8c0ebb25`.
+- Próxima etapa: T33A/B, IA contextual com fontes e rascunhos revisáveis. T11 permanece separada, dependente da validação PayPal Sandbox.
