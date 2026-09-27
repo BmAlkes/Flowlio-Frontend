@@ -6,6 +6,7 @@ export interface Invoice {
   invoiceNumber: string;
   clientname: string;
   amount: string;
+  currencyCode?: string | null;
   status: string;
   datepaid?: string | null;
   createdAt: string;

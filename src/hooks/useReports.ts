@@ -30,13 +30,14 @@ function buildParams(period?: ReportPeriod, from?: string, to?: string): string 
 // ─── Financial Overview (enhanced) ───────────────────────────────────────────
 
 export interface FinancialOverviewData {
+  currencyCode?: string|null;
   totalRevenue: number;
   totalExpenses: number;
   netProfit: number;
   granularity?: "daily" | "weekly" | "monthly";
   timeline: { month?: string; date?: string; revenue: number; expenses: number }[];
   categoryBreakdown: { category: string; amount: number }[];
-  projectPerformance: { id: string; name: string; budget: string | number; spent: number }[];
+  projectPerformance: { id: string; name: string; currencyCode?:string|null; budget: string | number; spent: number }[];
   period?: PeriodRange;
   comparison?: ReportComparison;
   totals?: { avgMargin: number | null };

@@ -220,7 +220,7 @@ export const CreateProject = () => {
         contractfile: project.contractfile || "",
         customFields: project.customFields || {},
         visibility: (project as any).visibility || "private",
-        budget: (project as any).budget || 0,
+        budget: Number(project.budget ?? 0),
       });
 
       // Explicitly set Select values after reset to ensure they're recognized
@@ -302,7 +302,7 @@ export const CreateProject = () => {
         organizationId: finalOrganizationId,
         customFields: values.customFields,
         visibility: values.visibility,
-        ...(showFinancials && values.budget !== undefined && values.budget > 0 && { budget: values.budget }),
+        ...(showFinancials && values.budget !== undefined && { budget: values.budget }),
         ...(values.templateId && values.templateId !== "none" && { templateId: values.templateId }),
       };
 

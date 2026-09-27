@@ -1,3 +1,4 @@
+import {financialMoney} from '@/lib/financial-currency';
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
@@ -178,6 +179,7 @@ interface InvoiceForPDF {
   invoiceNumber?: string;
   clientname?: string;
   amount?: number | string;
+  currencyCode?: string | null;
   dueDate?: string;
   datepaid?: string | null;
   description?: string;
@@ -281,7 +283,7 @@ export const InvoiceDocumentPDF: React.FC<InvoiceDocumentPDFProps> = ({
             <Text style={styles.lineItemDescription}>
               {invoice.description || "Services rendered"}
             </Text>
-            <Text style={styles.lineItemAmount}>${amount.toFixed(2)}</Text>
+            <Text style={styles.lineItemAmount}>{financialMoney(amount,'en',invoice.currencyCode,'Currency not configured')}</Text>
           </View>
         </View>
 
@@ -289,11 +291,11 @@ export const InvoiceDocumentPDF: React.FC<InvoiceDocumentPDFProps> = ({
         <View style={styles.totalsBlock}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>${amount.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>{financialMoney(amount,'en',invoice.currencyCode,'Currency not configured')}</Text>
           </View>
           <View style={[styles.totalRow, styles.totalDivider]}>
             <Text style={styles.amountDueLabel}>Amount Due</Text>
-            <Text style={styles.amountDueValue}>${amount.toFixed(2)}</Text>
+            <Text style={styles.amountDueValue}>{financialMoney(amount,'en',invoice.currencyCode,'Currency not configured')}</Text>
           </View>
         </View>
 

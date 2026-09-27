@@ -10,6 +10,7 @@ export interface ClientInvoice {
   invoiceNumber: string;
   clientname: string;
   amount: string;
+  currencyCode?:string|null;
   status: string;
   datepaid: string | null;
   dueDate: string;

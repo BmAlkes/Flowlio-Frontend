@@ -1,3 +1,5 @@
+import {financialMoney} from '@/lib/financial-currency';
+import {useTranslation} from 'react-i18next';
 import React from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -24,11 +26,12 @@ interface Props {
   onPeriodChange: (p: ReportPeriod) => void;
 }
 
-const fmt = (n: number) =>
-  n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n.toLocaleString()}`;
+
 
 const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
+  const {t,i18n}=useTranslation();
   const { data, isLoading, error, refetch, isFetching } = useFetchFinancialOverview(period);
+  const fmt=(n:number)=>financialMoney(n,i18n.language,data?.currencyCode,t('core.currencyNotConfigured'));
 
   if (isLoading) return (
     <div className="space-y-4">
@@ -46,7 +49,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
   if (error || !data) return (
     <div className="flex flex-col items-center justify-center h-60 gap-2 text-muted-foreground">
       <AlertTriangle className="h-8 w-8 text-rose-400" />
-      <p className="text-sm">Could not load financial data. Try refreshing.</p>
+      <p className="text-sm">{(error as {response?:{data?:{message?:string}}})?.response?.data?.message??t('core.currencyNotConfigured')}</p>
     </div>
   );
 
@@ -70,7 +73,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
   const kpis = [
     {
       label: "Revenue",
-      value: `$${revenue.toLocaleString()}`,
+      value: fmt(revenue),
       sub: "Paid invoices",
       icon: DollarSign,
       iconColor: "text-blue-600",
@@ -79,7 +82,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
     },
     {
       label: "Expenses",
-      value: `$${expenses.toLocaleString()}`,
+      value: fmt(expenses),
       sub: "Project costs",
       icon: TrendingDown,
       iconColor: "text-rose-500",
@@ -88,7 +91,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
     },
     {
       label: "Net Profit",
-      value: `$${profit.toLocaleString()}`,
+      value: fmt(profit),
       sub: "Revenue − expenses",
       icon: profit >= 0 ? TrendingUp : TrendingDown,
       iconColor: profit >= 0 ? "text-green-600" : "text-rose-500",
@@ -165,7 +168,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
                   <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmt(v)} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [`$${v.toLocaleString()}`, ""]} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), ""]} />
                   <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
                   <Bar dataKey="revenue" fill="#3b82f6" radius={[4,4,0,0]} name="Revenue" maxBarSize={32} />
                   <Bar dataKey="expenses" fill="#f87171" radius={[4,4,0,0]} name="Expenses" maxBarSize={32} />
@@ -201,7 +204,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
                         <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [`$${v.toLocaleString()}`, "Amount"]} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), "Amount"]} />
                   </PieChart>
                 </ResponsiveContainer>
                 {/* Legend with % */}
@@ -247,7 +250,7 @@ const FinancialOverview: React.FC<Props> = ({ period, onPeriodChange }) => {
                         <span className="truncate">{proj.name}</span>
                       </div>
                       <span className={`text-xs tabular-nums ${over ? "text-rose-600 font-semibold" : "text-muted-foreground"}`}>
-                        ${spent.toLocaleString()} / ${budget.toLocaleString()} ({Math.round(pct)}%)
+                        {financialMoney(spent,i18n.language,proj.currencyCode,t('core.currencyNotConfigured'))} / {financialMoney(budget,i18n.language,proj.currencyCode,t('core.currencyNotConfigured'))} ({Math.round(pct)}%)
                       </span>
                     </div>
                     <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">

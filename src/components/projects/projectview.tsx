@@ -788,7 +788,7 @@ export const ProjectView = () => {
             <div className="space-y-3">
             <ProjectExpenses
               projectId={project.id}
-              budget={(project as any).budget || 0}
+              budget={Number(project.budget ?? 0)} currencyCode={project.currencyCode}
               isClient={isClient}
             />
             </div>

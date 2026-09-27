@@ -1,3 +1,5 @@
+import {useTranslation} from 'react-i18next';
+import {financialMoney,selectedTimeCurrency} from '@/lib/financial-currency';
 import { FC, useMemo } from "react";
 import { FileText, DollarSign, Clock, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,6 +37,18 @@ interface InvoiceStatCardsProps {
 }
 
 export const InvoiceStatCards: FC<InvoiceStatCardsProps> = ({ invoices }) => {
+  const {t,i18n}=useTranslation();
+  const subtotal = (kind: 'paid' | 'pending' | 'overdue') => {
+    const list = invoices.filter(invoice => {
+      if (kind === 'paid') return invoice.status.toLowerCase() === 'paid';
+      if (kind === 'overdue') return isOverdue(invoice);
+      return invoice.status.toLowerCase() !== 'paid' && !isOverdue(invoice);
+    });
+    if (!list.length) return '—';
+    const currency = selectedTimeCurrency(list);
+    return financialMoney(list.reduce((sum, invoice) => sum + Number(invoice.amount), 0),
+      i18n.language, currency, t('core.currencySelectionRequired'));
+  };
   const stats = useMemo(() => computeInvoiceStats(invoices), [invoices]);
 
   const cards = [
@@ -50,7 +64,7 @@ export const InvoiceStatCards: FC<InvoiceStatCardsProps> = ({ invoices }) => {
     {
       label: "Paid Invoices",
       value: stats.paidCount,
-      sub: `$${stats.paidAmount.toFixed(2)}`,
+      sub: subtotal('paid'),
       icon: DollarSign,
       iconBg: "bg-green-100 dark:bg-green-500/25",
       iconColor: "text-green-600 dark:text-green-300",
@@ -59,7 +73,7 @@ export const InvoiceStatCards: FC<InvoiceStatCardsProps> = ({ invoices }) => {
     {
       label: "Pending Invoices",
       value: stats.pendingCount,
-      sub: `$${stats.pendingAmount.toFixed(2)}`,
+      sub: subtotal('pending'),
       icon: Clock,
       iconBg: "bg-amber-100 dark:bg-amber-500/25",
       iconColor: "text-amber-600 dark:text-amber-300",
@@ -68,7 +82,7 @@ export const InvoiceStatCards: FC<InvoiceStatCardsProps> = ({ invoices }) => {
     {
       label: "Overdue Invoices",
       value: stats.overdueCount,
-      sub: `$${stats.overdueAmount.toFixed(2)}`,
+      sub: subtotal('overdue'),
       icon: AlertCircle,
       iconBg: "bg-rose-100 dark:bg-rose-500/25",
       iconColor: "text-rose-600 dark:text-rose-300",

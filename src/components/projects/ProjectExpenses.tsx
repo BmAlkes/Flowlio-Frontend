@@ -1,3 +1,4 @@
+import {financialMoney,isCurrencyCode} from '@/lib/financial-currency';
 import { useState } from "react";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
@@ -75,6 +76,7 @@ const EXPENSE_CATEGORIES = [
 interface ProjectExpensesProps {
   projectId: string;
   budget?: number;
+  currencyCode?: string | null;
   isClient?: boolean;
   isModal?: boolean;
 }
@@ -82,10 +84,12 @@ interface ProjectExpensesProps {
 export const ProjectExpenses = ({
   projectId,
   budget = 0,
+  currencyCode,
   isClient = false,
   isModal = false,
 }: ProjectExpensesProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const money=(value:number)=>financialMoney(value,i18n.language,currencyCode,t('core.currencyNotConfigured'));
   const [showAddForm, setShowAddForm] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -109,7 +113,7 @@ export const ProjectExpenses = ({
     budget > 0 ? Math.min((totalSpent / budget) * 100, 100) : 0;
 
   const handleAddExpense = () => {
-    if (!amount || !description || !category || !date) {
+    if (!isCurrencyCode(currencyCode) || !amount || !description || !category || !date) {
       toast.error(t("common.fillAllFields"));
       return;
     }
@@ -200,6 +204,7 @@ export const ProjectExpenses = ({
               size="sm"
               className="border-emerald-200 bg-card text-xs text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
               onClick={() => setShowAddForm(true)}
+              disabled={!isCurrencyCode(currencyCode)}
             >
               <Plus className="h-3 w-3 me-1" />
               {t("expenses.addExpense")}
@@ -223,8 +228,7 @@ export const ProjectExpenses = ({
                   </span>
                 </Flex>
                 <p className="text-xl font-bold text-blue-900 dark:text-blue-300">
-                  $
-                  {budget.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  {money(budget)}
                 </p>
               </Box>
 
@@ -239,10 +243,7 @@ export const ProjectExpenses = ({
                   </span>
                 </Flex>
                 <p className="text-xl font-bold text-orange-900 dark:text-orange-300">
-                  $
-                  {totalSpent.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {money(totalSpent)}
                 </p>
               </Box>
 
@@ -259,10 +260,7 @@ export const ProjectExpenses = ({
                 <p
                   className={`text-xl font-bold ${remaining >= 0 ? "text-green-900 dark:text-green-300" : "text-red-600"}`}
                 >
-                  $
-                  {Math.abs(remaining).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {money(Math.abs(remaining))}
                   {remaining < 0 && (
                     <span className="text-xs ms-1 font-normal">(over)</span>
                   )}
@@ -324,10 +322,7 @@ export const ProjectExpenses = ({
             </Flex>
             {expenses.length > 0 && (
               <span className="text-xs text-muted-foreground">
-                Total: $
-                {totalSpent.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                })}
+                Total: {money(totalSpent)}
               </span>
             )}
           </Flex>
@@ -376,10 +371,7 @@ export const ProjectExpenses = ({
                     </Flex>
                     <Flex className="items-center gap-2 flex-shrink-0 ms-2">
                       <span className="text-sm font-bold text-foreground">
-                        $
-                        {Number(expense.amount).toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                        })}
+                        {money(Number(expense.amount))}
                       </span>
                       {!isClient && (
                         <Button
@@ -429,7 +421,7 @@ export const ProjectExpenses = ({
             {/* Amount */}
             <Box>
               <label className="text-sm font-medium text-foreground mb-1.5 block">
-                Amount ($) <span className="text-red-500">*</span>
+                Amount ({currencyCode ?? t('core.currencyNotConfigured')}) <span className="text-red-500">*</span>
               </label>
               <Input
                 type="number"

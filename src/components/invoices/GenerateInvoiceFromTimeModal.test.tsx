@@ -19,8 +19,8 @@ vi.mock("@/components/ui/select", () => ({
   SelectItem: ({ value, children }: any) => <option value={value}>{children}</option>,
 }));
 const entries = [
-  { id: "one", version: "a".repeat(64), userName: "Alice", projectName: "Website", taskTitle: "Design", description: null, duration: 60, hourlyRate: "50.00", startTime: "2026-09-01T10:00:00Z" },
-  { id: "two", version: "b".repeat(64), userName: "Bob", projectName: "Website", taskTitle: "Review", description: null, duration: 30, hourlyRate: null, startTime: "2026-09-02T10:00:00Z" },
+  { id: "one", version: "a".repeat(64), userName: "Alice", projectName: "Website", currencyCode: "ILS", taskTitle: "Design", description: null, duration: 60, hourlyRate: "50.00", startTime: "2026-09-01T10:00:00Z" },
+  { id: "two", version: "b".repeat(64), userName: "Bob", projectName: "Website", currencyCode: "ILS", taskTitle: "Review", description: null, duration: 30, hourlyRate: null, startTime: "2026-09-02T10:00:00Z" },
 ];
 afterEach(cleanup);
 beforeEach(() => {
@@ -41,25 +41,29 @@ async function setup() {
   return { onClose, parentSubmit, user, cache };
 }
 describe("time invoice creation", () => {
+ it.each([null,'USD'])('blocks missing or mixed project currency: %s',async second=>{
+   const original=api.get.getMockImplementation()!;api.get.mockImplementation(async(url:string)=>url.startsWith('/clients')?original(url):{data:{data:{entries:[entries[0],{...entries[1],currencyCode:second}],hasMore:false}}});
+   const {user}=await setup();await user.click(screen.getByRole('checkbox',{name:/Select all/}));await user.type(screen.getByLabelText('Fallback hourly rate'),'120');expect(screen.getByRole('button',{name:'Create invoice'})).toBeDisabled();expect(screen.getByRole('alert')).toHaveTextContent('one currency only');expect(api.post).not.toHaveBeenCalled();
+ });
   it("reads the persisted item snapshots for an existing invoice", async () => {
-    api.get.mockResolvedValue({ data: { data: [{ id: "item", userName: "Alice", projectName: "Website", taskTitle: "Design", startedAt: "2026-09-01T10:00:00Z", minutes: 60, hourlyRate: "50.00", amount: "50.00" }] } });
+    api.get.mockResolvedValue({ data: { data: [{ id: "item", userName: "Alice", projectName: "Website", currencyCode: "ILS", taskTitle: "Design", startedAt: "2026-09-01T10:00:00Z", minutes: 60, hourlyRate: "50.00", amount: "50.00" }] } });
     render(<QueryClientProvider client={new QueryClient()}><InvoiceTimeDetails invoiceId="invoice" invoiceNumber="S1-00001" onClose={vi.fn()} /></QueryClientProvider>);
     expect(await screen.findByText("Design")).toBeInTheDocument();
-    expect(screen.getByText("50.00")).toBeInTheDocument();
+    expect(screen.getByText(/^ILS\s50\.00$/)).toBeInTheDocument();
     expect(api.get).toHaveBeenCalledWith("/invoices/invoice/time-items");
   });
   it("sends selected team entry versions in one atomic request, without a client-calculated amount", async () => {
     const { user, onClose, parentSubmit } = await setup();
     await user.click(screen.getByRole("checkbox", { name: /Select all/ }));
     await user.type(screen.getByLabelText("Fallback hourly rate"), "40");
-    expect(screen.getByText("70.00")).toBeInTheDocument();
+    expect(screen.getByText(/ILS.*70.00/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Create invoice" }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(api.post).toHaveBeenCalledOnce();
     expect(api.post.mock.calls[0][0]).toBe("/invoices/from-time");
     const payload = api.post.mock.calls[0][1];
     expect(payload.entries).toEqual(entries.map(({ id, version }) => ({ id, version })));
-    expect(payload.fallbackRate).toBe("40");
+    expect(payload.fallbackRate).toBe("40"); expect(payload.currencyCode).toBe("ILS");
     expect(payload).not.toHaveProperty("amount");
     expect(payload.requestKey).toMatch(/^[a-f0-9-]{36}$/);
     expect(parentSubmit).not.toHaveBeenCalled();

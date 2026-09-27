@@ -11,10 +11,12 @@ export interface BillableEntry {
   startTime: string;
   duration: number;
   hourlyRate: string | null;
+  currencyCode?: string | null;
 }
 export interface TimeFilter { clientId: string; start: string; end: string }
 export interface TimeInvoiceInput extends TimeFilter {
   requestKey: string;
+  currencyCode: string;
   entries: { id: string; version: string }[];
   fallbackRate?: string;
   dueDate?: string;

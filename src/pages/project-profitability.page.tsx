@@ -82,13 +82,18 @@ function FinancialSettingsForm({ id, settings }: { id: string; settings: Setting
   const [confirmed, setConfirmed] = useState(false);
   const save = useMutation({
     mutationFn: () => axios.put(`/projects/${encodeURIComponent(id)}/financial-settings`, { currency, hourlyCost: cost || null, confirmCurrency: confirmed }),
-    onSuccess: () => { void client.invalidateQueries({ queryKey: ["profitability"] }); setConfirmed(false); },
+    onSuccess: () => {
+      for (const key of ["profitability", "projects", "project", "billable-time"]) {
+        void client.invalidateQueries({ queryKey: [key] });
+      }
+      setConfirmed(false);
+    },
   });
   return <details open={!settings || undefined} className={`${workspacePanel} p-5`}><summary className="cursor-pointer text-sm font-medium text-[#11718c] dark:text-[#55bdd9]">{t("profitability.settings")}</summary>
     <form className="mt-4 space-y-4" onSubmit={event => { event.preventDefault(); if (!save.isPending) save.mutate(); }}>
       <p className="text-sm text-muted-foreground">{t("profitability.settingsNote")}</p>
       <fieldset disabled={save.isPending} className="grid gap-4 sm:grid-cols-2">
-        <label className="text-sm">{t("profitability.currency")}<Input required maxLength={3} pattern="[A-Z]{3}" placeholder="USD" value={currency} onChange={event => setCurrency(event.target.value.toUpperCase())} /></label>
+        <label className="text-sm">{t("profitability.currency")}<Input required maxLength={3} pattern="[A-Z]{3}" placeholder="ILS / USD / EUR" readOnly={!!settings?.currency} value={currency} onChange={event => setCurrency(event.target.value.toUpperCase())} /></label>
         <label className="text-sm">{t("profitability.hourlyCost")}<Input inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" value={cost} onChange={event => setCost(event.target.value)} /></label>
         <label className="flex items-start gap-2 text-sm sm:col-span-2"><input type="checkbox" required checked={confirmed} onChange={event => setConfirmed(event.target.checked)} className="mt-1" />{t("profitability.confirm")}</label>
       </fieldset>

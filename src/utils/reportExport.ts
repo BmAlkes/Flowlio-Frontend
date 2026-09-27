@@ -1,3 +1,4 @@
+import {financialMoney,isCurrencyCode} from '@/lib/financial-currency';
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -42,32 +43,35 @@ const addPdfHeader = (doc: jsPDF, title: string) => {
 // ─── FINANCIAL OVERVIEW ───────────────────────────────────────────────────────
 
 export const exportFinancialCSV = (data: FinancialOverviewData) => {
+  if(!isCurrencyCode(data.currencyCode))return;
   // Summary
   const summaryRows = [
-    { Metric: "Total Revenue", Value: `$${Number(data.totalRevenue).toLocaleString()}` },
-    { Metric: "Total Expenses", Value: `$${Number(data.totalExpenses).toLocaleString()}` },
-    { Metric: "Net Profit", Value: `$${Number(data.netProfit).toLocaleString()}` },
+    { Currency: data.currencyCode, Metric: "Total Revenue", Value: financialMoney(data.totalRevenue,'en',data.currencyCode,'Currency not configured') },
+    { Currency: data.currencyCode, Metric: "Total Expenses", Value: financialMoney(data.totalExpenses,'en',data.currencyCode,'Currency not configured') },
+    { Currency: data.currencyCode, Metric: "Net Profit", Value: financialMoney(data.netProfit,'en',data.currencyCode,'Currency not configured') },
   ];
 
   // Monthly timeline
   const timelineRows = data.timeline.map((t) => ({
-    Month: t.month,
-    "Revenue ($)": Number(t.revenue).toLocaleString(),
-    "Expenses ($)": Number(t.expenses).toLocaleString(),
-    "Net ($)": (Number(t.revenue) - Number(t.expenses)).toLocaleString(),
+    Currency: data.currencyCode,
+    Month: t.date ?? t.month,
+    "Revenue": Number(t.revenue).toLocaleString(),
+    "Expenses": Number(t.expenses).toLocaleString(),
+    "Net": (Number(t.revenue) - Number(t.expenses)).toLocaleString(),
   }));
 
   // Category breakdown
   const categoryRows = data.categoryBreakdown.map((c) => ({
+    Currency: data.currencyCode,
     Category: c.category,
-    "Amount ($)": Number(c.amount).toLocaleString(),
+    "Amount": Number(c.amount).toLocaleString(),
   }));
 
   // Project performance
   const projectRows = data.projectPerformance.map((p) => ({
     "Project Name": p.name,
-    "Budget ($)": Number(p.budget).toLocaleString(),
-    "Spent ($)": Number(p.spent).toLocaleString(),
+    "Budget": financialMoney(p.budget,'en',p.currencyCode,'Currency not configured'),
+    "Spent": financialMoney(p.spent,'en',p.currencyCode,'Currency not configured'),
     "Usage (%)": Number(p.budget) > 0
       ? `${Math.round((Number(p.spent) / Number(p.budget)) * 100)}%`
       : "N/A",
@@ -91,8 +95,9 @@ export const exportFinancialCSV = (data: FinancialOverviewData) => {
 };
 
 export const exportFinancialPDF = (data: FinancialOverviewData) => {
+  if(!isCurrencyCode(data.currencyCode))return;
   const doc = new jsPDF();
-  addPdfHeader(doc, "Financial Overview Report");
+  addPdfHeader(doc, "Financial Overview Report — " + data.currencyCode);
 
   let y = 38;
 
@@ -106,9 +111,9 @@ export const exportFinancialPDF = (data: FinancialOverviewData) => {
     startY: y,
     head: [["Metric", "Value"]],
     body: [
-      ["Total Revenue", `$${Number(data.totalRevenue).toLocaleString()}`],
-      ["Total Expenses", `$${Number(data.totalExpenses).toLocaleString()}`],
-      ["Net Profit", `$${Number(data.netProfit).toLocaleString()}`],
+      ["Total Revenue", financialMoney(data.totalRevenue,'en',data.currencyCode,'Currency not configured')],
+      ["Total Expenses", financialMoney(data.totalExpenses,'en',data.currencyCode,'Currency not configured')],
+      ["Net Profit", financialMoney(data.netProfit,'en',data.currencyCode,'Currency not configured')],
     ],
     headStyles: { fillColor: [30, 41, 59] },
     alternateRowStyles: { fillColor: [248, 250, 252] },
@@ -124,7 +129,7 @@ export const exportFinancialPDF = (data: FinancialOverviewData) => {
 
   autoTable(doc, {
     startY: y,
-    head: [["Month", "Revenue ($)", "Expenses ($)", "Net ($)"]],
+    head: [["Month", "Revenue", "Expenses", "Net"]],
     body: data.timeline.map((t) => [
       t.date ?? t.month ?? "",
       Number(t.revenue).toLocaleString(),
@@ -146,11 +151,11 @@ export const exportFinancialPDF = (data: FinancialOverviewData) => {
 
   autoTable(doc, {
     startY: y,
-    head: [["Project", "Budget ($)", "Spent ($)", "Usage"]],
+    head: [["Project", "Budget", "Spent", "Usage"]],
     body: data.projectPerformance.map((p) => [
       p.name,
-      Number(p.budget).toLocaleString(),
-      Number(p.spent).toLocaleString(),
+      financialMoney(p.budget,'en',p.currencyCode,'Currency not configured'),
+      financialMoney(p.spent,'en',p.currencyCode,'Currency not configured'),
       Number(p.budget) > 0
         ? `${Math.round((Number(p.spent) / Number(p.budget)) * 100)}%`
         : "N/A",

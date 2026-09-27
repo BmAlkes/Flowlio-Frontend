@@ -1,3 +1,4 @@
+import {selectedTimeCurrency,financialMoney} from '@/lib/financial-currency';
 import { useTranslation } from "react-i18next";
 import { formatDateValue, formatMoney } from "@/lib/locale-format";
 import { useRef, useState } from "react";
@@ -36,18 +37,20 @@ function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
   const create = useInvoiceFromTime();
   const entries = time.data?.entries ?? [];
   const chosen = entries.filter(entry => selected[entry.id] === entry.version);
+  const currencyCode=selectedTimeCurrency(chosen);
+  const money=(value:string|number,unit:unknown=currencyCode)=>financialMoney(value,i18n.language,unit,t('core.currencyNotConfigured'));
   const needsRate = chosen.some(entry => entry.hourlyRate === null);
   const prices = chosen.map(entry => timeLineCents(entry.duration, entry.hourlyRate ?? fallbackRate));
   const total = prices.reduce<bigint>((sum, price) => sum + (price ?? 0n), 0n);
-  const valid = chosen.length > 0 && chosen.length === Object.keys(selected).length && prices.every(price => price !== null)
+  const valid = !!currencyCode && chosen.length > 0 && chosen.length === Object.keys(selected).length && prices.every(price => price !== null)
     && total > 0n && total <= 9999999999n;
   const locked = create.isPending || retryRequired;
   function changeFilter(setter: (value: string) => void, value: string) { setter(value); setSelected({}); }
   async function submit() {
     if (create.isPending) return;
     if (!retryRequired) {
-      if (!filter || !valid) return;
-      const payload = { ...filter, entries: chosen.map(({ id, version }) => ({ id, version })).sort((a, b) => a.id.localeCompare(b.id)),
+      if (!filter || !valid || !currencyCode) return;
+      const payload = { ...filter, currencyCode, entries: chosen.map(({ id, version }) => ({ id, version })).sort((a, b) => a.id.localeCompare(b.id)),
         ...(needsRate ? { fallbackRate } : {}), ...(dueDate ? { dueDate } : {}) };
       const fingerprint = JSON.stringify(payload);
       if (attempt.current?.fingerprint !== fingerprint) attempt.current = { fingerprint, payload: { ...payload, requestKey: crypto.randomUUID() } };
@@ -74,7 +77,7 @@ function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
         <DialogTitle className="flex items-center gap-2 text-lg font-semibold"><Clock className="size-4 text-[#11718c] dark:text-[#55bdd9]" />{t("core.timeInvoice")}</DialogTitle>
         <DialogDescription className="text-xs">{t("core.timeInvoiceDesc")}</DialogDescription>
       </div>
-      <p className="text-xs text-muted-foreground">{t("core.timeZone", { zone: timeZone })} · {t("core.currencyUnknown")}</p>
+      <p className="text-xs text-muted-foreground">{t("core.timeZone", { zone: timeZone })} · {currencyCode ?? t("core.currencyNotConfigured")}</p>
       <div className="space-y-1">
         <label htmlFor="time-invoice-client" className="text-sm font-medium">{t("core.client")}</label>
         <Select value={clientId} disabled={locked || clients.isLoading} onValueChange={value => changeFilter(setClientId, value)}>
@@ -105,8 +108,8 @@ function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
                   onChange={e => setSelected(previous => { const next = { ...previous }; if (e.target.checked) next[entry.id] = entry.version; else delete next[entry.id]; return next; })} />
                 <span className="min-w-0 flex-1"><span className="block font-medium break-words">{entry.taskTitle ?? entry.description ?? t("core.entry")}</span>
                   <span className="block text-xs text-muted-foreground break-words">{entry.projectName} · {entry.userName} · {formatDateValue(entry.startTime, i18n.language, timeZone)}</span>
-                  <span className="block text-xs text-muted-foreground">{t("core.minutes", { value: entry.duration })} · {entry.hourlyRate || fallbackRate ? t("core.rate", { value: formatMoney(entry.hourlyRate ?? fallbackRate, i18n.language) }) : t("core.rateNeeded")}</span></span>
-                <span className="text-sm tabular-nums">{price === null ? "—" : formatMoney(displayCents(price), i18n.language)}</span>
+                  <span className="block text-xs text-muted-foreground">{t("core.minutes", { value: entry.duration })} · {entry.hourlyRate || fallbackRate ? t("core.rate", { value: money(entry.hourlyRate ?? fallbackRate,entry.currencyCode) }) : t("core.rateNeeded")}</span></span>
+                <span className="text-sm tabular-nums">{price === null ? "—" : money(displayCents(price),entry.currencyCode)}</span>
               </label>;
             })}</div>
           </>}
@@ -120,8 +123,9 @@ function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
       </div>
       <div className="flex items-center justify-between gap-3 rounded-lg border border-[#1797ba]/20 bg-[#1797ba]/5 p-3">
         <div><p className="text-sm font-medium">{t("core.total")}</p><p className="text-xs text-muted-foreground">{t("core.entries", { count: chosen.length })} · {t("core.hours", { value: formatMoney(chosen.reduce((sum, entry) => sum + entry.duration, 0) / 60, i18n.language) })}</p></div>
-        <span className="text-lg font-semibold tabular-nums text-[#11718c] dark:text-[#55bdd9]">{prices.some(price => price === null) ? "—" : formatMoney(displayCents(total), i18n.language)}</span>
+        <span className="text-lg font-semibold tabular-nums text-[#11718c] dark:text-[#55bdd9]">{prices.some(price => price === null) ? "—" : money(displayCents(total))}</span>
       </div>
+      {chosen.length>0&&!currencyCode&&<p role="alert" className="text-sm text-destructive">{t('core.currencySelectionRequired')}</p>}
       {retryRequired && <p role="alert" className="text-xs text-muted-foreground">{t("core.uncertain")}</p>}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" disabled={create.isPending} onClick={onClose}>{t("common.cancel")}</Button>

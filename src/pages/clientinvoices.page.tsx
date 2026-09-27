@@ -1,3 +1,4 @@
+import {financialMoney} from '@/lib/financial-currency';
 import { Box } from "@/components/ui/box";
 import { ReusableTable } from "@/components/reusable/reusabletable";
 import {
@@ -17,7 +18,7 @@ import { Stack } from "@/components/ui/stack";
 import { useTranslation } from "react-i18next";
 
 const ClientInvoicesPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: userData } = useUser();
   const clientId = userData?.user?.clientId;
   const organizationId = userData?.user?.organizationId;
@@ -62,7 +63,7 @@ const ClientInvoicesPage = () => {
       accessorKey: "amount",
       header: t("invoices.amount"),
       cell: ({ row }) => (
-        <span className="font-semibold">${row.original.amount}</span>
+        <span className="font-semibold">{financialMoney(row.original.amount,i18n.language,row.original.currencyCode,t('core.currencyNotConfigured'))}</span>
       ),
     },
     {

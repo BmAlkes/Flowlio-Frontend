@@ -36,6 +36,7 @@ export interface Project {
   customFields?: Record<string, any>;
   visibility: "public" | "private";
   budget?: number;
+  currencyCode?: string | null;
 }
 
 export interface ProjectsResponse {

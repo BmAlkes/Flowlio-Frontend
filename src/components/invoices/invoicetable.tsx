@@ -1,6 +1,7 @@
+import {financialMoney} from '@/lib/financial-currency';
 import i18n from "@/configs/i18n.config";
 import { useTranslation } from "react-i18next";
-import { formatDateValue, formatMoney } from "@/lib/locale-format";
+import { formatDateValue } from "@/lib/locale-format";
 import { isOverdue } from "@/components/client-detail/client-detail.utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
@@ -180,7 +181,7 @@ export const columns: ColumnDef<Data>[] = [
     accessorKey: "amount",
     header: () => <Box className="text-center text-foreground">{i18n.t("invoices.amount")}</Box>,
     cell: ({ row }) => {
-      return <Box className="text-center">{formatMoney(row.original.amount, i18n.language)}</Box>;
+      return <Box className="text-center">{financialMoney(row.original.amount, i18n.language,row.original.currencyCode,i18n.t("core.currencyNotConfigured"))}</Box>;
     },
   },
   {
@@ -272,7 +273,7 @@ export const InvoiceTable = ({ onTableStateChange }: InvoiceTableProps) => {
 
   return (
     <div>
-    <p className="mb-3 text-xs text-muted-foreground">{t("core.currencyUnknown")} &middot; {t("core.timeZone", { zone: Intl.DateTimeFormat().resolvedOptions().timeZone })}</p>
+    <p className="mb-3 text-xs text-muted-foreground">{t("core.timeZone", { zone: Intl.DateTimeFormat().resolvedOptions().timeZone })}</p>
     <ReusableTable
       data={data}
       columns={columns}

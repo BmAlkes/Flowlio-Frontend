@@ -21,6 +21,7 @@ interface UpdateProjectData {
   status?: ProjectStatus;
   progress?: number; // 0-100
   budget?: number;
+  currencyCode?: string | null;
 }
 
 interface UpdateProjectResponse {
@@ -43,6 +44,7 @@ interface UpdateProjectResponse {
     organizationId: string;
     createdBy: string;
     budget?: number;
+  currencyCode?: string | null;
     createdAt: string;
     updatedAt: string;
   };

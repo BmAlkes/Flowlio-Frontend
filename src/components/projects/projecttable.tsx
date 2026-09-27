@@ -1,3 +1,4 @@
+import {financialMoney} from '@/lib/financial-currency';
 import { canDeleteResources, canUpdateResources } from "@/utils/resourcePermissions";
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
@@ -71,7 +72,7 @@ export type Data = Omit<Project, "startDate" | "endDate"> & { startDate: Date | 
 const PAGE_SIZE = 10;
 
 export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: userData } = useUser();
   const showFinancials =
     canViewInternalProjectFinancials(userData?.user) && !isClient;
@@ -421,9 +422,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
         const budget = (row.original as any).budget;
         return (
           <Center className="text-center">
-            {budget && Number(budget) > 0
-              ? `$${Number(budget).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-              : "-"}
+            {financialMoney(budget,i18n.language,row.original.currencyCode,t("core.currencyNotConfigured"))}
           </Center>
         );
       },
@@ -931,7 +930,7 @@ export const ProjectTable = ({ isClient }: { isClient?: boolean }) => {
             <Box className="p-0">
               <ProjectExpenses
                 projectId={activeProjectForExpenses.id}
-                budget={(activeProjectForExpenses as any).budget || 0}
+                budget={Number(activeProjectForExpenses.budget ?? 0)} currencyCode={activeProjectForExpenses.currencyCode}
                 isClient={isClient}
                 isModal={true}
               />

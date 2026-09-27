@@ -1,3 +1,4 @@
+import {financialMoney,selectedTimeCurrency} from '@/lib/financial-currency';
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
@@ -160,6 +161,7 @@ interface Invoice {
   invoiceNumber?: string;
   clientname?: string;
   amount?: number | string;
+  currencyCode?: string | null;
   dueDate?: string;
   datepaid?: string | null;
   description?: string;
@@ -251,11 +253,7 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ invoices }) => {
                 {invoice.clientname || "N/A"}
               </Text>
               <Text style={styles.tableCellRight}>
-                $
-                {(typeof invoice.amount === "string"
-                  ? parseFloat(invoice.amount)
-                  : (invoice.amount as number) || 0
-                ).toFixed(2)}
+                {financialMoney(invoice.amount,'en',invoice.currencyCode,'Currency not configured')}
               </Text>
               <Text style={styles.tableCell}>
                 {invoice.dueDate
@@ -290,7 +288,7 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ invoices }) => {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Total Amount:</Text>
-            <Text>${totalAmount.toFixed(2)}</Text>
+            <Text>{financialMoney(totalAmount,'en',selectedTimeCurrency(invoices),'Totals require a single recorded currency')}</Text>
           </View>
         </View>
 

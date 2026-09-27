@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { axios } from "@/configs/axios.config";
 
 interface CreateInvoiceData {
+  currencyCode?: string;
   clientId: string;
   amount: number;
   description?: string;

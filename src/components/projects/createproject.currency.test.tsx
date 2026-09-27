@@ -1,0 +1,21 @@
+import {render,screen,waitFor} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {it,expect,vi} from 'vitest';
+import {MemoryRouter,Routes,Route} from 'react-router';
+import {CreateProject} from './createproject';
+import '@/configs/i18n.config';
+const api=vi.hoisted(()=>({update:vi.fn(),empty:{data:[]},project:{id:'p',projectName:'Website',budget:'4000.00',currencyCode:'ILS',visibility:'private',projectNumber:'P1',organizationId:'org'}}));
+vi.mock('@/providers/user.provider',()=>({useUser:()=>({data:{user:{id:'owner',role:'user',organizationId:'org',isOrganizationOwner:true}},isLoading:false})}));
+vi.mock('@/hooks/usefetchprojects',()=>{const result={data:{data:api.project},isLoading:false};return {useFetchProjectById:()=>result};});
+vi.mock('@/hooks/useFetchUserOrganization',()=>({useFetchUserOrganization:()=>({data:{data:[{organization:{id:'org',name:'Agency',userOrganizations:[]}}]}})}));
+vi.mock('@/hooks/usefetchorganizationdata',()=>({useFetchOrganizationClients:()=>({data:api.empty}),useFetchOrganizationUsers:()=>({data:api.empty})}));
+vi.mock('@/hooks/usecustomfields',()=>({useFetchCustomFields:()=>({data:api.empty})}));
+vi.mock('@/hooks/useProjectTemplates',()=>({useFetchProjectTemplates:()=>({data:api.empty})}));
+vi.mock('@/hooks/usecreateproject',()=>({useCreateProject:()=>({mutate:vi.fn()})}));
+vi.mock('@/hooks/useupdateproject',()=>({useUpdateProject:()=>({mutate:api.update})}));
+vi.mock('../common/GuidedFlowModal',()=>({GuidedFlowModal:()=>null}));
+it('submitting the edit form sends zero rather than omitting the old 4000 budget',async()=>{
+ vi.stubGlobal('ResizeObserver',class {observe(){} unobserve(){} disconnect(){}});
+ render(<MemoryRouter initialEntries={['/projects/p/edit']}><Routes><Route path="/projects/:id/edit" element={<CreateProject/>}/></Routes></MemoryRouter>);
+ const user=userEvent.setup();const budget=await screen.findByLabelText('Project Budget');await waitFor(()=>expect(budget).toHaveValue(4000));await user.clear(budget);await user.type(budget,'0');await user.click(screen.getByRole('button',{name:/Update Project/i}));await waitFor(()=>expect(api.update).toHaveBeenCalledWith(expect.objectContaining({id:'p',data:expect.objectContaining({budget:0})})));
+});

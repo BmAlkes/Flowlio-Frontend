@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { isCurrencyCode } from "@/lib/financial-currency";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -26,6 +28,7 @@ import { Label } from "@/components/ui/label";
 const formSchema = z
   .object({
     clientId: z.string().min(1, "Client is required"),
+    currencyCode: z.string().optional(),
     amount: z.number().min(0.01, "Amount must be greater than 0"),
     description: z.string().optional(),
     dueDate: z.string().optional(),
@@ -36,6 +39,7 @@ const formSchema = z
     startDate: z.string().optional(),
     endDate: z.string().optional(),
   })
+  .refine(data => data.isRecurring || isCurrencyCode(data.currencyCode), { path: ["currencyCode"], message: "Currency not configured" })
   .refine(
     (data) => {
       if (data.isRecurring) {
@@ -60,6 +64,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const createInvoiceMutation = useCreateInvoice();
@@ -77,6 +82,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       clientId: "",
+      currencyCode: "",
       amount: 0,
       description: "",
       dueDate: "",
@@ -158,6 +164,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
               clientId: data.clientId,
               amount: data.amount,
               description: data.description,
+              currencyCode: data.currencyCode,
               dueDate: data.dueDate,
               paymentUrl: data.paymentUrl || undefined,
               pdfFile: pdfBase64,
@@ -179,6 +186,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
             clientId: data.clientId,
             amount: data.amount,
             description: data.description,
+            currencyCode: data.currencyCode,
             dueDate: data.dueDate,
             paymentUrl: data.paymentUrl || undefined,
           },
@@ -317,6 +325,11 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
           </Box>
         )}
         {/* Amount */}
+        {!isRecurring && <label className="block text-sm font-medium">
+          {t("core.currencyCode")}
+          <Input required maxLength={3} placeholder="ILS / USD / EUR" {...register("currencyCode", { setValueAs: value => String(value).trim().toUpperCase() })} />
+          {errors.currencyCode && <span role="alert" className="text-destructive">{t("core.currencyNotConfigured")}</span>}
+        </label>}
         <Box>
           <label className="block text-sm font-medium text-foreground mb-2">
             Amount *
