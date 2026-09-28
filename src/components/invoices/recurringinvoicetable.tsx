@@ -1,3 +1,4 @@
+import {FinancialAmount} from '@/components/common/FinancialAmount';
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -68,7 +69,7 @@ export const columns: ColumnDef<RecurringInvoice>[] = [
     accessorKey: "amount",
     header: () => <Box className="text-center text-foreground">Amount</Box>,
     cell: ({ row }) => {
-      return <Box className="text-center font-semibold">$ {row.original.amount}</Box>;
+      return <Box className="text-center font-semibold"><FinancialAmount value={row.original.amount} currency={row.original.currencyCode} /></Box>;
     },
   },
   {

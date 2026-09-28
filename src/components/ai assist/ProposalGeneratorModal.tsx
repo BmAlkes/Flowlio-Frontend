@@ -7,6 +7,7 @@ import { generatePdfBlob } from "@/lib/generatePdf";
 import { ProposalPDF, type ProposalData } from "./ProposalPDF";
 import { useFetchClients } from "@/hooks/usefetchclients";
 import { useTranslation } from "react-i18next";
+import {useOrganizationCurrency} from '@/hooks/useOrganizationCurrency';
 import { useQueryClient } from "@tanstack/react-query";
 
 interface ProposalGeneratorModalProps {
@@ -48,6 +49,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
+  const {data: financialSettings} = useOrganizationCurrency();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>("form");
   const [form, setForm] = useState<FormData>(initialForm);
@@ -70,6 +72,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
   };
 
   const handleGenerate = async () => {
+    if (!financialSettings?.currencyCode) { setError(t('core.currencyNotConfigured')); return; }
     if (!form.projectTitle.trim() || !form.projectDescription.trim()) {
       setError(t("proposal.errorRequired"));
       return;
@@ -282,7 +285,7 @@ export const ProposalGeneratorModal: React.FC<ProposalGeneratorModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1">
-                      {t("proposal.budget")}
+                      {t("proposal.budget")} ({financialSettings?.currencyCode || t('core.currencyNotConfigured')})
                     </label>
                     <input
                       name="budget"

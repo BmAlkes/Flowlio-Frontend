@@ -1,3 +1,4 @@
+import {FinancialAmount} from '@/components/common/FinancialAmount';
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLeads, useDeleteLead } from "@/hooks/useLeads";
@@ -17,7 +18,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Search, MoreHorizontal, DollarSign, Phone } from "lucide-react";
+import { Loader2, Search, MoreHorizontal, Coins, Phone } from "lucide-react";
 import { useBulkLeadAction } from "@/hooks/useLeadExtras";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -282,8 +283,8 @@ export const LeadsTable = () => {
                     <td className="px-3 py-3">
                       {lead.leadValue ? (
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                          <span className="font-medium">{new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Number(lead.leadValue))}</span>
+                          <Coins className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="font-medium"><FinancialAmount value={lead.leadValue} currency={lead.currencyCode} /></span>
                         </div>
                       ) : <span className="text-muted-foreground/90">—</span>}
                     </td>

@@ -1,9 +1,10 @@
+import {financialMoney} from '@/lib/financial-currency';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DollarSign, Clock, GripVertical, Bell } from "lucide-react";
+import { Coins, Clock, GripVertical, Bell } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useLeadInsights } from "@/hooks/useCRM";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,7 @@ const TEMP_BORDER: Record<string, string> = {
 };
 
 export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: insights } = useLeadInsights(lead.id);
   const {
     attributes,
@@ -44,7 +45,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
 
   const formatValue = (val: any) => {
     if (!val || Number(val) === 0) return null;
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(val));
+    return financialMoney(val, i18n.language, lead.currencyCode, t('core.currencyUnknown'));
   };
 
   const followUp = lead.followUpAt ? new Date(lead.followUpAt) : null;
@@ -92,7 +93,7 @@ export const LeadCard = ({ lead, isOverlay, onCardClick }: LeadCardProps) => {
           ) : <div />}
           {formattedValue ? (
             <Flex className="items-center gap-0.5">
-              <DollarSign className="h-3 w-3 text-muted-foreground" />
+              <Coins className="h-3 w-3 text-muted-foreground" />
               <span className="text-xs font-medium">{formattedValue}</span>
             </Flex>
           ) : (

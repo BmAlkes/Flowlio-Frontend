@@ -1,3 +1,4 @@
+import {FinancialAmount} from '@/components/common/FinancialAmount';
 import { ColumnDef } from "@tanstack/react-table";
 import { Center } from "@/components/ui/center";
 import { Box } from "../ui/box";
@@ -131,7 +132,7 @@ export const PaymentLinksTable = () => {
       header: () => <Box className="text-center text-foreground">Amount</Box>,
       cell: ({ row }) => (
         <Box className="text-center font-semibold text-green-600">
-          ${parseFloat(row.original.amount).toFixed(2)}
+          <FinancialAmount value={row.original.amount} currency={row.original.currencyCode} />
         </Box>
       ),
     },
@@ -209,7 +210,7 @@ export const PaymentLinksTable = () => {
             >
               <Copy className="w-4 h-4" />
             </button>
-            {!isPaid && (
+            {!isPaid && row.original.currencyCode && (
               <button
                 onClick={handleToggleStatus}
                 disabled={updateStatusMutation.isPending}

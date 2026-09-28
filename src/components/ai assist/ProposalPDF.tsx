@@ -38,6 +38,7 @@ Font.register({
 
 // ─── Types ────────────────────────────────────────────────────────────────
 export interface ProposalData {
+  currencyCode?: string | null;
   projectTitle: string;
   clientName: string;
   companyName: string;
@@ -517,6 +518,7 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
         {/* ── Investment ── */}
         {data.investment && (
           <View style={styles.section} wrap={false}>
+            {data.currencyCode && <Text style={{fontFamily: fontBold, fontSize: 10, marginBottom: 8}}>{data.currencyCode}</Text>}
             <SectionHeader title={isRTL ? "השקעה ותמחור" : "Investment & Pricing"} isRTL={isRTL} font={fontBold} />
             <View style={[styles.tableHeader, rtlRow(isRTL)]}>
               <Text style={[styles.tableHeaderCell, { flex: 2 }, rtlText(isRTL)]}>{isRTL ? "פריט" : "Item"}</Text>

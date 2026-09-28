@@ -54,5 +54,33 @@
   "pending": "Pending",
   "currencyNotConfigured": "Currency not configured",
   "currencyCode": "Currency code",
-  "currencySelectionRequired": "Configure the currency in each project’s profitability settings before invoicing. Select time from one currency only."
+  "currencySelectionRequired": "Configure the currency in each project’s profitability settings before invoicing. Select time from one currency only.",
+  "financialSettings": {
+    "title": "Organization currency",
+    "description": "Default currency for new business records, independent of language. Flowlio subscriptions keep the plan currency.",
+    "currency": "Currency",
+    "missing": "Currency not configured",
+    "confirm": "I understand that this applies to new records. Existing amounts retain their recorded currency; no currency conversion is performed.",
+    "save": "Save currency",
+    "saved": "Currency saved.",
+    "loadError": "Unable to load currency settings.",
+    "saveError": "Unable to save. Refresh the settings and try again.",
+    "reportCurrency": "Report currency: {{currency}}. Entries in other or unknown currencies excluded: {{count}}. No conversion applied.",
+    "precision": "Billing currently supports currencies with two decimal places. Historical records without a currency require review before billing.",
+    "reviewTitle": "Review historical currencies",
+    "reviewDescription": "Select only records whose existing amounts you have verified. Up to 50 records of each type are shown; confirm at most 50 at a time. This does not convert money or change the organization default.",
+    "reviewCurrency": "Currency of these existing amounts",
+    "reviewConfirm": "I verified that the selected amounts ({{count}} records) are already in {{currency}}. Only the missing currency will be recorded.",
+    "reviewSave": "Confirm recorded currency",
+    "reviewError": "Unable to confirm. A record may have changed, already have a currency, or conflict with linked financial records. Refresh and review again.",
+    "loading": "Loading…",
+    "noUnresolved": "No records with missing currencies in this batch.",
+    "recordTypes": {
+      "project": "Project",
+      "lead": "Client / lead",
+      "invoice": "Invoice",
+      "recurring": "Recurring invoice",
+      "paymentLink": "Payment link"
+    }
+  }
 }

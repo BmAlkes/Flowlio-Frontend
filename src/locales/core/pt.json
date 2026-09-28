@@ -54,5 +54,33 @@
   "pending": "Pendente",
   "currencyNotConfigured": "Moeda não configurada",
   "currencyCode": "Código da moeda",
-  "currencySelectionRequired": "Configure a moeda na rentabilidade de cada projeto antes de faturar. Selecione horas de uma única moeda."
+  "currencySelectionRequired": "Configure a moeda na rentabilidade de cada projeto antes de faturar. Selecione horas de uma única moeda.",
+  "financialSettings": {
+    "title": "Moeda da organização",
+    "description": "Moeda padrão para novos registros financeiros, independente do idioma. A assinatura do Flowlio mantém a moeda do plano.",
+    "currency": "Moeda",
+    "missing": "Moeda não configurada",
+    "confirm": "Entendo que esta moeda será aplicada aos novos registros. Os valores existentes mantêm a moeda registrada; nenhuma conversão será realizada.",
+    "save": "Salvar moeda",
+    "saved": "Moeda salva.",
+    "loadError": "Não foi possível carregar a moeda.",
+    "saveError": "Não foi possível salvar. Atualize as configurações e tente novamente.",
+    "reportCurrency": "Moeda do relatório: {{currency}}. Lançamentos em outras moedas ou sem moeda excluídos: {{count}}. Sem conversão.",
+    "precision": "O faturamento aceita atualmente moedas com duas casas decimais. Registros históricos sem moeda precisam de revisão antes da cobrança.",
+    "reviewTitle": "Revisar moedas históricas",
+    "reviewDescription": "Selecione apenas registros cujos valores existentes você verificou. São exibidos até 50 registros de cada tipo; confirme no máximo 50 por vez. Isso não converte valores nem altera a moeda padrão da organização.",
+    "reviewCurrency": "Moeda destes valores existentes",
+    "reviewConfirm": "Verifiquei que os valores selecionados ({{count}} registros) já estão em {{currency}}. Apenas a moeda ausente será registrada.",
+    "reviewSave": "Confirmar moeda dos registros",
+    "reviewError": "Não foi possível confirmar. Um registro pode ter mudado, já ter moeda ou conflitar com registros financeiros vinculados. Atualize e revise novamente.",
+    "loading": "Carregando…",
+    "noUnresolved": "Nenhum registro sem moeda neste lote.",
+    "recordTypes": {
+      "project": "Projeto",
+      "lead": "Cliente / lead",
+      "invoice": "Fatura",
+      "recurring": "Fatura recorrente",
+      "paymentLink": "Link de pagamento"
+    }
+  }
 }

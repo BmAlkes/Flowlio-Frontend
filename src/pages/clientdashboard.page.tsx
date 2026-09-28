@@ -1,3 +1,4 @@
+import {financialTotals} from '@/lib/financial-currency';
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -61,7 +62,7 @@ const ACTIVITY_LABEL: Record<string, string> = {
 };
 
 const ClientDashboardPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data: userData } = useUser();
   const clientId = userData?.user?.clientId;
@@ -108,10 +109,7 @@ const ClientDashboardPage = () => {
     () => invoices.filter((inv) => inv.status?.toLowerCase() !== "paid"),
     [invoices],
   );
-  const outstandingBalance = useMemo(
-    () => outstandingInvoices.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0),
-    [outstandingInvoices],
-  );
+
 
   const upcomingDeadlines = useMemo(
     () =>
@@ -173,7 +171,7 @@ const ClientDashboardPage = () => {
             <StatCard
               icon={Receipt}
               label="Outstanding Balance"
-              value={`$${outstandingBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+              value={financialTotals(outstandingInvoices, i18n.language, t("core.currencyUnknown"))}
               accent="bg-rose-100 text-rose-600"
               onClick={() => navigate("/clients/invoices")}
             />

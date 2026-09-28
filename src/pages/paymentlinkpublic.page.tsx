@@ -1,3 +1,4 @@
+import {FinancialAmount} from '@/components/common/FinancialAmount';
 import { useEffect } from "react";
 import { useParams } from "react-router";
 import { Center } from "@/components/ui/center";
@@ -49,7 +50,7 @@ const PaymentLinkPublicPage = () => {
 
             <div className="bg-muted/50 rounded-xl p-5 text-center">
               <p className="text-xs text-muted-foreground/90 mb-1">Amount due</p>
-              <p className="text-4xl font-bold text-foreground">${parseFloat(link.amount).toFixed(2)}</p>
+              <p className="text-4xl font-bold text-foreground"><FinancialAmount value={link.amount} currency={link.currencyCode} /></p>
             </div>
 
             <div className="space-y-2">
@@ -63,7 +64,7 @@ const PaymentLinkPublicPage = () => {
               </div>
             </div>
 
-            {!isPaid && (
+            {!isPaid && link.currencyCode && (
               <a
                 href={link.externalPaymentUrl}
                 target="_blank"

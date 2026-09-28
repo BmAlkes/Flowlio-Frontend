@@ -7,6 +7,7 @@ export interface RecurringInvoice {
   clientId: string;
   clientname: string;
   amount: string;
+  currencyCode?: string | null;
   description?: string;
   frequency: "daily" | "weekly" | "monthly" | "yearly";
   startDate: string;

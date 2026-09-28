@@ -1,4 +1,5 @@
 import { FC, useEffect } from "react";
+import {useTranslation} from 'react-i18next';
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -55,6 +56,7 @@ export const PaymentLinkFormModal: FC<PaymentLinkFormModalProps> = ({
   existing,
 }) => {
   const isEditing = !!existing;
+  const {t} = useTranslation();
   const createPaymentLinkMutation = useCreatePaymentLink();
   const updatePaymentLinkMutation = useUpdatePaymentLink();
   const { data: clientsData } = useFetchClients();
@@ -178,7 +180,7 @@ export const PaymentLinkFormModal: FC<PaymentLinkFormModalProps> = ({
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Amount ({(existing ? existing.currencyCode : projectsData?.data?.find(project => project.id === form.watch('projectId'))?.currencyCode) || t('core.currencyNotConfigured')})</FormLabel>
                   <FormControl>
                     <Input
                       className="bg-background rounded-full placeholder:text-muted-foreground"

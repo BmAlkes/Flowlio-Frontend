@@ -14,6 +14,7 @@ export interface Lead {
   status: string;
   type: "lead" | "client";
   leadValue?: number;
+  currencyCode?: string | null;
   temperature?: "Hot" | "Warm" | "Cold" | "Lost" | null;
   leadTemperature?: "Hot" | "Warm" | "Cold" | "Lost" | null;
   lastInteractionAt?: string | null;
@@ -57,6 +58,7 @@ export interface CreateLeadData {
   businessIndustry?: string;
   address?: string;
   leadValue?: number;
+  currencyCode?: string | null;
   customFields?: Record<string, any>;
   image?: string;
 }
@@ -69,6 +71,7 @@ export interface UpdateLeadData {
   businessIndustry?: string;
   address?: string;
   leadValue?: number;
+  currencyCode?: string | null;
   customFields?: Record<string, any>;
   image?: string;
 }

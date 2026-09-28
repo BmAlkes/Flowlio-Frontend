@@ -27,6 +27,8 @@ export interface RevenueEntry {
 }
 
 export interface RevenueSummary {
+  currencyCode: string | null;
+  excludedEntries: number;
   total: number;
   byCategory: { category: string; amount: number }[];
   bySource:   { source: string; amount: number }[];

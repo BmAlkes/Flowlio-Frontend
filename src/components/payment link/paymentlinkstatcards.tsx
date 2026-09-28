@@ -1,3 +1,5 @@
+import {financialTotals} from '@/lib/financial-currency';
+import {useTranslation} from 'react-i18next';
 import { FC, useMemo } from "react";
 import { Link2, DollarSign, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,11 +28,13 @@ interface PaymentLinkStatCardsProps {
 export const PaymentLinkStatCards: FC<PaymentLinkStatCardsProps> = ({ paymentLinks }) => {
   const stats = useMemo(() => computePaymentLinkStats(paymentLinks), [paymentLinks]);
 
+  const {t, i18n} = useTranslation();
+  const total = (links: PaymentLink[]) => financialTotals(links, i18n.language, t('core.currencyUnknown'));
   const cards = [
     {
       label: "Total Links",
       value: stats.total,
-      sub: `$${stats.totalAmount.toFixed(2)}`,
+      sub: total(paymentLinks),
       icon: Link2,
       iconBg: "bg-blue-100 dark:bg-blue-500/25",
       iconColor: "text-blue-600 dark:text-blue-300",
@@ -39,7 +43,7 @@ export const PaymentLinkStatCards: FC<PaymentLinkStatCardsProps> = ({ paymentLin
     {
       label: "Paid",
       value: stats.paidCount,
-      sub: `$${stats.paidAmount.toFixed(2)}`,
+      sub: total(paymentLinks.filter(link => link.status === 'paid')),
       icon: DollarSign,
       iconBg: "bg-green-100 dark:bg-green-500/25",
       iconColor: "text-green-600 dark:text-green-300",
@@ -48,7 +52,7 @@ export const PaymentLinkStatCards: FC<PaymentLinkStatCardsProps> = ({ paymentLin
     {
       label: "Unpaid",
       value: stats.unpaidCount,
-      sub: `$${stats.unpaidAmount.toFixed(2)}`,
+      sub: total(paymentLinks.filter(link => link.status !== 'paid')),
       icon: Clock,
       iconBg: "bg-amber-100 dark:bg-amber-500/25",
       iconColor: "text-amber-600 dark:text-amber-300",

@@ -1,3 +1,5 @@
+import {useOrganizationCurrency} from '@/hooks/useOrganizationCurrency';
+import {useTranslation} from 'react-i18next';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -48,6 +50,8 @@ interface Props {
 }
 
 export const CreateLeadDialog = ({ open, onClose }: Props) => {
+  const {data: financialSettings} = useOrganizationCurrency();
+  const {t} = useTranslation();
   const { mutate: createLead, isPending } = useCreateLead();
   const { data: fields = [] } = useLeadFields();
   const checkDuplicate = useCheckDuplicate();
@@ -181,7 +185,7 @@ export const CreateLeadDialog = ({ open, onClose }: Props) => {
                 name="leadValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lead Value ($)</FormLabel>
+                    <FormLabel>Lead Value ({financialSettings?.currencyCode || t("core.currencyNotConfigured")})</FormLabel>
                     <FormControl>
                       <Input className="rounded-full" type="number" placeholder="0" {...field} />
                     </FormControl>

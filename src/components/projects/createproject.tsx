@@ -44,6 +44,7 @@ import { useFetchUserOrganization } from "../../hooks/useFetchUserOrganization";
 import { useUser } from "../../providers/user.provider";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useOrganizationCurrency } from "@/hooks/useOrganizationCurrency";
 import { useFetchCustomFields } from "../../hooks/usecustomfields";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
@@ -92,6 +93,7 @@ const formSchema = z
 
 export const CreateProject = () => {
   const { t } = useTranslation();
+  const {data: financialSettings} = useOrganizationCurrency();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -802,7 +804,7 @@ export const CreateProject = () => {
                   <FormItem>
                     <FormLabel className="flex items-center gap-1.5">
                       <DollarSign className="h-4 w-4 text-emerald-600" />
-                      Project Budget
+                      Project Budget ({(isEditMode ? projectData?.data?.currencyCode : financialSettings?.currencyCode) || t("core.currencyNotConfigured")})
                     </FormLabel>
                     <FormControl>
                       <Input

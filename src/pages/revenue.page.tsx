@@ -1,3 +1,6 @@
+import {useOrganizationCurrency} from '@/hooks/useOrganizationCurrency';
+import {financialMoney} from '@/lib/financial-currency';
+import {useTranslation} from 'react-i18next';
 import React, { useState } from "react";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -39,8 +42,7 @@ const TOOLTIP_STYLE = {
   color: "hsl(var(--foreground))",
 };
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
 
 // ─── Entry Form ───────────────────────────────────────────────────────────────
 
@@ -51,13 +53,15 @@ interface EntryFormProps {
 }
 
 const EntryForm: React.FC<EntryFormProps> = ({ open, onClose, editing }) => {
+  const {data: organizationSettings} = useOrganizationCurrency();
+  const {t} = useTranslation();
   const create = useCreateRevenue();
   const update = useUpdateRevenue();
 
   const [form, setForm] = useState<CreateRevenueData>({
     date: editing?.date ?? format(new Date(), "yyyy-MM-dd"),
     amount: editing?.amount ?? 0,
-    currency: editing?.currency ?? "USD",
+    currency: editing ? editing.currency : organizationSettings?.currencyCode ?? "",
     category: (editing?.category as RevenueCategory) ?? "service",
     source: (editing?.source as RevenueSource) ?? "manual",
     description: editing?.description ?? "",
@@ -79,17 +83,18 @@ const EntryForm: React.FC<EntryFormProps> = ({ open, onClose, editing }) => {
       setForm({
         date: format(new Date(), "yyyy-MM-dd"),
         amount: 0,
-        currency: "USD",
+        currency: organizationSettings?.currencyCode ?? "",
         category: "service",
         source: "manual",
         description: "",
       });
     }
-  }, [editing, open]);
+  }, [editing, open, organizationSettings?.currencyCode]);
 
   const isPending = create.isPending || update.isPending;
 
   const handleSave = async () => {
+    if (!form.currency) { toast.error(t("core.currencyNotConfigured")); return; }
     if (!form.date || !form.amount || form.amount <= 0) {
       toast.error("Date and amount are required");
       return;
@@ -121,9 +126,9 @@ const EntryForm: React.FC<EntryFormProps> = ({ open, onClose, editing }) => {
               <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             </div>
             <div>
-              <Label className="text-xs mb-1 block">Amount (USD) *</Label>
+              <Label className="text-xs mb-1 block">Amount ({form.currency || t("core.currencyNotConfigured")}) *</Label>
               <div className="relative">
-                <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">$</span>
+                
                 <Input
                   type="number" min="0" step="0.01" placeholder="0.00"
                   className="ps-7"
@@ -185,7 +190,7 @@ const RevenuePage: React.FC = () => {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, refetch, isFetching } = useRevenue({
+  const { data, isLoading, isError, refetch, isFetching } = useRevenue({
     period,
     category: categoryFilter !== "all" ? categoryFilter : undefined,
     source: sourceFilter !== "all" ? sourceFilter : undefined,
@@ -197,6 +202,8 @@ const RevenuePage: React.FC = () => {
 
   const entries = data?.entries ?? [];
   const summary = data?.summary;
+  const {t, i18n} = useTranslation();
+  const fmt = (n:number, currency:unknown = summary?.currencyCode) => financialMoney(n, i18n.language, currency, t("core.currencyUnknown"));
   const pagination = data?.pagination;
 
   const handleDelete = async (id: string) => {
@@ -235,6 +242,8 @@ const RevenuePage: React.FC = () => {
         isRefreshing={isFetching}
       />
 
+      {summary && <p className="text-sm text-muted-foreground">{t('core.financialSettings.reportCurrency', {currency: summary.currencyCode, count: summary.excludedEntries})}</p>}
+      {isError && <p role="alert" className="text-sm text-destructive">{t('core.financialSettings.loadError')} <a className="underline" href="/dashboard/settings">{t('core.financialSettings.title')}</a></p>}
       {/* KPI cards */}
       {isLoading ? (
         <div className="grid grid-cols-3 gap-4">{[1,2,3].map((i) => <Skeleton key={i} className="h-24" />)}</div>
@@ -306,7 +315,7 @@ const RevenuePage: React.FC = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} tickFormatter={(v) => fmt(v)} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [fmt(v), "Revenue"]} />
                   <Area dataKey="amount" stroke="#10b981" strokeWidth={2} fill="url(#revGrad)" dot={false} />
                 </AreaChart>
@@ -440,7 +449,7 @@ const RevenuePage: React.FC = () => {
                             </span>
                           </TableCell>
                           <TableCell className="text-end font-semibold tabular-nums">
-                            {fmt(entry.amount)}
+                            {fmt(entry.amount, entry.currency)}
                           </TableCell>
                           <TableCell>
                             {entry.source !== "invoice" && (

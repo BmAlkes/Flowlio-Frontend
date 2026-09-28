@@ -9,6 +9,7 @@ const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), role: "user", owner
 vi.mock("@/configs/axios.config", () => ({ axios: api }));
 vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: { id: "owner", role: api.role, isOrganizationOwner: api.owner } } }) }));
 vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "org" }));
+vi.mock("@/hooks/useOrganizationCurrency", () => ({ useOrganizationCurrency: () => ({data: {currencyCode: "BRL"}}) }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string, opts?: { defaultValue?: string }) => key.split(".").slice(1).reduce<unknown>((v, k) => v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined, messages) ?? opts?.defaultValue ?? key }) }));
 let cache: QueryClient;
 let period: Period; let contract: Retainer; let entries: { id: string; time_entry_id: string; source_entry_id: null; minutes: number; kind: string; label: string; started_at: string }[];

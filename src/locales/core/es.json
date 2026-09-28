@@ -54,5 +54,33 @@
   "pending": "Pendiente",
   "currencyNotConfigured": "Moneda no configurada",
   "currencyCode": "Código de moneda",
-  "currencySelectionRequired": "Configure la moneda en la rentabilidad de cada proyecto antes de facturar. Seleccione horas de una sola moneda."
+  "currencySelectionRequired": "Configure la moneda en la rentabilidad de cada proyecto antes de facturar. Seleccione horas de una sola moneda.",
+  "financialSettings": {
+    "title": "Moneda de la organización",
+    "description": "Moneda predeterminada para nuevos registros financieros, independiente del idioma. La suscripción de Flowlio mantiene la moneda del plan.",
+    "currency": "Moneda",
+    "missing": "Moneda no configurada",
+    "confirm": "Entiendo que se aplica a nuevos registros. Los importes existentes conservan su moneda registrada; no se realiza ninguna conversión.",
+    "save": "Guardar moneda",
+    "saved": "Moneda guardada.",
+    "loadError": "No se pudo cargar la moneda.",
+    "saveError": "No se pudo guardar. Actualiza la configuración e inténtalo de nuevo.",
+    "reportCurrency": "Moneda del informe: {{currency}}. Registros en otras monedas o sin moneda excluidos: {{count}}. Sin conversión.",
+    "precision": "La facturación admite actualmente monedas con dos decimales. Los registros históricos sin moneda requieren revisión antes del cobro.",
+    "reviewTitle": "Revisar monedas históricas",
+    "reviewDescription": "Selecciona solo registros cuyos importes existentes hayas verificado. Se muestran hasta 50 registros de cada tipo; confirma un máximo de 50 a la vez. Esto no convierte importes ni cambia la moneda de la organización.",
+    "reviewCurrency": "Moneda de estos importes existentes",
+    "reviewConfirm": "Verifiqué que los importes seleccionados ({{count}} registros) ya están en {{currency}}. Solo se registrará la moneda faltante.",
+    "reviewSave": "Confirmar moneda registrada",
+    "reviewError": "No se pudo confirmar. Un registro puede haber cambiado, tener ya moneda o entrar en conflicto con registros vinculados. Actualiza y revisa de nuevo.",
+    "loading": "Cargando…",
+    "noUnresolved": "No hay registros sin moneda en este lote.",
+    "recordTypes": {
+      "project": "Proyecto",
+      "lead": "Cliente / lead",
+      "invoice": "Factura",
+      "recurring": "Factura recurrente",
+      "paymentLink": "Enlace de pago"
+    }
+  }
 }

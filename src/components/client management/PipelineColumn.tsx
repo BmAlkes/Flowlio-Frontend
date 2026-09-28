@@ -1,3 +1,5 @@
+import {financialTotals} from '@/lib/financial-currency';
+import {useTranslation} from 'react-i18next';
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -6,7 +8,7 @@ import {
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { LeadCard } from "./LeadCard";
-import { DollarSign } from "lucide-react";
+import { Coins } from "lucide-react";
 
 interface PipelineColumnProps {
   id: string;
@@ -16,6 +18,7 @@ interface PipelineColumnProps {
 }
 
 export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumnProps) => {
+  const {t, i18n} = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id });
 
   const getStatusColor = (status: string) => {
@@ -30,14 +33,7 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
     return colors[status] ?? "bg-gray-400";
   };
 
-  const totalValue = items.reduce((acc, item) => acc + (Number(item.leadValue) || 0), 0);
 
-  const formatValue = (val: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(val);
 
   return (
     <Box
@@ -65,9 +61,9 @@ export const PipelineColumn = ({ id, title, items, onCardClick }: PipelineColumn
 
         <Flex className="items-center gap-2">
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white dark:bg-gray-800 border border-border/40">
-            <DollarSign className="h-2.5 w-2.5 text-emerald-600" />
+            <Coins className="h-2.5 w-2.5 text-emerald-600" />
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-              {formatValue(totalValue)}
+              {financialTotals(items.filter(item => item.leadValue != null).map(item => ({amount: item.leadValue, currencyCode: item.currencyCode})), i18n.language, t('core.currencyUnknown'))}
             </span>
           </div>
           <div className="h-0.5 flex-1 bg-gray-200/60 dark:bg-gray-700/60 rounded-full overflow-hidden">

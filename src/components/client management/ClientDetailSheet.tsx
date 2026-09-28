@@ -1,3 +1,4 @@
+import {financialMoney} from '@/lib/financial-currency';
 import React, { useState, useEffect } from "react";
 import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
@@ -19,7 +20,7 @@ import {
   useLeadInsights,
   LeadTemperature,
 } from "@/hooks/useCRM";
-import { DollarSign, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users, ContactRound, Thermometer, Workflow, History } from "lucide-react";
+import { Coins, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users, ContactRound, Thermometer, Workflow, History } from "lucide-react";
 import "@/components/leads/leads-layout.css";
 import { FollowUpPicker } from "./FollowUpPicker";
 import { differenceInDays, isPast, format } from "date-fns";
@@ -174,11 +175,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
   const formatValue = (val: any) => {
     const n = Number(val);
     if (!val || n === 0) return null;
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(n);
+    return financialMoney(val, i18n.language, client.currencyCode, t('core.currencyUnknown'));
   };
 
   const formattedValue = formatValue(client.leadValue);
@@ -248,7 +245,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
               <div className="flex items-center gap-3 mt-3">
                 {editingValue ? (
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-600/50">
-                    <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <Coins className="h-4 w-4 text-emerald-600 shrink-0" />
                     <input
                       autoFocus
                       type="text"
@@ -270,7 +267,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                   </div>
                 ) : formattedValue ? (
                   <button onClick={handleValueEdit} className="flex items-center gap-1.5 group/val">
-                    <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <Coins className="h-4 w-4 text-emerald-600 shrink-0" />
                     <span className="text-base font-bold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
                       {formattedValue}
                     </span>
@@ -281,7 +278,7 @@ export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }
                     onClick={handleValueEdit}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-600/50 bg-emerald-50/60 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group/val"
                   >
-                    <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
+                    <Coins className="h-3.5 w-3.5 text-emerald-500" />
                     <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       {t("pipeline.addValue")}
                     </span>

@@ -12,6 +12,7 @@ export interface PaymentLink {
   submittedby: string;
   clientname: string;
   amount: string;
+  currencyCode?: string | null;
   externalPaymentUrl: string;
   status: "unpaid" | "paid";
   paymentLink: string;
@@ -24,6 +25,7 @@ export interface PublicPaymentLink {
   project: string;
   description: string;
   amount: string;
+  currencyCode?: string | null;
   externalPaymentUrl: string;
   status: "unpaid" | "paid";
 }

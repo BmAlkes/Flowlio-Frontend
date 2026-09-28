@@ -1,3 +1,4 @@
+import { useOrganizationCurrency } from '@/hooks/useOrganizationCurrency';
 import React, { useState, useEffect } from "react";
 import { isCurrencyCode } from "@/lib/financial-currency";
 import { useTranslation } from "react-i18next";
@@ -39,7 +40,7 @@ const formSchema = z
     startDate: z.string().optional(),
     endDate: z.string().optional(),
   })
-  .refine(data => data.isRecurring || isCurrencyCode(data.currencyCode), { path: ["currencyCode"], message: "Currency not configured" })
+  .refine(data => isCurrencyCode(data.currencyCode), { path: ["currencyCode"], message: "Currency not configured" })
   .refine(
     (data) => {
       if (data.isRecurring) {
@@ -65,6 +66,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+  const { data: financialSettings } = useOrganizationCurrency();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const createInvoiceMutation = useCreateInvoice();
@@ -93,6 +95,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
   });
 
   const isRecurring = watch("isRecurring");
+  useEffect(() => { if (isOpen) setValue("currencyCode", financialSettings?.currencyCode ?? ""); }, [isOpen, financialSettings?.currencyCode, setValue]);
 
   // Reset recurring fields when toggled off
   useEffect(() => {
@@ -325,9 +328,9 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
           </Box>
         )}
         {/* Amount */}
-        {!isRecurring && <label className="block text-sm font-medium">
+        {<label className="block text-sm font-medium">
           {t("core.currencyCode")}
-          <Input required maxLength={3} placeholder="ILS / USD / EUR" {...register("currencyCode", { setValueAs: value => String(value).trim().toUpperCase() })} />
+          <Input required readOnly placeholder={t("core.currencyNotConfigured")} {...register("currencyCode", { setValueAs: value => String(value).trim().toUpperCase() })} />
           {errors.currencyCode && <span role="alert" className="text-destructive">{t("core.currencyNotConfigured")}</span>}
         </label>}
         <Box>

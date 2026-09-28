@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useOrganizationCurrency } from "@/hooks/useOrganizationCurrency";
 import { Link, useParams, useSearchParams } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -78,10 +79,12 @@ function VersionHistory({ path, id }: { path: string; id: string }) {
   return <div className="space-y-4">{query.isPending ? <p>{t("scope.loading")}</p> : query.isError ? <p role="alert">{t("scope.error")}</p> : query.data?.items[0]?.history.map(version => <VersionSummary key={version.revision} version={version} />)}<div className="flex justify-between gap-3"><Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>{t("scope.previous")}</Button><Button variant="outline" disabled={!query.data?.items[0]?.hasMoreVersions} onClick={() => setPage(page + 1)}>{t("scope.next")}</Button></div></div>;
 }
 function ChangeForm({ action, row, path, projectId, clientId, close }: { action: Action; row?: ScopeChange; path: string; projectId: string; clientId: string | null; close: () => void }) {
+  const {data: financialSettings} = useOrganizationCurrency();
   const { t } = useTranslation(); const cache = useQueryClient(); const [id] = useState(() => crypto.randomUUID());
   const [title, setTitle] = useState(""); const [description, setDescription] = useState(""); const [files, setFiles] = useState<{ id: string; name: string }[]>([]); const [uploading, setUploading] = useState(false); const [uploadError, setUploadError] = useState(false);
   const [classification, setClassification] = useState(row?.latest?.classification || "additional"); const [hours, setHours] = useState(row?.latest?.estimated_hours || ""); const [amount, setAmount] = useState(row?.latest?.amount || ""); const [currency, setCurrency] = useState(row?.latest?.currency || ""); const [endDate, setEndDate] = useState(row?.latest?.end_date || ""); const [note, setNote] = useState(row?.latest?.note || ""); const [reason, setReason] = useState("");
   const [createTask, setCreateTask] = useState(false); const [prepareBilling, setPrepareBilling] = useState(false); const [applyDate, setApplyDate] = useState(false); const [confirm, setConfirm] = useState(false);
+  useEffect(() => { if (!row?.latest?.currency && financialSettings?.currencyCode) setCurrency(current => current || financialSettings.currencyCode!); }, [row?.latest?.currency, financialSettings?.currencyCode]);
   const mutation = useMutation({ mutationFn: async () => {
     if (action === "create") return axios.post(path, { id, title, description, fileIds: files.map(file => file.id) });
     const base = { revision: row!.revision };
