@@ -165,6 +165,7 @@ export const LeadsTable = () => {
         )}
       </div>
 
+      <div className="ld-results-heading"><h2>{t('leadsLayout.results')}</h2><span>{t('leadsLayout.visibleCount', {count: leads.length})}</span></div>
       {/* Table */}
       <div className="ld-table-scroll border border-border rounded-lg overflow-x-auto">
         <table className="w-full text-sm min-w-[900px]">

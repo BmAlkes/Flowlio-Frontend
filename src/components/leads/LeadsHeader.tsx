@@ -11,6 +11,7 @@ import { LeadFieldsManager } from "./LeadFieldsManager";
 import { LeadTagsManager } from "./LeadTagsManager";
 import { useExportLeads } from "@/hooks/useLeadExtras";
 import { toast } from "sonner";
+import { WorkspaceHeader, workspacePage } from "@/components/ui/workspace-page";
 import "./leads-layout.css";
 
 export const LeadsHeader = () => {
@@ -23,14 +24,9 @@ export const LeadsHeader = () => {
   const exportLeads = useExportLeads();
 
   return (
-    <main className="leads-workspace">
-      <header className="ld-heading">
-        <div className="ld-heading-main">
-          <span className="ld-heading-icon" aria-hidden="true"><ContactRound size={27} /></span>
-          <div><h1>{t("leadsLayout.title")}</h1><p>{t("leadsLayout.description")}</p></div>
-        </div>
-        <Button className="ld-primary" onClick={() => setShowCreate(true)}><CirclePlus size={18} />{t("leadsLayout.newLead")}</Button>
-      </header>
+    <main className={`${workspacePage} leads-workspace`}>
+      <WorkspaceHeader icon={ContactRound} title={t("leadsLayout.title")} description={t("leadsLayout.description")}
+        actions={<Button className="ld-primary" onClick={() => setShowCreate(true)}><CirclePlus size={18} />{t("leadsLayout.newLead")}</Button>} />
       <div className="ld-toolbar">
         <div className="ld-view-toggle" role="group" aria-label={t("leadsLayout.view")}>
           <Button variant="ghost" size="sm" aria-pressed={view === "table"} onClick={() => setView("table")}><List size={16} />{t("leadsLayout.table")}</Button>

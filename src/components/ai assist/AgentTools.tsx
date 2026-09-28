@@ -52,7 +52,7 @@ export function AgentTools({contentOpen,onAssistant,onHistory}:{contentOpen:numb
   }catch(e){setError(t('hub.saveError'));throw e;}
  }
  const choose=(value:typeof tool)=>{setTool(value);setError('');setReceipt(null);};
- return <div className="min-h-0 flex-1 overflow-y-auto p-5 space-y-5">
+ return <div className="ai-tools min-h-0 flex-1 overflow-y-auto p-5 space-y-5">
   <div className="flex items-center justify-between gap-2">{tool?<Button variant="ghost" size="sm" disabled={busy} onClick={()=>choose(null)}><ArrowLeft className="size-4 rtl:rotate-180"/>{t('hub.tools')}</Button>:<h3 className="font-semibold">{t('hub.tools')}</h3>}<Button variant="ghost" size="sm" onClick={onHistory} disabled={busy}><History className="size-4"/>{t('agent.history')}</Button></div>
   {!tool&&<><p className="text-sm leading-6 text-muted-foreground">{t('hub.toolsNote')}</p><div className="grid gap-3 sm:grid-cols-2">
    {canClient&&<ToolCard icon={UserPlus} title={t('hub.client')} note={t('hub.clientNote')} onClick={()=>choose('client')}/>}
@@ -62,7 +62,7 @@ export function AgentTools({contentOpen,onAssistant,onHistory}:{contentOpen:numb
    <ToolCard icon={FileText} title={t('hub.weekly')} note={t('hub.weeklyNote')} onClick={()=>choose('weekly')}/>
    <ToolCard icon={ListTodo} title={t('hub.insights')} note={t('hub.insightsNote')} onClick={()=>choose('insights')}/>
    <ToolCard icon={Image} title={t('hub.content')} note={t('hub.contentNote')} onClick={()=>choose('content')}/>
-   {canClient&&<Button asChild variant="outline" className="h-auto justify-start whitespace-normal p-4"><Link to="/dashboard/proposals"><FileText className="size-5 shrink-0"/>{t('hub.proposals')}</Link></Button>}
+   {canClient&&<Link to="/dashboard/proposals" className="ai-tool-card block"><FileText aria-hidden="true" className="mb-3 size-5 text-primary"/><span className="block text-sm font-semibold">{t('hub.proposals')}</span></Link>}
   </div></>}
   {(tool==='weekly'||tool==='insights')&&<AgentReports key={tool} kind={tool}/>}
   {tool==='content'&&<><p className="text-sm text-muted-foreground">{t('hub.contentNote')}</p><Button variant="outline" size="sm" disabled={store.isLoading} onClick={()=>store.setActiveChat(store.addChat({title:t('hub.content'),messages:[]}))}>{t('hub.newContent')}</Button><AiAssistChat withoutWelcomeGrids sessionManaged /></>}
@@ -73,5 +73,5 @@ export function AgentTools({contentOpen,onAssistant,onHistory}:{contentOpen:numb
  </div>;
 }
 function ToolCard({icon:Icon,title,note,onClick}:{icon:typeof Briefcase;title:string;note:string;onClick:()=>void}){
- return <button className="rounded-xl border border-border p-4 text-start transition-colors hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-primary" onClick={onClick}><Icon aria-hidden="true" className="mb-3 size-5 text-primary"/><span className="block text-sm font-semibold">{title}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{note}</span></button>;
+ return <button className="ai-tool-card" onClick={onClick}><Icon aria-hidden="true" className="mb-3 size-5 text-primary"/><span className="block text-sm font-semibold">{title}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{note}</span></button>;
 }
