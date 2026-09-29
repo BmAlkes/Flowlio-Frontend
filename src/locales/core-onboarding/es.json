@@ -1,1 +1,23 @@
-{"title":"Primeros pasos","ownerDescription":"Registra tu primer cliente y proyecto, luego solicita y recibe la aprobación de un hito de entrega.","memberDescription":"Completa una tarea asignada, registra tiempo de trabajo terminado y añade una foto al perfil.","evidence":"El progreso se confirma con registros guardados. Abrir un enlace no completa un paso.","step_create_client":"Tener un cliente registrado","step_create_project":"Tener un proyecto listo","step_approve_delivery":"Recibir la aprobación de una entrega","step_complete_task":"Completar una tarea asignada","step_log_time":"Registrar tiempo de trabajo terminado","step_update_profile":"Añadir una foto al perfil","progress":"Progreso de primeros pasos","completed":"Todos los pasos confirmados. Puedes cerrar esta lista.","done":"Completado","dismiss":"Ocultar lista","start":"Ver mis pasos","refresh":"Comprobar progreso","error":"No se pudo ocultar la lista. Inténtalo de nuevo."}
+{
+  "title": "Primeros pasos",
+  "ownerDescription": "Elige la moneda de la organización, registra tu primer cliente y proyecto, luego solicita y recibe la aprobación de un hito de entrega.",
+  "memberDescription": "Completa una tarea asignada, registra tiempo de trabajo terminado y añade una foto al perfil.",
+  "evidence": "El progreso se confirma con registros guardados. Abrir un enlace no completa un paso.",
+  "step_create_client": "Tener un cliente registrado",
+  "step_create_project": "Tener un proyecto listo",
+  "step_approve_delivery": "Recibir la aprobación de una entrega",
+  "step_complete_task": "Completar una tarea asignada",
+  "step_log_time": "Registrar tiempo de trabajo terminado",
+  "step_update_profile": "Añadir una foto al perfil",
+  "progress": "Progreso de primeros pasos",
+  "completed": "Todos los pasos confirmados. Puedes cerrar esta lista.",
+  "done": "Completado",
+  "dismiss": "Ocultar lista",
+  "start": "Ver mis pasos",
+  "refresh": "Comprobar progreso",
+  "error": "No se pudo ocultar la lista. Inténtalo de nuevo.",
+  "managerDescription": "Registra tu primer cliente y proyecto, luego solicita y recibe la aprobación de un hito de entrega.",
+  "step_configure_currency": "Elegir la moneda de la organización",
+  "currencyDescription": "Elige la moneda de tu organización antes de crear registros financieros. Es independiente del idioma y no convierte los importes existentes.",
+  "currencyReady": "Moneda de la organización guardada. Ya puedes continuar con los siguientes pasos."
+}

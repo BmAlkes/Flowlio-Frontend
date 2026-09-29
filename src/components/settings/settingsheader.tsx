@@ -127,7 +127,11 @@ const settingsSchema = z
     },
   );
 
-export const SettingsHeader = () => {
+export const SettingsHeader = ({
+  organizationSettings,
+}: {
+  organizationSettings?: React.ReactNode;
+}) => {
   const { t } = useTranslation();
   const { data: userData, isLoading } = useUser();
   const queryClient = useQueryClient();
@@ -741,7 +745,12 @@ export const SettingsHeader = () => {
               <LanguageSwitcher />
             </Flex>
           </Stack>
+        </Stack>
+      </form>
 
+      {organizationSettings}
+
+      <Stack className="gap-8 mt-4">
           {/* Security Settings Section */}
           <Stack className="w-full bg-card border-1 border-border p-8 rounded-xl max-md:px-3">
             <h1 className="text-2xl font-semibold">
@@ -1056,8 +1065,7 @@ export const SettingsHeader = () => {
               </Button>
             </div>
           </Stack>
-        </Stack>
-      </form>
+      </Stack>
     </ComponentWrapper>
   );
 };

@@ -8,6 +8,10 @@ import { useDataScope } from "@/hooks/useDataScope";
 
 export function OnboardingProvider() {
   const scope = useDataScope();
+  return <ScopedOnboardingProvider key={scope} />;
+}
+
+function ScopedOnboardingProvider() {
   const { data: userData } = useUser();
   const { data: userProfile } = useUserProfile();
   const { data, isLoading, isFirstVisit, showOnboarding, dismiss } = useOnboarding();
@@ -20,12 +24,13 @@ export function OnboardingProvider() {
 
   // Show welcome modal only on confirmed first visit
   useEffect(() => {
-    setShowModal(!isLoading && isFirstVisit && !passwordChangePending);
-  }, [scope, isLoading, isFirstVisit, passwordChangePending]);
+    if (!isLoading && isFirstVisit && !passwordChangePending) setShowModal(true);
+  }, [isLoading, isFirstVisit, passwordChangePending]);
 
   if (isLoading || !data || !showOnboarding || passwordChangePending) return null;
 
   const orgName = userData?.user?.organization?.name;
+  const currencyStep = data.role === "admin" && userData?.user?.role === "user" && !!userData.user.isOrganizationOwner && "configure_currency" in data.steps;
 
   return (
     <>
@@ -33,6 +38,8 @@ export function OnboardingProvider() {
         <OnboardingWelcomeModal
           organizationName={orgName}
           member={data.role === "member"}
+          currencyStep={currencyStep}
+          currencyConfigured={!!data.steps.configure_currency?.completedAt}
           onStart={() => setShowModal(false)}
           onDismiss={() => {
             setShowModal(false);
@@ -40,7 +47,7 @@ export function OnboardingProvider() {
           }}
         />
       )}
-      {!showModal && <OnboardingChecklist key={scope} />}
+      {!showModal && <OnboardingChecklist />}
     </>
   );
 }

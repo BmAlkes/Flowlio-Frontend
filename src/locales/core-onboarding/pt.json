@@ -1,1 +1,23 @@
-{"title":"Primeiros passos","ownerDescription":"Cadastre o primeiro cliente e projeto, depois solicite e receba a aprovação de um marco de entrega.","memberDescription":"Conclua uma tarefa atribuída, registre horas de trabalho concluídas e adicione uma foto ao perfil.","evidence":"O progresso é confirmado pelos registros salvos. Abrir um link não conclui uma etapa.","step_create_client":"Ter um cliente cadastrado","step_create_project":"Ter um projeto pronto","step_approve_delivery":"Receber a aprovação de uma entrega","step_complete_task":"Concluir uma tarefa atribuída","step_log_time":"Registrar horas de trabalho concluídas","step_update_profile":"Adicionar uma foto ao perfil","progress":"Progresso dos primeiros passos","completed":"Todas as etapas confirmadas. Você pode fechar este checklist.","done":"Concluído","dismiss":"Ocultar checklist","start":"Ver meus passos","refresh":"Conferir progresso","error":"Não foi possível ocultar o checklist. Tente novamente."}
+{
+  "title": "Primeiros passos",
+  "ownerDescription": "Escolha a moeda da organização, cadastre o primeiro cliente e projeto, depois solicite e receba a aprovação de um marco de entrega.",
+  "memberDescription": "Conclua uma tarefa atribuída, registre horas de trabalho concluídas e adicione uma foto ao perfil.",
+  "evidence": "O progresso é confirmado pelos registros salvos. Abrir um link não conclui uma etapa.",
+  "step_create_client": "Ter um cliente cadastrado",
+  "step_create_project": "Ter um projeto pronto",
+  "step_approve_delivery": "Receber a aprovação de uma entrega",
+  "step_complete_task": "Concluir uma tarefa atribuída",
+  "step_log_time": "Registrar horas de trabalho concluídas",
+  "step_update_profile": "Adicionar uma foto ao perfil",
+  "progress": "Progresso dos primeiros passos",
+  "completed": "Todas as etapas confirmadas. Você pode fechar este checklist.",
+  "done": "Concluído",
+  "dismiss": "Ocultar checklist",
+  "start": "Ver meus passos",
+  "refresh": "Conferir progresso",
+  "error": "Não foi possível ocultar o checklist. Tente novamente.",
+  "managerDescription": "Cadastre o primeiro cliente e projeto, depois solicite e receba a aprovação de um marco de entrega.",
+  "step_configure_currency": "Escolher a moeda da organização",
+  "currencyDescription": "Escolha a moeda usada pela organização antes de criar registros financeiros. Ela independe do idioma e não converte valores existentes.",
+  "currencyReady": "Moeda da organização salva. Você já pode continuar com os próximos passos."
+}

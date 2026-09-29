@@ -7,8 +7,7 @@ const SettingPage = () => {
   return (
     <Box className="px-2">
       <AuditSettingsLink />
-      <CurrencySettings />
-      <SettingsHeader />
+      <SettingsHeader organizationSettings={<CurrencySettings />} />
     </Box>
   );
 };
