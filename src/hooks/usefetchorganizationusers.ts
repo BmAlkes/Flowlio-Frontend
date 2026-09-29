@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useDataScope } from "./useDataScope";
 import {
   axios,
   type ApiResponse,
@@ -49,8 +50,9 @@ export interface OrganizationUsersResponse {
 }
 
 export const useFetchOrganizationUsers = (options?: { enabled?: boolean }) => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<OrganizationUsersResponse>, ErrorWithMessage>({
-    queryKey: ["organization-users"],
+    queryKey: ["organization-user-members", scope],
     queryFn: async () => {
       const response = await axios.get<ApiResponse<OrganizationUsersResponse>>(
         "/organizations/current-org-user-members",

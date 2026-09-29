@@ -15,7 +15,7 @@ const types = ["approval", "unbilled", "capacity", "proposal", "budget"] as cons
 type Kind = typeof types[number];
 type Period = { from: string; to: string; week: string };
 type Settings = { approvalDays: number; proposalDays: number; unbilledMinutes: number; budgetPercent: number };
-export type AttentionItem = { key: string; type: Kind; title: string; resource_id: string; since: string; revision: string; assignee_id: string | null; assignee_name?: string | null; snoozed_until: string | null; details: { days?: number; threshold?: number; minutes?: number; available?: number; incomplete?: number; cost?: string; budget?: string; currency?: string; percent?: number } };
+export type AttentionItem = { key: string; type: Kind; title: string; resource_id: string; since: string; revision: string; assignee_id: string | null; assignee_name?: string | null; snoozed_until: string | null; details: { days?: number; threshold?: number; minutes?: number; available?: number; incomplete?: number; cost?: string; budget?: string; currency?: string; percent?: number; reviewId?: string } };
 type Report = { items: AttentionItem[]; page: number; hasMore: boolean; settings: Settings; gaps: { financialProjects: number; unknownCapacity: number }; financial: boolean; week: { from: string; to: string } };
 const selectClass = "block h-9 w-full rounded-md border border-border bg-background px-3 text-sm";
 const symbols = { approval: CheckCheck, unbilled: Clock3, capacity: UsersRound, proposal: FileText, budget: Wallet };
@@ -25,6 +25,7 @@ export function attentionSource(item: AttentionItem, period: Period) {
   if (item.type === "proposal") return `/dashboard/proposals?proposalId=${id}`;
   if (item.type === "capacity") return `/dashboard/team-capacity?week=${period.week}&userId=${id}`;
   if (item.type === "budget" || item.type === "unbilled") return `/dashboard/project/view/${id}/profitability?from=${period.from}&to=${period.to}`;
+  if (item.type === "approval") return `/dashboard/project/view/${id}${item.details.reviewId ? `?reviewId=${encodeURIComponent(item.details.reviewId)}` : ""}#delivery-reviews`;
   return `/dashboard/project/view/${id}`;
 }
 

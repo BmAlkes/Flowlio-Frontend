@@ -48,7 +48,6 @@ import { Flex } from "../ui/flex";
 import { Input } from "../ui/input";
 import { Stack } from "../ui/stack";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
-import { useCreateProjectComment } from "@/hooks/usecreateprojectcomment";
 import { CommentThread } from "@/components/common/CommentThread";
 import { Skeleton } from "../ui/skeleton";
 import {
@@ -76,6 +75,7 @@ export const ProjectView = () => {
   const user = userData?.user;
   const isClient = user?.role === "client";
   const showProjectFinancials = canViewInternalProjectFinancials(user);
+  const canReadOrganizationMembers = !!user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && !!user.isOrganizationOwner));
   const showAudit = user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && (user.isOrganizationOwner || user.isOrganizationManager)));
 
   const navigate = useNavigate();
@@ -84,15 +84,12 @@ export const ProjectView = () => {
 
   const { data: projectData, isLoading: projectLoading, error } = useFetchProjectById(id || "");
   const { data: customFieldsData } = useFetchCustomFields("project");
-  const { data: usersData, isLoading: usersLoading } = useFetchOrganizationUsers();
-
-  const isLoading = projectLoading || usersLoading;
+  const { data: usersData } = useFetchOrganizationUsers({ enabled: canReadOrganizationMembers });
 
   const { open, onOpenChange } = useGeneralModalDisclosure();
 
   // Fetch comments count for badge
   const { data: commentsData } = useFetchProjectComments(id || "");
-  const { mutate: createComment } = useCreateProjectComment();
 
   // Local state for inline edits (initialized with safe defaults)
   const [editStatus, setEditStatus] = useState<string>("pending");
@@ -122,7 +119,7 @@ export const ProjectView = () => {
     }
   }, [projectData?.data]);
 
-  if (isLoading) {
+  if (projectLoading) {
     return (
       <PageWrapper className="mt-6 p-6">
         {/* Header Skeleton */}
@@ -348,14 +345,6 @@ export const ProjectView = () => {
     onOpenChange(true);
   };
 
-  const handleApproveProject = () => {
-    if (!id) return;
-    createComment({
-      projectId: id,
-      content: "I approve this project completion.",
-    });
-  };
-
   const handleSaveAsTemplate = () => {
     if (!id || !templateNameInput.trim()) {
       toast.error("Please enter a template name");
@@ -397,7 +386,7 @@ export const ProjectView = () => {
             <Button
               variant="link"
               className="h-auto shrink-0 p-0 text-muted-foreground hover:text-foreground"
-              onClick={() => navigate("/dashboard/project")}
+              onClick={() => navigate(isClient ? "/clients/projects" : "/dashboard/project")}
             >
               {t("appSidebar.projects")}
             </Button>
@@ -820,7 +809,7 @@ export const ProjectView = () => {
                 </Select>
               </div>
               {!isClient && <Button onClick={handleQuickUpdate} disabled={isUpdating} className="w-full bg-[#11718c] text-white hover:bg-[#0e6078]">{isUpdating ? t("projectView.saving") : t("projectView.save")}</Button>}
-              {isClient && editStatus === "completed" && <Button onClick={() => { handleApproveProject(); toast.success("Project approved!"); }} className="w-full bg-green-700 text-white hover:bg-green-800">{t("projectView.approve")}</Button>}
+              {isClient && <Button asChild variant="outline" className="h-auto min-h-9 w-full whitespace-normal text-start"><a href="#delivery-reviews"><CheckCircle className="size-4 shrink-0" />{t("delivery.openReviews")}</a></Button>}
               <dl className="space-y-3 border-t border-border pt-4 text-xs">
                 <div className="flex flex-wrap justify-between gap-2"><dt className="text-muted-foreground">{t("projectView.created")}</dt><dd>{format(new Date(project.createdAt), "MMM dd, yyyy")}</dd></div>
                 <div className="flex flex-wrap justify-between gap-2"><dt className="text-muted-foreground">{t("projectView.updated")}</dt><dd>{format(new Date(project.updatedAt), "MMM dd, yyyy")}</dd></div>

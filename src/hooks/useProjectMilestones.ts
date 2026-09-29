@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export type MilestoneStatus = "pending" | "in_progress" | "completed";
 
@@ -18,11 +19,12 @@ export interface ProjectMilestone {
 }
 
 export const useFetchProjectMilestones = (projectId?: string) => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<ProjectMilestone[]>>({
-    queryKey: ["project-milestones", projectId],
+    queryKey: ["project-milestones", projectId, scope],
     queryFn: async () => {
       const response = await axios.get<ApiResponse<ProjectMilestone[]>>(
-        `/projects/${projectId}/milestones`,
+        `/projects/${encodeURIComponent(projectId!)}/milestones`,
       );
       return response.data;
     },
@@ -42,18 +44,19 @@ export const useUpdateMilestone = () => {
     }: {
       projectId: string;
       milestoneId: string;
-      data: { status?: MilestoneStatus; title?: string; dueDate?: string };
+      data: { status?: MilestoneStatus; title?: string; dueDate?: string | null };
     }) => {
       const response = await axios.patch<ApiResponse<ProjectMilestone>>(
-        `/projects/${projectId}/milestones/${milestoneId}`,
+        `/projects/${encodeURIComponent(projectId)}/milestones/${encodeURIComponent(milestoneId)}`,
         data,
       );
       return response.data;
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["project-milestones", variables.projectId],
-      });
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({queryKey: ["project-milestones", variables.projectId]}),
+        ...["delivery-reviews", "client-pending", "attention", "onboarding"].map(key => queryClient.invalidateQueries({queryKey: [key]})),
+      ]);
     },
   });
 };

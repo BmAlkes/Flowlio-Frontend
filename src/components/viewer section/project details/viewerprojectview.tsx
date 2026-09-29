@@ -27,6 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { DeliveryReviews } from "@/components/projects/DeliveryReviews";
 
 export const ViewerProjectView = () => {
   const { t } = useTranslation();
@@ -259,7 +260,7 @@ export const ViewerProjectView = () => {
       {/* Main Content Grid */}
       <Box className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Project Details */}
-        <Box className="lg:col-span-2 space-y-6">
+        <Box className="min-w-0 lg:col-span-2 space-y-6">
           {/* Project Information */}
           <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50/30 p-0">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg p-3">
@@ -352,6 +353,7 @@ export const ViewerProjectView = () => {
               )}
             </CardContent>
           </Card>
+          <DeliveryReviews key={project.id} projectId={project.id} />
         </Box>
 
         {/* Right Column - Client & Timeline */}
