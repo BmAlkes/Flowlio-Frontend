@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { AutomationNavigation } from "@/components/ui/automation-navigation";
 import {
   AlertTriangle, CheckCircle2, Loader2, PlayCircle, Zap,
   ChevronDown, ChevronUp, History as HistoryIcon,
@@ -237,6 +239,7 @@ function AutomationCard({
 }
 
 const AutomationsPage = () => {
+  const { t } = useTranslation();
   const { data: userData } = useUser();
   const organizationId = userData?.user?.organizationId;
   const { data: settingsData } = useAutomationSettings(organizationId);
@@ -250,13 +253,14 @@ const AutomationsPage = () => {
 
   return (
     <Box className="px-2">
+      <AutomationNavigation />
       <Stack className="gap-1 mb-6">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
           <Zap className="h-6 w-6" />
-          Automations
+          {t("workflows.navigation")}
         </h1>
         <p className="text-muted-foreground">
-          Background jobs that automatically notify your team by email (and in the notification bell) when something needs attention. Use "Run now" to trigger one manually without waiting for its schedule.
+          {t("workflows.readyMadeHint")}
         </p>
       </Stack>
 

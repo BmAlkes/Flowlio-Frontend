@@ -1,3 +1,4 @@
+import { MemoryRouter } from "react-router";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, it, vi } from "vitest";
@@ -34,7 +35,7 @@ it("commercial results preserve currency and require review", async () => {
 });
 it("task creation requires an explicit assignee and sends the selected action", async () => {
   api.get.mockImplementation(async (path: string) => ({ data: { data: path === "/workflows/options" ? { members: [{ id: "owner", name: "Ana" }], projects: [] } : [] } })); api.post.mockResolvedValue({});
-  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><WorkflowsPage /></QueryClientProvider>); const user = userEvent.setup();
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><WorkflowsPage /></MemoryRouter></QueryClientProvider>); const user = userEvent.setup();
   await user.type(screen.getByLabelText(messages.name), "Delivery task"); await user.click(screen.getByRole("radio", { name: messages.create_task }));
   const assignee = screen.getByLabelText(messages.assignee); expect(assignee).toBeRequired(); expect(assignee).toHaveValue("");
   await user.selectOptions(assignee, "owner"); await user.type(screen.getByLabelText(messages.notificationTitle), "Review next steps"); await user.type(screen.getByLabelText(messages.message), "Check the next milestone");

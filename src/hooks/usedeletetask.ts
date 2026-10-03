@@ -18,6 +18,7 @@ export const useDeleteTask = () => {
     onSuccess: () => {
       // Invalidate and refetch tasks
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       // Invalidate dashboard stats when task is deleted

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { clientStatusSchema } from "@/contracts/core-api";
 import {
   Form,
@@ -166,6 +167,7 @@ export const ClientForm = ({
   onClose,
   focusPortalAccess,
 }: ClientFormProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutate: createClient, isPending: isCreating } = useCreateClient();
   const { mutate: updateClient, isPending: isUpdating } = useUpdateClient();
@@ -211,7 +213,7 @@ export const ClientForm = ({
       socialMediaLinks: parseSocialMediaLinks(client?.socialMediaLinks),
       customFields: client?.customFields || {},
       portalPassword: "",
-      portalAccessEnabled: client?.portalAccessEnabled ?? true,
+      portalAccessEnabled: client?.portalAccessEnabled ?? false,
     },
   });
 
@@ -336,7 +338,7 @@ export const ClientForm = ({
     setImageError("");
 
     // Validate password for create mode
-    if (mode === "create") {
+    if (mode === "create" && values.portalAccessEnabled) {
       if (!values.portalPassword || values.portalPassword.length < 8) {
         toast.error("Password must be at least 8 characters.");
         return;
@@ -357,7 +359,7 @@ export const ClientForm = ({
       ),
       customFields: values.customFields,
       portalAccessEnabled: values.portalAccessEnabled ?? true,
-      ...(mode === "create" && { password: values.portalPassword }),
+      ...(mode === "create" && values.portalAccessEnabled && { password: values.portalPassword }),
       ...(mode === "edit" && values.portalPassword && values.portalPassword.length >= 8 && { password: values.portalPassword }),
     };
 
@@ -729,15 +731,13 @@ export const ClientForm = ({
             <Box ref={portalAccessRef} className="mt-6 p-4 border border-border rounded-xl bg-muted/30 scroll-mt-24">
               <Stack className="gap-4">
                 <h1 className="text-foreground text-xl font-medium">
-                  Client Portal Access
+                  {t("retainers.portalAccessTitle")}
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                  {mode === "create"
-                    ? "Every client will have portal access to view projects, tasks & invoices"
-                    : "Leave blank to keep the current password. Fill in to set a new portal password."}
+                  {t("retainers.portalAccessHint")}
                 </p>
 
-                {mode === "edit" && (
+                {(
                   <FormField
                     control={form.control}
                     name="portalAccessEnabled"
@@ -745,11 +745,9 @@ export const ClientForm = ({
                       <FormItem>
                         <Flex className="items-center justify-between max-w-md rounded-lg border border-border bg-background px-4 py-3">
                           <Box>
-                            <FormLabel className="text-sm font-medium">Portal access</FormLabel>
+                            <FormLabel className="text-sm font-medium">{t("retainers.portalEnable")}</FormLabel>
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              {field.value === false
-                                ? "This client is blocked from logging into the portal, even with the correct password."
-                                : "This client can log into the portal."}
+                              {t("retainers.portalAccessHint")}
                             </p>
                           </Box>
                           <FormControl>
@@ -761,13 +759,13 @@ export const ClientForm = ({
                   />
                 )}
 
-                  <FormField
+                  {(mode === "edit" || form.watch("portalAccessEnabled")) && <FormField
                     control={form.control}
                     name="portalPassword"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          {mode === "create" ? "Portal password (required)" : "New portal password (optional)"}
+                          {t(mode === "create" ? "retainers.portalPassword" : "retainers.portalPasswordOptional")}
                         </FormLabel>
                         <FormControl>
                           <div className="relative max-w-md">
@@ -794,7 +792,7 @@ export const ClientForm = ({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  />}
                 </Stack>
               </Box>
 

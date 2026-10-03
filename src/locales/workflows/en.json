@@ -1,6 +1,6 @@
 {
-  "title": "Workflows",
-  "description": "Turn project milestones, client decisions and monthly consumption into the next action.",
+  "title": "Create your own rule",
+  "description": "Choose what happens first, then what Flowlio should do for you.",
   "forbidden": "Only organization owners and managers can configure their workflows.",
   "create": "New workflow",
   "name": "Name",
@@ -77,5 +77,9 @@
   "retry": "Retry safely",
   "reviewRequired": "Review before issuing",
   "openResource": "Open source",
-  "uncertainNote": "Check delivery with the provider before sending anything manually. Automatic resend is disabled to avoid duplicates."
+  "uncertainNote": "Check delivery with the provider before sending anything manually. Automatic resend is disabled to avoid duplicates.",
+  "navigation": "Automations",
+  "readyMade": "Ready-made reminders",
+  "customRules": "Create a rule",
+  "readyMadeHint": "Choose which reminders your team receives. Each reminder explains who receives it and when."
 }

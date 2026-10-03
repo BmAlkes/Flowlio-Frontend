@@ -1,6 +1,6 @@
 {
-  "title": "Workflows",
-  "description": "Convierte hitos, decisiones del cliente y consumo mensual en la siguiente acción.",
+  "title": "Crea tu propia regla",
+  "description": "Elige qué ocurre primero y qué debe hacer Flowlio por ti.",
   "forbidden": "Solo propietarios y gestores pueden configurar sus flujos.",
   "create": "Nuevo flujo",
   "name": "Nombre",
@@ -77,5 +77,9 @@
   "retry": "Reintentar de forma segura",
   "reviewRequired": "Revisar antes de emitir",
   "openResource": "Abrir origen",
-  "uncertainNote": "Comprueba el envío con el proveedor antes de enviar manualmente. El reenvío automático está desactivado para evitar duplicados."
+  "uncertainNote": "Comprueba el envío con el proveedor antes de enviar manualmente. El reenvío automático está desactivado para evitar duplicados.",
+  "navigation": "Automatizaciones",
+  "readyMade": "Recordatorios listos",
+  "customRules": "Crear una regla",
+  "readyMadeHint": "Elige los recordatorios del equipo. Cada uno explica quién lo recibe y cuándo."
 }

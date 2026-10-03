@@ -30,7 +30,7 @@ it("requests the displayed milestone and recipient with trimmed instructions", a
   await fill(user);
   await user.click(screen.getByRole("button", {name: messages.sendRequest}));
   await waitFor(() => expect(onRequested).toHaveBeenCalledWith("review", false));
-  expect(api.post).toHaveBeenCalledWith("/projects/project/delivery-reviews", {milestoneId: milestone.id, version: milestone.version, clientId: "client", note: "Please review the homepage"});
+  expect(api.post).toHaveBeenCalledWith("/projects/project/delivery-reviews", {milestoneId: milestone.id, version: milestone.version, clientId: "client", note: "Please review the homepage", completeMilestone: true});
   expect(onClose).toHaveBeenCalledOnce();
 });
 it("creates a missing milestone and then sends its first review without leaving the dialog", async () => {

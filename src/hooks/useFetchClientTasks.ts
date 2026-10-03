@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export interface ClientTask {
   id: string;
@@ -28,17 +29,22 @@ export const useFetchClientTasks = (
   clientId?: string,
   organizationId?: string,
 ) => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<ClientTasksData>>({
-    queryKey: ["client-tasks", clientId, organizationId],
-    queryFn: async () => {
+    queryKey: ["client-tasks", clientId, organizationId, scope],
+    queryFn: async ({signal}) => {
       const response = await axios<ApiResponse<ClientTasksData>>({
         method: "POST",
-        url: `/tasks/client/${clientId}`,
+        url: `/tasks/client/${encodeURIComponent(clientId!)}`,
         data: { organizationId },
+        signal,
       });
+      if (!Array.isArray(response.data.data?.tasks)) throw new Error("Invalid client tasks response");
       return response.data;
     },
     enabled: !!clientId && !!organizationId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
   });
 };

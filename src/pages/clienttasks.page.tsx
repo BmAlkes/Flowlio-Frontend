@@ -24,11 +24,11 @@ import {
   type ClientTask,
 } from "@/hooks/useFetchClientTasks";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { useUser } from "@/providers/user.provider";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Paperclip, User, FolderOpen } from "lucide-react";
+import { MessageCircle, Paperclip, User, FolderOpen, RefreshCw } from "lucide-react";
+import { useDataScope } from "@/hooks/useDataScope";
 
 const STATUS_STYLES: Record<string, { text: string; dot: string }> = {
   completed: { text: "text-white bg-[#00A400] border-none rounded-full", dot: "bg-white" },
@@ -56,21 +56,27 @@ const StatusBadge = ({ status, t }: { status: string; t: (key: string | string[]
   );
 };
 
-const ClientTasksPage = () => {
-  const { t } = useTranslation();
+const ClientTasksWorkspace = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { data: userData } = useUser();
+  const { data: userData, isLoading: userLoading, refetchUser } = useUser();
   const clientId = userData?.user?.clientId;
   const organizationId = userData?.user?.organizationId;
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedTask, setSelectedTask] = useState<ClientTask | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
-  const { data: tasksResponse, isLoading } = useFetchClientTasks(
+  const { data: tasksResponse, isLoading, isError, isFetching, refetch } = useFetchClientTasks(
     clientId || undefined,
     organizationId || undefined,
   );
 
-  const tasks = tasksResponse?.data?.tasks || [];
+  const tasks = useMemo(() => isError ? [] : tasksResponse?.data?.tasks ?? [], [isError, tasksResponse]);
+  const selectedTask = tasks.find(task => task.id === selectedTaskId) ?? null;
+  const hasIdentity = !!clientId && !!organizationId;
+  const date = (value?: string) => {
+    const parsed = value ? new Date(value) : null;
+    return parsed && !Number.isNaN(parsed.getTime()) ? new Intl.DateTimeFormat(i18n.language, {dateStyle: "medium"}).format(parsed) : t("common.notSet");
+  };
 
   const availableStatuses = useMemo(
     () => Array.from(new Set(tasks.map((task) => task.status?.toLowerCase()).filter(Boolean))),
@@ -90,7 +96,7 @@ const ClientTasksPage = () => {
       accessorKey: "title",
       header: () => <Box className="text-center text-foreground">{t("tasks.taskTitle")}</Box>,
       cell: ({ row }) => (
-        <Box className="text-center font-medium">{row.original.title}</Box>
+        <Button variant="link" className="h-auto max-w-full whitespace-normal text-start" onClick={() => setSelectedTaskId(row.original.id)}>{row.original.title}</Button>
       ),
     },
     {
@@ -114,9 +120,7 @@ const ClientTasksPage = () => {
       header: () => <Box className="text-center text-foreground">{t("projects.startDate")}</Box>,
       cell: ({ row }) => (
         <Box className="text-center">
-          {row.original.startDate
-            ? format(new Date(row.original.startDate), "MMM d, yyyy")
-            : t("common.notSet")}
+          {date(row.original.startDate)}
         </Box>
       ),
     },
@@ -125,9 +129,7 @@ const ClientTasksPage = () => {
       header: () => <Box className="text-center text-foreground">{t("projects.endDate")}</Box>,
       cell: ({ row }) => (
         <Box className="text-center">
-          {row.original.endDate
-            ? format(new Date(row.original.endDate), "MMM d, yyyy")
-            : t("common.notSet")}
+          {date(row.original.endDate)}
         </Box>
       ),
     },
@@ -147,8 +149,9 @@ const ClientTasksPage = () => {
       <Stack className="gap-1 p-6 mb-6">
         <h1 className="text-2xl font-medium text-foreground">{t("tasks.myTasks")}</h1>
         <p className="text-muted-foreground">
-          {t("tasks.myTasksDesc")}
+          {t("tasks.portal.description")}
         </p>
+        <Button variant="outline" className="mt-3 w-fit gap-2" disabled={userLoading || isFetching || !hasIdentity} onClick={() => void refetch()}><RefreshCw aria-hidden="true" className={`size-4 ${isFetching ? "animate-spin motion-reduce:animate-none" : ""}`} />{t("tasks.portal.refresh")}</Button>
       </Stack>
 
       {!isLoading && availableStatuses.length > 0 && (
@@ -158,7 +161,7 @@ const ClientTasksPage = () => {
               <SelectValue placeholder={t("projects.status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("projects.allProjects", "All")}</SelectItem>
+              <SelectItem value="all">{t("tasks.portal.all")}</SelectItem>
               {availableStatuses.map((status) => (
                 <SelectItem key={status} value={status}>
                   {t([`projects.statusValue.${status}`, `tasks.statusValue.${status.replace(" ", "_")}`, status])}
@@ -169,8 +172,16 @@ const ClientTasksPage = () => {
         </Box>
       )}
 
-      {isLoading ? (
-        <Box className="flex justify-center p-10">Loading tasks...</Box>
+      {userLoading || isLoading ? (
+        <Box role="status" className="flex justify-center p-10">{t("tasks.loadingTasks")}</Box>
+      ) : !hasIdentity ? (
+        <Box role="alert" className="space-y-3 rounded-xl border border-border p-6"><p>{t("tasks.portal.identityError")}</p><Button variant="outline" onClick={() => void refetchUser()}>{t("tasks.portal.retry")}</Button></Box>
+      ) : isError ? (
+        <Box role="alert" className="space-y-3 rounded-xl border border-destructive/30 p-6"><p>{t("tasks.portal.loadError")}</p><Button variant="outline" disabled={isFetching} onClick={() => void refetch()}>{t("tasks.portal.retry")}</Button></Box>
+      ) : tasks.length === 0 ? (
+        <Box role="status" className="space-y-2 rounded-xl border border-border p-6"><p className="font-medium">{t("tasks.portal.empty")}</p><p className="text-sm leading-6 text-muted-foreground">{t("tasks.portal.emptyHint")}</p></Box>
+      ) : filteredTasks.length === 0 ? (
+        <Box role="status" className="space-y-3 rounded-xl border border-border p-6"><p>{t("tasks.portal.filteredEmpty")}</p><Button variant="outline" onClick={() => setStatusFilter("all")}>{t("tasks.portal.clearFilters")}</Button></Box>
       ) : (
         <Box className=" rounded-xl   border border-border overflow-hidden">
           <ReusableTable
@@ -178,12 +189,11 @@ const ClientTasksPage = () => {
             columns={columns}
             searchClassName="rounded-full"
             filterClassName="rounded-full"
-            onRowClick={(row) => setSelectedTask(row.original)}
           />
         </Box>
       )}
 
-      <Sheet open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+      <Sheet open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTaskId(null)}>
         <SheetContent className="sm:max-w-lg overflow-y-auto">
           {selectedTask && (
             <>
@@ -196,7 +206,7 @@ const ClientTasksPage = () => {
                 {selectedTask.description && (
                   <Box>
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                      Description
+                      {t("tasks.portal.taskDescription")}
                     </p>
                     <p className="text-sm text-foreground whitespace-pre-wrap">{selectedTask.description}</p>
                   </Box>
@@ -216,13 +226,13 @@ const ClientTasksPage = () => {
                   <Box>
                     <p className="text-xs text-muted-foreground">{t("projects.startDate")}</p>
                     <p className="font-medium text-foreground">
-                      {selectedTask.startDate ? format(new Date(selectedTask.startDate), "MMM d, yyyy") : t("common.notSet")}
+                      {date(selectedTask.startDate)}
                     </p>
                   </Box>
                   <Box>
                     <p className="text-xs text-muted-foreground">{t("projects.endDate")}</p>
                     <p className="font-medium text-foreground">
-                      {selectedTask.endDate ? format(new Date(selectedTask.endDate), "MMM d, yyyy") : t("common.notSet")}
+                      {date(selectedTask.endDate)}
                     </p>
                   </Box>
                 </Flex>
@@ -231,7 +241,7 @@ const ClientTasksPage = () => {
                   <Box>
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                       <Paperclip className="h-3.5 w-3.5" />
-                      Attachments ({selectedTask.attachments.length})
+                      {t("tasks.portal.attachments", {count: selectedTask.attachments.length})}
                     </p>
                   </Box>
                 )}
@@ -246,7 +256,7 @@ const ClientTasksPage = () => {
                   }
                 >
                   <MessageCircle className="h-4 w-4" />
-                  Ask a question about this task
+                  {t("tasks.portal.askQuestion")}
                 </Button>
               </Stack>
             </>
@@ -257,4 +267,7 @@ const ClientTasksPage = () => {
   );
 };
 
-export default ClientTasksPage;
+export default function ClientTasksPage() {
+  const scope = useDataScope();
+  return <ClientTasksWorkspace key={scope} />;
+}

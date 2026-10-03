@@ -1,6 +1,6 @@
 {
-  "title": "Workflows",
-  "description": "Transforme marcos, decisões do cliente e consumo mensal na próxima ação.",
+  "title": "Crie sua própria regra",
+  "description": "Escolha o que acontece primeiro e o que o Flowlio deve fazer por você.",
   "forbidden": "Apenas donos e gestores da organização podem configurar seus fluxos.",
   "create": "Novo fluxo",
   "name": "Nome",
@@ -77,5 +77,9 @@
   "retry": "Tentar novamente com segurança",
   "reviewRequired": "Revisar antes de emitir",
   "openResource": "Abrir origem",
-  "uncertainNote": "Confira o envio com o provedor antes de enviar manualmente. O reenvio automático está desativado para evitar duplicidade."
+  "uncertainNote": "Confira o envio com o provedor antes de enviar manualmente. O reenvio automático está desativado para evitar duplicidade.",
+  "navigation": "Automações",
+  "readyMade": "Lembretes prontos",
+  "customRules": "Criar uma regra",
+  "readyMadeHint": "Escolha quais lembretes a equipe recebe. Cada lembrete explica quem recebe e quando."
 }

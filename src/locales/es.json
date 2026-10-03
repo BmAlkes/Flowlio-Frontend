@@ -609,6 +609,25 @@
       "updated": "Actualizada",
       "delay": "Retraso",
       "changes": "Cambios"
+    },
+    "portal": {
+      "description": "Tareas de tus proyectos compartidas contigo.",
+      "refresh": "Actualizar tareas",
+      "retry": "Intentar de nuevo",
+      "all": "Todos los estados",
+      "identityError": "No se pudo vincular tu cuenta de cliente a una organización. Recarga tu perfil; si el problema continúa, contacta con el equipo del proyecto.",
+      "loadError": "No se pudieron cargar tus tareas. Inténtalo de nuevo.",
+      "empty": "Todavía no se han compartido tareas contigo.",
+      "emptyHint": "Las tareas aparecen aquí cuando el equipo las marca como públicas en un proyecto vinculado a tu cuenta de cliente. Contacta con el equipo si esperabas ver alguna tarea.",
+      "filteredEmpty": "Ninguna tarea coincide con este estado.",
+      "clearFilters": "Mostrar todos los estados",
+      "taskDescription": "Descripción",
+      "attachments": "Archivos adjuntos ({{count}})",
+      "askQuestion": "Hacer una pregunta sobre esta tarea",
+      "publicTitle": "Tarea pública",
+      "privateTitle": "Tarea privada",
+      "publicHint": "Visible para quienes tienen acceso al proyecto, incluido el cliente vinculado a través del portal.",
+      "privateHint": "Visible solo para el creador y el responsable con acceso al proyecto. Oculta en el portal del cliente."
     }
   },
   "invoices": {

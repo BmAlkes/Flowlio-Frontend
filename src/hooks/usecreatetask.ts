@@ -62,6 +62,7 @@ export const useCreateTask = () => {
       console.log("Invalidate and refetch tasks!", data);
       // Invalidate and refetch tasks
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-tasks"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       // Invalidate dashboard stats when new task is created
