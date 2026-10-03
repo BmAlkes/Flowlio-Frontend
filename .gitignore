@@ -32,3 +32,6 @@ dist-ssr
 .cursor
 .qodo
 .skills
+
+# Local documentation
+/docs/
