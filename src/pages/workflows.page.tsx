@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Workflow, Bell, GitBranch, Zap, Play, History, Pause, ListTodo, UserRoundCheck, FileCheck2, ArrowUpRight } from "lucide-react";
 import { WorkspaceMetric, WorkspaceHeader, workspacePage, workspacePanel } from "@/components/ui/workspace-page";
 
+import { AutomationNavigation } from "@/components/ui/automation-navigation";
+
 export type WorkflowRule = { id: string; name: string; trigger: string; projectStatus: string | null; title: string; message: string; enabled: boolean; actionType?: string; channel?: string; recipientName?: string; targetProjectName?: string };
 const triggers = ["proposal_project", "delivery_approved", "delivery_changes_requested", "milestone_completed", "scope_approved", "retainer_80", "retainer_100", "retainer_closed", "retainer_overage_approved"];
 const actions = [{ id: "notify", icon: Bell }, { id: "create_task", icon: ListTodo }, { id: "assign_project", icon: UserRoundCheck }, { id: "prepare_billing", icon: FileCheck2 }];
@@ -42,6 +44,7 @@ export default function WorkflowsPage() {
   const create = useMutation({ mutationFn: () => axios.post("/workflows", { name, trigger, projectStatus: retainer && !needsProject ? null : projectStatus || null, title, message, actionType, channel: actionType === "notify" ? channel : "internal", ...(actionType !== "prepare_billing" ? { recipientId: recipient?.id } : {}), targetProjectId: needsProject ? project?.id : null }), onSuccess: () => { setName(""); setTitle(""); setMessage(""); void client.invalidateQueries({ queryKey: ["workflows"] }); } });
   if (!allowed) return <p className="p-6">{t("workflows.forbidden")}</p>;
   return <main className={workspacePage}>
+    <AutomationNavigation />
     <WorkspaceHeader icon={Workflow} title={t("workflows.title")} description={t("workflows.description")} />
     {query.data&&<dl className="grid gap-3 sm:grid-cols-3"><WorkspaceMetric icon={Workflow} label={t('workflows.title')} note={t('workspace.loadedItems')}>{query.data.length}</WorkspaceMetric><WorkspaceMetric icon={Zap} label={t('workflows.active')} tone="violet">{query.data.filter(r=>r.enabled).length}</WorkspaceMetric><WorkspaceMetric icon={Bell} label={t('workflows.paused')} tone="amber">{query.data.filter(r=>!r.enabled).length}</WorkspaceMetric></dl>}
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">

@@ -74,6 +74,7 @@ export const useUpdateTask = () => {
       console.log("Task updated successfully!", data);
       // Invalidate and refetch tasks
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-tasks"] });
       queryClient.invalidateQueries({ queryKey: ["task", variables.taskId] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
 
@@ -133,6 +134,7 @@ export const useUpdateTaskStatus = () => {
       console.log("Task status updated successfully!", data);
       // Invalidate and refetch tasks
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-tasks"] });
       queryClient.invalidateQueries({ queryKey: ["viewer-tasks"] }); // Added for viewer tasks
       queryClient.invalidateQueries({ queryKey: ["task", variables.taskId] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });

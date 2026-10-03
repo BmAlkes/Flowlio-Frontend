@@ -156,6 +156,8 @@ export const useEndTask = () => {
       queryClient.invalidateQueries({ queryKey: ["active-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["all-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["billable-time"] });
+      queryClient.invalidateQueries({ queryKey: ["retainer-detail"] });
+      queryClient.invalidateQueries({ queryKey: ["retainers"] });
       // Invalidate time tracking stats for real-time updates (especially important when task ends)
       queryClient.invalidateQueries({
         queryKey: ["organization-weekly-hours-tracked"],

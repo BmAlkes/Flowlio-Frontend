@@ -22,6 +22,23 @@ beforeEach(() => {
   api.post.mockResolvedValue({ data: {} });
 });
 function setup() { cache = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } }); render(<QueryClientProvider client={cache}><MemoryRouter initialEntries={["/client/client/contracts"]}><Routes><Route path="/client/:clientId/contracts" element={<RetainersPage />} /></Routes></MemoryRouter></QueryClientProvider>); return userEvent.setup(); }
+it("explains an empty month to the client without asking them to allocate hours", async () => {
+  api.owner = false; api.role = "client"; entries = []; setup();
+  expect(await screen.findByText(messages.noEntriesPortal)).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: messages.allocate })).not.toBeInTheDocument();
+  expect(screen.queryByText(messages.noEntries)).not.toBeInTheDocument();
+});
+it("shows a pending earlier month before the client needs to find it in the selector", async () => {
+  api.owner = false; api.role = "client";
+  const original = api.get.getMockImplementation()!;
+  api.get.mockImplementation(async (url: string, config?: unknown) => {
+    const result = await original(url, config);
+    if (url.endsWith("/contract")) result.data.data.awaiting = [{ id: "earlier", month: "2024-12" }];
+    return result;
+  });
+  const user = setup(); await user.click(await screen.findByRole("button", { name: `${messages.reviewMonth} 2024-12` }));
+  await waitFor(() => expect(api.get).toHaveBeenCalledWith("/clients/client/retainers/contract", expect.objectContaining({ params: expect.objectContaining({ periodId: "earlier" }) })));
+});
 it("reconciles totals and requires explicit confirmation to close the displayed revision", async () => {
   const user = setup(); expect(await screen.findByRole("progressbar")).toHaveAttribute("aria-valuetext", "1h 30m / 1h 00m");
   await user.click(screen.getByRole("button", { name: messages.close })); const modal = within(screen.getByRole("dialog"));
@@ -30,7 +47,7 @@ it("reconciles totals and requires explicit confirmation to close the displayed 
 });
 it("allocates only reviewed time using its server version", async () => {
   const user = setup(); await user.click(await screen.findByRole("button", { name: messages.allocate })); const modal = within(screen.getByRole("dialog"));
-  expect(modal.getByRole("button", { name: messages.save })).toBeDisabled(); await user.click(await modal.findByRole("checkbox", { name: /Website/ })); await user.click(modal.getByLabelText(messages.confirm)); await user.click(modal.getByRole("button", { name: messages.save }));
+  expect(modal.getByRole("button", { name: messages.save })).toBeDisabled(); await user.click(await modal.findByRole("checkbox", { name: /Website/ })); expect(modal.queryByLabelText(messages.confirm)).not.toBeInTheDocument(); await user.click(modal.getByRole("button", { name: messages.save }));
   await waitFor(() => expect(api.post).toHaveBeenCalledWith("/clients/client/retainers/contract", expect.objectContaining({ action: "allocate", revision: 3, entries: [{ id: "available", version: "a".repeat(64) }] })));
 });
 it("client approval is limited to the exact closed statement and carries the visible amount", async () => {

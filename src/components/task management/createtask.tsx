@@ -1,4 +1,5 @@
 import { IoArrowBack } from "react-icons/io5";
+import { useTranslation } from "react-i18next";
 import { PageWrapper } from "../common/pagewrapper";
 import { Box } from "../ui/box";
 import { useNavigate, useSearchParams } from "react-router";
@@ -107,6 +108,7 @@ export const CreateTask = ({
   onClose,
   isModal = false,
 }: CreateTaskProps = {}) => {
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectIdFromUrl = searchParams.get("projectId");
@@ -511,13 +513,13 @@ export const CreateTask = ({
                         <Globe className="w-4 h-4 text-blue-500" />
                       )}
                       {field.value === "private"
-                        ? "Private Task"
-                        : "Public Task"}
+                        ? t("tasks.portal.privateTitle")
+                        : t("tasks.portal.publicTitle")}
                     </FormLabel>
                     <p className="text-xs text-muted-foreground">
                       {field.value === "private"
-                        ? "Only the assignee and creator can see this task."
-                        : "Anyone in your organization can view this task."}
+                        ? t("tasks.portal.privateHint")
+                        : t("tasks.portal.publicHint")}
                     </p>
                   </Box>
                   <FormControl>

@@ -19,6 +19,7 @@ export function DeliveryRequestDialog({projectId, data, open, initialCreate = fa
   const id = useId();
   const [selected, setSelected] = useState<DeliveryMilestone | null>(null);
   const [note, setNote] = useState("");
+  const [completeMilestone, setCompleteMilestone] = useState(true);
   const [recipient] = useState(data.client);
   const [milestoneSaving, setMilestoneSaving] = useState(false);
   const [editor, setEditor] = useState<DeliveryMilestone | "create" | null>(initialCreate || !data.milestones.length ? "create" : null);
@@ -30,7 +31,7 @@ export function DeliveryRequestDialog({projectId, data, open, initialCreate = fa
   const request = useMutation({
     mutationFn: async () => {
       if (!selected || changed || clientChanged || blocked || existing || !note.trim()) throw new Error("Review is not ready");
-      return (await axios.post(`/projects/${encodeURIComponent(projectId)}/delivery-reviews`, {milestoneId: selected.id, version: selected.version, clientId: recipient?.id, note: note.trim()})).data.data as {id: string; existing: boolean};
+      return (await axios.post(`/projects/${encodeURIComponent(projectId)}/delivery-reviews`, {milestoneId: selected.id, version: selected.version, clientId: recipient?.id, note: note.trim(), completeMilestone})).data.data as {id: string; existing: boolean};
     },
     onSuccess: async result => {await onRequested(result.id, result.existing); setNote(""); onClose();},
     onError: async () => {await onRefresh();},
@@ -68,7 +69,7 @@ export function DeliveryRequestDialog({projectId, data, open, initialCreate = fa
           {changed && <div role="alert" className="space-y-2 rounded-lg border border-amber-200 p-3 text-sm"><p>{t("delivery.sourceChanged")}</p>{current && <Button type="button" size="sm" variant="outline" onClick={() => {setSelected(current); request.reset();}}>{t("delivery.useCurrentMilestone")}</Button>}</div>}
           {existing && !changed && <div className="space-y-2 rounded-lg border border-sky-200 bg-sky-50/40 p-3 text-sm dark:border-primary/30 dark:bg-primary/5"><p className="flex items-start gap-2 leading-6"><CheckCircle2 aria-hidden="true" className="mt-1 size-4 shrink-0 text-[#11718c] dark:text-sky-300" />{t("delivery.alreadyRequested")}</p><Button type="button" size="sm" variant="outline" onClick={() => {onOpenReview(existing.id); onClose();}}>{t("delivery.openExistingReview")}</Button></div>}
           <label htmlFor={`${id}-note`} className="block space-y-2 text-sm font-medium">{t("delivery.note")}<textarea id={`${id}-note`} required maxLength={4000} rows={4} value={note} onChange={event => setNote(event.target.value)} placeholder={t("delivery.notePlaceholder")} className="w-full rounded-md border border-input bg-background p-3 text-sm font-normal leading-6 placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-primary" /></label>
-          <p className="text-xs leading-5 text-muted-foreground">{t("delivery.requestNote")}</p>
+          <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={completeMilestone} onChange={e => setCompleteMilestone(e.target.checked)} />{t("pending.completeDelivery")}</label><p className="text-xs leading-5 text-muted-foreground">{t("delivery.requestNote")}</p>
           <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4"><Button type="button" variant="outline" onClick={close}>{t("delivery.cancel")}</Button><Button type="submit" className="bg-[#11718c] text-white hover:bg-[#0e6078]" disabled={!selected || changed || clientChanged || !!blocked || !!existing || !note.trim() || request.isPending} isLoading={request.isPending}><Send aria-hidden="true" className="size-4" />{t("delivery.sendRequest")}</Button></div>
         </fieldset>
         {request.isError && <p role="alert" className="text-sm leading-6 text-destructive">{t(`delivery.${code && errors[code] ? errors[code] : "requestError"}`)}</p>}

@@ -78,7 +78,6 @@
     "blog": "Blog",
     "demoAccounts": "Demo Accounts",
     "aiMonitoring": "AI Monitoring",
-    "automations": "Automations",
     "reports": "Reports & Analytics",
     "revenue": "Revenue",
     "subscriptions": "Subscriptions",
@@ -605,6 +604,25 @@
       "updated": "Updated",
       "delay": "Delay",
       "changes": "Changes"
+    },
+    "portal": {
+      "description": "Tasks shared with you from your projects.",
+      "refresh": "Refresh tasks",
+      "retry": "Try again",
+      "all": "All statuses",
+      "identityError": "Your client account could not be linked to an organization. Reload your profile; if this continues, contact the team managing your project.",
+      "loadError": "Could not load your tasks. Try again.",
+      "empty": "No tasks have been shared with you yet.",
+      "emptyHint": "Tasks appear here when the team marks them as public in a project linked to your client account. Contact your project team if you expected to see a task.",
+      "filteredEmpty": "No tasks match this status.",
+      "clearFilters": "Show all statuses",
+      "taskDescription": "Description",
+      "attachments": "Attachments ({{count}})",
+      "askQuestion": "Ask a question about this task",
+      "publicTitle": "Public task",
+      "privateTitle": "Private task",
+      "publicHint": "Visible to people who can access this project, including its linked client in the portal.",
+      "privateHint": "Visible only to the creator and assignee with access to the project. Hidden from the client portal."
     }
   },
   "invoices": {
