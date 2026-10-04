@@ -40,6 +40,15 @@
     "goBack": "חזרה"
   },
   "appSidebar": {
+    "agencyHome": "בית",
+    "agencyTasks": "משימות",
+    "agencyHours": "שעות שדווחו",
+    "agencyClients": "לקוחות",
+    "agencyWork": "עבודה",
+    "agencyFinance": "כספים",
+    "agencyTeam": "צוות",
+    "expandGroup": "הרחבת {{group}}",
+    "collapseGroup": "צמצום {{group}}",
     "operationalHistory": "היסטוריית פעילות",
     "dashboard": "לוח בקרה",
     "inbox": "תיבת דואר",
