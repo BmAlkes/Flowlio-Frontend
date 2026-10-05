@@ -40,6 +40,15 @@
     "unknown": "Unknown"
   },
   "appSidebar": {
+    "agencyHome": "Home",
+    "agencyTasks": "Tasks",
+    "agencyHours": "Tracked hours",
+    "agencyClients": "Clients",
+    "agencyWork": "Work",
+    "agencyFinance": "Finance",
+    "agencyTeam": "Team",
+    "expandGroup": "Expand {{group}}",
+    "collapseGroup": "Collapse {{group}}",
     "operationalHistory": "Operational history",
     "dashboard": "Dashboard",
     "inbox": "Inbox",

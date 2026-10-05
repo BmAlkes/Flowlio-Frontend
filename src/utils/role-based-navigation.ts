@@ -1,4 +1,5 @@
 import React from "react";
+import { groupAgencyNavigation } from "./agency-navigation";
 import { IoCalendarOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
 import { LuWandSparkles } from "react-icons/lu";
@@ -553,10 +554,10 @@ export const getNavigationItemsByRole = (
 ): NavItem[] => {
   if (role === "user") {
     if (isOrganizationOwner === true) {
-      return userOrgOwnerNavItems;
+      return groupAgencyNavigation(userOrgOwnerNavItems);
     }
     if (isOrganizationManager === true) {
-      return userOrgManagerNavItems;
+      return groupAgencyNavigation(userOrgManagerNavItems);
     }
   }
   switch (role) {

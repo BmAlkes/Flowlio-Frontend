@@ -40,6 +40,15 @@
     "goBack": "Voltar"
   },
   "appSidebar": {
+    "agencyHome": "Início",
+    "agencyTasks": "Tarefas",
+    "agencyHours": "Horas registradas",
+    "agencyClients": "Clientes",
+    "agencyWork": "Trabalho",
+    "agencyFinance": "Financeiro",
+    "agencyTeam": "Equipe",
+    "expandGroup": "Expandir {{group}}",
+    "collapseGroup": "Recolher {{group}}",
     "operationalHistory": "Histórico operacional",
     "dashboard": "Painel",
     "inbox": "Caixa de Entrada",

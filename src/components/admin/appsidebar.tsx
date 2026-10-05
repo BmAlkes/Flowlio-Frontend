@@ -34,6 +34,7 @@ import { Center } from "../ui/center";
 import { cn } from "@/lib/utils";
 import { Box } from "../ui/box";
 import { Logo } from "./logo";
+import { SidebarNavigation } from "./SidebarNavigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { setLoggingOut } from "@/configs/axios.config";
 
@@ -45,6 +46,7 @@ interface NavItemBase {
 
 export interface NavItem extends NavItemBase {
   subItems?: NavItemBase[];
+  section?: "secondary";
 }
 
 interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
@@ -158,7 +160,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
       <SidebarContent className="overflow-auto mt-10">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            {navItems.some(item => item.title === "agencyHome") ? <SidebarNavigation items={navItems} /> : <SidebarMenu>
               {navItems.map((item, index) => {
                 const normalizePath = (path: string) =>
                   decodeURIComponent(path).replace(/\/+$/, "").split("?")[0];
@@ -379,7 +381,7 @@ export const AppSidebar: FC<AppSidebarProps> = ({ navItems, ...props }) => {
                   </SidebarMenuItem>
                 );
               })}
-            </SidebarMenu>
+            </SidebarMenu>}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
