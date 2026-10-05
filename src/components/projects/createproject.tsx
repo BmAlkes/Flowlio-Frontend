@@ -1155,17 +1155,18 @@ export const CreateProject = () => {
         <GuidedFlowModal
           open={showGuidedFlow}
           onOpenChange={setShowGuidedFlow}
-          title="Project Created Successfully!"
-          description="Excellent! Your project is set up. Would you like to create a task for this project?"
+          title={t("firstWork.projectCreated")}
+          description={t("firstWork.projectReady")}
+          skipLabel={t("firstWork.openProject")}
           nextAction={{
-            label: "Create Task",
+            label: t("firstWork.createTask"),
             route: createdProjectId
-              ? `/dashboard/task-management/create-task?projectId=${createdProjectId}`
+              ? `/dashboard/task-management/create-task?projectId=${encodeURIComponent(createdProjectId)}`
               : "/dashboard/task-management/create-task",
-            description: "Start breaking down work into actionable tasks",
+            description: t("firstWork.taskHint"),
           }}
           onSkip={() => {
-            navigate("/dashboard/project");
+            navigate(createdProjectId ? `/dashboard/project/view/${encodeURIComponent(createdProjectId)}` : "/dashboard/project");
           }}
         />
       )}

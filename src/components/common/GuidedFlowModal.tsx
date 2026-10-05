@@ -11,6 +11,7 @@ import { Box } from "@/components/ui/box";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Flex } from "../ui/flex";
+import { useTranslation } from "react-i18next";
 
 interface GuidedFlowModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface GuidedFlowModalProps {
     description?: string;
   };
   onSkip?: () => void;
+  skipLabel?: string;
 }
 
 export const GuidedFlowModal = ({
@@ -32,8 +34,10 @@ export const GuidedFlowModal = ({
   description,
   nextAction,
   onSkip,
+  skipLabel,
 }: GuidedFlowModalProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleNextAction = () => {
     onOpenChange(false);
@@ -46,12 +50,12 @@ export const GuidedFlowModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(value) => { onOpenChange(value); if (!value) onSkip?.(); }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <Box className="flex items-center gap-3 mb-2">
-            <Box className="rounded-full bg-green-100 p-2">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            <Box className="rounded-full bg-emerald-500/10 p-2">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </Box>
             <DialogTitle className="text-xl">{title}</DialogTitle>
           </Box>
@@ -61,13 +65,13 @@ export const GuidedFlowModal = ({
         </DialogHeader>
 
         <Box className="py-4">
-          <Box className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm font-medium text-blue-900 mb-1">
-              Suggested Next Step:
+          <Box className="bg-sky-500/5 border border-sky-500/20 rounded-lg p-4">
+            <p className="text-sm font-medium text-foreground mb-1">
+              {t("firstWork.nextStep")}
             </p>
-            <p className="text-sm text-blue-700">{nextAction.label}</p>
+            <p className="text-sm text-[#11718c] dark:text-[#55bdd9]">{nextAction.label}</p>
             {nextAction.description && (
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {nextAction.description}
               </p>
             )}
@@ -81,14 +85,14 @@ export const GuidedFlowModal = ({
               onClick={handleSkip}
               className="flex-1 sm:flex-initial cursor-pointer"
             >
-              Skip for now
+              {skipLabel ?? t("firstWork.notNow")}
             </Button>
             <Button
               onClick={handleNextAction}
               className="bg-[#1797B9] hover:bg-[#1797B9]/90 text-white flex-1 sm:flex-initial cursor-pointer"
             >
               {nextAction.label}
-              <ArrowRight className="ms-2 h-4 w-4" />
+              <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
             </Button>
           </Flex>
         </DialogFooter>

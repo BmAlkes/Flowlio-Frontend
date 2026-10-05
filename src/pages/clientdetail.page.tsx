@@ -1,4 +1,6 @@
 import { clientStatusSchema } from "@/contracts/core-api";
+import { useState } from "react";
+import { ClientPortalAccessDialog } from "@/components/client-detail/ClientPortalAccessDialog";
 import { useSearchParams, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -78,6 +80,7 @@ export default function ClientDetailPage() {
   const updateClient = useUpdateClient();
   const deleteClient = useDeleteClient();
   const { client } = data;
+  const [portalOpen, setPortalOpen] = useState(false);
   const back = () => navigate("/dashboard/client-management");
   const edit = (portal = false) =>
     navigate("/dashboard/client-management/create-client", {
@@ -117,6 +120,7 @@ export default function ClientDetailPage() {
 
   return (
     <div className="client-detail">
+      {portalOpen && client && <ClientPortalAccessDialog clientId={client.id} email={client.email} onClose={() => setPortalOpen(false)} onManage={() => { setPortalOpen(false); edit(true); }} />}
       <header className="cd-toolbar">
         <button className="cd-back" onClick={back}>
           <ArrowLeft size={16} className="rtl:-scale-x-100" />
@@ -149,7 +153,7 @@ export default function ClientDetailPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => edit(true)}>
+                <DropdownMenuItem onClick={() => setPortalOpen(true)}>
                   <KeyRound size={15} />
                   {t("clientManagement.grantPortalAccess")}
                 </DropdownMenuItem>
@@ -176,7 +180,7 @@ export default function ClientDetailPage() {
               client={client}
               updating={updateClient.isPending}
               onStatusChange={changeStatus}
-              onPortal={() => edit(true)}
+              onPortal={() => setPortalOpen(true)}
             />
             <main className="cd-main">
               <Tabs

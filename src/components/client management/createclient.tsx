@@ -1042,18 +1042,20 @@ export const ClientForm = ({
         <GuidedFlowModal
           open={showGuidedFlow}
           onOpenChange={setShowGuidedFlow}
-          title="Client Created Successfully!"
-          description="Great! You've added a new client. Would you like to create a project for this client?"
+          title={t("firstWork.clientCreated")}
+          description={t("firstWork.clientReady")}
+          skipLabel={t("firstWork.openClient")}
           nextAction={{
-            label: "Create Project",
+            label: t("firstWork.createProject"),
             route: createdClientId
-              ? `/dashboard/project/create-project?clientId=${createdClientId}`
+              ? `/dashboard/project/create-project?clientId=${encodeURIComponent(createdClientId)}`
               : "/dashboard/project/create-project",
-            description: "Start organizing work for this client",
+            description: t("firstWork.projectHint"),
           }}
           onSkip={() => {
             onSuccess?.();
             onClose?.();
+            if (createdClientId) navigate(`/dashboard/client-management/${encodeURIComponent(createdClientId)}`);
           }}
         />
       )}
