@@ -27,10 +27,10 @@ export default function PortalInvitationPage() {
     } finally { setPending(false); }
   };
   return (
-    <main className="min-h-screen bg-background px-6 py-16 text-foreground">
+    <main className="min-h-screen bg-brand-soft/40 px-6 py-16 text-foreground">
       <div className="mx-auto max-w-md space-y-8">
-        <p className="text-xl font-semibold tracking-tight">Flowlio</p>
-        <section className="space-y-6 rounded-xl border bg-card p-8 shadow-sm">
+        <p className="flex items-center gap-3 text-xl font-semibold tracking-tight"><span aria-hidden="true" className="h-7 w-1.5 rounded-full bg-brand" />Flowlio</p>
+        <section className="space-y-6 rounded-xl border border-t-4 border-t-brand bg-card p-8 shadow-sm">
           <h1 className="text-2xl font-semibold">{t(`portalInvite.${accepted ? "accepted" : "welcome"}`)}</h1>
           {accepted ? <><p className="text-muted-foreground">{t("portalInvite.signInHint")}</p><Button asChild><Link to="/auth/signin">{t("portalInvite.signIn")}</Link></Button></>
             : !token ? <p role="alert">{t("portalInvite.invalid")}</p>
