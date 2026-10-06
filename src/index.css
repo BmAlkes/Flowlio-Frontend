@@ -2,8 +2,8 @@
 
 /* Operational workspace: quiet blue canvas, white surfaces and readable data. */
 .workspace-canvas { background-color: #f7faff; border-radius: 1rem; }
-.workspace-canvas, .workspace-ai { --primary: var(--brand); --primary-foreground: #062b35; }
-.dark .workspace-canvas, .dark .workspace-ai { --primary: var(--brand); --primary-foreground: #062b35; }
+.workspace-canvas, .workspace-ai { --primary: var(--brand); --primary-foreground: #ffffff; }
+.dark .workspace-canvas, .dark .workspace-ai { --primary: var(--brand); --primary-foreground: #ffffff; }
 .dark .workspace-canvas { background-color: var(--background); }
 .workspace-canvas :where(input, select, textarea) { min-width: 0; max-width: 100%; }
 .workspace-canvas :where(table) { border-collapse: separate; border-spacing: 0; }
@@ -42,7 +42,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.028 261.692);
   --primary: var(--brand);
-  --primary-foreground: #062b35;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.967 0.003 264.542);
   --secondary-foreground: oklch(0.13 0.028 261.692);
   --muted: oklch(90.38% 0.003 264.542);
@@ -63,7 +63,7 @@
   --sidebar: oklch(0.985 0.002 247.839);
   --sidebar-foreground: oklch(0.13 0.028 261.692);
   --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: #062b35;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: oklch(0.967 0.003 264.542);
   --sidebar-accent-foreground: oklch(0.13 0.028 261.692);
   --sidebar-border: oklch(0.928 0.006 264.531);
@@ -80,7 +80,7 @@
   --popover: #212121;
   --popover-foreground: oklch(0.985 0 0);
   --primary: var(--brand);
-  --primary-foreground: #062b35;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -100,7 +100,7 @@
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: #062b35;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: oklch(0.269 0.269 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
