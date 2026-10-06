@@ -24,6 +24,11 @@ it("does not send mismatched passwords", async () => {
   show(); await fill("different-password");
   expect(screen.getByRole("alert")).toHaveTextContent("portalInvite.mismatch"); expect(api.post).not.toHaveBeenCalled();
 });
+it("does not claim activation succeeded when a proxy or API returns an unexpected success body", async () => {
+  api.post.mockResolvedValue({ data: "<html>Temporarily unavailable</html>" }); show(); await fill();
+  expect(await screen.findByRole("alert")).toHaveTextContent("portalInvite.error");
+  expect(screen.queryByRole("link")).not.toBeInTheDocument();
+});
 it("explains expired links without claiming activation succeeded", async () => {
   api.post.mockRejectedValue({ response: { data: { code: "INVITATION_INVALID" } } }); show(); await fill();
   await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("portalInvite.invalid"));

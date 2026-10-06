@@ -20,7 +20,8 @@ export default function PortalInvitationPage() {
     if (password !== confirmation) { setError("mismatch"); return; }
     setPending(true); setError("");
     try {
-      await axios.post("/portal-invitations/accept", { token, password });
+      const response = await axios.post("/portal-invitations/accept", { token, password });
+      if (response.data?.data?.accepted !== true) throw new Error("Activation was not confirmed");
       setAccepted(true); setPassword(""); setConfirmation("");
     } catch (reason) {
       setError((reason as ErrorWithMessage).response?.data.code === "INVITATION_INVALID" ? "invalid" : "error");
