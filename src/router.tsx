@@ -41,6 +41,7 @@ const DashboardLayout = lazy(() =>
 );
 
 const ResetpasswordPage = lazy(() => import("./pages/resetpassword.page"));
+const PortalInvitationPage = lazy(() => import("./pages/portal-invitation.page"));
 const VerifyEmailPage = lazy(() => import("./pages/verifyemail.page"));
 const VerifyCodePage = lazy(() => import("./pages/verifycode.page"));
 const UnsubscribePage = lazy(() => import("./pages/unsubscribe.page"));
@@ -311,6 +312,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      <Route path="/portal-invitation" element={<LazyWrapper component={PortalInvitationPage} />} />
       {/* Public routes fixed the workflow route*/}
       <Route path="/" element={<LazyWrapper component={HomePage} />} />
       <Route

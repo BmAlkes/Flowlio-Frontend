@@ -10,6 +10,13 @@ vi.mock("@/providers/user.provider", () => ({ useUser: () => ({data: {user: {rol
 vi.mock("@/components/settings/CurrencySettings", () => ({CurrencySettings: ({showReconciliation}: {showReconciliation?: boolean}) => <div data-testid="currency-setup" data-historical={String(showReconciliation)} />}));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 beforeEach(() => { vi.clearAllMocks(); state.owner = true; state.data.role = "admin"; state.steps = {create_client: null, create_project: {completedAt: "2026-09-21"}, approve_delivery: null}; state.dismissError = false; state.showOnboarding = true; });
+it("keeps regular members on their dashboard routes rather than viewer-only pages", () => {
+  state.owner = false; state.data.role = "member"; state.steps = {complete_task: null, log_time: null, update_profile: null};
+  render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
+  expect(screen.getByRole("link", {name: "coreOnboarding.step_complete_task"})).toHaveAttribute("href", "/dashboard/task-management");
+  expect(screen.getByRole("link", {name: "coreOnboarding.step_log_time"})).toHaveAttribute("href", "/dashboard/time-tracking");
+  expect(screen.getByRole("link", {name: "coreOnboarding.step_update_profile"})).toHaveAttribute("href", "/dashboard/settings");
+});
 it("links to real core actions without marking a clicked step complete", async () => {
   render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
   const link = screen.getByRole("link", { name: "coreOnboarding.step_create_client" });

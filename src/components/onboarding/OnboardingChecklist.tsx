@@ -12,9 +12,9 @@ const routes: Record<string, string> = {
   create_client: "/dashboard/client-management/create-client",
   create_project: "/dashboard/project/create-project",
   approve_delivery: "/dashboard/project",
-  complete_task: "/viewer/my-tasks",
-  log_time: "/viewer/time-tracking",
-  update_profile: "/viewer/viewer-settings",
+  complete_task: "/dashboard/task-management",
+  log_time: "/dashboard/time-tracking",
+  update_profile: "/dashboard/settings",
 };
 
 export function OnboardingChecklist() {
