@@ -1,4 +1,7 @@
 {
+  "createLinkedProject": "Criar projeto para este contrato",
+  "confirmProjectLink": "Vincular ao contrato",
+  "confirmProjectLinkHint": "Confirme o vínculo para que as horas do projeto entrem neste contrato.",
   "title": "Contratos e horas",
   "portalTitle": "Consumo mensal",
   "description": "Acordos mensais, trabalho registrado e extratos por período.",
