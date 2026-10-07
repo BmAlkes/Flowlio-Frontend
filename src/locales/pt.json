@@ -394,6 +394,15 @@
     "fillAllPasswords": "Preencha todos os campos de senha"
   },
   "dashboard": {
+    "operationalSubtitle": "Acompanhe o trabalho, resolva pendências e avance para o próximo passo.",
+    "quickActions": "Começar por aqui",
+    "logTime": "Registrar horas",
+    "newClient": "Novo cliente",
+    "newProject": "Novo projeto",
+    "openSection": "Abrir área",
+    "reportsAndActivity": "Relatórios e atividades",
+    "openAttention": "Ver pendências",
+    "attentionPreviewNote": "Até quatro pendências ativas. Horas e custos consideram o mês atual; a capacidade considera esta semana.",
     "title": "Painel",
     "welcome": "Bem-vindo",
     "overview": "Visão geral",

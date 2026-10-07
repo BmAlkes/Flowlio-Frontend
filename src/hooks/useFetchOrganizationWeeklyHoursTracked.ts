@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 interface OrganizationWeeklyHoursTrackedResponse {
   weeklyHours: number;
@@ -9,8 +10,9 @@ interface OrganizationWeeklyHoursTrackedResponse {
 }
 
 export const useFetchOrganizationWeeklyHoursTracked = () => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<OrganizationWeeklyHoursTrackedResponse>>({
-    queryKey: ["organization-weekly-hours-tracked"],
+    queryKey: ["organization-weekly-hours-tracked", scope],
     queryFn: async () => {
       const response = await axios.get<
         ApiResponse<OrganizationWeeklyHoursTrackedResponse>

@@ -48,7 +48,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
   if (isLoading) {
     return (
       <ComponentWrapper
-        className={cn("p-5 rounded-lg overflow-hidden !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)}
+        className={cn("p-5 rounded-xl overflow-hidden !bg-card !border-border !shadow-none", className)}
         {...props}
       >
         <Stack className="gap-5">
@@ -68,7 +68,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
   if (error) {
     return (
       <ComponentWrapper
-        className={cn("p-5 rounded-lg overflow-hidden !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)}
+        className={cn("p-5 rounded-xl overflow-hidden !bg-card !border-border !shadow-none", className)}
         {...props}
       >
         <Stack className="gap-5 items-center">
@@ -92,7 +92,7 @@ export const OngoingTasks: FC<BoxProps> = ({ className, ...props }) => {
   if (transformedTasks.length === 0) {
     return (
       <ComponentWrapper
-        className={cn("p-5 rounded-lg overflow-hidden !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)}
+        className={cn("p-5 rounded-xl overflow-hidden !bg-card !border-border !shadow-none", className)}
         {...props}
       >
         <Stack className="gap-5 items-center">

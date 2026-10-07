@@ -369,6 +369,15 @@
     "languageChanged": "Idioma actualizado"
   },
   "dashboard": {
+    "operationalSubtitle": "Sigue el trabajo, resuelve pendientes y avanza al siguiente paso.",
+    "quickActions": "Empieza aquí",
+    "logTime": "Registrar horas",
+    "newClient": "Nuevo cliente",
+    "newProject": "Nuevo proyecto",
+    "openSection": "Abrir sección",
+    "reportsAndActivity": "Informes y actividad",
+    "openAttention": "Ver pendientes",
+    "attentionPreviewNote": "Hasta cuatro pendientes activos. Las horas y los costes corresponden al mes actual; la capacidad, a esta semana.",
     "title": "Tablero",
     "welcome": "Bienvenido",
     "overview": "Resumen",
