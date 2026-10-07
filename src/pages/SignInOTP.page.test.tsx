@@ -1,0 +1,24 @@
+import { StrictMode } from "react";
+import { render, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { expect, it, vi } from "vitest";
+import { SignInOTPPage } from "./SignInOTP.page";
+const state = vi.hoisted(() => ({ send: vi.fn().mockResolvedValue({ data: { status: true } }) }));
+vi.mock("@/lib/auth-client", () => ({ authClient: { twoFactor: { sendOtp: state.send } } }));
+vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ refetchUser: vi.fn() }) }));
+vi.mock("@/hooks/useuserprofile", () => ({ fetchUserProfile: vi.fn() }));
+vi.mock("@/components/auth/OTPSignIn", () => ({ OTPSignIn: () => null }));
+it("sends a single email even if the OTP route is remounted under StrictMode", async () => {
+ sessionStorage.clear();
+ sessionStorage.setItem("otpEmail", "test@example.invalid");
+ sessionStorage.setItem("otpSecondFactor", "true");
+ const cache = new QueryClient();
+ const view = (key: string) => <QueryClientProvider client={cache}><MemoryRouter><StrictMode><SignInOTPPage key={key} /></StrictMode></MemoryRouter></QueryClientProvider>;
+ const { rerender } = render(view("first"));
+ await waitFor(() => expect(state.send).toHaveBeenCalledTimes(1));
+ await waitFor(() => expect(cache.isMutating()).toBe(0));
+ rerender(view("remounted"));
+ await waitFor(() => expect(cache.isMutating()).toBe(0));
+ expect(state.send).toHaveBeenCalledTimes(1);
+});

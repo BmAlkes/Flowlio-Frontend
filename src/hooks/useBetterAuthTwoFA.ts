@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sendSignInOTP, verifySignInOTP } from "@/lib/sign-in-otp";
+import { sendInitialSignInOTP, sendSignInOTP, verifySignInOTP } from "@/lib/sign-in-otp";
 import { authClient } from "@/lib/auth-client";
 import { useUser } from "@/providers/user.provider";
 import { backendURL } from "@/configs/axios.config";
@@ -7,13 +7,16 @@ import { backendURL } from "@/configs/axios.config";
 // Login verification uses the server-issued challenge, never email verification as a password.
 export const useGenerateSignInOTP = () =>
   useMutation({
+    retry: false,
     mutationFn: ({
       email,
       secondFactor = false,
+      initial = false,
     }: {
       email: string;
       secondFactor?: boolean;
-    }) => sendSignInOTP(email, secondFactor),
+      initial?: boolean;
+    }) => initial ? sendInitialSignInOTP(email, secondFactor) : sendSignInOTP(email, secondFactor),
   });
 
 export const useVerifySignInOTP = () =>

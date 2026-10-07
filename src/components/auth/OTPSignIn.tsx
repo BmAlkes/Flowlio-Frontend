@@ -175,7 +175,7 @@ export const OTPSignIn: FC<OTPSignInProps> = ({
             <button
               type="button"
               onClick={handleResend}
-              disabled={!canResend}
+              disabled={!canResend || isLoading}
               className="text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
             >
               try again
