@@ -1,4 +1,5 @@
 import { authClient } from "@/lib/auth-client";
+import { beginSignInOTP } from "@/lib/sign-in-otp";
 import { axios } from "@/configs/axios.config";
 import { toast } from "sonner";
 import type { SignInPorts } from "./sign-in-ports";
@@ -18,6 +19,7 @@ export async function completeEmailSignIn(
 ) {
   setError(null);
   if (signInData?.twoFactorRedirect) {
+    beginSignInOTP();
     sessionStorage.setItem("otpEmail", email);
     sessionStorage.setItem("otpSecondFactor", "true");
     setIsLoading(false);

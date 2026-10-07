@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import { getRoleBasedRedirectPathAfterLogin } from "@/utils/sessionPersistence.util";
 import { fetchUserProfile } from "@/hooks/useuserprofile";
 import { useUser } from "@/providers/user.provider";
+import { clearSignInOTP } from "@/lib/sign-in-otp";
 
 interface SignInOTPPageProps {
   email?: string;
@@ -45,7 +46,7 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
     if (email && !otpSentRef.current) {
       otpSentRef.current = true; // Mark as sent
       generateOTPMutation.mutate(
-        { email, secondFactor },
+        { email, secondFactor, initial: true },
         {
           onError: (error) =>
             toast.error(
@@ -57,11 +58,12 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
   }, [email, secondFactor, generateOTPMutation]);
 
   const handleBack = () => {
+    clearSignInOTP();
     if (propOnBack) {
       propOnBack();
     } else {
       // Clear stored email and go back to sign-in
-      sessionStorage.removeItem("otpEmail");
+      navigate("/auth/signin", { replace: true });
     }
   };
 
@@ -75,10 +77,7 @@ export const SignInOTPPage: FC<SignInOTPPageProps> = ({
       const response = await fetchUserProfile(session.user.id);
       const profile = response.data!;
       await refetchUser();
-      sessionStorage.removeItem("otpEmail");
-      sessionStorage.removeItem("otpSecondFactor");
-      navigate("/auth/signin", { replace: true });
-      sessionStorage.removeItem("otpSecondFactor");
+      clearSignInOTP();
       toast.success("Login successful!");
       navigate(
         profile.status === "pending"
