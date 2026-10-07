@@ -25,6 +25,7 @@ import { useFetchTasks } from "@/hooks/usefetchtasks";
 import { useFetchViewerProjects } from "@/hooks/useFetchViewerProjects";
 import { useFetchViewerTasks } from "@/hooks/useFetchViewerTasks";
 import { useLocation } from "react-router";
+import { useDataScope } from "@/hooks/useDataScope";
 import { useFetchOrganizationWeeklyHoursTracked } from "@/hooks/useFetchOrganizationWeeklyHoursTracked";
 import { formatHours, formatDuration } from "@/utils/timeFormat";
 import { toast } from "sonner";
@@ -80,10 +81,11 @@ const ActiveTableTimer = ({ startTime }: { startTime: string }) => {
   );
 };
 
-const TimeTrackingPage = () => {
+const TimeTrackingContent = () => {
   const { t, i18n } = useTranslation();
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const [selectedProject, setSelectedProject] = useState<string>("");
+  const { search } = useLocation();
+  const [selectedProject, setSelectedProject] = useState<string>(() => new URLSearchParams(search).get("projectId") || "");
   const [selectedTask, setSelectedTask] = useState<string>("");
   // History filters for custom table
   // Pending (UI) filter state
@@ -103,19 +105,18 @@ const TimeTrackingPage = () => {
   const { pathname } = useLocation();
   const isViewer = pathname.startsWith("/viewer");
   
-  const { data: orgProjects, isLoading: projectsLoading, isFetching: projectsFetching } = useFetchProjects();
-  const { data: orgTasks, isLoading: tasksLoading, isFetching: tasksFetching } = useFetchTasks();
+  const { data: orgProjects, isLoading: projectsLoading } = useFetchProjects({}, { enabled: !isViewer });
+  const { data: orgTasks, isLoading: tasksLoading } = useFetchTasks(undefined, { enabled: !isViewer });
   const { data: orgTasksForProject } = useFetchTasks(
     { projectId: selectedProject },
     { enabled: !isViewer && !!selectedProject }
   );
-  const { data: viewerProjects, isLoading: viewerProjectsLoading, isFetching: viewerProjectsFetching } = useFetchViewerProjects();
-  const { data: viewerTasks, isLoading: viewerTasksLoading, isFetching: viewerTasksFetching } = useFetchViewerTasks();
+  const { data: viewerProjects, isLoading: viewerProjectsLoading } = useFetchViewerProjects({ enabled: isViewer });
+  const { data: viewerTasks, isLoading: viewerTasksLoading } = useFetchViewerTasks({ enabled: isViewer });
   
   const { 
     data: activeTimeEntries, 
     isLoading: activeLoading, 
-    isFetching: activeFetching,
     error: activeError,
     refetch: refetchActive 
   } = useActiveTimeEntries();
@@ -123,20 +124,17 @@ const TimeTrackingPage = () => {
   const { 
     data: allTimeEntries, 
     isLoading: allLoading, 
-    isFetching: allFetching,
     error: allError,
     refetch: refetchAll 
   } = useAllTimeEntries();
   
   const { 
     data: weeklyHours, 
-    isLoading: weeklyLoading, 
-    isFetching: weeklyFetching 
+    isLoading: weeklyLoading
   } = useFetchOrganizationWeeklyHoursTracked();
 
-  const loading = activeLoading || allLoading || projectsLoading || tasksLoading || weeklyLoading || 
-                  activeFetching || allFetching || projectsFetching || tasksFetching || weeklyFetching ||
-                  viewerProjectsLoading || viewerTasksLoading || viewerProjectsFetching || viewerTasksFetching;
+  const loading = activeLoading || allLoading || weeklyLoading ||
+    (isViewer ? viewerProjectsLoading || viewerTasksLoading : projectsLoading || tasksLoading);
   
   const hasError = activeError || allError;
 
@@ -205,7 +203,7 @@ const TimeTrackingPage = () => {
 
   // Handle starting time tracking
   const handleStart = async () => {
-    if (!selectedTask) {
+    if (!selectedTask || !filteredTasks.some(task => task.id === selectedTask)) {
       toast.error(t("timeTracking.selectTaskError"));
       return;
     }
@@ -269,6 +267,13 @@ const TimeTrackingPage = () => {
     () => (isViewer ? viewerProjects?.data : orgProjects?.data) || [],
     [isViewer, viewerProjects?.data, orgProjects?.data]
   );
+
+  useEffect(() => {
+    const projects = isViewer ? viewerProjects?.data : orgProjects?.data;
+    if (projects && selectedProject && !projects.some(project => project.id === selectedProject)) {
+      setSelectedProject("");
+    }
+  }, [isViewer, viewerProjects?.data, orgProjects?.data, selectedProject]);
 
   // Build task list per role
   const taskOptions = useMemo(
@@ -585,7 +590,7 @@ const TimeTrackingPage = () => {
         <Flex className="gap-4 flex-wrap items-end">
           <div className="flex-1 min-w-[180px]">
             <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
-              Project
+              {t("timeTracking.project")}
             </label>
             <Select
               value={selectedProject}
@@ -608,7 +613,7 @@ const TimeTrackingPage = () => {
 
           <div className="flex-1 min-w-[180px]">
             <label className="block text-xs font-medium text-muted-foreground mb-1.5 uppercase tracking-wider">
-              Task
+              {t("timeTracking.task")}
             </label>
             <Select
               value={selectedTask}
@@ -631,7 +636,7 @@ const TimeTrackingPage = () => {
           {!isTracking && (
             <Button
               onClick={handleStart}
-              disabled={!selectedTask || startTaskMutation.isPending}
+              disabled={!selectedTask || !filteredTasks.some(task => task.id === selectedTask) || startTaskMutation.isPending}
               className="cursor-pointer"
             >
               <Play className="w-4 h-4 me-2" />
@@ -815,4 +820,8 @@ const TimeTrackingPage = () => {
   );
 };
 
-export default TimeTrackingPage;
+export default function TimeTrackingPage() {
+  const scope = useDataScope();
+  const { pathname, search } = useLocation();
+  return <TimeTrackingContent key={`${scope}:${pathname}:${search}`} />;
+}

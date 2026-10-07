@@ -1,6 +1,7 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export interface ViewerTask {
   id: string;
@@ -44,8 +45,9 @@ export const useFetchViewerTasks = (
     "queryKey" | "queryFn"
   >,
 ) => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<ViewerTask[]>>({
-    queryKey: ["viewer-tasks"],
+    queryKey: ["viewer-tasks", scope],
     queryFn: async () => {
       const response =
         await axios.get<ApiResponse<ViewerTask[]>>("/viewer/tasks");
