@@ -9,7 +9,7 @@ import {
   FormControl,
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import PhoneInput from "react-phone-input-2";
+import { FormPhoneInput } from "../ui/form-phone-input";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
 import { useCallback, useState, useEffect, useRef } from "react";
@@ -204,9 +204,9 @@ export const ClientForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullname: client?.name,
-      email: client?.email,
-      phonenumber: client?.phone,
+      fullname: client?.name ?? "",
+      email: client?.email ?? "",
+      phonenumber: client?.phone ?? "",
       cpfcnpj: client?.cpfcnpj,
       address: client?.address,
       industry: client?.businessIndustry,
@@ -649,9 +649,9 @@ export const ClientForm = ({
                 name="phonenumber"
                 render={({ field }) => (
                   <FormItem>
-                    {/* <FormLabel>Phone Number:</FormLabel> */}
+                    <FormLabel>Phone Number:</FormLabel>
                     <FormControl>
-                      <PhoneInput
+                      <FormPhoneInput
                         country={"us"}
                         placeholder="Phone Number:"
                         enableSearch={true}
@@ -659,6 +659,9 @@ export const ClientForm = ({
                         buttonClass="border-e h-12 border-border bg-transparent"
                         dropdownClass="bg-card border border-border"
                         {...field}
+                        onChange={(value, country) => field.onChange(
+                          "dialCode" in country && value === country.dialCode ? "" : value,
+                        )}
                       />
                     </FormControl>
                     <FormMessage />
