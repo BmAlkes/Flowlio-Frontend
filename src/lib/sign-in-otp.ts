@@ -21,7 +21,7 @@ function sendKey(email: string, secondFactor: boolean) {
 // After a failed/uncertain send, the explicit resend action remains available.
 export async function sendInitialSignInOTP(email: string, secondFactor: boolean) {
   const key = sendKey(email, secondFactor);
-  if (sessionStorage.getItem("otpInitialSend") === key) return;
+  if (sessionStorage.getItem("otpInitialSend") === key) return pendingSends.get(key);
   sessionStorage.setItem("otpInitialSend", key);
   await sendSignInOTP(email, secondFactor);
 }
