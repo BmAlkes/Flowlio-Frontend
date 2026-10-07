@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export interface BillableEntry {
   id: string;
@@ -22,8 +23,9 @@ export interface TimeInvoiceInput extends TimeFilter {
   dueDate?: string;
 }
 export function useBillableTime(filter: TimeFilter | null) {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["billable-time", filter],
+    queryKey: ["billable-time", scope, filter],
     enabled: !!filter,
     queryFn: async () => (await axios.get<{ data: { entries: BillableEntry[]; hasMore: boolean; hasLegacyTimeInvoices?: boolean } }>(
       "/invoices/billable-time", { params: filter },

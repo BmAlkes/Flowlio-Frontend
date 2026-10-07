@@ -4,9 +4,9 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReadyToBill } from "./ReadyToBill";
 import messages from "@/locales/retainers/en.json";
-const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), owner: true, role: "user" }));
+const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), owner: true, role: "user", scope: "org-a" }));
 vi.mock("@/configs/axios.config", () => ({ axios: api }));
-vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "org" }));
+vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => api.scope }));
 vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: { role: api.role, isOrganizationOwner: api.owner } } }) }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ i18n: { language: "en" }, t: (key: string) => messages[key.replace("retainers.", "") as keyof typeof messages] ?? key }) }));
 const source = { key: "overage:period", title: "Support · September", client_name: "Acme", amount: "240.00", currency: "ILS", version: "a".repeat(64) };
@@ -24,3 +24,15 @@ it("does not announce a draft when the approved source changed", async () => {
  expect(await screen.findByRole("alert")).toHaveTextContent(messages.billingError); expect(screen.queryByText(messages.invoicePrepared)).not.toBeInTheDocument();
 });
 it("does not fetch internal billing sources for a client", () => { api.role = "client"; api.owner = false; setup(); expect(api.get).not.toHaveBeenCalled(); });
+it("does not trust an owner flag on a client role", () => { api.role = "client"; api.owner = true; setup(); expect(api.get).not.toHaveBeenCalled(); });
+it("clears the prepared confirmation and sources after switching organization", async () => {
+ const cache = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+ const view = () => <QueryClientProvider client={cache}><ReadyToBill /></QueryClientProvider>;
+ const { rerender } = render(view());
+ await userEvent.click(await screen.findByRole("button", { name: messages.prepareInvoice }));
+ expect(await screen.findByRole("status")).toHaveTextContent(messages.invoicePrepared);
+ api.scope = "org-b"; api.get.mockResolvedValue({ data: { data: { items: [], hasMore: false } } });
+ rerender(view());
+ expect(screen.queryByText(messages.invoicePrepared)).not.toBeInTheDocument();
+ await waitFor(() => expect(screen.queryByText(source.title)).not.toBeInTheDocument());
+});

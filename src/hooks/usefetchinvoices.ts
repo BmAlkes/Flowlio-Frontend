@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export interface Invoice {
   id: string;
@@ -36,8 +37,9 @@ const fetchInvoices = async (): Promise<FetchInvoicesResponse> => {
 };
 
 export const useFetchInvoices = () => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["invoices"],
+    queryKey: ["invoices", scope],
     queryFn: fetchInvoices,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

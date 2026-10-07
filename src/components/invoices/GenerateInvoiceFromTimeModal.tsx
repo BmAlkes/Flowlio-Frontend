@@ -11,12 +11,14 @@ import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GeneralModal } from "../common/generalmodal";
 import { useFetchClients } from "@/hooks/usefetchclients";
+import { useDataScope } from "@/hooks/useDataScope";
 import { TimeInvoiceInput, useBillableTime, useInvoiceFromTime } from "@/hooks/useTimeInvoicing";
 import { displayCents, localDate, timeLineCents, timePeriod } from "./time-invoicing";
 
 interface Props { isOpen: boolean; onClose: () => void }
 export function GenerateInvoiceFromTimeModal({ isOpen, onClose }: Props) {
-  return isOpen ? <TimeInvoiceForm onClose={onClose} /> : null;
+  const scope = useDataScope();
+  return isOpen ? <TimeInvoiceForm key={scope} onClose={onClose} /> : null;
 }
 function TimeInvoiceForm({ onClose }: { onClose: () => void }) {
   const { t, i18n } = useTranslation();
