@@ -2,6 +2,7 @@ import { clientsResponseSchema, corePath, type ClientStatus } from "@/contracts/
 import { parseResponse } from "@/contracts/parse-response";
 import { useQuery } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 interface Client {
   id: string;
@@ -37,8 +38,9 @@ interface FetchClientsParams {
 }
 
 export const useFetchClients = (params: FetchClientsParams = {}) => {
+  const scope = useDataScope();
   return useQuery<ClientsResponse>({
-    queryKey: ["clients", params],
+    queryKey: ["clients", scope, params],
     queryFn: async () => {
       const searchParams = new URLSearchParams();
 

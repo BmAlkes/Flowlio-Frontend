@@ -1,11 +1,14 @@
 import { BarChartComponent } from "@/components/admin/dashboard/barchart/barchart";
 import { RecentActivities } from "@/components/admin/dashboard/recentactivities";
 import { OngoingTasks } from "@/components/admin/dashboard/ongoingtasks";
-import { Stat, Stats } from "@/components/admin/dashboard/stats";
+import { type Stat } from "@/components/admin/dashboard/stats";
+import { Link } from "react-router";
+import { Button } from "@/components/ui/button";
+import { AttentionPreview } from "@/components/admin/dashboard/AttentionPreview";
 import { Stack } from "@/components/ui/stack";
 import { Flex } from "@/components/ui/flex";
 import { ProjectStatusPieChart } from "@/components/admin/dashboard/barchart/piechart";
-import TimeModal from "@/components/timemodal";
+
 import { useFetchOrganizationTotalClients } from "@/hooks/useFetchOrganizationTotalClients";
 import { useFetchOrganizationActiveProjects } from "@/hooks/useFetchOrganizationActiveProjects";
 import { useFetchOrganizationWeeklyHoursTracked } from "@/hooks/useFetchOrganizationWeeklyHoursTracked";
@@ -16,20 +19,20 @@ import {
   transformToPieChartData,
 } from "@/hooks/useFetchProjectStatusData";
 import { formatHours } from "@/utils/timeFormat";
-import img1 from "/dashboard/1.svg";
-import img2 from "/dashboard/2.svg";
-import img3 from "/dashboard/3.svg";
-import img4 from "/dashboard/4.svg";
-import Img1 from "/dashboard/prostat1.svg";
-import Img2 from "/dashboard/prostat2.svg";
-import Img3 from "/dashboard/projstat3.svg";
+const img1 = "/dashboard/1.svg";
+const img2 = "/dashboard/2.svg";
+const img3 = "/dashboard/3.svg";
+const img4 = "/dashboard/4.svg";
+const Img1 = "/dashboard/prostat1.svg";
+const Img2 = "/dashboard/prostat2.svg";
+const Img3 = "/dashboard/projstat3.svg";
 import { DemoPasswordChangeModal } from "@/components/dempasswordchangemodal";
 import { TeamProductivityChart } from "@/components/admin/dashboard/barchart/teamproductivitychart";
 import { useState, useEffect } from "react";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { DashboardSkeleton, SkeletonWrapper } from "@/components/skeletons";
+
 import { FollowUpWidget } from "@/components/admin/dashboard/FollowUpWidget";
 import { ProjectRiskAlertsWidget } from "@/components/admin/dashboard/ProjectRiskAlertsWidget";
 import { AITokenUsageWidget } from "@/components/user section/AITokenUsageWidget";
@@ -54,24 +57,24 @@ const DashboardPage = () => {
     }
   }, [userProfile]);
 
-  const { data: totalClientsResponse, isLoading: isLoadingClients, isFetching: isFetchingClients } = useFetchOrganizationTotalClients();
-  const { data: activeProjectsResponse, isLoading: isLoadingProjects, isFetching: isFetchingProjects } = useFetchOrganizationActiveProjects();
-  const { data: weeklyHoursResponse, isLoading: isLoadingHours, isFetching: isFetchingHours } = useFetchOrganizationWeeklyHoursTracked();
-  const { data: pendingTasksResponse, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useFetchOrganizationPendingTasks();
+  const user = userProfile?.data;
+  const manager = !!user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && !!(user.isOrganizationOwner || user.isOrganizationManager)));
+  const { data: totalClientsResponse, isError: clientsError, refetch: reloadClients } = useFetchOrganizationTotalClients(manager);
+  const { data: activeProjectsResponse, isError: projectsError, refetch: reloadProjects } = useFetchOrganizationActiveProjects();
+  const { data: weeklyHoursResponse, isError: hoursError, refetch: reloadHours } = useFetchOrganizationWeeklyHoursTracked();
+  const { data: pendingTasksResponse, isError: tasksError, refetch: reloadTasks } = useFetchOrganizationPendingTasks();
   const { data: completedTasksResponse } = useFetchOrganizationCompletedTasks();
-  const { data: projectStatusResponse, isLoading: isLoadingStatus, isFetching: isFetchingStatus } = useFetchProjectStatusData();
+  const { data: projectStatusResponse } = useFetchProjectStatusData();
   const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
   const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
+  const [showReports, setShowReports] = useState(false);
 
-  const isAnyLoading =
-    isLoadingClients || isLoadingProjects || isLoadingHours || isLoadingTasks || isLoadingStatus ||
-    isFetchingClients || isFetchingProjects || isFetchingHours || isFetchingTasks || isFetchingStatus;
 
-  const totalClients = totalClientsResponse?.data?.totalClients ?? 0;
-  const activeProjects = activeProjectsResponse?.data?.activeProjects ?? 0;
-  const weeklyHours = weeklyHoursResponse?.data?.weeklyHours ?? 0;
-  const pendingTasks = pendingTasksResponse?.data?.pendingTasks ?? 0;
-  const completedTasks = completedTasksResponse?.data?.completedTasks ?? 0;
+  const totalClients = totalClientsResponse?.data?.totalClients;
+  const activeProjects = activeProjectsResponse?.data?.activeProjects;
+  const weeklyHours = weeklyHoursResponse?.data?.weeklyHours;
+  const pendingTasks = pendingTasksResponse?.data?.pendingTasks;
+  const completedTasks = completedTasksResponse?.data?.completedTasks;
 
   // Greeting based on time of day
   const hour = new Date().getHours();
@@ -85,35 +88,35 @@ const DashboardPage = () => {
       title: t("dashboard.totalClients"),
       description: t("dashboard.activeUsersDesc"),
       icon: img1,
-      count: String(totalClients),
+      count: totalClients == null ? "—" : String(totalClients),
     },
     {
       link: "/dashboard/project",
       title: t("dashboard.activeProjects"),
       description: t("dashboard.ongoingProjectsDesc"),
       icon: img2,
-      count: String(activeProjects),
+      count: activeProjects == null ? "—" : String(activeProjects),
     },
     {
       link: "/dashboard/time-tracking",
       title: t("dashboard.hoursTracked"),
       description: t("dashboard.timeLoggedDesc"),
       icon: img3,
-      count: formatHours(weeklyHours),
+      count: weeklyHours == null ? "—" : formatHours(weeklyHours),
     },
     {
       link: "/dashboard/task-management",
       title: t("dashboard.pendingTasks"),
       description: t("dashboard.tasksNotCompletedDesc"),
       icon: img4,
-      count: String(pendingTasks),
+      count: pendingTasks == null ? "—" : String(pendingTasks),
     },
     {
       link: "/dashboard/task-management",
       title: t("dashboard.tasksCompleted"),
       description: t("dashboard.tasksCompletedDesc"),
       icon: img2,
-      count: String(completedTasks),
+      count: completedTasks == null ? "—" : String(completedTasks),
     },
   ];
 
@@ -126,36 +129,33 @@ const DashboardPage = () => {
       ];
 
   return (
-    <SkeletonWrapper
-      isLoading={isAnyLoading}
-      skeleton={<DashboardSkeleton />}
-    >
-      {/* Gradient background — makes glassmorphism visible */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-20 right-1/3 w-[600px] h-[400px] bg-blue-400/20 dark:bg-blue-500/15 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 left-1/4 w-[500px] h-[400px] bg-violet-400/15 dark:bg-violet-500/12 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-400/15 dark:bg-cyan-500/10 rounded-full blur-[80px]" />
-        <div className="absolute top-1/3 left-0 w-72 h-72 bg-emerald-400/12 dark:bg-emerald-500/10 rounded-full blur-[80px]" />
-      </div>
-
-      <Stack className="pt-5 gap-4 px-2">
+    <>
+      <Stack className="pt-5 gap-5 px-2">
 
         {/* Greeting header */}
         <div className="px-1">
           <h1 className="text-2xl font-bold text-foreground">
-            {t(`dashboard.${greetingKey}`)}{firstName ? `, ${firstName}` : ""} 👋
+            {t(`dashboard.${greetingKey}`)}{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {t("dashboard.greetingSubtitle")}
+            {t("dashboard.operationalSubtitle")}
           </p>
         </div>
 
-        {hasAIAssist && <AITokenUsageWidget />}
-        <Stats stats={stats} />
+        <nav aria-label={t("dashboard.quickActions")} className="flex flex-wrap items-center gap-3 rounded-xl bg-[#1797B9] p-4 text-white">
+          <span className="text-sm font-semibold">{t("dashboard.quickActions")}</span>
+          {[["/dashboard/time-tracking", "logTime"], ...(manager ? [["/dashboard/client-management/create-client", "newClient"], ["/dashboard/project/create-project", "newProject"]] : [])].map(([path, label]) => <Link key={path} to={path} className="rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white">{t(`dashboard.${label}`)}</Link>)}
+        </nav>
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.slice(manager ? 0 : 1, 4).map(stat => <div key={stat.link} className="rounded-xl border border-border bg-card p-5"><dt className="text-xs font-medium text-muted-foreground">{stat.title}</dt><dd className="mt-3 text-3xl font-semibold tabular-nums">{stat.count}</dd><p className="mt-2 text-xs text-muted-foreground">{stat.description}</p><Link className="mt-3 inline-block text-xs font-medium text-brand-ink hover:underline" to={stat.link}>{t("dashboard.openSection")}</Link></div>)}</dl>
+        {((manager && clientsError) || projectsError || hoursError || tasksError) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4 text-sm"><p>{t("attention.error")}</p><Button variant="outline" onClick={() => { if (manager) void reloadClients(); void reloadProjects(); void reloadHours(); void reloadTasks(); }}>{t("attention.refresh")}</Button></div>}
+        {manager && <AttentionPreview />}
+        <OngoingTasks />
+        <Button variant="outline" aria-expanded={showReports} onClick={() => setShowReports(!showReports)}>{t("dashboard.reportsAndActivity")}</Button>
+        {showReports && <>
         <Flex className="max-[950px]:flex-col items-start gap-3">
           <Stack className="flex-1 min-w-0 gap-3">
             <BarChartComponent />
-            <OngoingTasks />
+
             {(userProfile?.data?.role === "superadmin" ||
               userProfile?.data?.role === "subadmin" ||
               userProfile?.data?.isOrganizationOwner ||
@@ -181,7 +181,8 @@ const DashboardPage = () => {
           </Stack>
         </Flex>
 
-        <TimeModal />
+        {hasAIAssist && <AITokenUsageWidget />}
+        </>}
 
         <DemoPasswordChangeModal
           open={showPasswordChangeModal}
@@ -195,7 +196,7 @@ const DashboardPage = () => {
         />
 
       </Stack>
-    </SkeletonWrapper>
+    </>
   );
 };
 

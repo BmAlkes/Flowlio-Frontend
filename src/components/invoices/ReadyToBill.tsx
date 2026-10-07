@@ -11,8 +11,9 @@ type Source = { key: string; title: string; client_name: string; amount: string;
 
 export function ReadyToBill() {
  const { data } = useUser();
+ const scope = useDataScope();
  const user = data?.user;
- return user && (user.isOrganizationOwner || ["superadmin", "subadmin"].includes(user.role)) ? <BillingQueue /> : null;
+ return user && ((user.role === "user" && user.isOrganizationOwner) || ["superadmin", "subadmin"].includes(user.role)) ? <BillingQueue key={scope} /> : null;
 }
 function BillingQueue() {
  const { t, i18n } = useTranslation(); const scope = useDataScope(); const cache = useQueryClient();

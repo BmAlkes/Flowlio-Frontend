@@ -362,6 +362,15 @@
     "languageChanged": "Language changed successfully!"
   },
   "dashboard": {
+    "operationalSubtitle": "Follow the work, resolve pending decisions and take the next step.",
+    "quickActions": "Start here",
+    "logTime": "Track time",
+    "newClient": "New client",
+    "newProject": "New project",
+    "openSection": "Open section",
+    "reportsAndActivity": "Reports and activity",
+    "openAttention": "View pending items",
+    "attentionPreviewNote": "Up to four active items. Hours and costs cover this month; capacity covers this week.",
     "title": "Dashboard",
     "welcome": "Welcome",
     "overview": "Overview",

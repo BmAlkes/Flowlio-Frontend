@@ -8,6 +8,7 @@ import i18n from "@/configs/i18n.config";
 
 const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
+vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "org-a" }));
 vi.mock("@/configs/axios.config", () => ({ axios: api }));
 vi.mock("sonner", () => ({ toast }));
 // Keep selection deterministic in jsdom; the real dialog, query hooks and HTTP contract run below.

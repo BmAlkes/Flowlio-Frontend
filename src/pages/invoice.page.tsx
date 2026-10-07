@@ -1,6 +1,7 @@
 import { ReadyToBill } from "@/components/invoices/ReadyToBill";
 import { InvoiceHeader } from "@/components/invoices/invoiceheader";
 import { Box } from "@/components/ui/box";
+import { useDataScope } from "@/hooks/useDataScope";
 
 
 
@@ -9,10 +10,11 @@ import { Box } from "@/components/ui/box";
 
 
 const InvoicePage = () => {
+  const scope = useDataScope();
   return (
     <Box className="px-2">
       <ReadyToBill />
-      <InvoiceHeader />
+      <InvoiceHeader key={scope} />
     </Box>
   );
 };

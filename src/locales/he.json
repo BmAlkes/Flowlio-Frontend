@@ -270,6 +270,15 @@
     "fillAllPasswords": "מלאו את כל שדות הסיסמה"
   },
   "dashboard": {
+    "operationalSubtitle": "עקבו אחר העבודה, טפלו בנושאים פתוחים והתקדמו לשלב הבא.",
+    "quickActions": "מתחילים כאן",
+    "logTime": "דיווח שעות",
+    "newClient": "לקוח חדש",
+    "newProject": "פרויקט חדש",
+    "openSection": "פתיחת האזור",
+    "reportsAndActivity": "דוחות ופעילות",
+    "openAttention": "הצגת נושאים פתוחים",
+    "attentionPreviewNote": "עד ארבעה נושאים פעילים. השעות והעלויות מתייחסות לחודש הנוכחי; הקיבולת לשבוע הנוכחי.",
     "title": "לוח בקרה",
     "welcome": "ברוך הבא",
     "overview": "סקירה כללית",

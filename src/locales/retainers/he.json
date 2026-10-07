@@ -1,4 +1,7 @@
 {
+  "createLinkedProject": "יצירת פרויקט לחוזה זה",
+  "confirmProjectLink": "קישור לחוזה",
+  "confirmProjectLinkHint": "אשרו את הקישור כדי ששעות הפרויקט ייספרו בחוזה זה.",
   "title": "חוזים ושעות",
   "portalTitle": "צריכה חודשית",
   "description": "הסכמים חודשיים, עבודה מדווחת ודוחות תקופתיים.",

@@ -1,6 +1,7 @@
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 import { ApiResponse } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
 export interface ViewerProject {
   id: string;
@@ -27,8 +28,9 @@ export const useFetchViewerProjects = (
     "queryKey" | "queryFn"
   >,
 ) => {
+  const scope = useDataScope();
   return useQuery<ApiResponse<ViewerProject[]>>({
-    queryKey: ["viewer-projects"],
+    queryKey: ["viewer-projects", scope],
     queryFn: async () => {
       const response =
         await axios.get<ApiResponse<ViewerProject[]>>("/viewer/projects");

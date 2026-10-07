@@ -438,6 +438,7 @@ export const ProjectView = () => {
               </Box>
             </Box>
             <Box className="flex w-full flex-wrap gap-2 xl:w-auto xl:justify-end">
+              {user?.role === "user" && <Button asChild className="gap-2"><Link to={`/dashboard/time-tracking?${new URLSearchParams({ projectId: project.id })}`}><Clock className="h-4 w-4" />{t("timeTracking.title")}</Link></Button>}
               {!isClient && <Button onClick={handleEdit} className="gap-2 bg-[#11718c] text-white hover:bg-[#0e6078]"><Edit className="h-4 w-4" />{t("projectView.edit")}</Button>}
               <Button variant="outline" onClick={openCommentModal} className="gap-2"><MessageCircle className="h-4 w-4" />{t("projectView.comments")}<span className="rounded bg-muted px-1.5 text-xs tabular-nums">{projectComments.length}</span></Button>
               {project.contractfile && (

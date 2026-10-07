@@ -99,6 +99,7 @@ export const CreateProject = () => {
   const [searchParams] = useSearchParams();
   const isEditMode = Boolean(id);
   const clientIdFromUrl = searchParams.get("clientId");
+  const contractIdFromUrl = searchParams.get("contractId");
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
@@ -1159,11 +1160,13 @@ export const CreateProject = () => {
           description={t("firstWork.projectReady")}
           skipLabel={t("firstWork.openProject")}
           nextAction={{
-            label: t("firstWork.createTask"),
-            route: createdProjectId
+            label: t(contractIdFromUrl && clientIdFromUrl === form.getValues("clientId") ? "retainers.confirmProjectLink" : "firstWork.createTask"),
+            route: contractIdFromUrl && createdProjectId && clientIdFromUrl && clientIdFromUrl === form.getValues("clientId")
+              ? `/dashboard/client-management/${encodeURIComponent(clientIdFromUrl)}/contracts?${new URLSearchParams({ contractId: contractIdFromUrl, projectId: createdProjectId })}`
+              : createdProjectId
               ? `/dashboard/task-management/create-task?projectId=${encodeURIComponent(createdProjectId)}`
               : "/dashboard/task-management/create-task",
-            description: t("firstWork.taskHint"),
+            description: t(contractIdFromUrl && clientIdFromUrl === form.getValues("clientId") ? "retainers.confirmProjectLinkHint" : "firstWork.taskHint"),
           }}
           onSkip={() => {
             navigate(createdProjectId ? `/dashboard/project/view/${encodeURIComponent(createdProjectId)}` : "/dashboard/project");
