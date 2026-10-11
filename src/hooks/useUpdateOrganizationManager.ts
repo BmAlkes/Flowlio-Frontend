@@ -7,8 +7,8 @@ interface UpdateOrganizationManagerPayload {
 
 /**
  * PATCH /organizations/user-members/:memberId/organization-manager
- * Promote: { setAsManager: true } -> role user + isOrganizationOwner true
- * Demote: { setAsManager: false } -> role viewer + isOrganizationOwner false
+ * Promote: { setAsManager: true } -> role user + isOrganizationManager true
+ * Demote: { setAsManager: false } -> role viewer + isOrganizationManager false
  */
 export const useUpdateOrganizationManager = () => {
   const queryClient = useQueryClient();
@@ -26,6 +26,8 @@ export const useUpdateOrganizationManager = () => {
       return response.data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organization-assignees"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-users"] });
       queryClient.invalidateQueries({ queryKey: ["get-current-org-user-members"] });
       queryClient.invalidateQueries({ queryKey: ["get-all-user-members"] });
     },
