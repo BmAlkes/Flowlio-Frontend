@@ -60,8 +60,9 @@ export const useDeleteUserMember = () => {
       >(`/organizations/user-members/${id}`);
       return response.data;
     },
-    onSuccess: (data, id) => {
-      console.log("User member deleted successfully:", data);
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["organization-assignees"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-users"] });
 
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({
@@ -94,8 +95,9 @@ export const useDeactivateUserMember = () => {
       >(`/organizations/user-members/${id}/deactivate`);
       return response.data;
     },
-    onSuccess: (data, id) => {
-      console.log("User member deactivated successfully:", data);
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["organization-assignees"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-users"] });
 
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({
@@ -126,8 +128,9 @@ export const useReactivateUserMember = () => {
       >(`/organizations/user-members/${id}/reactivate`);
       return response.data;
     },
-    onSuccess: (data, id) => {
-      console.log("User member reactivated successfully:", data);
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["organization-assignees"] });
+      queryClient.invalidateQueries({ queryKey: ["organization-users"] });
 
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: ["get-current-org-user-members"] });

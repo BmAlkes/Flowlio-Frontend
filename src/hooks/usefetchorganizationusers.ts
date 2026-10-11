@@ -1,66 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDataScope } from "./useDataScope";
-import {
-  axios,
-  type ApiResponse,
-  type ErrorWithMessage,
-} from "@/configs/axios.config";
+import { axios, type ApiResponse, type ErrorWithMessage } from "@/configs/axios.config";
+import type { OrganizationUsersResponse as DirectoryResponse } from "./usefetchorganizationdata";
 
+// Assignee selectors use the staff directory, never the owner-only member records.
 export interface OrganizationUser {
   id: string;
   firstname: string;
   lastname: string;
   email: string;
-  phonenumber?: string;
   position?: string;
-  userrole: string;
-  companyname?: string;
-  setpermission: string;
-  status: string;
-  isActive: boolean;
-  organizationId: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  lastLoginAt?: string;
-  loginAttempts: number;
-  lockedUntil?: string;
-  user?: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    image?: string;
-    emailVerified: boolean;
-    isSuperAdmin: boolean;
-  };
-  userOrganization?: {
-    id: string;
-    role: string;
-    permissions: any;
-    status: string;
-    joinedAt: string;
-  };
+  user: { id: string; name: string; email: string; role: string };
 }
 
 export interface OrganizationUsersResponse {
   userMembers: OrganizationUser[];
   totalCount: number;
-  organizationId: string;
 }
 
 export const useFetchOrganizationUsers = (options?: { enabled?: boolean }) => {
   const scope = useDataScope();
   return useQuery<ApiResponse<OrganizationUsersResponse>, ErrorWithMessage>({
-    queryKey: ["organization-user-members", scope],
+    queryKey: ["organization-assignees", scope],
     queryFn: async () => {
-      const response = await axios.get<ApiResponse<OrganizationUsersResponse>>(
-        "/organizations/current-org-user-members",
-      );
-      return response.data;
+      const { data: response } = await axios.get<DirectoryResponse>("/projects/users/organization");
+      const userMembers = response.data.map(user => ({
+        id: user.id, firstname: user.name ?? "", lastname: "", email: user.email,
+        user: { id: user.id, name: user.name ?? "", email: user.email, role: user.role },
+      }));
+      return { ...response, data: { userMembers, totalCount: userMembers.length } };
     },
-    staleTime: 0, // No caching - always fetch fresh data
-    refetchOnMount: true, // Always refetch when component mounts
+    staleTime: 0,
+    refetchOnMount: true,
     ...options,
   });
 };

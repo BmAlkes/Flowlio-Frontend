@@ -3,6 +3,10 @@ import { getNavigationItemsByRole, hasRouteAccess } from "./role-based-navigatio
 import { activeNavigationUrl } from "./agency-navigation";
 
 describe("agency navigation", () => {
+  it("does not assign member navigation to an unknown role", () => {
+    expect(getNavigationItemsByRole("unknown", true, true)).toEqual([]);
+    expect(hasRouteAccess("unknown", "/dashboard")).toBe(false);
+  });
   it("groups the owner's work into five primary areas without duplicate destinations", () => {
     const items = getNavigationItemsByRole("user", true);
     expect(items.filter(item => !item.section).map(item => item.title)).toEqual(["agencyHome", "agencyClients", "agencyWork", "agencyFinance", "agencyTeam"]);

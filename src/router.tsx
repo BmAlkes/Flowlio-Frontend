@@ -421,7 +421,7 @@ const AppRoutes = () => {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="user">
             <LazyWrapper component={DashboardLayout} />
           </ProtectedRoute>
         }

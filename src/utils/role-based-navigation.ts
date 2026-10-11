@@ -572,8 +572,9 @@ export const getNavigationItemsByRole = (
     case "client":
       return clientNavItems;
     case "user":
-    default:
       return userNavItems;
+    default:
+      return [];
   }
 };
 
