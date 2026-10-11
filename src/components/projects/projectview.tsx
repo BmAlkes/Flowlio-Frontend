@@ -75,7 +75,7 @@ export const ProjectView = () => {
   const user = userData?.user;
   const isClient = user?.role === "client";
   const showProjectFinancials = canViewInternalProjectFinancials(user);
-  const canReadOrganizationMembers = !!user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && !!user.isOrganizationOwner));
+  const canReadOrganizationMembers = !!user && ["superadmin", "subadmin", "user", "operator", "viewer"].includes(user.role);
   const showAudit = user && (["superadmin", "subadmin"].includes(user.role) || (user.role === "user" && (user.isOrganizationOwner || user.isOrganizationManager)));
 
   const navigate = useNavigate();

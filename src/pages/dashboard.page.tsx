@@ -177,7 +177,7 @@ const DashboardPage = () => {
               <ProjectRiskAlertsWidget />
             )}
             <FollowUpWidget />
-            <RecentActivities className="w-full" />
+            {manager && <RecentActivities className="w-full" />}
           </Stack>
         </Flex>
 

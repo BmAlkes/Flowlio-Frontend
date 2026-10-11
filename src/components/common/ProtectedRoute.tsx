@@ -22,7 +22,7 @@ interface ProtectedRouteProps {
 
 const ROLE_HIERARCHY: Record<string, number> = {
   user: 1,
-  viewer: 2,
+  viewer: 0,
   operator: 3,
   subadmin: 4,
   superadmin: 5,
@@ -31,6 +31,7 @@ const ROLE_HIERARCHY: Record<string, number> = {
 };
 
 const hasRole = (userRole: string, requiredRole: string): boolean => {
+  if (!Object.prototype.hasOwnProperty.call(ROLE_HIERARCHY, userRole)) return false;
   if (requiredRole === "client" || requiredRole === "viewer")
     return userRole === requiredRole;
   return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[requiredRole] ?? 0);
@@ -78,8 +79,8 @@ export const ProtectedRoute = ({
     }
 
     // Check role requirements
-    if (requiredRole && user.role) {
-      if (!hasRole(user.role, requiredRole)) {
+    if (requiredRole) {
+      if (!hasRole(user.role || "", requiredRole)) {
         toast.error(`Access denied. Required role: ${requiredRole}`);
 
         // Redirect to a safe default page for the current user's role
@@ -97,8 +98,10 @@ export const ProtectedRoute = ({
           case "subadmin":
           case "operator":
           case "user":
-          default:
             fallbackPath = "/dashboard";
+            break;
+          default:
+            fallbackPath = "/forbidden";
             break;
         }
         navigate(fallbackPath, { replace: true });
@@ -146,7 +149,7 @@ export const ProtectedRoute = ({
   if (user.status === "pending") return null;
 
   // Don't render if user doesn't have required role
-  if (requiredRole && user.role && !hasRole(user.role, requiredRole)) {
+  if (requiredRole && !hasRole(user.role || "", requiredRole)) {
     return null;
   }
 

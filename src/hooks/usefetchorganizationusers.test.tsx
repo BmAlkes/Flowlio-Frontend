@@ -6,7 +6,7 @@ import { useFetchOrganizationUsers } from "./usefetchorganizationusers";
 const state = vi.hoisted(() => ({scope: "org-a", get: vi.fn()}));
 vi.mock("@/hooks/useDataScope", () => ({useDataScope: () => state.scope}));
 vi.mock("@/configs/axios.config", () => ({axios: {get: state.get}}));
-beforeEach(() => {state.scope = "org-a"; state.get.mockReset().mockImplementation(async () => ({data: {success: true, data: {userMembers: [{id: state.scope}], organizationId: state.scope}}}));});
+beforeEach(() => {state.scope = "org-a"; state.get.mockReset().mockImplementation(async () => ({data: {success: true, data: [{id: state.scope, name: "Colleague", email: "colleague@example.test", role: "viewer"}]}}));});
 function wrapper(client: QueryClient) {
   return ({children}: PropsWithChildren) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
@@ -20,9 +20,11 @@ it("does not reuse assignee-option data or fetch a disabled members query", () =
 it("does not expose the previous organization's members while the next organization loads", async () => {
   const client = new QueryClient({defaultOptions: {queries: {retry: false}}});
   const {result, rerender} = renderHook(() => useFetchOrganizationUsers(), {wrapper: wrapper(client)});
-  await waitFor(() => expect(result.current.data?.data?.organizationId).toBe("org-a"));
+  await waitFor(() => expect(result.current.data?.data?.userMembers[0].user.id).toBe("org-a"));
+  expect(state.get).toHaveBeenCalledWith("/projects/users/organization");
+  expect(result.current.data?.data?.userMembers[0].user.name).toBe("Colleague");
   state.scope = "org-b";
   rerender();
   expect(result.current.data).toBeUndefined();
-  await waitFor(() => expect(result.current.data?.data?.organizationId).toBe("org-b"));
+  await waitFor(() => expect(result.current.data?.data?.userMembers[0].user.id).toBe("org-b"));
 });

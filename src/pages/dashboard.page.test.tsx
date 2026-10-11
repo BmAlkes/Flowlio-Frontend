@@ -35,11 +35,13 @@ it("shows useful actions before reports and does not invent zeros for missing da
  await userEvent.click(screen.getByRole("button", { name: "dashboard.reportsAndActivity" }));
  expect(screen.getByText("BarChartComponent")).toBeInTheDocument();
 });
-it("does not show management actions or fetch client statistics for a member", () => {
+it("does not show management actions, organization activity or fetch client statistics for a member", async () => {
  state.owner = false; setup();
  expect(state.clients).toHaveBeenCalledWith(false);
  expect(screen.queryByRole("link", { name: "dashboard.newClient" })).not.toBeInTheDocument();
  expect(screen.queryByText("AttentionPreview")).not.toBeInTheDocument();
  expect(screen.getByRole("link", { name: "dashboard.logTime" })).toHaveAttribute("href", "/dashboard/time-tracking");
+ await userEvent.click(screen.getByRole("button", { name: "dashboard.reportsAndActivity" }));
+ expect(screen.queryByText("RecentActivities")).not.toBeInTheDocument();
 });
 

@@ -46,11 +46,11 @@ it("shows project details and review actions while optional member details load"
   expect(screen.getByText("Assigned colleague")).toBeInTheDocument();
   expect(state.members).toHaveBeenCalledWith({enabled: true});
 });
-it.each(["client", "manager"])("does not fetch owner-only members for a %s", role => {
+it.each(["client", "manager"])("fetches the staff assignee directory only when permitted for a %s", role => {
   state.user = {role: role === "client" ? "client" : "user", isOrganizationOwner: false, isOrganizationManager: role === "manager"};
   state.membersLoading = true;
   setup(role === "client" ? "/clients/projects/view/project-1" : undefined);
-  expect(state.members).toHaveBeenCalledWith({enabled: false});
+  expect(state.members).toHaveBeenCalledWith({enabled: role === "manager"});
   expect(screen.getByText("Delivery reviews")).toBeInTheDocument();
 });
 it("takes a client to real delivery reviews without fabricating an approval", async () => {
