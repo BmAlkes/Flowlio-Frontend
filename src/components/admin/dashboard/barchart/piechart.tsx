@@ -2,15 +2,18 @@ import { type FC } from "react";
 import { cn } from "@/lib/utils";
 import { type BoxProps } from "@/components/ui/box";
 import { PieChart, Pie, Cell } from "recharts";
+import { useTranslation } from "react-i18next";
 
 type ProjectStatusPieChartProps = {
   data: { name: string; value: number; icon: string; color: string }[];
   title: string;
+  unavailable?: boolean;
 };
 
 export const ProjectStatusPieChart: FC<
   BoxProps & ProjectStatusPieChartProps
-> = ({ className, data, title, ...props }) => {
+> = ({ className, data, title, unavailable = false, ...props }) => {
+  const { t } = useTranslation();
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
@@ -24,7 +27,7 @@ export const ProjectStatusPieChart: FC<
       )}
       {...(props as React.HTMLAttributes<HTMLDivElement>)}
     >
-      <h1 className="text-base font-semibold text-foreground mb-4">{title}</h1>
+      <h2 className="text-base font-semibold text-foreground mb-4">{title}</h2>
 
       <div className="flex flex-col items-center">
         {/* Donut chart with center label */}
@@ -48,8 +51,8 @@ export const ProjectStatusPieChart: FC<
 
           {/* Center text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-3xl font-bold text-foreground leading-none">{total}</span>
-            <span className="text-xs text-muted-foreground mt-1 font-medium">total {total === 1 ? "project" : "projects"}</span>
+            <span className="text-3xl font-bold text-foreground leading-none">{unavailable ? "—" : total}</span>
+            <span className="text-xs text-muted-foreground mt-1 font-medium">{t("appSidebar.projects")}</span>
           </div>
         </div>
 
@@ -64,11 +67,11 @@ export const ProjectStatusPieChart: FC<
                     className="size-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-sm text-muted-foreground truncate">{item.name}</span>
+                  <span className="text-sm text-muted-foreground truncate">{t(({Ongoing: "dashboard.ongoing", Delayed: "dashboard.delayed", Finished: "dashboard.finished", Other: "dashboard.otherStatuses"} as Record<string, string>)[item.name] ?? item.name)}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-sm font-semibold text-foreground">{item.value}</span>
-                  <span className="text-xs text-muted-foreground w-9 text-end">({pct}%)</span>
+                  <span className="text-sm font-semibold text-foreground">{unavailable ? "—" : item.value}</span>
+                  {!unavailable && <span className="text-xs text-muted-foreground w-9 text-end">({pct}%)</span>}
                 </div>
               </div>
             );

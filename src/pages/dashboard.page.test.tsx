@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, expect, it, vi } from "vitest";
@@ -26,22 +25,22 @@ vi.mock("@/components/user section/AITokenUsageWidget", () => ({ AITokenUsageWid
 vi.mock("@/components/dempasswordchangemodal", () => ({ DemoPasswordChangeModal: () => <div>DemoPasswordChangeModal</div> }));
 beforeEach(() => { vi.clearAllMocks(); state.owner = true; state.clients.mockReturnValue({}); });
 function setup() { return render(<QueryClientProvider client={new QueryClient()}><MemoryRouter><Dashboard /></MemoryRouter></QueryClientProvider>); }
-it("shows useful actions before reports and does not invent zeros for missing data", async () => {
+it("keeps the original indicators and charts visible without inventing missing values", () => {
  setup();
- expect(screen.getByRole("link", { name: "dashboard.newClient" })).toHaveAttribute("href", "/dashboard/client-management/create-client");
- expect(screen.getAllByText("—")).toHaveLength(4);
+ expect(screen.getByRole("link", { name: "dashboard.newProject" })).toHaveAttribute("href", "/dashboard/project/create-project");
+ expect(screen.getAllByText("—")).toHaveLength(5);
  expect(screen.getByText("AttentionPreview")).toBeInTheDocument();
- expect(screen.queryByText("BarChartComponent")).not.toBeInTheDocument();
- await userEvent.click(screen.getByRole("button", { name: "dashboard.reportsAndActivity" }));
  expect(screen.getByText("BarChartComponent")).toBeInTheDocument();
+ expect(screen.getByText("ProjectStatusPieChart")).toBeInTheDocument();
+ expect(screen.getByText("RecentActivities")).toBeInTheDocument();
+ expect(screen.queryByRole("button", {name: "dashboard.reportsAndActivity"})).not.toBeInTheDocument();
 });
-it("does not show management actions, organization activity or fetch client statistics for a member", async () => {
+it("does not show management actions, organization activity or fetch client statistics for a member", () => {
  state.owner = false; setup();
  expect(state.clients).toHaveBeenCalledWith(false);
  expect(screen.queryByRole("link", { name: "dashboard.newClient" })).not.toBeInTheDocument();
  expect(screen.queryByText("AttentionPreview")).not.toBeInTheDocument();
  expect(screen.getByRole("link", { name: "dashboard.logTime" })).toHaveAttribute("href", "/dashboard/time-tracking");
- await userEvent.click(screen.getByRole("button", { name: "dashboard.reportsAndActivity" }));
  expect(screen.queryByText("RecentActivities")).not.toBeInTheDocument();
 });
 

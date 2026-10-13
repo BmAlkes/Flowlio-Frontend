@@ -2,11 +2,13 @@ import { BarChartComponent } from "@/components/admin/dashboard/barchart/barchar
 import { RecentActivities } from "@/components/admin/dashboard/recentactivities";
 import { OngoingTasks } from "@/components/admin/dashboard/ongoingtasks";
 import { type Stat } from "@/components/admin/dashboard/stats";
+import { HomeMetrics } from "@/components/admin/dashboard/HomeMetrics";
+import { Plus, Clock3 } from "lucide-react";
+import "./dashboard.css";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { AttentionPreview } from "@/components/admin/dashboard/AttentionPreview";
 import { Stack } from "@/components/ui/stack";
-import { Flex } from "@/components/ui/flex";
 import { ProjectStatusPieChart } from "@/components/admin/dashboard/barchart/piechart";
 
 import { useFetchOrganizationTotalClients } from "@/hooks/useFetchOrganizationTotalClients";
@@ -67,7 +69,6 @@ const DashboardPage = () => {
   const { data: projectStatusResponse } = useFetchProjectStatusData();
   const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
   const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
-  const [showReports, setShowReports] = useState(false);
 
 
   const totalClients = totalClientsResponse?.data?.totalClients;
@@ -130,59 +131,44 @@ const DashboardPage = () => {
 
   return (
     <>
-      <Stack className="pt-5 gap-5 px-2">
+      <Stack className="home-dashboard mx-auto w-full max-w-[1600px] gap-5 px-2 py-6 sm:px-4">
 
         {/* Greeting header */}
-        <div className="px-1">
+        <div className="flex flex-wrap items-end justify-between gap-4 px-1 pb-1">
+          <div>
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-ink">{t("dashboard.title")}</p>
           <h1 className="text-2xl font-bold text-foreground">
             {t(`dashboard.${greetingKey}`)}{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {t("dashboard.operationalSubtitle")}
+            {t("dashboard.greetingSubtitle")}
           </p>
+          </div>
+          <nav aria-label={t("dashboard.quickActions")} className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" className="h-10 rounded-lg bg-card"><Link to="/dashboard/time-tracking"><Clock3 className="size-4" aria-hidden="true" />{t("dashboard.logTime")}</Link></Button>
+            {manager && <Button asChild className="h-10 rounded-lg bg-[#1797B9] text-white hover:bg-[#117e9b]"><Link to="/dashboard/project/create-project"><Plus className="size-4" aria-hidden="true" />{t("dashboard.newProject")}</Link></Button>}
+          </nav>
         </div>
 
-        <nav aria-label={t("dashboard.quickActions")} className="flex flex-wrap items-center gap-3 rounded-xl bg-[#1797B9] p-4 text-white">
-          <span className="text-sm font-semibold">{t("dashboard.quickActions")}</span>
-          {[["/dashboard/time-tracking", "logTime"], ...(manager ? [["/dashboard/client-management/create-client", "newClient"], ["/dashboard/project/create-project", "newProject"]] : [])].map(([path, label]) => <Link key={path} to={path} className="rounded-lg border border-white/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white">{t(`dashboard.${label}`)}</Link>)}
-        </nav>
-        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.slice(manager ? 0 : 1, 4).map(stat => <div key={stat.link} className="rounded-xl border border-border bg-card p-5"><dt className="text-xs font-medium text-muted-foreground">{stat.title}</dt><dd className="mt-3 text-3xl font-semibold tabular-nums">{stat.count}</dd><p className="mt-2 text-xs text-muted-foreground">{stat.description}</p><Link className="mt-3 inline-block text-xs font-medium text-brand-ink hover:underline" to={stat.link}>{t("dashboard.openSection")}</Link></div>)}</dl>
+        <HomeMetrics stats={stats} manager={manager} />
         {((manager && clientsError) || projectsError || hoursError || tasksError) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4 text-sm"><p>{t("attention.error")}</p><Button variant="outline" onClick={() => { if (manager) void reloadClients(); void reloadProjects(); void reloadHours(); void reloadTasks(); }}>{t("attention.refresh")}</Button></div>}
-        {manager && <AttentionPreview />}
-        <OngoingTasks />
-        <Button variant="outline" aria-expanded={showReports} onClick={() => setShowReports(!showReports)}>{t("dashboard.reportsAndActivity")}</Button>
-        {showReports && <>
-        <Flex className="max-[950px]:flex-col items-start gap-3">
-          <Stack className="flex-1 min-w-0 gap-3">
-            <BarChartComponent />
-
-            {(userProfile?.data?.role === "superadmin" ||
-              userProfile?.data?.role === "subadmin" ||
-              userProfile?.data?.isOrganizationOwner ||
-              userProfile?.data?.isOrganizationManager) && (
-              <TeamProductivityChart />
-            )}
+        <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <BarChartComponent className="home-panel min-w-0" />
+          <ProjectStatusPieChart className="home-panel" data={pieChartData} title={t("dashboard.projectStatus")} unavailable={!projectStatusResponse?.data} />
+        </div>
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <Stack className="min-w-0 gap-5">
+            <OngoingTasks className="home-panel" />
+            {manager && <TeamProductivityChart className="home-panel" />}
           </Stack>
-
-          <Stack className="w-[300px] shrink-0 max-[950px]:w-full items-start gap-3">
-            <ProjectStatusPieChart
-              className="w-full"
-              data={pieChartData}
-              title={t("dashboard.projectStatus")}
-            />
-            {(userProfile?.data?.role === "superadmin" ||
-              userProfile?.data?.role === "subadmin" ||
-              userProfile?.data?.isOrganizationOwner ||
-              userProfile?.data?.isOrganizationManager) && (
-              <ProjectRiskAlertsWidget />
-            )}
+          {manager && <Stack className="min-w-0 gap-5">
+            <RecentActivities className="home-panel" />
+            <ProjectRiskAlertsWidget />
             <FollowUpWidget />
-            {manager && <RecentActivities className="w-full" />}
-          </Stack>
-        </Flex>
-
+          </Stack>}
+        </div>
+        {manager && <AttentionPreview />}
         {hasAIAssist && <AITokenUsageWidget />}
-        </>}
 
         <DemoPasswordChangeModal
           open={showPasswordChangeModal}

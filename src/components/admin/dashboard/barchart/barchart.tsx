@@ -102,7 +102,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
   if (isLoading) {
     return (
       <ComponentWrapper className={cn("p-4 relative !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)} {...props}>
-        <Flex className="max-lg:flex-col items-center justify-between mb-4">
+        <Flex className="flex-wrap items-center justify-between gap-3 mb-4">
           <Flex className="justify-between max-md:justify-start max-lg:w-full gap-2">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
@@ -132,7 +132,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
     return (
       <ComponentWrapper className={cn("p-4 relative !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)} {...props}>
         <Stack className="gap-5">
-          <Flex className="max-lg:flex-col items-center justify-between">
+          <Flex className="flex-wrap items-center justify-between gap-3">
             <Flex className="justify-between max-md:justify-start max-lg:w-full">
               <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
               <h1 className="text-lg font-medium">
@@ -156,7 +156,7 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
   return (
     <ComponentWrapper className={cn("p-4 relative", className)} {...props}>
       <Stack className="gap-5">
-        <Flex className="max-lg:flex-col items-center justify-between">
+        <Flex className="flex-wrap items-center justify-between gap-3">
           <Flex className="justify-between max-md:justify-start max-lg:w-full">
             <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
             <h1 className="text-lg font-medium">
@@ -190,9 +190,9 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
         >
           <CartesianGrid
-            vertical={true}
+            vertical={false}
             horizontal={true}
-            stroke="#cccccc"
+            stroke="var(--border)"
             strokeWidth={1}
             strokeDasharray="none"
             opacity={1}
@@ -210,7 +210,8 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
               transform: "translateX(-50%)",
               textAnchor: "middle",
             }}
-            interval={0}
+            interval="preserveStartEnd"
+            minTickGap={16}
           />
           <YAxis
             axisLine={true}
@@ -259,19 +260,19 @@ export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
           {/* Regular task status bars */}
           <Bar
             dataKey="Completed"
-            fill="#3f53b5"
+            fill="#1797B9"
             radius={[2, 2, 0, 0]}
             stackId="stack"
           />
           <Bar
             dataKey="Delayed"
-            fill="#EF5350"
+            fill="#dd8066"
             radius={[2, 2, 0, 0]}
             stackId="stack"
           />
           <Bar
             dataKey="In-Progress"
-            fill="#FFC107"
+            fill="#e4b458"
             radius={[4, 4, 0, 0]}
             stackId="stack"
           />

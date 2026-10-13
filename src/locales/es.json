@@ -429,6 +429,7 @@
     "greetingMorning": "Buenos días",
     "greetingAfternoon": "Buenas tardes",
     "greetingEvening": "Buenas noches",
+    "otherStatuses": "Otros estados",
     "greetingSubtitle": "Esto es lo que está pasando con tu negocio hoy.",
     "tasksCompleted": "Tareas Completadas",
     "tasksCompletedDesc": "Completadas este mes"
