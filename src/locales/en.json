@@ -422,6 +422,7 @@
     "greetingMorning": "Good morning",
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
+    "otherStatuses": "Other statuses",
     "greetingSubtitle": "Here's what's happening with your business today.",
     "tasksCompleted": "Tasks Completed",
     "tasksCompletedDesc": "Completed this month"

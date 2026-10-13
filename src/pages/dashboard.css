@@ -1,0 +1,16 @@
+.home-dashboard { --home-brand: #1797B9; --home-ink: #143747; --home-line: #dce7ed; --home-soft: #edf6f9; }
+.home-dashboard h1, .home-dashboard .home-number { font-family: "Outfit", "Noto Sans Hebrew", sans-serif; }
+.home-dashboard .home-metric { display: block; min-width: 0; padding: 1.15rem; border: 1px solid var(--home-line); border-radius: 14px; background: var(--card); color: var(--foreground); transition: border-color .18s, box-shadow .18s; }
+.home-dashboard .home-metric:hover { border-color: var(--home-brand); box-shadow: 0 4px 18px #1437470a; }
+.home-dashboard .home-metric-icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--home-soft); color: #11718c; }
+.home-dashboard .home-metric-description { color: var(--muted-foreground); }
+.home-dashboard .home-metric-primary { background: var(--home-brand); color: white; border-color: var(--home-brand); }
+.home-dashboard .home-metric-primary .home-metric-icon { background: #ffffff20; color: white; }
+.home-dashboard .home-metric-primary .home-metric-description { color: white; opacity: .9; }
+.home-dashboard .home-panel { border: 1px solid var(--home-line) !important; border-radius: 14px; background: var(--card) !important; box-shadow: 0 2px 8px #14374703 !important; backdrop-filter: none; }
+.home-dashboard .home-panel h1, .home-dashboard .home-panel h2 { font-size: .9rem; font-weight: 600; letter-spacing: -.01em; }
+.home-dashboard :where(a, button):focus-visible { outline: 2px solid var(--home-brand); outline-offset: 4px; }
+.dark .home-dashboard { --home-ink: #d8edf4; --home-line: #2b3e4b; --home-soft: #163342; }
+.dark .home-dashboard .home-metric-icon { color: #69c8df; }
+.dark .home-dashboard .home-metric-primary .home-metric-icon { color: white; }
+@media (prefers-reduced-motion: reduce) { .home-dashboard *, .home-dashboard *::before, .home-dashboard *::after { transition: none !important; animation: none !important; } }

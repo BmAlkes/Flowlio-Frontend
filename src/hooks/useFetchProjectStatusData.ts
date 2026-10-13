@@ -51,23 +51,24 @@ export const transformToPieChartData = (
   const pieData = [
     {
       name: "Ongoing",
-      value: Number(((ongoing / total) * 100).toFixed(2)),
+      value: Number(ongoing),
       icon: "/dashboard/prostat2.svg",
-      color: "#FFE000",
+      color: "#1797B9",
     },
     {
       name: "Delayed",
-      value: Number(((delayed / total) * 100).toFixed(2)),
+      value: Number(delayed),
       icon: "/dashboard/projstat3.svg",
-      color: "#F50057",
+      color: "#db8b49",
     },
     {
       name: "Finished",
-      value: Number(((finished / total) * 100).toFixed(2)),
+      value: Number(finished),
       icon: "/dashboard/prostat1.svg",
-      color: "#3f53b5",
+      color: "#6eab96",
     },
   ];
 
-  return pieData;
+  const remaining = Math.max(0, Number(total) - Number(ongoing) - Number(delayed) - Number(finished));
+  return remaining ? [...pieData, { name: "Other", value: remaining, icon: "", color: "#aab9c2" }] : pieData;
 };
