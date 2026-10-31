@@ -8,6 +8,9 @@
   },
   "scripts": {
     "prebuild": "node scripts/check-runtime.cjs",
+    "prebuild:analyze": "node scripts/check-runtime.cjs",
+    "prebuild:prod": "node scripts/check-runtime.cjs",
+    "preperformance:budget": "node scripts/check-runtime.cjs",
     "prestart": "node scripts/check-runtime.cjs",
     "dev": "vite --host",
     "build": "tsc -b && vite build",
