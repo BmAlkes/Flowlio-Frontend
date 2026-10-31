@@ -116,7 +116,7 @@ const formSchema = z.object({
       }),
     )
     .optional(),
-  customFields: z.record(z.any()).optional(),
+  customFields: z.record(z.string(), z.any()).optional(),
   portalPassword: z.string().optional(),
   portalAccessEnabled: z.boolean().optional(),
 });

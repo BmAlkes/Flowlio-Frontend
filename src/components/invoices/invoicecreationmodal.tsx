@@ -80,7 +80,7 @@ export const InvoiceCreationModal: React.FC<InvoiceCreationModalProps> = ({
     setValue,
     watch,
     reset,
-  } = useForm<FormData>({
+  } = useForm<z.input<typeof formSchema>, unknown, FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       clientId: "",
