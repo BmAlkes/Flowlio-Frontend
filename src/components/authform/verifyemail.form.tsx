@@ -46,9 +46,9 @@ export const VerifyEmailForm: FC = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // Use Better Auth's forgetPassword to send reset link
+      // Use Better Auth's requestPasswordReset to send reset link
       // This sends an email with a reset link (not a code)
-      const { error } = await authClient.forgetPassword({
+      const { error } = await authClient.requestPasswordReset({
         email: values.email,
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });

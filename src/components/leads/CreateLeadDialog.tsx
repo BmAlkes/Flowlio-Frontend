@@ -39,7 +39,7 @@ const schema = z.object({
   phone: z.string().optional(),
   businessIndustry: z.string().optional(),
   leadValue: z.string().optional(),
-  customFields: z.record(z.any()).optional(),
+  customFields: z.record(z.string(), z.any()).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;

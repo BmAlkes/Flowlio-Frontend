@@ -73,9 +73,9 @@ const formSchema = z
         }),
       )
       .optional(),
-    customFields: z.record(z.any()).optional(),
+    customFields: z.record(z.string(), z.any()).optional(),
     visibility: z.enum(["public", "private"]).default("private"),
-    budget: z.coerce.number().min(0).optional(),
+    budget: z.coerce.number<number>().min(0).optional(),
     templateId: z.string().optional(),
   })
   .refine(
@@ -168,7 +168,7 @@ export const CreateProject = () => {
   const usersOrgId = usersData?.data?.[0]?.organizationId;
   const finalOrganizationId = userOrgId || fetchedOrgId || clientsOrgId || usersOrgId;
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",

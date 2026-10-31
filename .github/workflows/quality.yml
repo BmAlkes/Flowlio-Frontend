@@ -25,9 +25,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22'
+          node-version-file: '.node-version'
           cache: npm
+      - run: node --version && npm --version
       - run: npm ci
+      - run: npm audit --audit-level=high
       - run: npm run lint -- --max-warnings=0
       - run: npm test -- --maxWorkers=1 --testTimeout=15000
       - run: npm run build

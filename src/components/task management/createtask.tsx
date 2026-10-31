@@ -136,7 +136,7 @@ export const CreateTask = ({
   const { data: taskData } = useFetchTaskById(taskId || "");
   const { data: parentTaskData } = useFetchTaskById(parentId || "");
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: titleFromUrl || "",
