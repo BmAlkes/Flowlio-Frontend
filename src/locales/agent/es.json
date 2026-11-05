@@ -12,6 +12,7 @@
   "onDemand": "Los registros se buscan según cada solicitud.",
   "contextFailed": "No se pudo cargar el contexto. Elige otra área o vuelve a abrir el asistente.",
   "helpTitle": "Hola, soy Lio. ¿En qué trabajamos?",
+  "launcher": "Asistente Lio",
   "helpDescription": "Pregunta sobre proyectos, tareas, clientes o facturas. Te muestro de dónde sale cada respuesta y nada cambia hasta que lo confirmes.",
   "noHistory": "Aquí aparecerán tus solicitudes recientes.",
   "working": "Consultando tus datos…",
