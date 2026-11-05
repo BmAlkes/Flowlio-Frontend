@@ -4,6 +4,7 @@
   "unavailable": "AI is unavailable for this account or plan.",
   "context": "Working on",
   "history": "History",
+  "newConversation": "New conversation",
   "project": "Project",
   "accessibleProjects": "Recent accessible projects",
   "clientContext": "Context is limited to the current client.",
