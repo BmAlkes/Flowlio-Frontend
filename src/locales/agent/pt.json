@@ -9,6 +9,7 @@
   "accessibleProjects": "Projetos recentes acessíveis",
   "clientContext": "O contexto está limitado ao cliente atual.",
   "sourceCount": "{{count}} fontes acessíveis carregadas",
+  "onDemand": "Os registros são buscados conforme cada pedido.",
   "contextFailed": "Não foi possível carregar o contexto. Escolha outra área ou reabra o assistente.",
   "helpTitle": "No que vamos trabalhar?",
   "helpDescription": "Diga o que você precisa ou escolha uma sugestão. Você poderá conferir o resultado antes de usá-lo.",
@@ -134,7 +135,12 @@
     "AGENT_FAILED": "Não foi possível concluir. Confira o histórico antes de tentar novamente.",
     "CANCELLED": "Esta solicitação foi cancelada.",
     "ACTION_FAILED": "A resposta está pronta, mas a execução automática falhou. Revise as ações.",
-    "FORBIDDEN": "Seu perfil não permite esta ação."
+    "FORBIDDEN": "Seu perfil não permite esta ação.",
+    "ORG_TOKEN_LIMIT_EXCEEDED": "A cota de IA restante da organização não cobre este pedido. Compre tokens ou aguarde a renovação mensal.",
+    "USER_TOKEN_LIMIT_EXCEEDED": "Sua cota pessoal de IA não cobre este pedido.",
+    "AI_QUOTA_DISABLED": "A IA está desativada para esta organização.",
+    "AI_ACCOUNTING_UNAVAILABLE": "Não foi possível confirmar o uso de IA. Tente novamente mais tarde.",
+    "AI_TIMEOUT": "O assistente demorou demais. Tente um pedido mais específico."
   },
   "fields": {
     "title": "Título",

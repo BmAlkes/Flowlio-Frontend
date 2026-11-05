@@ -9,6 +9,7 @@
   "accessibleProjects": "Recent accessible projects",
   "clientContext": "Context is limited to the current client.",
   "sourceCount": "{{count}} accessible sources loaded",
+  "onDemand": "Records are searched as needed for each request.",
   "contextFailed": "Unable to load this context. Choose another area or reopen the assistant.",
   "helpTitle": "What should we work on?",
   "helpDescription": "Tell us what you need or choose a suggestion. You can check the result before using it.",
@@ -134,7 +135,12 @@
     "AGENT_FAILED": "Unable to complete the request. Check its history before trying again.",
     "CANCELLED": "This request was cancelled.",
     "ACTION_FAILED": "The response is ready, but automatic execution failed. Review the actions.",
-    "FORBIDDEN": "Your role does not permit this action."
+    "FORBIDDEN": "Your role does not permit this action.",
+    "ORG_TOKEN_LIMIT_EXCEEDED": "Your organization's remaining AI quota cannot cover this request. Buy tokens or wait for the monthly reset.",
+    "USER_TOKEN_LIMIT_EXCEEDED": "Your personal AI quota cannot cover this request.",
+    "AI_QUOTA_DISABLED": "AI is disabled for this organization.",
+    "AI_ACCOUNTING_UNAVAILABLE": "Unable to confirm AI usage. Try again later.",
+    "AI_TIMEOUT": "The assistant took too long. Try a more specific request."
   },
   "fields": {
     "title": "Title",
