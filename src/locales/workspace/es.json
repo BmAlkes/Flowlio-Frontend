@@ -22,7 +22,7 @@
     "loadedAudit": "Entre los eventos cargados"
   },
   "hub": {
-    "assistant": "Asistente",
+    "assistant": "Lio",
     "tools": "Herramientas",
     "toolsNote": "Un espacio para análisis, acciones revisadas y contenido. Abrir una herramienta no genera contenido.",
     "client": "Crear cliente",
