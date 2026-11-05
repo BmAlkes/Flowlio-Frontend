@@ -22,7 +22,7 @@
     "loadedAudit": "Among loaded events"
   },
   "hub": {
-    "assistant": "Assistant",
+    "assistant": "Lio",
     "tools": "Tools",
     "toolsNote": "One workspace for analysis, reviewed actions and content. Choose a tool to begin; opening it does not generate anything.",
     "client": "Create client",

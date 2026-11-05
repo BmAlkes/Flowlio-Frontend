@@ -1,0 +1,28 @@
+.lio { --lio-face:#079dc5; --lio-ink:#ffffff; --lio-spark:#f2b632; flex-shrink:0; overflow:visible; }
+.dark .lio { --lio-face:#55bdd9; --lio-ink:#0b2530; }
+.lio-face { fill:var(--lio-face); }
+.lio-eye { fill:var(--lio-ink); transform-box:fill-box; transform-origin:center; }
+.lio-eyes { transition:transform .3s ease; }
+.lio-mouth { fill:none; stroke:var(--lio-ink); stroke-width:2.6; stroke-linecap:round; }
+.lio-o { fill:var(--lio-ink); }
+.lio-spark { fill:var(--lio-spark); transform-box:fill-box; transform-origin:center; }
+.lio-flat, .lio-o { display:none; }
+
+/* idle: a slow blink */
+.lio[data-state=idle] .lio-eye { animation:lio-blink 5.5s infinite; }
+/* thinking: glance up, small "o", bob, spinning spark */
+.lio[data-state=thinking] .lio-eyes { transform:translate(2px,-3px); }
+.lio[data-state=thinking] .lio-smile { display:none; }
+.lio[data-state=thinking] .lio-o { display:block; }
+.lio[data-state=thinking] .lio-head { animation:lio-bob 1.1s ease-in-out infinite; }
+.lio[data-state=thinking] .lio-spark { animation:lio-spin 1.4s linear infinite; }
+/* error: squint and a flat mouth, spark dims */
+.lio[data-state=error] .lio-eye { transform:scaleY(.45); }
+.lio[data-state=error] .lio-smile { display:none; }
+.lio[data-state=error] .lio-flat { display:block; }
+.lio[data-state=error] .lio-spark { opacity:.35; }
+
+@keyframes lio-blink { 0%,93%,100% { transform:scaleY(1); } 96% { transform:scaleY(.12); } }
+@keyframes lio-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-1.5px); } }
+@keyframes lio-spin { to { transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce) { .lio * { animation:none!important; transition:none!important; } }
