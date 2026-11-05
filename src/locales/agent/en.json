@@ -12,6 +12,7 @@
   "onDemand": "Records are searched as needed for each request.",
   "contextFailed": "Unable to load this context. Choose another area or reopen the assistant.",
   "helpTitle": "Hi, I'm Lio. What should we work on?",
+  "launcher": "Lio assistant",
   "helpDescription": "Ask about projects, tasks, clients or invoices. I show where each answer comes from, and nothing changes until you confirm it.",
   "noHistory": "Your recent requests will appear here.",
   "working": "Looking through your data…",

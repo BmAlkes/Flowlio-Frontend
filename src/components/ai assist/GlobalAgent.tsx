@@ -4,7 +4,7 @@ import { useLocation, Link, useSearchParams } from 'react-router';
 const AgentTools=lazy(()=>import('./AgentTools').then(module=>({default:module.AgentTools})));
 import {AgentContentHistory} from './AgentContentHistory';
 import {AgentTurn,selectClass,type ConfirmAction} from './AgentFeed';
-import {LioAvatar,type LioState} from './LioAvatar';
+import {LioAvatar,LioGreeting,type LioState} from './LioAvatar';
 import { useAiAssistChatStore } from '@/store/aiassistchat.store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +31,7 @@ function AgentLauncher(){
   const [context,setContext]=useState<{scope:AgentScope;prompt?:string}>({scope:agentScopeForPath(pathname)});
   useEffect(()=>{const handler=(e:Event)=>{const detail=(e as CustomEvent).detail;if(!detail?.scope||!agentAreas.includes(detail.scope.area))return;setContext(detail);setInitialTab('assistant');setOpen(true);};window.addEventListener(OPEN_AGENT_EVENT,handler);return()=>window.removeEventListener(OPEN_AGENT_EVENT,handler);},[]);
   return <Sheet open={open} onOpenChange={setOpen}>
-    <SheetTrigger asChild><Button variant="outline" className="ai-launcher gap-2 border-primary/25 text-primary"><LioAvatar size={22}/><span>Lio</span></Button></SheetTrigger>
+    <SheetTrigger asChild><Button variant="outline" className="ai-launcher gap-2 border-primary/25 text-primary" aria-label={t('agent.launcher')}><LioAvatar size={26}/><span className="hidden sm:inline">{t('agent.launcher')}</span></Button></SheetTrigger>
     <SheetContent side={i18n.dir()==='rtl'?'left':'right'} className="workspace-ai w-full sm:max-w-[720px] gap-0 p-0 overflow-hidden">
       <SheetHeader className="ai-sheet-heading"><div className="ai-identity"><LioAvatar state={lio} size={44}/><div className="min-w-0"><SheetTitle className="ai-sheet-title">Lio</SheetTitle><SheetDescription aria-live="polite">{t(`agent.lio.${lio}`)}</SheetDescription></div></div></SheetHeader>
       {open&&<AgentAccess key={JSON.stringify(context)} initialScope={context.scope} initialPrompt={context.prompt} initialTab={initialTab} onStatus={setLio}/>}
@@ -103,7 +103,7 @@ export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,histo
   </div>
   <div ref={scroller} className="ai-feed flex-1 overflow-y-auto">
    {historyOpen&&<div className="ai-history"><h3>{t('agent.history')}</h3>{history.isError&&<p role="alert">{t('agent.failed')}</p>}{history.data?.length===0&&<p className="text-sm text-muted-foreground">{t('agent.noHistory')}</p>}{history.data?.map(item=><button key={item.id} className="ai-history-item" onClick={()=>load(item.id,true)}><span>{t(`agent.areas.${item.area}`)}<span className="block text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString(i18n.language)}</span></span><span className="text-xs text-muted-foreground">{t(`agent.states.${item.state}`)}</span></button>)}{extraHistory}</div>}
-   {!turns.length&&!busy&&<div className="ai-welcome"><LioAvatar size={56}/><h3>{t('agent.helpTitle')}</h3><p>{t('agent.helpDescription')}</p><div className="ai-suggestions">{['analyze','act','brief'].map(key=><button key={key} className="ai-suggestion" onClick={()=>setPrompt(t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)}))}><span className={`ai-suggestion-icon ai-suggestion-${key}`} aria-hidden="true">{key==='analyze'?<ChartNoAxesCombined/>:key==='act'?<ListTodo/>:<FileText/>}</span><span>{t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)})}</span><ArrowUpRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true"/></button>)}</div></div>}
+   {!turns.length&&!busy&&<div className="ai-welcome"><LioGreeting/><h3>{t('agent.helpTitle')}</h3><p>{t('agent.helpDescription')}</p><div className="ai-suggestions">{['analyze','act','brief'].map(key=><button key={key} className="ai-suggestion" onClick={()=>setPrompt(t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)}))}><span className={`ai-suggestion-icon ai-suggestion-${key}`} aria-hidden="true">{key==='analyze'?<ChartNoAxesCombined/>:key==='act'?<ListTodo/>:<FileText/>}</span><span>{t(`agent.prompts.${scope.area}.${key}`,{defaultValue:t(`agent.prompts.default.${key}`)})}</span><ArrowUpRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true"/></button>)}</div></div>}
    {turns.map(run=><AgentTurn key={run.id} run={run} latest={run===latest&&!busy} onConfirm={confirmAction} onRefresh={()=>void load(run.id)} onCancel={()=>void cancelRun(run.id)}/>)}
    {busy&&<article className="ai-turn is-pending"><h3 className="ai-question">{asking}</h3><div className="ai-reply"><LioAvatar state="thinking" size={26} className="ai-reply-mark"/><p role="status" className="ai-thinking">{t('agent.working')}</p></div></article>}
    {error&&<p role="alert" className="ai-error">{error}</p>}

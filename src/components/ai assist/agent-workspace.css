@@ -41,8 +41,6 @@
 .ai-reply { position:relative; display:grid; grid-template-columns:26px minmax(0,1fr); column-gap:14px; margin-top:16px; }
 .ai-reply::before { content:""; position:absolute; inset-inline-start:12.5px; top:34px; bottom:4px; width:1px; background:color-mix(in srgb, var(--ai-accent) 30%, transparent); }
 .ai-turn.is-pending .ai-reply::before { display:none; }
-/* In the feed Lio's spark only shows while it is working */
-.ai-reply-mark:not([data-state=thinking]) .lio-spark { display:none; }
 .ai-reply-body { display:flex; flex-direction:column; gap:14px; min-width:0; }
 .ai-answer { font-size:.875rem; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere; }
 .ai-thinking { align-self:center; font-size:.875rem; color:var(--muted-foreground); }
@@ -81,7 +79,8 @@
 
 /* Empty conversation */
 .ai-welcome { padding-top:8px; }
-.ai-welcome h3 { margin-top:14px; font-size:1.25rem; font-weight:600; letter-spacing:-.015em; color:var(--ai-ink); }
+.ai-welcome .lio-greeting { margin-inline-start:-12px; }
+.ai-welcome h3 { margin-top:6px; font-size:1.25rem; font-weight:600; letter-spacing:-.015em; color:var(--ai-ink); }
 .ai-welcome > p { max-width:52ch; margin-top:6px; font-size:.875rem; line-height:1.7; color:var(--muted-foreground); }
 .ai-suggestions { display:grid; gap:8px; margin-top:20px; }
 .ai-suggestion { display:flex; align-items:center; gap:14px; width:100%; text-align:start; padding:12px 14px; font-size:.8125rem; line-height:1.6; background:var(--card); border:1px solid var(--ai-line); border-radius:12px; transition:border-color .15s,background-color .15s; }
