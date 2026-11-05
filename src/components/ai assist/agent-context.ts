@@ -30,5 +30,5 @@ export type AgentAction =
   | {type:'followup';clientId:string;date:string;note:string}
   | {type:'client_request';projectId:string;title:string;description:string;questions:string[]};
 export type AgentSource = {key:string;kind:string;id:string;title:string;href:string};
-export type AgentRun = {id:string;state:string;createdAt:string;input:{scope:AgentScope;prompt:string;mode:string};error?:string;result?:{answer:string;citations:string[];missing:string[];actions:AgentAction[]};receipts:{type:string;id:string;title:string;href:string}[];sources:AgentSource[];members:{id:string;name:string}[];limits:string[]};
+export type AgentRun = {id:string;state:string;createdAt:string;conversationId?:string|null;input:{scope:AgentScope;prompt:string;mode:string};error?:string;result?:{answer:string;citations:string[];missing:string[];actions:AgentAction[]};receipts:{type:string;id:string;title:string;href:string}[];sources:AgentSource[];members:{id:string;name:string}[];limits:string[]};
 export const canUseAgent = (user?: {role?:string;organizationId?:string} | null) => !!user?.organizationId && ['user','operator','viewer','subadmin','superadmin'].includes(user.role ?? '');
