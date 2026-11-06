@@ -79,7 +79,7 @@ const AlertRow = ({ alert, onDismiss, onNavigate, isPending }: AlertRowProps) =>
   );
 };
 
-export const ProjectRiskAlertsWidget = () => {
+export const ProjectRiskAlertsWidget = ({ className = "" }: { className?: string }) => {
   const { data, isLoading } = useProjectRiskAlerts();
   const dismissAlert = useDismissRiskAlert();
   const navigate = useNavigate();
@@ -96,7 +96,7 @@ export const ProjectRiskAlertsWidget = () => {
   };
 
   return (
-    <div className="rounded-2xl p-5 w-full bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60">
+    <div className={`rounded-2xl p-5 w-full bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-900/30">

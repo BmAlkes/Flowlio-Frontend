@@ -10,16 +10,21 @@ import { Button } from "@/components/ui/button";
 import { Flex } from "@/components/ui/flex";
 import { addDays, format } from "date-fns";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CalendarPopOverProps {
   onDateRangeChange?: (dateRange: { from: Date; to: Date } | null) => void;
   initialDateRange?: { from: Date; to: Date };
+  // Shown on the button instead of the dates, e.g. when no period is applied
+  label?: string;
 }
 
 export const CalendarPopOver = ({
   onDateRangeChange,
   initialDateRange,
+  label,
 }: CalendarPopOverProps) => {
+  const { i18n } = useTranslation();
   const [selected, onSelect] = useState<DateRange>(
     initialDateRange || {
       from: addDays(new Date(), -30), // Default to last 30 days
@@ -49,10 +54,10 @@ export const CalendarPopOver = ({
   };
 
   const getDateRangeText = () => {
+    if (label) return label;
     if (selected.from && selected.to) {
-      const fromStr = format(selected.from, "MMM dd");
-      const toStr = format(selected.to, "MMM dd");
-      return `${fromStr} - ${toStr}`;
+      const day = (date: Date) => date.toLocaleDateString(i18n.language, { day: "numeric", month: "short" });
+      return `${day(selected.from)} – ${day(selected.to)}`;
     }
     return "Select Range";
   };

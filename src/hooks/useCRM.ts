@@ -234,9 +234,10 @@ export interface FollowUpDashboardData {
   upcoming: FollowUpLead[];
 }
 
-export const useFollowUpsDashboard = () => {
+export const useFollowUpsDashboard = (enabled = true) => {
   return useQuery({
     queryKey: ["followups-dashboard"],
+    enabled,
     queryFn: async () => {
       const response = await axios.get("/leads/followups/dashboard");
       return response.data.data as FollowUpDashboardData;

@@ -53,19 +53,19 @@ export const transformToPieChartData = (
       name: "Ongoing",
       value: Number(ongoing),
       icon: "/dashboard/prostat2.svg",
-      color: "#1797B9",
+      color: "#F2BC3F",
     },
     {
       name: "Delayed",
       value: Number(delayed),
       icon: "/dashboard/projstat3.svg",
-      color: "#db8b49",
+      color: "#EE7A5C",
     },
     {
       name: "Finished",
       value: Number(finished),
       icon: "/dashboard/prostat1.svg",
-      color: "#6eab96",
+      color: "#14A7D4",
     },
   ];
 

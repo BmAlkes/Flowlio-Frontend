@@ -182,7 +182,7 @@ const filterLeads = (leads: FollowUpLead[] | undefined, filter: TypeFilter) => {
   return leads.filter((lead) => (lead.clientType ?? "lead") === filter);
 };
 
-export const FollowUpWidget = () => {
+export const FollowUpWidget = ({ className = "" }: { className?: string }) => {
   const { t } = useTranslation();
   const { data, isLoading } = useFollowUpsDashboard();
   const cancelFollowUp = useSetFollowUp();
@@ -212,7 +212,7 @@ export const FollowUpWidget = () => {
   ];
 
   return (
-    <div className="rounded-2xl p-5 w-full bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60">
+    <div className={`rounded-2xl p-5 w-full bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl border border-white/70 dark:border-white/[0.09] shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

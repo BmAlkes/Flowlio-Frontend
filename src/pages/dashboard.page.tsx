@@ -1,14 +1,15 @@
 import { BarChartComponent } from "@/components/admin/dashboard/barchart/barchart";
 import { RecentActivities } from "@/components/admin/dashboard/recentactivities";
 import { OngoingTasks } from "@/components/admin/dashboard/ongoingtasks";
-import { type Stat } from "@/components/admin/dashboard/stats";
 import { HomeMetrics } from "@/components/admin/dashboard/HomeMetrics";
+import { LioBrief } from "@/components/admin/dashboard/LioBrief";
+import { WeekCalendar } from "@/components/admin/dashboard/WeekCalendar";
+import { WatchPanel } from "@/components/admin/dashboard/WatchPanel";
+import { taskUrgency } from "@/components/admin/dashboard/home-insights";
 import { Plus, Clock3 } from "lucide-react";
 import "./dashboard.css";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { AttentionPreview } from "@/components/admin/dashboard/AttentionPreview";
-import { Stack } from "@/components/ui/stack";
 import { ProjectStatusPieChart } from "@/components/admin/dashboard/barchart/piechart";
 
 import { useFetchOrganizationTotalClients } from "@/hooks/useFetchOrganizationTotalClients";
@@ -16,15 +17,13 @@ import { useFetchOrganizationActiveProjects } from "@/hooks/useFetchOrganization
 import { useFetchOrganizationWeeklyHoursTracked } from "@/hooks/useFetchOrganizationWeeklyHoursTracked";
 import { useFetchOrganizationPendingTasks } from "@/hooks/useFetchOrganizationPendingTasks";
 import { useFetchOrganizationCompletedTasks } from "@/hooks/useFetchOrganizationCompletedTasks";
+import { useFetchOngoingTasks } from "@/hooks/useFetchOngoingTasks";
+import { useFollowUpsDashboard } from "@/hooks/useCRM";
+import { useProjectRiskAlerts } from "@/hooks/useProjectRiskAlerts";
 import {
   useFetchProjectStatusData,
   transformToPieChartData,
 } from "@/hooks/useFetchProjectStatusData";
-import { formatHours } from "@/utils/timeFormat";
-const img1 = "/dashboard/1.svg";
-const img2 = "/dashboard/2.svg";
-const img3 = "/dashboard/3.svg";
-const img4 = "/dashboard/4.svg";
 const Img1 = "/dashboard/prostat1.svg";
 const Img2 = "/dashboard/prostat2.svg";
 const Img3 = "/dashboard/projstat3.svg";
@@ -41,7 +40,7 @@ import { AITokenUsageWidget } from "@/components/user section/AITokenUsageWidget
 import { useHasFeatureAccess } from "@/hooks/usePlanAccess";
 
 const DashboardPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   document.title = `${t("dashboard.title")} - Flowlio`;
 
   const { data: userProfile, refetch } = useUserProfile();
@@ -67,122 +66,92 @@ const DashboardPage = () => {
   const { data: pendingTasksResponse, isError: tasksError, refetch: reloadTasks } = useFetchOrganizationPendingTasks();
   const { data: completedTasksResponse } = useFetchOrganizationCompletedTasks();
   const { data: projectStatusResponse } = useFetchProjectStatusData();
+  const { data: ongoingResponse } = useFetchOngoingTasks();
+  const followUps = useFollowUpsDashboard(manager);
+  const risks = useProjectRiskAlerts();
   const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
   const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
 
-
-  const totalClients = totalClientsResponse?.data?.totalClients;
-  const activeProjects = activeProjectsResponse?.data?.activeProjects;
+  const tasks = ongoingResponse?.data ?? undefined;
+  const status = projectStatusResponse?.data;
+  const urgency = taskUrgency(tasks ?? []);
   const weeklyHours = weeklyHoursResponse?.data?.weeklyHours;
-  const pendingTasks = pendingTasksResponse?.data?.pendingTasks;
-  const completedTasks = completedTasksResponse?.data?.completedTasks;
 
-  // Greeting based on time of day
   const hour = new Date().getHours();
   const greetingKey =
     hour < 12 ? "greetingMorning" : hour < 18 ? "greetingAfternoon" : "greetingEvening";
   const firstName = userProfile?.data?.name?.split(" ")[0] || "";
 
-  const stats: Stat[] = [
-    {
-      link: "/dashboard/client-management",
-      title: t("dashboard.totalClients"),
-      description: t("dashboard.activeUsersDesc"),
-      icon: img1,
-      count: totalClients == null ? "—" : String(totalClients),
-    },
-    {
-      link: "/dashboard/project",
-      title: t("dashboard.activeProjects"),
-      description: t("dashboard.ongoingProjectsDesc"),
-      icon: img2,
-      count: activeProjects == null ? "—" : String(activeProjects),
-    },
-    {
-      link: "/dashboard/time-tracking",
-      title: t("dashboard.hoursTracked"),
-      description: t("dashboard.timeLoggedDesc"),
-      icon: img3,
-      count: weeklyHours == null ? "—" : formatHours(weeklyHours),
-    },
-    {
-      link: "/dashboard/task-management",
-      title: t("dashboard.pendingTasks"),
-      description: t("dashboard.tasksNotCompletedDesc"),
-      icon: img4,
-      count: pendingTasks == null ? "—" : String(pendingTasks),
-    },
-    {
-      link: "/dashboard/task-management",
-      title: t("dashboard.tasksCompleted"),
-      description: t("dashboard.tasksCompletedDesc"),
-      icon: img2,
-      count: completedTasks == null ? "—" : String(completedTasks),
-    },
-  ];
-
-  const pieChartData = projectStatusResponse?.data
-    ? transformToPieChartData(projectStatusResponse.data)
+  const pieChartData = status
+    ? transformToPieChartData(status)
     : [
-        { name: t("dashboard.ongoing"), value: 0, icon: Img2, color: "#6366f1" },
-        { name: t("dashboard.delayed"), value: 0, icon: Img3, color: "#f43f5e" },
-        { name: t("dashboard.finished"), value: 0, icon: Img1, color: "#10b981" },
+        { name: t("dashboard.ongoing"), value: 0, icon: Img2, color: "#F2BC3F" },
+        { name: t("dashboard.delayed"), value: 0, icon: Img3, color: "#EE7A5C" },
+        { name: t("dashboard.finished"), value: 0, icon: Img1, color: "#14A7D4" },
       ];
+  const showSide = manager || hasAIAssist;
 
   return (
-    <>
-      <Stack className="home-dashboard mx-auto w-full max-w-[1600px] gap-5 px-2 py-6 sm:px-4">
-
-        {/* Greeting header */}
-        <div className="flex flex-wrap items-end justify-between gap-4 px-1 pb-1">
-          <div>
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-ink">{t("dashboard.title")}</p>
-          <h1 className="text-2xl font-bold text-foreground">
+    <div className="home-dashboard mx-auto flex w-full max-w-[1600px] flex-col gap-5 px-2 py-6 sm:px-4">
+      <div className="flex flex-wrap items-end justify-between gap-4 px-1">
+        <div>
+          <p className="mb-1.5 text-[13px] font-medium text-muted-foreground first-letter:uppercase">{new Date().toLocaleDateString(i18n.language, { weekday: "long", day: "numeric", month: "long" })}</p>
+          <h1 className="text-[1.75rem] font-semibold tracking-tight text-foreground">
             {t(`dashboard.${greetingKey}`)}{firstName ? `, ${firstName}` : ""}
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {t("dashboard.greetingSubtitle")}
-          </p>
-          </div>
-          <nav aria-label={t("dashboard.quickActions")} className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" className="h-10 rounded-lg bg-card"><Link to="/dashboard/time-tracking"><Clock3 className="size-4" aria-hidden="true" />{t("dashboard.logTime")}</Link></Button>
-            {manager && <Button asChild className="h-10 rounded-lg bg-[#1797B9] text-white hover:bg-[#117e9b]"><Link to="/dashboard/project/create-project"><Plus className="size-4" aria-hidden="true" />{t("dashboard.newProject")}</Link></Button>}
-          </nav>
         </div>
+        <nav aria-label={t("dashboard.quickActions")} className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="h-11 rounded-[10px] bg-card"><Link to="/dashboard/time-tracking"><Clock3 className="size-4" aria-hidden="true" />{t("dashboard.logTime")}</Link></Button>
+          {manager && <Button asChild className="home-button-primary h-11 rounded-[10px] px-4"><Link to="/dashboard/project/create-project"><Plus className="size-4" aria-hidden="true" />{t("dashboard.newProject")}</Link></Button>}
+        </nav>
+      </div>
 
-        <HomeMetrics stats={stats} manager={manager} />
-        {((manager && clientsError) || projectsError || hoursError || tasksError) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4 text-sm"><p>{t("attention.error")}</p><Button variant="outline" onClick={() => { if (manager) void reloadClients(); void reloadProjects(); void reloadHours(); void reloadTasks(); }}>{t("attention.refresh")}</Button></div>}
-        <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <BarChartComponent className="home-panel min-w-0" />
-          <ProjectStatusPieChart className="home-panel" data={pieChartData} title={t("dashboard.projectStatus")} unavailable={!projectStatusResponse?.data} />
+      <LioBrief tasks={tasks} weeklyHours={weeklyHours} delayedProjects={status ? Number(status.delayed) : undefined} canAsk={hasAIAssist} />
+
+      <HomeMetrics manager={manager} numbers={{
+        clients: totalClientsResponse?.data?.totalClients,
+        activeProjects: activeProjectsResponse?.data?.activeProjects,
+        weeklyHours,
+        pendingTasks: pendingTasksResponse?.data?.pendingTasks,
+        completedTasks: completedTasksResponse?.data?.completedTasks,
+        projects: status ? { ongoing: Number(status.ongoing), delayed: Number(status.delayed), finished: Number(status.finished), total: Number(status.total) } : undefined,
+        overdue: urgency.overdue,
+        dueToday: urgency.dueToday,
+      }} />
+      {((manager && clientsError) || projectsError || hoursError || tasksError) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4 text-sm"><p>{t("attention.error")}</p><Button variant="outline" onClick={() => { if (manager) void reloadClients(); void reloadProjects(); void reloadHours(); void reloadTasks(); }}>{t("attention.refresh")}</Button></div>}
+
+      <WeekCalendar tasks={tasks ?? []} followUps={manager ? followUps.data : undefined} />
+
+      <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <BarChartComponent />
+        <ProjectStatusPieChart className="home-panel" data={pieChartData} title={t("dashboard.projectStatus")} unavailable={!status} />
+      </div>
+
+      <div className={`grid items-start gap-5 ${showSide ? "xl:grid-cols-[minmax(0,1fr)_340px]" : ""}`}>
+        <div className="flex min-w-0 flex-col gap-5">
+          <OngoingTasks />
+          {manager && <FollowUpWidget className="home-panel" />}
         </div>
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <Stack className="min-w-0 gap-5">
-            <OngoingTasks className="home-panel" />
-            {manager && <TeamProductivityChart className="home-panel" />}
-          </Stack>
-          {manager && <Stack className="min-w-0 gap-5">
-            <RecentActivities className="home-panel" />
-            <ProjectRiskAlertsWidget />
-            <FollowUpWidget />
-          </Stack>}
-        </div>
-        {manager && <AttentionPreview />}
-        {hasAIAssist && <AITokenUsageWidget />}
+        {showSide && <div className="flex min-w-0 flex-col gap-5">
+          {manager && <TeamProductivityChart className="home-panel" />}
+          {manager && <RecentActivities />}
+          {manager && <WatchPanel />}
+          {manager && !!risks.data?.data?.length && <ProjectRiskAlertsWidget className="home-panel" />}
+          {hasAIAssist && <AITokenUsageWidget className="home-panel" />}
+        </div>}
+      </div>
 
-        <DemoPasswordChangeModal
-          open={showPasswordChangeModal}
-          onOpenChange={(open) => {
-            setShowPasswordChangeModal(false);
-            if (!open) {
-              queryClient.invalidateQueries({ queryKey: ["user-profile"] });
-              refetch();
-            }
-          }}
-        />
-
-      </Stack>
-    </>
+      <DemoPasswordChangeModal
+        open={showPasswordChangeModal}
+        onOpenChange={(open) => {
+          setShowPasswordChangeModal(false);
+          if (!open) {
+            queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+            refetch();
+          }
+        }}
+      />
+    </div>
   );
 };
 

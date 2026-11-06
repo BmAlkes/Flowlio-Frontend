@@ -1,283 +1,72 @@
 import { ChartContainer } from "@/components/ui/chart";
-import { type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 import { cn } from "@/lib/utils";
-import { Flex } from "@/components/ui/flex";
-import { ChartGuides } from "./chartguides";
-import { Stack } from "@/components/ui/stack";
 import { CalendarPopOver } from "./calendarpopover";
-import { Box, type BoxProps } from "@/components/ui/box";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  LabelList,
-} from "recharts";
-import { ComponentWrapper } from "@/components/common/componentwrapper";
-import {
-  useFetchProjectScheduleData,
-  transformToChartData,
-} from "@/hooks/useFetchProjectScheduleData";
-import { useState } from "react";
-import { addDays } from "date-fns";
+import { type BoxProps } from "@/components/ui/box";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, LabelList } from "recharts";
+import { useFetchProjectScheduleData, transformToChartData, type ProjectScheduleData, type ScheduleRange } from "@/hooks/useFetchProjectScheduleData";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { ChartSkeleton, ErrorState } from "@/components/skeletons";
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: any;
-  label?: any;
-}) => {
-  if (active && payload && payload.length) {
-    // Check if this is a "No Tasks" project
-    const hasNoTasks = payload.some(
-      (entry: any) => entry.dataKey === "No Tasks" && entry.value > 0
-    );
+export const SCHEDULE_COLORS = { completed: "#14A7D4", progress: "#F2BC3F", delayed: "#EE7A5C" };
+const presets = [7, 30, 90] as const;
+type Preset = (typeof presets)[number] | "all" | "custom";
 
-    return (
-      <Box className="bg-card border border-border rounded-md p-2 shadow-md">
-        <p style={{ margin: 0, fontWeight: 600 }}>{label}</p>
-        {hasNoTasks ? (
-          <p style={{ color: "#9CA3AF", margin: 0 }}>No tasks in there</p>
-        ) : (
-          payload
-            .filter((entry: any) => entry.dataKey !== "No Tasks")
-            .map((entry: any, idx: any) => (
-              <p key={idx} style={{ color: entry.color, margin: 0 }}>
-                {entry.name}: {entry.value}
-              </p>
-            ))
-        )}
-      </Box>
-    );
-  }
-  return null;
-};
+const lastDays = (days: number) => ({ from: startOfDay(subDays(new Date(), days - 1)), to: endOfDay(new Date()) });
 
-export const BarChartComponent: FC<BoxProps> = ({ className, ...props }) => {
+function ScheduleTooltip({ active, payload }: { active?: boolean; payload?: { payload: ProjectScheduleData }[] }) {
   const { t } = useTranslation();
-  // Initialize with default date range (last 30 days)
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>({
-    from: addDays(new Date(), -30),
-    to: new Date(),
-  });
+  const row = active ? payload?.[0]?.payload : undefined;
+  if (!row) return null;
+  return <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-md">
+    <p className="mb-1 font-semibold text-foreground">{row.fullName}</p>
+    <p style={{ color: SCHEDULE_COLORS.completed }}>{t("charts.completedTasks")}: {row.Completed}</p>
+    <p style={{ color: SCHEDULE_COLORS.progress }}>{t("charts.inProgressTasks")}: {row["In-Progress"]}</p>
+    <p style={{ color: SCHEDULE_COLORS.delayed }}>{t("charts.delayedTasks")}: {row.Delayed}</p>
+  </div>;
+}
 
-  const {
-    data: projectScheduleResponse,
-    isLoading,
-    error,
-  } = useFetchProjectScheduleData();
+export const BarChartComponent: FC<BoxProps> = ({ className }) => {
+  const { t } = useTranslation();
+  const [preset, setPreset] = useState<Preset>(30);
+  const [range, setRange] = useState<ScheduleRange>(() => lastDays(30));
+  const { data, isLoading, error } = useFetchProjectScheduleData(range);
+  const rows = useMemo(() => transformToChartData(data?.data ?? []), [data]);
+  const totals = rows.reduce((sum, row) => ({ completed: sum.completed + row.Completed, progress: sum.progress + row["In-Progress"], delayed: sum.delayed + row.Delayed }), { completed: 0, progress: 0, delayed: 0 });
+  const choose = (value: Preset) => { setPreset(value); setRange(value === "all" ? null : value === "custom" ? range : lastDays(value)); };
 
-  // Transform API data to chart format with frontend filtering
-  const chartData = projectScheduleResponse?.data
-    ? transformToChartData(projectScheduleResponse.data, dateRange || undefined)
-    : [];
-
-  // Debug: Log projects with no tasks
-  const projectsWithNoTasks = chartData.filter((d) => d.hasNoTasks);
-  if (projectsWithNoTasks.length > 0) {
-    console.log(
-      `📊 Projects with no tasks: ${projectsWithNoTasks.length}`,
-      projectsWithNoTasks.map((p) => ({
-        project: p.project,
-        "No Tasks": "No Tasks",
-        totalTasks: p.totalTasks,
-      }))
-    );
-  }
-
-  const handleDateRangeChange = (
-    newDateRange: { from: Date; to: Date } | null
-  ) => {
-    setDateRange(newDateRange);
-  };
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <ComponentWrapper className={cn("p-4 relative !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)} {...props}>
-        <Flex className="flex-wrap items-center justify-between gap-3 mb-4">
-          <Flex className="justify-between max-md:justify-start max-lg:w-full gap-2">
-            <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
-            <h1 className="text-lg font-medium">
-              {t("charts.projectScheduleOverview")}
-            </h1>
-          </Flex>
-        </Flex>
-        <ChartSkeleton height={350} className="shadow-none border-0 p-0" />
-      </ComponentWrapper>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <ComponentWrapper className={cn("p-4 relative !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)} {...props}>
-        <ErrorState
-          title={t("dashboard.failedToLoadProjectData")}
-          message={error.message}
-        />
-      </ComponentWrapper>
-    );
-  }
-
-  // Show empty state
-  if (chartData.length === 0) {
-    return (
-      <ComponentWrapper className={cn("p-4 relative !bg-white/55 dark:!bg-slate-800/55 backdrop-blur-xl !border-white/70 dark:!border-white/[0.09] !shadow-xl", className)} {...props}>
-        <Stack className="gap-5">
-          <Flex className="flex-wrap items-center justify-between gap-3">
-            <Flex className="justify-between max-md:justify-start max-lg:w-full">
-              <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
-              <h1 className="text-lg font-medium">
-                {t("charts.projectScheduleOverview")}
-              </h1>
-            </Flex>
-            <ChartGuides className="gap-4 pt-1 max-md:me-auto" />
-            <CalendarPopOver
-              onDateRangeChange={handleDateRangeChange}
-              initialDateRange={dateRange || undefined}
-            />
-          </Flex>
-        </Stack>
-        <Box className="flex items-center justify-center h-[21.8rem]">
-          <p className="text-muted-foreground">{t("dashboard.noProjectData")}</p>
-        </Box>
-      </ComponentWrapper>
-    );
-  }
-
-  return (
-    <ComponentWrapper className={cn("p-4 relative", className)} {...props}>
-      <Stack className="gap-5">
-        <Flex className="flex-wrap items-center justify-between gap-3">
-          <Flex className="justify-between max-md:justify-start max-lg:w-full">
-            <img src="/dashboard/stat.svg" alt="stat" className="size-5 dark:invert" />
-            <h1 className="text-lg font-medium">
-              {t("charts.projectScheduleOverview")}
-            </h1>
-          </Flex>
-
-          <ChartGuides className="gap-4 pt-1 max-md:me-auto" />
-          <CalendarPopOver
-            onDateRangeChange={handleDateRangeChange}
-            initialDateRange={dateRange || undefined}
-          />
-        </Flex>
-      </Stack>
-
-      <Box className="absolute top-65 left-6 transform -translate-y-1/2 -rotate-90 origin-left text-sm max-sm:hidden font-light text-muted-foreground max-md:top-80">
-        {t("dashboard.taskLabel")}
-      </Box>
-
-      <ChartContainer
-        className="mt-5 w-full max-sm:-ms-6  h-[21.8rem] max-sm:h-[16rem] max-sm:overflow-x-scroll"
-        config={{}}
-      >
-        <BarChart
-          width={900}
-          height={300}
-          data={chartData}
-          barGap={0}
-          barCategoryGap="16%"
-          className="max-sm:overflow-x-scroll"
-          margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
-        >
-          <CartesianGrid
-            vertical={false}
-            horizontal={true}
-            stroke="var(--border)"
-            strokeWidth={1}
-            strokeDasharray="none"
-            opacity={1}
-          />
-
-          <XAxis
-            dataKey="project"
-            axisLine={false}
-            tickLine={false}
-            tickMargin={10}
-            tick={{
-              fontSize: 12,
-              fontWeight: 500,
-              fill: "#666666",
-              transform: "translateX(-50%)",
-              textAnchor: "middle",
-            }}
-            interval="preserveStartEnd"
-            minTickGap={16}
-          />
-          <YAxis
-            axisLine={true}
-            tickLine={false}
-            tick={{ fontSize: 12 }}
-            tickCount={7}
-            domain={[0, "auto"]}
-            allowDataOverflow={false}
-          />
-
-          {/* Tooltip for bar hover info */}
-          <Tooltip content={<CustomTooltip />} />
-
-          {/* Bar for projects with no tasks - gray color (shown first so it's at bottom of stack) */}
-          <Bar
-            dataKey="No Tasks"
-            fill="#9CA3AF"
-            radius={[4, 4, 0, 0]}
-            stackId="stack"
-            minPointSize={5}
-          >
-            <LabelList
-              dataKey="No Tasks"
-              content={(props: any) => {
-                const { x, y, width, value } = props;
-                // Only show label if value > 0 (i.e., project has no tasks)
-                if (value > 0) {
-                  return (
-                    <text
-                      x={x + width / 2}
-                      y={y - 5}
-                      fill="#6B7280"
-                      textAnchor="middle"
-                      fontSize={10}
-                      fontWeight={500}
-                    >
-                      No tasks
-                    </text>
-                  );
-                }
-                return null;
-              }}
-            />
+  return <section className={cn("home-panel flex min-w-0 flex-col p-5", className)} aria-labelledby="home-schedule-title">
+    <header className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 id="home-schedule-title" className="home-title">{t("charts.projectScheduleOverview")}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">{preset === "all" ? t("dashboard.home.scheduleAll") : t("dashboard.home.schedulePeriod")} · {t("dashboard.home.tasksCount", { count: totals.completed + totals.progress + totals.delayed })}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <div role="group" aria-label={t("dashboard.home.period")} className="home-segmented">
+          {[...presets, "all" as const].map(value => <button key={value} type="button" aria-pressed={preset === value} onClick={() => choose(value)}>{value === "all" ? t("dashboard.home.allTime") : t("dashboard.home.lastDays", { count: value })}</button>)}
+        </div>
+        <CalendarPopOver key={range ? `${range.from.getTime()}-${range.to.getTime()}` : "all"} initialDateRange={range ?? undefined} label={range ? undefined : t("dashboard.home.allTime")} onDateRangeChange={next => { setPreset("custom"); setRange(next ? { from: startOfDay(next.from), to: endOfDay(next.to) } : lastDays(30)); }} />
+      </div>
+    </header>
+    <ul className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
+      {([["completed", "charts.completedTasks"], ["progress", "charts.inProgressTasks"], ["delayed", "charts.delayedTasks"]] as const).map(([key, label]) => <li key={key} className="flex items-center gap-1.5"><span className="size-2.5 rounded-[3px]" style={{ background: SCHEDULE_COLORS[key] }} />{t(label)} <strong className="font-semibold text-foreground tabular-nums">{totals[key]}</strong></li>)}
+    </ul>
+    {isLoading ? <ChartSkeleton height={300} className="mt-4 border-0 p-0 shadow-none" />
+      : error ? <ErrorState title={t("dashboard.failedToLoadProjectData")} message={error.message} />
+      : !rows.length ? <div className="grid h-[300px] place-items-center text-center"><div><p className="font-medium">{t("dashboard.home.scheduleEmpty")}</p>{preset !== "all" && <button type="button" className="mt-2 text-sm font-medium text-[var(--home-brand-ink)] underline-offset-4 hover:underline" onClick={() => choose("all")}>{t("dashboard.home.showAllTime")}</button>}</div></div>
+      : <div className="mt-4 overflow-x-auto"><ChartContainer className="h-[300px] w-full" style={{ minWidth: Math.max(rows.length * 104, 320) }} config={{}}>
+        <BarChart data={rows} barCategoryGap="22%" margin={{ top: 22, right: 8, bottom: 0, left: -18 }}>
+          <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="4 4" />
+          <XAxis dataKey="project" axisLine={false} tickLine={false} tickMargin={10} interval={0} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+          <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} domain={[0, (max: number) => Math.max(4, Math.ceil(max * 1.15))]} />
+          <Tooltip cursor={{ fill: "var(--muted)", opacity: 0.5 }} content={<ScheduleTooltip />} />
+          <Bar dataKey="Completed" stackId="tasks" fill={SCHEDULE_COLORS.completed} radius={[4, 4, 0, 0]} maxBarSize={88} />
+          <Bar dataKey="Delayed" stackId="tasks" fill={SCHEDULE_COLORS.delayed} radius={[4, 4, 0, 0]} maxBarSize={88} />
+          <Bar dataKey="In-Progress" stackId="tasks" fill={SCHEDULE_COLORS.progress} radius={[6, 6, 0, 0]} maxBarSize={88}>
+            <LabelList position="top" valueAccessor={(entry: { payload: ProjectScheduleData }) => entry.payload.Completed + entry.payload.Delayed + entry.payload["In-Progress"]} className="fill-foreground text-xs font-semibold" />
           </Bar>
-
-          {/* Regular task status bars */}
-          <Bar
-            dataKey="Completed"
-            fill="#1797B9"
-            radius={[2, 2, 0, 0]}
-            stackId="stack"
-          />
-          <Bar
-            dataKey="Delayed"
-            fill="#dd8066"
-            radius={[2, 2, 0, 0]}
-            stackId="stack"
-          />
-          <Bar
-            dataKey="In-Progress"
-            fill="#e4b458"
-            radius={[4, 4, 0, 0]}
-            stackId="stack"
-          />
         </BarChart>
-      </ChartContainer>
-    </ComponentWrapper>
-  );
+      </ChartContainer></div>}
+  </section>;
 };
