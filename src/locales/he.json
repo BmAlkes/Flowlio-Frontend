@@ -419,9 +419,11 @@
       "tokensRemaining": "נותרו {{count}}",
       "tokensExceeded": "הגעתם למגבלה",
       "tokensUnlimited": "בתוכנית שלכם אין מגבלת טוקנים",
-      "budgetGaps_one": "פרויקט אחד ללא תקציב",
-      "budgetGaps_two": "{{count}} פרויקטים ללא תקציב",
-      "budgetGaps_other": "{{count}} פרויקטים ללא תקציב"
+      "event": "אירוע",
+      "budgetGapsLabel": "חסרים תקציב או עלויות",
+      "projectsCount_one": "פרויקט אחד",
+      "projectsCount_two": "{{count}} פרויקטים",
+      "projectsCount_other": "{{count}} פרויקטים"
     }
   },
   "projects": {

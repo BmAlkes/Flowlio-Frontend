@@ -6,6 +6,7 @@ import { WeekCalendar } from "./WeekCalendar";
 import { OngoingTaskCard } from "./ongoingtaskcard";
 import { taskUrgency } from "./home-insights";
 import type { OngoingTask } from "@/hooks/useFetchOngoingTasks";
+import type { CalendarEvent } from "@/hooks/usefetchcalendarevents";
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string, values?: { count?: number }) => values?.count != null ? `${key}:${values.count}` : key, i18n: { language: "en" } }) }));
 vi.mock("@/hooks/useFetchOrganizationActivities", () => ({ useFetchOrganizationActivities: () => ({}) }));
 
@@ -24,7 +25,8 @@ it("counts overdue and due-today tasks by calendar day", () => {
 
 it("lays the week out from Monday with today's tasks, follow-ups and earlier overdue work", () => {
  const lead = (id: string, name: string, at: string) => ({ id, name, status: "new", followUpAt: at });
- render(<MemoryRouter><WeekCalendar today={thursday} tasks={[task("today", "2026-11-05"), task("old", "2026-09-27"), task("tue", "2026-11-03")]} followUps={{ overdue: [lead("m", "Marina", "2026-11-03T10:00:00")], today: [lead("p", "Parket", "2026-11-05T15:00:00")], upcoming: [lead("r", "Rafael", "2026-11-06T09:30:00")] }} /></MemoryRouter>);
+ const event = { id: "e1", title: "Kickoff", date: "2026-11-04T00:00:00", startHour: 14.5, endHour: 15 } as CalendarEvent;
+ render(<MemoryRouter><WeekCalendar today={thursday} events={[event]} tasks={[task("today", "2026-11-05"), task("old", "2026-09-27"), task("tue", "2026-11-03")]} followUps={{ overdue: [lead("m", "Marina", "2026-11-03T10:00:00")], today: [lead("p", "Parket", "2026-11-05T15:00:00")], upcoming: [lead("r", "Rafael", "2026-11-06T09:30:00")] }} /></MemoryRouter>);
  const days = screen.getAllByRole("listitem").filter(li => li.classList.contains("home-day"));
  expect(days).toHaveLength(7);
  expect(days[0]).toHaveTextContent("Mon");
@@ -35,6 +37,8 @@ it("lays the week out from Monday with today's tasks, follow-ups and earlier ove
  expect(within(days[1]).getByRole("link", { name: /Marina/ })).toHaveAttribute("data-late");
  expect(within(days[1]).getByRole("link", { name: "Task tue" })).toHaveAttribute("data-late");
  expect(within(days[4]).getByRole("link", { name: /Rafael/ })).not.toHaveAttribute("data-late");
+ expect(within(days[2]).getByRole("link", { name: /Kickoff/ })).toHaveTextContent(/02:30 PM · Kickoff/);
+ expect(within(days[2]).getByRole("link", { name: /Kickoff/ })).toHaveAttribute("href", "/dashboard/calendar");
  expect(screen.getByRole("link", { name: "dashboard.home.overdueEarlier:1" })).toBeInTheDocument();
 });
 

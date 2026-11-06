@@ -15,6 +15,7 @@ vi.mock("@/hooks/useFetchOrganizationPendingTasks", () => ({ useFetchOrganizatio
 vi.mock("@/hooks/useFetchOrganizationCompletedTasks", () => ({ useFetchOrganizationCompletedTasks: () => ({}) }));
 vi.mock("@/hooks/useFetchOngoingTasks", () => ({ useFetchOngoingTasks: () => ({ data: state.tasks }) }));
 vi.mock("@/hooks/useCRM", () => ({ useFollowUpsDashboard: state.followUps }));
+vi.mock("@/hooks/usefetchcalendarevents", () => ({ useFetchCalendarEvents: () => ({ data: { data: [{ id: "e1", title: "Client kickoff", date: new Date().toISOString(), startHour: 9.5, endHour: 10 }] } }) }));
 vi.mock("@/hooks/useProjectRiskAlerts", () => ({ useProjectRiskAlerts: () => ({ data: { data: state.risks } }) }));
 vi.mock("@/components/admin/dashboard/barchart/barchart", () => ({ BarChartComponent: () => <div>BarChartComponent</div> }));
 vi.mock("@/components/admin/dashboard/barchart/piechart", () => ({ ProjectStatusPieChart: () => <div>ProjectStatusPieChart</div> }));
@@ -37,6 +38,7 @@ it("keeps the original indicators and charts visible without inventing missing v
  expect(screen.getAllByText("—")).toHaveLength(5);
  for (const block of ["WatchPanel", "BarChartComponent", "ProjectStatusPieChart", "RecentActivities", "FollowUpWidget", "OngoingTasks"]) expect(screen.getByText(block)).toBeInTheDocument();
  expect(screen.getByRole("heading", { name: "dashboard.home.thisWeek" })).toBeInTheDocument();
+ expect(screen.getByRole("link", { name: /Client kickoff/ })).toHaveAttribute("href", "/dashboard/calendar");
  expect(screen.queryByText("ProjectRiskAlertsWidget")).not.toBeInTheDocument();
  expect(screen.queryByText("AITokenUsageWidget")).not.toBeInTheDocument();
 });

@@ -3,7 +3,8 @@ import { RecentActivities } from "@/components/admin/dashboard/recentactivities"
 import { OngoingTasks } from "@/components/admin/dashboard/ongoingtasks";
 import { HomeMetrics } from "@/components/admin/dashboard/HomeMetrics";
 import { LioBrief } from "@/components/admin/dashboard/LioBrief";
-import { WeekCalendar } from "@/components/admin/dashboard/WeekCalendar";
+import { WeekCalendar, weekRange } from "@/components/admin/dashboard/WeekCalendar";
+import { useFetchCalendarEvents } from "@/hooks/usefetchcalendarevents";
 import { WatchPanel } from "@/components/admin/dashboard/WatchPanel";
 import { taskUrgency } from "@/components/admin/dashboard/home-insights";
 import { Plus, Clock3 } from "lucide-react";
@@ -69,6 +70,8 @@ const DashboardPage = () => {
   const { data: ongoingResponse } = useFetchOngoingTasks();
   const followUps = useFollowUpsDashboard(manager);
   const risks = useProjectRiskAlerts();
+  const week = weekRange(new Date(), i18n.language);
+  const { data: calendarEvents } = useFetchCalendarEvents({ startDate: week.start.toISOString(), endDate: week.end.toISOString() });
   const { data: aiFeatureAccess } = useHasFeatureAccess("aiAssist");
   const hasAIAssist = aiFeatureAccess?.data?.hasAccess ?? false;
 
@@ -120,7 +123,7 @@ const DashboardPage = () => {
       }} />
       {((manager && clientsError) || projectsError || hoursError || tasksError) && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-4 text-sm"><p>{t("attention.error")}</p><Button variant="outline" onClick={() => { if (manager) void reloadClients(); void reloadProjects(); void reloadHours(); void reloadTasks(); }}>{t("attention.refresh")}</Button></div>}
 
-      <WeekCalendar tasks={tasks ?? []} followUps={manager ? followUps.data : undefined} />
+      <WeekCalendar tasks={tasks ?? []} followUps={manager ? followUps.data : undefined} events={calendarEvents?.data ?? []} />
 
       <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <BarChartComponent />
