@@ -85,7 +85,11 @@
     "create_task": "Create internal task",
     "plan_task": "Update task planning",
     "followup": "Schedule follow-up",
-    "client_request": "Publish client request"
+    "client_request": "Publish client request",
+    "set_task_status": "Change task status",
+    "create_event": "Add calendar event",
+    "create_lead": "Add lead",
+    "log_time": "Log time"
   },
   "prompts": {
     "default": {
@@ -135,7 +139,7 @@
     "SOURCE_CHANGED": "A source changed after generation. Create a new plan before applying it.",
     "TASK_REQUIRES_PLANNING": "A selected task has dependencies, subtasks or is completed. Review it in project planning.",
     "ASSIGNEE_UNAVAILABLE": "The selected person cannot access this project or is no longer active.",
-    "PLAN_LIMIT_REACHED": "The plan's task limit has been reached.",
+    "PLAN_LIMIT_REACHED": "The plan's limit for this kind of record has been reached.",
     "CLIENT_REQUIRED": "This project needs a client with active portal access.",
     "REQUEST_LIMIT": "The organization has reached its open client request limit.",
     "DRAFT_EXPIRED": "This draft is older than 24 hours. Generate a fresh plan.",
@@ -154,7 +158,10 @@
     "USER_TOKEN_LIMIT_EXCEEDED": "Your personal AI quota cannot cover this request.",
     "AI_QUOTA_DISABLED": "AI is disabled for this organization.",
     "AI_ACCOUNTING_UNAVAILABLE": "Unable to confirm AI usage. Try again later.",
-    "AI_TIMEOUT": "The assistant took too long. Try a more specific request."
+    "AI_TIMEOUT": "The assistant took too long. Try a more specific request.",
+    "TASK_BLOCKED": "This task depends on another task that is not completed yet. Complete that one first.",
+    "DUPLICATE_CONTACT": "A lead or client with this email already exists.",
+    "FUTURE_TIME": "Time can only be logged for today or earlier."
   },
   "fields": {
     "title": "Title",
@@ -173,5 +180,32 @@
     "projectNumber": "Project number"
   },
   "legacyDescription": "Review the extracted fields before creating the record. Nothing is created until you confirm.",
-  "changeContext": "Change area or project"
+  "changeContext": "Change area or project",
+  "taskStatus": {
+    "todo": "To do",
+    "in_progress": "In progress",
+    "completed": "Completed",
+    "delay": "Delayed",
+    "changes": "Changes requested"
+  },
+  "calendarTypes": {
+    "meeting": "Meeting",
+    "education": "Education",
+    "personal": "Personal"
+  },
+  "status": "Status",
+  "day": "Day",
+  "startHour": "Starts",
+  "endHour": "Ends",
+  "hoursOrder": "The end must be after the start.",
+  "calendarType": "Type",
+  "minutes": "Minutes worked",
+  "duration": "{{hours}}h{{minutes}}",
+  "followupOn": "Follow-up {{date}}",
+  "lead": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "businessIndustry": "Industry"
+  }
 }

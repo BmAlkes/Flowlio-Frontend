@@ -28,7 +28,13 @@ export type AgentAction =
   | {type:'create_task';projectId:string;title:string;description:string;assignedTo:string|null;startDate:string|null;endDate:string|null;estimatedHours:number|null}
   | {type:'plan_task';taskId:string;assignedTo:string|null;startDate:string|null;endDate:string|null}
   | {type:'followup';clientId:string;date:string;note:string}
-  | {type:'client_request';projectId:string;title:string;description:string;questions:string[]};
+  | {type:'client_request';projectId:string;title:string;description:string;questions:string[]}
+  | {type:'set_task_status';taskId:string;status:TaskStatus}
+  | {type:'create_event';title:string;description:string;date:string;startHour:number;endHour:number;calendarType:'meeting'|'education'|'personal'}
+  | {type:'create_lead';name:string;email:string;phone:string|null;businessIndustry:string|null;note:string|null;followUpAt:string|null}
+  | {type:'log_time';taskId:string;date:string;minutes:number;description:string};
+export const taskStatuses = ['todo','in_progress','completed','delay','changes'] as const;
+export type TaskStatus = typeof taskStatuses[number];
 export type AgentSource = {key:string;kind:string;id:string;title:string;href:string};
 // index is the proposal position a receipt executed; older runs applied in one batch have none.
 export type AgentReceipt = {type:string;id:string;title:string;href:string;index?:number};

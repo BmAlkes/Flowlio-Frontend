@@ -85,7 +85,11 @@
     "create_task": "Crear tarea interna",
     "plan_task": "Actualizar planificación",
     "followup": "Programar seguimiento",
-    "client_request": "Publicar solicitud al cliente"
+    "client_request": "Publicar solicitud al cliente",
+    "set_task_status": "Cambiar estado de la tarea",
+    "create_event": "Añadir evento al calendario",
+    "create_lead": "Registrar lead",
+    "log_time": "Registrar horas"
   },
   "prompts": {
     "default": {
@@ -105,7 +109,7 @@
     "SOURCE_CHANGED": "Un registro cambió. Prepara un nuevo plan antes de aplicar.",
     "TASK_REQUIRES_PLANNING": "Una tarea tiene dependencias, subtareas o está completada. Revisa la planificación.",
     "ASSIGNEE_UNAVAILABLE": "La persona seleccionada no tiene acceso al proyecto o ya no está activa.",
-    "PLAN_LIMIT_REACHED": "Se alcanzó el límite de tareas del plan.",
+    "PLAN_LIMIT_REACHED": "Se alcanzó el límite del plan para este tipo de registro.",
     "CLIENT_REQUIRED": "El proyecto necesita un cliente con acceso activo al portal.",
     "REQUEST_LIMIT": "Se alcanzó el límite de solicitudes abiertas al cliente.",
     "DRAFT_EXPIRED": "Este borrador tiene más de 24 horas. Genera otro plan.",
@@ -124,7 +128,10 @@
     "USER_TOKEN_LIMIT_EXCEEDED": "Tu cuota personal de IA no cubre esta solicitud.",
     "AI_QUOTA_DISABLED": "La IA está desactivada para esta organización.",
     "AI_ACCOUNTING_UNAVAILABLE": "No se pudo confirmar el uso de IA. Inténtalo más tarde.",
-    "AI_TIMEOUT": "El asistente tardó demasiado. Prueba una solicitud más específica."
+    "AI_TIMEOUT": "El asistente tardó demasiado. Prueba una solicitud más específica.",
+    "TASK_BLOCKED": "Esta tarea depende de otra que aún no está completada. Complétala primero.",
+    "DUPLICATE_CONTACT": "Ya existe un lead o cliente con este correo.",
+    "FUTURE_TIME": "Solo se pueden registrar horas de hoy o de días anteriores."
   },
   "fields": {
     "title": "Título",
@@ -143,5 +150,32 @@
     "projectNumber": "Número del proyecto"
   },
   "legacyDescription": "Revisa los datos extraídos antes de crear el registro. No se creará nada sin confirmación.",
-  "changeContext": "Cambiar área o proyecto"
+  "changeContext": "Cambiar área o proyecto",
+  "taskStatus": {
+    "todo": "Por hacer",
+    "in_progress": "En curso",
+    "completed": "Completada",
+    "delay": "Retrasada",
+    "changes": "Cambios solicitados"
+  },
+  "calendarTypes": {
+    "meeting": "Reunión",
+    "education": "Educación",
+    "personal": "Personal"
+  },
+  "status": "Estado",
+  "day": "Día",
+  "startHour": "Inicio",
+  "endHour": "Fin",
+  "hoursOrder": "El fin debe ser posterior al inicio.",
+  "calendarType": "Tipo",
+  "minutes": "Minutos trabajados",
+  "duration": "{{hours}}h{{minutes}}",
+  "followupOn": "Seguimiento {{date}}",
+  "lead": {
+    "name": "Nombre",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "businessIndustry": "Sector"
+  }
 }
