@@ -22,7 +22,7 @@ export function WatchPanel() {
   const items = attention.data?.items.length ?? 0;
   const gaps = attention.data?.gaps.financialProjects ?? 0;
   const attentionText = attention.isPending ? "…" : attention.isError ? t("dashboard.home.unavailable")
-    : items ? t("dashboard.home.itemsCount", { count: items }) : gaps ? t("dashboard.home.budgetGaps", { count: gaps }) : t("dashboard.home.nothing");
+    : items ? t("dashboard.home.itemsCount", { count: items }) : t("dashboard.home.nothing");
 
   return <section className="home-panel p-5" aria-labelledby="home-watch-title">
     <h2 id="home-watch-title" className="home-title mb-1">{t("dashboard.home.watch")}</h2>
@@ -33,10 +33,15 @@ export function WatchPanel() {
         <span className={riskCount ? "home-warn font-semibold" : "text-muted-foreground"}>{risks.isPending && risks.fetchStatus !== "idle" ? "…" : riskCount ? riskCount : t("dashboard.home.none")}</span>
       </li>
       <li className="home-watch-row">
-        <span className="home-dot" data-tone={items ? "warn" : gaps ? "info" : "ok"} />
+        <span className="home-dot" data-tone={items ? "warn" : "ok"} />
         <Link to="/dashboard/attention" className="flex flex-1 items-center gap-1 whitespace-nowrap hover:underline">{t("attention.title")}<ArrowUpRight className="size-3.5 shrink-0 opacity-60" aria-hidden="true" /></Link>
-        <span className={`text-end ${items ? "home-warn font-semibold" : gaps ? "text-[#8A5A0A] dark:text-[#F2BC3F]" : "text-muted-foreground"}`}>{attentionText}</span>
+        <span className={`text-end ${items ? "home-warn font-semibold" : "text-muted-foreground"}`}>{attentionText}</span>
       </li>
+      {gaps > 0 && <li className="home-watch-row">
+        <span className="home-dot" data-tone="info" />
+        <Link to="/dashboard/attention" className="flex-1 hover:underline">{t("dashboard.home.budgetGapsLabel")}</Link>
+        <span className="font-semibold text-[#8A5A0A] tabular-nums dark:text-[#F2BC3F]">{t("dashboard.home.projectsCount", { count: gaps })}</span>
+      </li>}
     </ul>
   </section>;
 }

@@ -1,22 +1,33 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { addDays, isSameDay, startOfDay, startOfWeek } from "date-fns";
+import { addDays, endOfDay, isSameDay, startOfDay, startOfWeek } from "date-fns";
 import type { OngoingTask } from "@/hooks/useFetchOngoingTasks";
+import type { CalendarEvent } from "@/hooks/usefetchcalendarevents";
 import type { FollowUpDashboardData, FollowUpLead } from "@/hooks/useCRM";
 import { dueDay } from "./home-insights";
 
-type Item = { key: string; kind: "task" | "followup"; title: string; to: string; time?: string; late: boolean };
+type Item = { key: string; kind: "task" | "followup" | "event"; title: string; to: string; time?: string; late: boolean };
 const MAX_PER_DAY = 3;
 
-export function WeekCalendar({ tasks, followUps, today = new Date() }: { tasks: OngoingTask[]; followUps?: FollowUpDashboardData; today?: Date }) {
+// The week shown on the dashboard: Sunday-first in Hebrew, Monday-first elsewhere.
+export function weekRange(today: Date, language?: string) {
+  const start = startOfWeek(today, { weekStartsOn: language?.startsWith("he") ? 0 : 1 });
+  return { start, end: endOfDay(addDays(start, 6)) };
+}
+
+export function WeekCalendar({ tasks, followUps, events = [], today = new Date() }: { tasks: OngoingTask[]; followUps?: FollowUpDashboardData; events?: CalendarEvent[]; today?: Date }) {
   const { t, i18n } = useTranslation();
-  const start = startOfWeek(today, { weekStartsOn: i18n.language?.startsWith("he") ? 0 : 1 });
+  const { start } = weekRange(today, i18n.language);
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   const now = startOfDay(today);
   const time = (date: Date) => date.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" });
+  // Calendar events keep their start as a decimal hour on their day
+  const eventTime = (event: CalendarEvent) => { const at = startOfDay(new Date(event.date)); at.setMinutes(Math.round(Number(event.startHour) * 60)); return at; };
   const leads: FollowUpLead[] = followUps ? [...followUps.overdue, ...followUps.today, ...followUps.upcoming] : [];
   const earlier = tasks.filter(task => { const due = dueDay(task); return due && due < start; }).length;
   const itemsFor = (day: Date): Item[] => [
+    ...events.filter(event => isSameDay(new Date(event.date), day)).sort((a, b) => Number(a.startHour) - Number(b.startHour))
+      .map(event => ({ key: `e-${event.id}`, kind: "event" as const, title: event.title, time: time(eventTime(event)), to: "/dashboard/calendar", late: false })),
     ...tasks.filter(task => { const due = dueDay(task); return due && isSameDay(due, day); })
       .map(task => ({ key: `t-${task.id}`, kind: "task" as const, title: task.title, to: "/dashboard/task-management", late: day < now })),
     ...leads.filter(lead => isSameDay(new Date(lead.followUpAt), day))
@@ -32,6 +43,7 @@ export function WeekCalendar({ tasks, followUps, today = new Date() }: { tasks: 
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
         {earlier > 0 && <Link to="/dashboard/task-management" className="home-pill home-pill-warn">{t("dashboard.home.overdueEarlier", { count: earlier })}</Link>}
+        <span className="flex items-center gap-1.5"><span className="home-dot" data-kind="event" />{t("dashboard.home.event")}</span>
         <span className="flex items-center gap-1.5"><span className="home-dot" data-kind="task" />{t("dashboard.home.task")}</span>
         {followUps && <span className="flex items-center gap-1.5"><span className="home-dot" data-kind="followup" />{t("dashboard.followUps")}</span>}
         <Link to="/dashboard/calendar" className="font-medium text-[var(--home-brand-ink)] hover:underline">{t("dashboard.home.openCalendar")}</Link>

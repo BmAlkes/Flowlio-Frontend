@@ -499,8 +499,10 @@
       "tokensRemaining": "{{count}} remaining",
       "tokensExceeded": "Limit reached",
       "tokensUnlimited": "Your plan has no token limit",
-      "budgetGaps_one": "{{count}} project without budget data",
-      "budgetGaps_other": "{{count}} projects without budget data"
+      "event": "Event",
+      "budgetGapsLabel": "Missing budget or costs",
+      "projectsCount_one": "{{count}} project",
+      "projectsCount_other": "{{count}} projects"
     }
   },
   "projects": {
