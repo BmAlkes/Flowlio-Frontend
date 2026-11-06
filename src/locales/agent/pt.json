@@ -85,7 +85,11 @@
     "create_task": "Criar tarefa interna",
     "plan_task": "Atualizar planejamento da tarefa",
     "followup": "Agendar follow-up",
-    "client_request": "Publicar solicitação ao cliente"
+    "client_request": "Publicar solicitação ao cliente",
+    "set_task_status": "Mudar status da tarefa",
+    "create_event": "Adicionar evento ao calendário",
+    "create_lead": "Cadastrar lead",
+    "log_time": "Registrar horas"
   },
   "prompts": {
     "default": {
@@ -135,7 +139,7 @@
     "SOURCE_CHANGED": "Um registro mudou após a geração. Prepare um novo plano antes de aplicar.",
     "TASK_REQUIRES_PLANNING": "Uma tarefa selecionada tem dependências, subtarefas ou está concluída. Revise no planejamento do projeto.",
     "ASSIGNEE_UNAVAILABLE": "A pessoa selecionada não tem acesso ao projeto ou não está mais ativa.",
-    "PLAN_LIMIT_REACHED": "O limite de tarefas do plano foi atingido.",
+    "PLAN_LIMIT_REACHED": "O limite do plano para este tipo de registro foi atingido.",
     "CLIENT_REQUIRED": "O projeto precisa de um cliente com acesso ativo ao portal.",
     "REQUEST_LIMIT": "A organização atingiu o limite de solicitações abertas ao cliente.",
     "DRAFT_EXPIRED": "Este rascunho tem mais de 24 horas. Gere um novo plano.",
@@ -154,7 +158,10 @@
     "USER_TOKEN_LIMIT_EXCEEDED": "Sua cota pessoal de IA não cobre este pedido.",
     "AI_QUOTA_DISABLED": "A IA está desativada para esta organização.",
     "AI_ACCOUNTING_UNAVAILABLE": "Não foi possível confirmar o uso de IA. Tente novamente mais tarde.",
-    "AI_TIMEOUT": "O assistente demorou demais. Tente um pedido mais específico."
+    "AI_TIMEOUT": "O assistente demorou demais. Tente um pedido mais específico.",
+    "TASK_BLOCKED": "Esta tarefa depende de outra que ainda não foi concluída. Conclua aquela primeiro.",
+    "DUPLICATE_CONTACT": "Já existe um lead ou cliente com este e-mail.",
+    "FUTURE_TIME": "Só é possível registrar horas de hoje ou de dias anteriores."
   },
   "fields": {
     "title": "Título",
@@ -173,5 +180,32 @@
     "projectNumber": "Número do projeto"
   },
   "legacyDescription": "Revise os dados extraídos antes de criar o registro. Nada será criado até sua confirmação.",
-  "changeContext": "Mudar área ou projeto"
+  "changeContext": "Mudar área ou projeto",
+  "taskStatus": {
+    "todo": "A fazer",
+    "in_progress": "Em andamento",
+    "completed": "Concluída",
+    "delay": "Atrasada",
+    "changes": "Alterações pedidas"
+  },
+  "calendarTypes": {
+    "meeting": "Reunião",
+    "education": "Educação",
+    "personal": "Pessoal"
+  },
+  "status": "Status",
+  "day": "Dia",
+  "startHour": "Início",
+  "endHour": "Fim",
+  "hoursOrder": "O fim precisa ser depois do início.",
+  "calendarType": "Tipo",
+  "minutes": "Minutos trabalhados",
+  "duration": "{{hours}}h{{minutes}}",
+  "followupOn": "Follow-up {{date}}",
+  "lead": {
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "businessIndustry": "Ramo"
+  }
 }

@@ -85,7 +85,11 @@
     "create_task": "יצירת משימה פנימית",
     "plan_task": "עדכון תכנון משימה",
     "followup": "תזמון מעקב",
-    "client_request": "פרסום בקשה ללקוח"
+    "client_request": "פרסום בקשה ללקוח",
+    "set_task_status": "שינוי סטטוס משימה",
+    "create_event": "הוספת אירוע ליומן",
+    "create_lead": "הוספת ליד",
+    "log_time": "רישום שעות"
   },
   "prompts": {
     "default": {
@@ -105,7 +109,7 @@
     "SOURCE_CHANGED": "רשומה השתנתה. יש להכין תוכנית חדשה לפני הביצוע.",
     "TASK_REQUIRES_PLANNING": "למשימה יש תלויות, תתי־משימות או שהיא הושלמה. יש לבדוק בתכנון הפרויקט.",
     "ASSIGNEE_UNAVAILABLE": "לאדם שנבחר אין גישה לפרויקט או שהוא אינו פעיל.",
-    "PLAN_LIMIT_REACHED": "הגעתם למגבלת המשימות במסלול.",
+    "PLAN_LIMIT_REACHED": "הגעתם למגבלת התוכנית לסוג רשומה זה.",
     "CLIENT_REQUIRED": "לפרויקט נדרש לקוח עם גישה פעילה לפורטל.",
     "REQUEST_LIMIT": "הגעתם למגבלת הבקשות הפתוחות ללקוח.",
     "DRAFT_EXPIRED": "הטיוטה ישנה מ־24 שעות. יש ליצור תוכנית חדשה.",
@@ -124,7 +128,10 @@
     "USER_TOKEN_LIMIT_EXCEEDED": "מכסת ה-AI האישית שלכם לא מספיקה לבקשה זו.",
     "AI_QUOTA_DISABLED": "ה-AI מושבת עבור הארגון.",
     "AI_ACCOUNTING_UNAVAILABLE": "לא ניתן לאשר את השימוש ב-AI. נסו שוב מאוחר יותר.",
-    "AI_TIMEOUT": "העוזר לקח יותר מדי זמן. נסו בקשה ממוקדת יותר."
+    "AI_TIMEOUT": "העוזר לקח יותר מדי זמן. נסו בקשה ממוקדת יותר.",
+    "TASK_BLOCKED": "המשימה תלויה במשימה אחרת שעדיין לא הושלמה. השלימו אותה קודם.",
+    "DUPLICATE_CONTACT": "כבר קיים ליד או לקוח עם האימייל הזה.",
+    "FUTURE_TIME": "אפשר לרשום שעות רק להיום או לימים קודמים."
   },
   "fields": {
     "title": "כותרת",
@@ -143,5 +150,32 @@
     "projectNumber": "מספר פרויקט"
   },
   "legacyDescription": "בדקו את השדות שחולצו לפני יצירת הרשומה. דבר לא ייווצר לפני האישור.",
-  "changeContext": "שינוי תחום או פרויקט"
+  "changeContext": "שינוי תחום או פרויקט",
+  "taskStatus": {
+    "todo": "לביצוע",
+    "in_progress": "בתהליך",
+    "completed": "הושלמה",
+    "delay": "באיחור",
+    "changes": "התבקשו שינויים"
+  },
+  "calendarTypes": {
+    "meeting": "פגישה",
+    "education": "לימודים",
+    "personal": "אישי"
+  },
+  "status": "סטטוס",
+  "day": "יום",
+  "startHour": "התחלה",
+  "endHour": "סיום",
+  "hoursOrder": "הסיום חייב להיות אחרי ההתחלה.",
+  "calendarType": "סוג",
+  "minutes": "דקות עבודה",
+  "duration": "{{hours}}:{{minutes}} ש׳",
+  "followupOn": "מעקב {{date}}",
+  "lead": {
+    "name": "שם",
+    "email": "אימייל",
+    "phone": "טלפון",
+    "businessIndustry": "תחום"
+  }
 }
