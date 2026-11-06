@@ -1,9 +1,8 @@
 import { Skeleton } from "@/components/skeletons/Skeleton";
-import { Badge } from "@/components/ui/badge";
 import { useAIOrgUsage } from "@/hooks/useAIOrgUsage";
-import { Sparkles, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 function clamp(n: number) { return Math.min(100, Math.max(0, n)); }
 function formatPct(pct: number) {
@@ -11,15 +10,15 @@ function formatPct(pct: number) {
   return pct < 10 ? pct.toFixed(2) : pct.toFixed(1);
 }
 function barColor(pct: number) {
-  if (pct > 80) return "bg-red-500";
-  if (pct > 60) return "bg-amber-400";
-  return "bg-blue-500";
+  if (pct > 80) return "#E5484D";
+  if (pct > 60) return "#F2BC3F";
+  return "#14A7D4";
 }
 
-export const AITokenUsageWidget = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+export const AITokenUsageWidget = ({ className = "" }: { className?: string }) => {
+  const { t, i18n } = useTranslation();
   const { data, isLoading } = useAIOrgUsage();
+  const number = (n: number) => n.toLocaleString(i18n.language);
 
   const tokensUsed = data?.currentMonth?.totalTokens ?? 0;
   const tokenLimit = data?.limit?.tokenLimit ?? null;
@@ -28,97 +27,23 @@ export const AITokenUsageWidget = () => {
   const isExceeded = !isUnlimited && tokensUsed >= (tokenLimit ?? Infinity);
   const remaining = isUnlimited ? null : Math.max(0, (tokenLimit ?? 0) - tokensUsed);
 
-  return (
-    <div className={[
-      "relative overflow-hidden rounded-2xl p-5",
-      "bg-white/55 dark:bg-slate-800/55 backdrop-blur-xl",
-      "border border-white/70 dark:border-white/[0.09]",
-      "shadow-xl shadow-slate-200/60 dark:shadow-slate-950/60",
-      "hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200",
-    ].join(" ")}>
-      <div className="pointer-events-none absolute -top-8 -right-8 size-36 rounded-full bg-blue-400/10 dark:bg-blue-500/8 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-6 -left-6 size-24 rounded-full bg-cyan-400/10 dark:bg-cyan-500/8 blur-xl" />
-
-      {isLoading ? (
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-32 rounded" />
-            <Skeleton className="h-2 w-full rounded-full" />
-          </div>
-        </div>
-      ) : (
-        <div className="relative flex items-center gap-5 flex-wrap">
-
-          {/* Icon — dark pill same as stat cards */}
-          <div className="p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-900/30 shrink-0">
-            <Sparkles className="size-5 text-blue-600 dark:text-blue-400" />
-          </div>
-
-          {/* Label + count */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <p className="font-semibold text-foreground text-sm">
-                {t("dashboard.aiTokenUsage", "AI Token Usage")}
-              </p>
-              {isExceeded && (
-                <Badge variant="destructive" className="text-xs px-2 py-0 h-4">
-                  {t("dashboard.limitExceeded", "Exceeded")}
-                </Badge>
-              )}
-            </div>
-            <p className="text-3xl font-bold text-foreground leading-none">
-              {tokensUsed.toLocaleString()}
-              <span className="text-sm font-medium text-muted-foreground ms-1.5">tokens</span>
-            </p>
-          </div>
-
-          {/* Buy more */}
-          <button
-            onClick={() => navigate("/dashboard/subscription")}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Buy tokens
-          </button>
-
-          {/* Progress section */}
-          <div className="flex-1 min-w-[180px] space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>
-                {t("dashboard.tokenLimit", "Limit")}:{" "}
-                <span className="font-semibold text-foreground">
-                  {isUnlimited ? "∞ Unlimited" : (tokenLimit ?? 0).toLocaleString()}
-                </span>
-              </span>
-              {!isUnlimited && (
-                <span className={isExceeded ? "text-red-500 font-semibold" : ""}>{formatPct(pct)}%</span>
-              )}
-            </div>
-
-            {!isUnlimited ? (
-              <>
-                <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${barColor(pct)}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isExceeded
-                    ? t("dashboard.limitExceededDetail", "Limit exceeded")
-                    : t("dashboard.tokensRemaining", "{{count}} remaining", { count: remaining ?? 0 })}
-                </p>
-              </>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                {t("dashboard.unlimitedDesc", "No token limit on your plan")}
-              </p>
-            )}
-          </div>
-
-        </div>
-      )}
-    </div>
-  );
+  return <section className={`rounded-2xl border border-border bg-card p-5 ${className}`} aria-labelledby="home-tokens-title">
+    <header className="flex items-center justify-between gap-3">
+      <h2 id="home-tokens-title" className="home-title">{t("dashboard.home.tokensTitle")}</h2>
+      <Link to="/dashboard/subscription" className="home-button-primary"><ShoppingCart className="size-3.5" aria-hidden="true" />{t("dashboard.home.buyTokens")}</Link>
+    </header>
+    {isLoading ? <div className="mt-4 space-y-3"><Skeleton className="h-7 w-40 rounded" /><Skeleton className="h-2 w-full rounded-full" /></div> : <>
+      <p className="mt-4 leading-none">
+        <span className="home-number text-[1.75rem] font-semibold tabular-nums">{number(tokensUsed)}</span>
+        <span className="ms-1.5 text-[13px] font-medium text-muted-foreground">{isUnlimited ? t("dashboard.home.tokensUsed") : t("dashboard.home.tokensOf", { limit: number(tokenLimit ?? 0) })}</span>
+      </p>
+      {isUnlimited ? <p className="mt-3 text-xs text-muted-foreground">{t("dashboard.home.tokensUnlimited")}</p> : <>
+        <div className="home-progress mt-3 h-2" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={t("dashboard.home.tokensTitle")}><span style={{ width: `${pct}%`, background: barColor(pct) }} /></div>
+        <p className="mt-2 flex justify-between text-xs text-muted-foreground tabular-nums">
+          <span className={isExceeded ? "font-semibold text-destructive" : ""}>{isExceeded ? t("dashboard.home.tokensExceeded") : t("dashboard.home.tokensRemaining", { count: number(remaining ?? 0) })}</span>
+          <span>{formatPct(pct)}%</span>
+        </p>
+      </>}
+    </>}
+  </section>;
 };
