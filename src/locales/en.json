@@ -682,7 +682,20 @@
     "meeting": "Meeting",
     "education": "Education",
     "personal": "Personal",
-    "more": "more"
+    "more": "more",
+    "google": {
+      "connect": "Connect Google Calendar",
+      "connecting": "Connecting…",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…",
+      "syncNow": "Sync now",
+      "syncing": "Syncing…",
+      "synced": "Synced {{time}}",
+      "neverSynced": "Not synced yet",
+      "failed": "The last sync failed. Try again, or disconnect and connect again.",
+      "live": "Changes from Google show up within seconds.",
+      "periodic": "Syncs every 15 minutes."
+    }
   },
   "eventModal": {
     "editEvent": "Edit Event",

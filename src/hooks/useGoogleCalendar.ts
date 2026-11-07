@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
 
@@ -280,165 +281,66 @@ export const useGoogleCalendarAuth = () => {
   };
 };
 
-// Google Calendar Sync Hooks
-export const useGoogleCalendarSync = () => {
+export type GoogleCalendarSyncStatus = {
+  isRunning: boolean;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+  live: boolean;
+};
+
+// The server keeps calendars in sync on its own (Google push notifications plus a periodic pass).
+// The page only asks for a sync when it opens or on demand, and follows the status.
+export const useGoogleCalendarSync = (enabled: boolean) => {
   const queryClient = useQueryClient();
 
-  const syncAppToGoogle = useMutation({
-    mutationFn: async (eventIds: string[]) => {
-      const response = await axios.post("/google-calendar/sync/app-to-google", {
-        eventIds,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
-    },
-    onError: (error) => {
-      console.error("Failed to sync app events to Google Calendar:", error);
-      alert("Failed to sync events to Google Calendar. Please try again.");
-    },
-  });
-
-  const syncGoogleToApp = useMutation({
-    mutationFn: async (params: {
-      calendarId?: string;
-      timeMin?: string;
-      timeMax?: string;
-      maxResults?: number;
-    }) => {
-      const response = await axios.post(
-        "/google-calendar/sync/google-to-app",
-        params
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
-    },
-    onError: (error) => {
-      console.error("Failed to sync Google Calendar events to app:", error);
-      alert("Failed to import events from Google Calendar. Please try again.");
-    },
-  });
-
-  const fullBidirectionalSync = useMutation({
-    mutationFn: async (params: { calendarId?: string }) => {
-      const response = await axios.post(
-        "/google-calendar/sync/bidirectional",
-        params
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
-    },
-    onError: (error) => {
-      console.error("Failed to perform full bidirectional sync:", error);
-      alert("Failed to perform full sync. Please try again.");
-    },
-  });
-
-  const getUserCalendars = useQuery({
-    queryKey: ["google-calendars"],
+  const status = useQuery({
+    queryKey: ["google-calendar-sync-status"],
     queryFn: async () => {
-      const response = await axios.get("/google-calendar/calendars");
-      return response.data;
+      const response = await axios.get("/google-calendar/sync/status");
+      return response.data.data as GoogleCalendarSyncStatus;
     },
-    enabled: false, // Only fetch when explicitly called
+    enabled,
+    refetchInterval: (query) => (query.state.data?.isRunning ? 3000 : 60000),
   });
 
-  const forceSyncUser = useMutation({
+  const syncNow = useMutation({
     mutationFn: async () => {
       const response = await axios.post("/google-calendar/sync/force");
       return response.data;
     },
-    onSuccess: () => {
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["google-calendar-sync-status"] });
+    },
+  });
+
+  // Show what a finished sync brought in.
+  const lastSyncedAt = status.data ? status.data.lastSyncedAt : undefined;
+  const seen = useRef(lastSyncedAt);
+  useEffect(() => {
+    if (lastSyncedAt && seen.current !== undefined && lastSyncedAt !== seen.current) {
       queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
-    },
-    onError: (error) => {
-      console.error("Failed to force sync user events:", error);
-      alert("Failed to force sync events. Please try again.");
-    },
-  });
+    }
+    seen.current = lastSyncedAt;
+  }, [lastSyncedAt, queryClient]);
 
-  const getSyncStatus = useQuery({
-    queryKey: ["google-calendar-sync-status"],
-    queryFn: async () => {
-      const response = await axios.get("/google-calendar/sync/status");
-      return response.data;
-    },
-  });
-
-  return {
-    syncAppToGoogle,
-    syncGoogleToApp,
-    fullBidirectionalSync,
-    getUserCalendars,
-    forceSyncUser,
-    getSyncStatus,
-  };
+  return { status: status.data, syncNow };
 };
 
 // Google Calendar Integration Hook
 export const useGoogleCalendarIntegration = () => {
   const auth = useGoogleCalendarAuth();
-  const sync = useGoogleCalendarSync();
-
-  const connectGoogleCalendar = () => {
-    auth.generateAuthUrl.mutate();
-  };
-
-  const disconnectGoogleCalendar = () => {
-    auth.disconnect.mutate();
-  };
-
-  const syncAllEvents = (calendarId = "primary") => {
-    sync.fullBidirectionalSync.mutate({ calendarId });
-  };
-
-  const syncSelectedEvents = (eventIds: string[]) => {
-    sync.syncAppToGoogle.mutate(eventIds);
-  };
-
-  const importGoogleEvents = (params: {
-    calendarId?: string;
-    timeMin?: string;
-    timeMax?: string;
-    maxResults?: number;
-  }) => {
-    sync.syncGoogleToApp.mutate(params);
-  };
-
-  const forceSyncUser = () => {
-    sync.forceSyncUser.mutate();
-  };
+  const isConnected = auth.checkStatus.data?.data?.isConnected || false;
+  const sync = useGoogleCalendarSync(isConnected);
 
   return {
-    // Auth
-    isConnected: auth.checkStatus.data?.data?.isConnected || false,
-    connectionStatus: auth.checkStatus.data?.data?.hasTokens || false,
-    connectGoogleCalendar,
-    disconnectGoogleCalendar,
-
-    // Sync
-    syncAllEvents,
-    syncSelectedEvents,
-    importGoogleEvents,
-    forceSyncUser,
-
-    // Loading states
+    isConnected,
+    connectGoogleCalendar: () => auth.generateAuthUrl.mutate(),
+    disconnectGoogleCalendar: () => auth.disconnect.mutate(),
+    syncNow: () => sync.syncNow.mutate(),
     isConnecting: auth.generateAuthUrl.isPending,
     isDisconnecting: auth.disconnect.isPending,
-    isSyncing: sync.fullBidirectionalSync.isPending,
-    isImporting: sync.syncGoogleToApp.isPending,
-    isForceSyncing: sync.forceSyncUser.isPending,
-
-    // Data
-    googleCalendars: sync.getUserCalendars.data?.data || [],
-    syncStatus: sync.getSyncStatus.data?.data,
-
-    // Methods
-    fetchGoogleCalendars: sync.getUserCalendars.refetch,
+    isSyncing: sync.syncNow.isPending || !!sync.status?.isRunning,
+    syncFailed: sync.syncNow.isError || !!sync.status?.lastError,
+    syncStatus: sync.status,
   };
 };

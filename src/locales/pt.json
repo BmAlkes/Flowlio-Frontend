@@ -1127,5 +1127,20 @@
     "sentBy": "Enviado por",
     "description": "Descrição",
     "ticketId": "ID do ticket"
+  },
+  "calendar": {
+    "google": {
+      "connect": "Conectar Google Calendar",
+      "connecting": "Conectando…",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando…",
+      "syncNow": "Sincronizar agora",
+      "syncing": "Sincronizando…",
+      "synced": "Sincronizado {{time}}",
+      "neverSynced": "Ainda não sincronizado",
+      "failed": "A última sincronização falhou. Tente de novo, ou desconecte e conecte outra vez.",
+      "live": "Mudanças no Google aparecem em segundos.",
+      "periodic": "Sincroniza a cada 15 minutos."
+    }
   }
 }

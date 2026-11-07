@@ -1114,5 +1114,20 @@
     "sentBy": "נשלח על ידי",
     "description": "תיאור",
     "ticketId": "מזהה כרטיס"
+  },
+  "calendar": {
+    "google": {
+      "connect": "חיבור Google Calendar",
+      "connecting": "מתחבר…",
+      "disconnect": "ניתוק",
+      "disconnecting": "מנתק…",
+      "syncNow": "סנכרון עכשיו",
+      "syncing": "מסנכרן…",
+      "synced": "סונכרן {{time}}",
+      "neverSynced": "עדיין לא סונכרן",
+      "failed": "הסנכרון האחרון נכשל. נסו שוב, או נתקו והתחברו מחדש.",
+      "live": "שינויים ב-Google מופיעים תוך שניות.",
+      "periodic": "מסתנכרן כל 15 דקות."
+    }
   }
 }
