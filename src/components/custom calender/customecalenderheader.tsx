@@ -32,16 +32,22 @@ export const CustomCalendarHeader = () => {
   const updateEventMutation = useUpdateCalendarEvent();
   const deleteEventMutation = useDeleteCalendarEvent();
 
-  // Calculate date range for the current week
-  const startOfWeek = getStartOfWeek(currentWeek);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(endOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
 
-  // Fetch events for the current week
+  // Fetch the range on screen: the whole month in month view, otherwise the week.
+  const rangeStart =
+    viewMode === "month"
+      ? new Date(currentWeek.getFullYear(), currentWeek.getMonth(), 1)
+      : getStartOfWeek(currentWeek);
+  const rangeEnd =
+    viewMode === "month"
+      ? new Date(currentWeek.getFullYear(), currentWeek.getMonth() + 1, 0)
+      : new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate() + 6);
+  rangeEnd.setHours(23, 59, 59, 999);
+
   const { data: eventsResponse } = useFetchCalendarEvents({
-    startDate: startOfWeek.toISOString(),
-    endDate: endOfWeek.toISOString(),
+    startDate: rangeStart.toISOString(),
+    endDate: rangeEnd.toISOString(),
   });
 
   const apiEvents = eventsResponse?.data || [];
@@ -66,7 +72,6 @@ export const CustomCalendarHeader = () => {
     };
   });
   const [miniCalRange, setMiniCalRange] = useState<{ from?: Date }>({});
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
 
   // Sidebar filters
   const [activeCalendarTypes, setActiveCalendarTypes] = useState<Set<string>>(
@@ -124,12 +129,16 @@ export const CustomCalendarHeader = () => {
 
   // Navigation handlers
   const goToToday = () => {
-    if (viewMode === "day") {
-      setCurrentWeek(new Date());
-    } else {
+    if (viewMode === "week") {
       setCurrentWeek(getStartOfWeek(new Date()));
+    } else {
+      setCurrentWeek(new Date());
     }
   };
+
+  // Month steps start from the 1st, so the 31st never skips a month.
+  const shiftMonth = (months: number) =>
+    new Date(currentWeek.getFullYear(), currentWeek.getMonth() + months, 1);
 
   const goToPrev = () => {
     const prev = new Date(currentWeek);
@@ -137,10 +146,8 @@ export const CustomCalendarHeader = () => {
       prev.setDate(prev.getDate() - 1);
     } else if (viewMode === "week") {
       prev.setDate(prev.getDate() - 7);
-    } else if (viewMode === "month") {
-      prev.setMonth(prev.getMonth() - 1);
     }
-    setCurrentWeek(prev);
+    setCurrentWeek(viewMode === "month" ? shiftMonth(-1) : prev);
   };
 
   const goToNext = () => {
@@ -149,10 +156,20 @@ export const CustomCalendarHeader = () => {
       next.setDate(next.getDate() + 1);
     } else if (viewMode === "week") {
       next.setDate(next.getDate() + 7);
-    } else if (viewMode === "month") {
-      next.setMonth(next.getMonth() + 1);
     }
-    setCurrentWeek(next);
+    setCurrentWeek(viewMode === "month" ? shiftMonth(1) : next);
+  };
+
+  // A week can start in the previous month; month view opens on the month that holds today
+  // when the week includes it, otherwise on the month that holds most of the week.
+  const changeViewMode = (mode: "day" | "week" | "month") => {
+    if (mode === "month" && viewMode !== "month") {
+      const start = getStartOfWeek(currentWeek);
+      const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6, 23, 59, 59);
+      const today = new Date();
+      setCurrentWeek(today >= start && today <= end ? today : new Date(start.getFullYear(), start.getMonth(), start.getDate() + 3));
+    }
+    setViewMode(mode);
   };
   // Apply sidebar filters — platform filter only affects events whose platform is managed in sidebar
   const filteredEvents = events.filter((e: any) => {
@@ -223,7 +240,7 @@ export const CustomCalendarHeader = () => {
               onPrev={goToPrev}
               onNext={goToNext}
               onToday={goToToday}
-              onViewModeChange={setViewMode}
+              onViewModeChange={changeViewMode}
             />
 
             {/* Calendar Views */}
