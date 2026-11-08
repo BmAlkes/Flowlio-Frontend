@@ -4,10 +4,14 @@ import { defineConfig } from "vite";
 import path from "path";
 import { copyFileSync } from "fs";
 
+// Cloudflare Pages serves unknown paths from 404.html with a 404 status. Public pages that
+// crawlers check (Meta, search engines) get their own copy so they answer 200.
+const PUBLIC_PAGES = ["privacy-policy", "terms-of-service"];
 const copyIndexTo404: import("vite").Plugin = {
   name: "copy-index-to-404",
   closeBundle() {
     copyFileSync("dist/index.html", "dist/404.html");
+    for (const page of PUBLIC_PAGES) copyFileSync("dist/index.html", `dist/${page}.html`);
   },
 };
 
