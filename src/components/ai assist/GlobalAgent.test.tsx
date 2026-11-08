@@ -8,6 +8,7 @@ import { agentScopeForPath } from './agent-context';
 import messages from '@/locales/agent/en.json';
 const api=vi.hoisted(()=>({get:vi.fn(),post:vi.fn(),role:'user'}));
 vi.mock('@/configs/axios.config',()=>({axios:api}));
+vi.mock('./VoiceButton',()=>({VoiceButton:({onText}:{onText:(text:string)=>void})=><button type="button" onClick={()=>onText('then plan it for Monday')}>speak</button>}));
 vi.mock('@/providers/user.provider',()=>({useUser:()=>({data:{user:{id:'owner',organizationId:'org',role:api.role}}})}));
 vi.mock('@/hooks/useDataScope',()=>({useDataScope:()=> 'org:owner'}));
 vi.mock('@/hooks/usePlanAccess',()=>({useHasFeatureAccess:()=>({data:{data:{hasAccess:true}},isLoading:false})}));
@@ -55,3 +56,4 @@ it('an event edited to end before it starts, or a lead without a valid email, ca
  await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/ai/agent/run/apply',expect.objectContaining({selected:[1],edits:{'1':expect.objectContaining({email:'ana@example.test'})}})));});
 it('a blocked status change explains which rule stopped it',async()=>{result.sources=[source,taskSource];result.result.actions=[{type:'set_task_status',taskId:'task',status:'completed'}];api.post.mockImplementation(async(url:string)=>{if(url.endsWith('/apply'))throw{response:{data:{code:'TASK_BLOCKED'}}};return{data:{data:result}};});const user=setup();await generate(user);
  await user.click(screen.getByRole('button',{name:confirmName('set_task_status')}));expect(await screen.findByRole('alert')).toHaveTextContent(messages.errors.TASK_BLOCKED);});
+it('a voice note is sent as soon as it is transcribed, together with anything already typed',async()=>{const user=setup();await screen.findByText('1 accessible sources loaded');await user.type(screen.getByLabelText(messages.request),'Create a review task');await user.click(screen.getByRole('button',{name:'speak'}));await screen.findAllByText('Here is the draft.');expect(api.post).toHaveBeenCalledTimes(1);expect(api.post.mock.calls[0][1].prompt).toBe('Create a review task then plan it for Monday');expect(api.post.mock.calls[0][1].mode).toBe('review');expect(screen.getByLabelText(messages.request)).toHaveValue('');});
