@@ -1267,5 +1267,20 @@
     "deleteError": "Error al eliminar la propuesta. Inténtalo de nuevo.",
     "downloadSuccess": "PDF descargado con éxito.",
     "downloadError": "Error al generar el PDF"
+  },
+  "whatsappLio": {
+    "title": "Lio en WhatsApp",
+    "description": "Pregúntale a Lio sobre tu trabajo, envía audios y confirma acciones desde tu WhatsApp. Solo se conecta tu número, con el mismo acceso que tienes en Flowlio.",
+    "connect": "Conectar WhatsApp",
+    "connected": "Conectado a {{phone}}",
+    "disconnect": "Desconectar",
+    "theNumber": "el número de Flowlio",
+    "sendCode": "Envía este mensaje desde tu WhatsApp a {{number}}:",
+    "open": "Abrir WhatsApp",
+    "waiting_one": "Esperando tu mensaje… el código expira en {{count}} minuto",
+    "waiting_other": "Esperando tu mensaje… el código expira en {{count}} minutos",
+    "expired": "El código expiró. Genera uno nuevo.",
+    "failed": "No se pudo actualizar WhatsApp. Inténtalo de nuevo.",
+    "howTo": "Envía una pregunta o un audio a {{number}}. Lio pregunta antes de cambiar algo. Escribe \"nuevo\" para empezar otra conversación."
   }
 }
