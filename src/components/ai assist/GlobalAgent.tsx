@@ -5,6 +5,7 @@ const AgentTools=lazy(()=>import('./AgentTools').then(module=>({default:module.A
 import {AgentContentHistory} from './AgentContentHistory';
 import {AgentTurn,selectClass,type ConfirmAction} from './AgentFeed';
 import {LioAvatar,LioGreeting,type LioState} from './LioAvatar';
+import {VoiceButton} from './VoiceButton';
 import { useAiAssistChatStore } from '@/store/aiassistchat.store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -112,6 +113,7 @@ export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,histo
    <label htmlFor="agent-prompt" className="sr-only">{t('agent.request')}</label>
    <div className="ai-input">
     <Textarea id="agent-prompt" rows={1} maxLength={8000} value={prompt} disabled={busy} onChange={e=>setPrompt(e.target.value)} placeholder={t('agent.placeholder')} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(canSend&&!busy)void generate();}}}/>
+    {!busy&&<VoiceButton disabled={context.isPending||context.isError} onText={text=>{setError('');setPrompt(current=>current.trim()?`${current.trimEnd()} ${text}`:text);document.getElementById('agent-prompt')?.focus();}} onError={e=>setError(failure(e))}/>}
     {busy?<Button type="button" size="icon" variant="outline" aria-label={t('agent.cancel')} onClick={cancel}><Square className="size-3.5"/></Button>:<Button type="submit" size="icon" aria-label={t('agent.generate')} disabled={!canSend}><ArrowUp className="size-4"/></Button>}
    </div>
    <div className="ai-composer-foot">

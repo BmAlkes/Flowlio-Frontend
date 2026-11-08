@@ -161,7 +161,12 @@
     "AI_TIMEOUT": "The assistant took too long. Try a more specific request.",
     "TASK_BLOCKED": "This task depends on another task that is not completed yet. Complete that one first.",
     "DUPLICATE_CONTACT": "A lead or client with this email already exists.",
-    "FUTURE_TIME": "Time can only be logged for today or earlier."
+    "FUTURE_TIME": "Time can only be logged for today or earlier.",
+    "MIC_DENIED": "Allow microphone access in your browser to speak to Lio.",
+    "AUDIO_EMPTY": "The recording was empty. Try again.",
+    "AUDIO_TOO_LARGE": "The recording is too long. Keep it under 2 minutes.",
+    "AUDIO_UNSUPPORTED": "This browser records audio in a format Lio cannot read.",
+    "NO_SPEECH": "Lio could not hear any words. Try again closer to the microphone."
   },
   "fields": {
     "title": "Title",
@@ -207,5 +212,11 @@
     "email": "Email",
     "phone": "Phone",
     "businessIndustry": "Industry"
+  },
+  "voice": {
+    "start": "Speak your request",
+    "stop": "Stop recording",
+    "recording": "Recording… {{seconds}}s",
+    "transcribing": "Transcribing…"
   }
 }
