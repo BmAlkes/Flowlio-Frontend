@@ -1274,5 +1274,20 @@
     "deleteError": "Failed to delete proposal. Please try again.",
     "downloadSuccess": "PDF downloaded successfully.",
     "downloadError": "Failed to generate PDF"
+  },
+  "whatsappLio": {
+    "title": "Lio on WhatsApp",
+    "description": "Ask Lio about your work, send voice notes and confirm actions from your own WhatsApp. Only your number is connected, with the same access you have in Flowlio.",
+    "connect": "Connect WhatsApp",
+    "connected": "Connected to {{phone}}",
+    "disconnect": "Disconnect",
+    "theNumber": "Flowlio's number",
+    "sendCode": "Send this message from your WhatsApp to {{number}}:",
+    "open": "Open WhatsApp",
+    "waiting_one": "Waiting for your message… the code expires in {{count}} minute",
+    "waiting_other": "Waiting for your message… the code expires in {{count}} minutes",
+    "expired": "The code expired. Create a new one.",
+    "failed": "Could not update WhatsApp. Try again.",
+    "howTo": "Message {{number}} with a question or a voice note. Lio asks before changing anything. Write \"new\" to start a new conversation."
   }
 }
