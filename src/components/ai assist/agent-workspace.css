@@ -100,6 +100,10 @@
 .workspace-ai .ai-input textarea { min-height:40px; max-height:160px; field-sizing:content; padding:9px 0; border:0; background:transparent; box-shadow:none; resize:none; font-size:.875rem; line-height:1.55; }
 .workspace-ai .ai-input textarea:focus-visible { outline:none; box-shadow:none; }
 .ai-input button { flex-shrink:0; border-radius:10px; }
+.ai-input .ai-voice { color:var(--muted-foreground); }
+.ai-input .ai-voice.is-recording { color:#fff; background:#dc2626; animation:ai-voice-pulse 1.4s ease-in-out infinite; }
+.ai-voice-status { align-self:center; flex-shrink:0; font-size:.75rem; font-variant-numeric:tabular-nums; color:var(--muted-foreground); }
+@keyframes ai-voice-pulse { 0%,100% { box-shadow:0 0 0 0 rgb(220 38 38 / .45); } 50% { box-shadow:0 0 0 6px rgb(220 38 38 / 0); } }
 .ai-composer-foot { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-top:8px; }
 .ai-auto { display:flex; align-items:flex-start; gap:6px; max-width:75%; font-size:.75rem; line-height:1.5; color:var(--muted-foreground); }
 .ai-auto input { margin-top:2px; accent-color:var(--ai-accent); }

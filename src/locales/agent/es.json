@@ -131,7 +131,12 @@
     "AI_TIMEOUT": "El asistente tardó demasiado. Prueba una solicitud más específica.",
     "TASK_BLOCKED": "Esta tarea depende de otra que aún no está completada. Complétala primero.",
     "DUPLICATE_CONTACT": "Ya existe un lead o cliente con este correo.",
-    "FUTURE_TIME": "Solo se pueden registrar horas de hoy o de días anteriores."
+    "FUTURE_TIME": "Solo se pueden registrar horas de hoy o de días anteriores.",
+    "MIC_DENIED": "Permite el acceso al micrófono en el navegador para hablar con Lio.",
+    "AUDIO_EMPTY": "La grabación quedó vacía. Inténtalo de nuevo.",
+    "AUDIO_TOO_LARGE": "La grabación es demasiado larga. Habla menos de 2 minutos.",
+    "AUDIO_UNSUPPORTED": "Este navegador graba audio en un formato que Lio no puede leer.",
+    "NO_SPEECH": "Lio no escuchó ninguna palabra. Inténtalo de nuevo más cerca del micrófono."
   },
   "fields": {
     "title": "Título",
@@ -177,5 +182,11 @@
     "email": "Correo",
     "phone": "Teléfono",
     "businessIndustry": "Sector"
+  },
+  "voice": {
+    "start": "Di tu solicitud",
+    "stop": "Detener grabación",
+    "recording": "Grabando… {{seconds}}s",
+    "transcribing": "Transcribiendo…"
   }
 }
