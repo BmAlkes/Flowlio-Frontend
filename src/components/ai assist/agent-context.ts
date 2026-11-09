@@ -32,7 +32,16 @@ export type AgentAction =
   | {type:'set_task_status';taskId:string;status:TaskStatus}
   | {type:'create_event';title:string;description:string;date:string;startHour:number;endHour:number;calendarType:'meeting'|'education'|'personal'}
   | {type:'create_lead';name:string;email:string;phone:string|null;businessIndustry:string|null;note:string|null;followUpAt:string|null}
-  | {type:'log_time';taskId:string;date:string;minutes:number;description:string};
+  | {type:'log_time';taskId:string;date:string;minutes:number;description:string}
+  | {type:'reschedule_event';eventId:string;date:string;startHour:number;endHour:number}
+  | {type:'delete_event';eventId:string}
+  | {type:'create_project';name:string;description:string;clientId:string|null;startDate:string|null;endDate:string|null}
+  | {type:'add_client_note';clientId:string;interactionType:InteractionType;content:string}
+  | {type:'message_client';clientId:string;subject:string;message:string};
+export const interactionTypes = ['note','call','email','meeting'] as const;
+export type InteractionType = typeof interactionTypes[number];
+// Actions that reach the client: the server requires the separate sharing confirmation.
+export const clientFacing = (action:AgentAction) => action.type==='client_request'||action.type==='message_client';
 export const taskStatuses = ['todo','in_progress','completed','delay','changes'] as const;
 export type TaskStatus = typeof taskStatuses[number];
 export type AgentSource = {key:string;kind:string;id:string;title:string;href:string};

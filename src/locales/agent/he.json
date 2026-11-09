@@ -89,7 +89,12 @@
     "set_task_status": "שינוי סטטוס משימה",
     "create_event": "הוספת אירוע ליומן",
     "create_lead": "הוספת ליד",
-    "log_time": "רישום שעות"
+    "log_time": "רישום שעות",
+    "reschedule_event": "שינוי מועד אירוע",
+    "delete_event": "ביטול אירוע",
+    "create_project": "יצירת פרויקט",
+    "add_client_note": "הוספת הערה ללקוח",
+    "message_client": "שליחת הודעה ללקוח"
   },
   "prompts": {
     "default": {
@@ -136,7 +141,9 @@
     "AUDIO_EMPTY": "ההקלטה ריקה. נסו שוב.",
     "AUDIO_TOO_LARGE": "ההקלטה ארוכה מדי. דברו פחות מ-2 דקות.",
     "AUDIO_UNSUPPORTED": "הדפדפן הזה מקליט בפורמט ש-Lio לא יכול לקרוא.",
-    "NO_SPEECH": "Lio לא שמע מילים. נסו שוב קרוב יותר למיקרופון."
+    "NO_SPEECH": "Lio לא שמע מילים. נסו שוב קרוב יותר למיקרופון.",
+    "DUPLICATE_PROJECT": "כבר קיים פרויקט בשם הזה.",
+    "CLIENT_EMAIL_REQUIRED": "ללקוח הזה אין כתובת אימייל."
   },
   "fields": {
     "title": "כותרת",
@@ -188,5 +195,20 @@
     "stop": "עצירת הקלטה",
     "recording": "מקליט… {{seconds}} שנ׳",
     "transcribing": "מתמלל…"
-  }
+  },
+  "interactionTypes": {
+    "note": "הערה",
+    "call": "שיחה",
+    "email": "אימייל",
+    "meeting": "פגישה"
+  },
+  "interactionType": "סוג",
+  "content": "תוכן",
+  "subject": "נושא",
+  "message": "הודעה",
+  "projectName": "שם הפרויקט",
+  "confirmMessage": "בדקתי את ההודעה ואני מאשר/ת לשלוח אותה ללקוח באימייל.",
+  "internalNote": "פנימי · הלקוח לא רואה",
+  "emailedTo": "אימייל ללקוח",
+  "removesEvent": "מסיר אותו מהיומן שלך"
 }
