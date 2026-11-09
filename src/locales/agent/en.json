@@ -89,7 +89,12 @@
     "set_task_status": "Change task status",
     "create_event": "Add calendar event",
     "create_lead": "Add lead",
-    "log_time": "Log time"
+    "log_time": "Log time",
+    "reschedule_event": "Reschedule event",
+    "delete_event": "Cancel event",
+    "create_project": "Create project",
+    "add_client_note": "Add client note",
+    "message_client": "Message client"
   },
   "prompts": {
     "default": {
@@ -166,7 +171,9 @@
     "AUDIO_EMPTY": "The recording was empty. Try again.",
     "AUDIO_TOO_LARGE": "The recording is too long. Keep it under 2 minutes.",
     "AUDIO_UNSUPPORTED": "This browser records audio in a format Lio cannot read.",
-    "NO_SPEECH": "Lio could not hear any words. Try again closer to the microphone."
+    "NO_SPEECH": "Lio could not hear any words. Try again closer to the microphone.",
+    "DUPLICATE_PROJECT": "A project with this name already exists.",
+    "CLIENT_EMAIL_REQUIRED": "This client has no email address."
   },
   "fields": {
     "title": "Title",
@@ -218,5 +225,20 @@
     "stop": "Stop recording",
     "recording": "Recording… {{seconds}}s",
     "transcribing": "Transcribing…"
-  }
+  },
+  "interactionTypes": {
+    "note": "Note",
+    "call": "Call",
+    "email": "Email",
+    "meeting": "Meeting"
+  },
+  "interactionType": "Type",
+  "content": "Content",
+  "subject": "Subject",
+  "message": "Message",
+  "projectName": "Project name",
+  "confirmMessage": "I reviewed this message and authorize emailing it to the client.",
+  "internalNote": "Internal · the client does not see it",
+  "emailedTo": "Email to the client",
+  "removesEvent": "Removes it from your calendar"
 }
