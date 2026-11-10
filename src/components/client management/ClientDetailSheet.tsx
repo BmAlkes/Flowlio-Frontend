@@ -1,81 +1,26 @@
-import {financialMoney} from '@/lib/financial-currency';
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, ContactRound, RotateCcw, UserCheck, X } from "lucide-react";
+import { toast } from "sonner";
 import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ClientTimeline } from "./ClientTimeline";
-import {
-  useUpdateLeadStatus,
-  useUpdateLeadTemperature,
-  useUpdateLeadValue,
-  useSetFollowUp,
-  useLeadInsights,
-  LeadTemperature,
-} from "@/hooks/useCRM";
-import { Coins, Building2, RotateCcw, ArrowRight, X, TrendingUp, Pencil, Check, Bell, Trash2, UserCheck, Phone, Mail, Users, ContactRound, Thermometer, Workflow, History } from "lucide-react";
-import "@/components/leads/leads-layout.css";
-import { FollowUpPicker } from "./FollowUpPicker";
-import { differenceInDays, isPast, format } from "date-fns";
-import { useTranslation } from "react-i18next";
+import { useLeadInsights, useUpdateLeadStatus, useUpdateLeadTemperature, type LeadTemperature } from "@/hooks/useCRM";
 import { useConvertLead } from "@/hooks/useLeads";
-import { LeadCustomFieldsSection } from "@/components/leads/LeadCustomFieldsSection";
-import { useAssignLead, useLeadTags, useSetLeadTags } from "@/hooks/useLeadExtras";
+import { useAssignLead } from "@/hooks/useLeadExtras";
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
-import { toast } from "sonner";
+import { LeadCustomFieldsSection } from "@/components/leads/LeadCustomFieldsSection";
+import { LeadContactActions } from "@/components/leads/LeadContactActions";
+import { FollowUpBlock, Property, ScoreMeter, TagsEditor, ValueEditor } from "@/components/leads/LeadSheetParts";
+import { CLOSED_STAGES, LEAD_STAGES, SALES_STAGES, TEMPERATURES, TEMP_TONE, avatarTone, initialsOf, realEmail, stageTone } from "@/components/leads/lead-ui";
+import "@/components/leads/leads-layout.css";
 
-const LEAD_STAGES = [
-  "New Lead", "Contacted", "Qualified", "Proposal Sent",
-  "Contract Signed", "Project In Progress", "Completed", "Inactive", "Lost",
-];
-
-const CLIENT_STAGES = [
-  "Active", "Onboarding", "On Hold", "Inactive", "Completed", "Churned",
-];
-
-const LEAD_PROGRESS_STAGES = [
-  "New Lead", "Contacted", "Qualified", "Proposal Sent",
-  "Contract Signed", "Project In Progress", "Completed",
-];
-
-const CLIENT_PROGRESS_STAGES = [
-  "Onboarding", "Active", "Completed",
-];
-
-const STAGE_DOT: Record<string, string> = {
-  "New Lead": "bg-blue-500", "Contacted": "bg-violet-500", "Qualified": "bg-yellow-500",
-  "Proposal Sent": "bg-amber-500", "Contract Signed": "bg-emerald-500",
-  "Project In Progress": "bg-indigo-500", "Completed": "bg-green-500",
-  "Inactive": "bg-gray-400", "Lost": "bg-rose-500",
-  "Active": "bg-green-600", "Onboarding": "bg-blue-500",
-  "On Hold": "bg-amber-500", "Churned": "bg-rose-500",
-};
-
-const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = {
-  Hot: "Project In Progress",
-  Warm: "Proposal Sent",
-  Cold: "New Lead",
-  Lost: "Lost",
-};
-
-const TEMPERATURES: {
-  value: LeadTemperature;
-  label: string;
-  dot: string;
-  active: string;
-}[] = [
-  { value: "Hot",  label: "Hot",  dot: "bg-orange-500", active: "bg-muted font-medium" },
-  { value: "Warm", label: "Warm", dot: "bg-amber-400",  active: "bg-muted font-medium" },
-  { value: "Cold", label: "Cold", dot: "bg-sky-500",    active: "bg-muted font-medium" },
-  { value: "Lost", label: "Lost", dot: "bg-gray-400",   active: "bg-muted font-medium" },
-];
+// Choosing a temperature suggests the matching stage.
+const TEMP_STAGE_SUGGESTION: Partial<Record<LeadTemperature, string>> = { Hot: "Project In Progress", Warm: "Proposal Sent", Cold: "New Lead", Lost: "Lost" };
 
 interface ClientDetailSheetProps {
   client: any | null;
@@ -85,514 +30,147 @@ interface ClientDetailSheetProps {
   onConverted?: () => void;
 }
 
-export const ClientDetailSheet = ({ client, open, onClose, isLead, onConverted }: ClientDetailSheetProps) => {
+// Lead details: who the lead is and how to reach them first, then the properties, then the activity.
+export const ClientDetailSheet = ({ client, open, onClose, onConverted }: ClientDetailSheetProps) => {
   const { t, i18n } = useTranslation();
   const updateStatus = useUpdateLeadStatus();
   const updateTemperature = useUpdateLeadTemperature();
-  const updateValue = useUpdateLeadValue();
-  const cancelFollowUp = useSetFollowUp();
-  const { data: insights } = useLeadInsights(client?.id ?? "");
   const convertLead = useConvertLead();
   const assignLead = useAssignLead();
-  const setLeadTags = useSetLeadTags();
+  const { data: insights } = useLeadInsights(client?.id ?? "");
   const { data: membersResp } = useGetCurrentOrgUserMembers();
-  const { data: allTags = [] } = useLeadTags();
-  const members = (membersResp?.data?.userMembers ?? []).map((m) => ({
-    id: m.user?.id ?? m.id,
-    name: m.user?.name ?? `${m.firstname} ${m.lastname}`.trim(),
-  }));
+  const members = (membersResp?.data?.userMembers ?? []).map(m => ({ id: m.user?.id ?? m.id, name: m.user?.name ?? `${m.firstname} ${m.lastname}`.trim() }));
 
-  const [currentStatus, setCurrentStatus] = useState(client?.status ?? "");
-  const [stageSuggestion, setStageSuggestion] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState(false);
-  const [valueInput, setValueInput] = useState("");
-  const [showFollowUp, setShowFollowUp] = useState(false);
-
-  useEffect(() => {
-    setCurrentStatus(client?.status ?? "");
-    setStageSuggestion(null);
-    setEditingValue(false);
-    setShowFollowUp(false);
-  }, [client?.id]);
-
-  useEffect(() => {
-    setCurrentStatus(client?.status ?? "");
-  }, [client?.status]);
-
-  const handleStatusChange = (newStatus: string) => {
-    if (!client || newStatus === currentStatus) return;
-    const prev = currentStatus;
-    setCurrentStatus(newStatus);
-    setStageSuggestion(null);
-    updateStatus.mutate(
-      { clientId: client.id, newStatus, oldStatus: prev },
-      {
-        onSuccess: () => setShowFollowUp(true),
-        onError: () => setCurrentStatus(prev),
-      }
-    );
-  };
-
-  const handleValueEdit = () => {
-    const current = client?.leadValue ? String(Number(client.leadValue)) : "";
-    setValueInput(current);
-    setEditingValue(true);
-  };
-
-  const handleValueSave = () => {
-    if (!client) return;
-    const parsed = parseFloat(valueInput.replace(/[^0-9.]/g, ""));
-    setEditingValue(false);
-    if (isNaN(parsed) || parsed === Number(client.leadValue)) return;
-    updateValue.mutate({ clientId: client.id, leadValue: parsed });
-  };
-
-  const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleValueSave();
-    if (e.key === "Escape") setEditingValue(false);
-  };
-
-  const handleTemperatureChange = (temp: LeadTemperature | null) => {
-    if (!client) return;
-    updateTemperature.mutate(
-      { clientId: client.id, temperature: temp },
-      {
-        onSuccess: () => {
-          if (!temp) { setStageSuggestion(null); return; }
-          const suggested = TEMP_STAGE_SUGGESTION[temp];
-          setStageSuggestion(suggested && suggested !== currentStatus ? suggested : null);
-          setShowFollowUp(true);
-        },
-      }
-    );
-  };
+  const [status, setStatus] = useState(client?.status ?? "");
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [followUpEditing, setFollowUpEditing] = useState(false);
+  const [tab, setTab] = useState("activity");
+  useEffect(() => { setStatus(client?.status ?? ""); setSuggestion(null); setFollowUpEditing(false); setTab("activity"); }, [client?.id]);
+  useEffect(() => { setStatus(client?.status ?? ""); }, [client?.status]);
 
   if (!client) return null;
+  const stageName = (stage: string) => t(`pipeline.clientStatuses.${stage}`, { defaultValue: stage });
 
-  const initials =
-    client.name?.split(" ").map((n: string) => n[0]).join("").toUpperCase() ?? "?";
-
-  const formatValue = (val: any) => {
-    const n = Number(val);
-    if (!val || n === 0) return null;
-    return financialMoney(val, i18n.language, client.currencyCode, t('core.currencyUnknown'));
+  const changeStatus = (next: string) => {
+    if (next === status) return;
+    const previous = status;
+    setStatus(next); setSuggestion(null);
+    updateStatus.mutate({ clientId: client.id, newStatus: next, oldStatus: previous }, {
+      onSuccess: () => setFollowUpEditing(true),
+      onError: () => setStatus(previous),
+    });
   };
+  const changeTemperature = (temp: LeadTemperature | null) => updateTemperature.mutate({ clientId: client.id, temperature: temp }, {
+    onSuccess: () => {
+      const suggested = temp ? TEMP_STAGE_SUGGESTION[temp] : null;
+      setSuggestion(suggested && suggested !== status ? suggested : null);
+      if (temp) setFollowUpEditing(true);
+    },
+  });
 
-  const formattedValue = formatValue(client.leadValue);
-  const currentTemp = insights?.temperature;
-  const tempCfg = TEMPERATURES.find((t) => t.value === currentTemp);
-  const TimelineContainer = isLead ? "div" : ScrollArea;
+  const temp = insights?.temperature ?? null;
+  const email = realEmail(client.email);
+  const created = client.createdAt ? new Date(client.createdAt).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" }) : null;
+  const source = client.webhookName ?? t("leadsLayout.manual");
+  const step = (SALES_STAGES as readonly string[]).indexOf(status);
+  const closed = (CLOSED_STAGES as readonly string[]).includes(status);
+  const tone = stageTone(status);
 
   return (
-    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side={i18n.dir() === "rtl" ? "left" : "right"} aria-describedby={undefined} className={`w-full sm:max-w-[480px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50 ${isLead ? "lead-details" : ""}`}>
-        {isLead && <div className="ld-sheet-top"><ContactRound size={19} aria-hidden="true" /><span>{t("leadsLayout.details")}</span></div>}
-        <div className={isLead ? "ld-sheet-scroll" : "contents"}>
+    <Sheet open={open} onOpenChange={value => !value && onClose()}>
+      <SheetContent side={i18n.dir() === "rtl" ? "left" : "right"} aria-describedby={undefined} className="lead-details w-full sm:max-w-[560px] p-0 flex flex-col gap-0 overflow-hidden h-full z-50">
+        <div className="ld-sheet-top"><ContactRound size={18} aria-hidden="true" /><span>{t("leadsLayout.details")}</span></div>
+        <div className="ld-sheet-scroll">
 
-        {/* Header */}
-        <div className="ld-sheet-overview px-6 pt-7 pb-6 border-b border-border/40 shrink-0">
-
-          {/* Client identity */}
-          <div className="ld-sheet-identity flex items-start gap-4 mb-6">
-            <div className="relative shrink-0">
-              <Avatar className="h-14 w-14 rounded-xl">
+          <section className="ld-sheet-hero">
+            <div className="flex items-start gap-3.5">
+              <Avatar className="size-13 rounded-[14px] shrink-0">
                 <AvatarImage src={client.image} />
-                <AvatarFallback className="rounded-xl bg-muted text-muted-foreground font-medium text-base">
-                  {initials}
-                </AvatarFallback>
+                <AvatarFallback className={`rounded-[14px] text-lg font-bold ${avatarTone(client.id)}`}>{initialsOf(client.name)}</AvatarFallback>
               </Avatar>
-            </div>
-
-            <div className="flex-1 min-w-0 pt-0.5">
-              <div className="flex items-start justify-between gap-2">
-                <SheetTitle className="font-semibold text-lg text-foreground leading-snug break-words">
-                  {client.name}
-                </SheetTitle>
-                <AgentContextButton scope={{area:isLead?'leads':'clients',clientId:client.id}} onOpen={onClose}/>
-                {currentTemp && tempCfg && (
-                  <span className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <span className={`w-2 h-2 rounded-full ${tempCfg.dot}`} />
-                    {currentTemp}
-                  </span>
-                )}
+              <div className="min-w-0 flex-1">
+                <SheetTitle className="text-xl font-bold leading-snug break-words">{client.name}</SheetTitle>
+                <p className="mt-1 text-sm text-muted-foreground break-words">{[email ?? client.phone, source, created && t("leadsLayout.createdOn", { date: created })].filter(Boolean).join(" · ")}</p>
               </div>
-
-              {!isLead && (
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
-                  <p className="text-sm text-muted-foreground truncate">
-                    {client.businessIndustry || t("pipeline.noIndustry")}
-                  </p>
-                </div>
-              )}
-              {isLead && (client.phone || (client.email && !client.email.includes("@noemail.invalid"))) && (
-                <div className="flex flex-col gap-1 mt-1.5">
-                  {client.email && !client.email.includes("@noemail.invalid") && (
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
-                      <p className="text-sm text-muted-foreground truncate">{client.email}</p>
-                    </div>
-                  )}
-                  {client.phone && (
-                    <div className="flex items-center gap-1.5">
-                      <Phone className="h-3.5 w-3.5 text-muted-foreground/90 shrink-0" />
-                      <p className="text-sm text-muted-foreground">{client.phone}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-center gap-3 mt-3">
-                {editingValue ? (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-600/50">
-                    <Coins className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <input
-                      autoFocus
-                      type="text"
-                      inputMode="numeric"
-                      value={valueInput}
-                      onChange={(e) => setValueInput(e.target.value)}
-                      onBlur={handleValueSave}
-                      onKeyDown={handleValueKeyDown}
-                      className="w-28 text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-transparent outline-none placeholder:text-emerald-400/50"
-                      placeholder="0"
-                    />
-                    <button
-                      onClick={handleValueSave}
-                      disabled={updateValue.isPending}
-                      className="text-emerald-600 hover:text-emerald-800 transition-colors shrink-0"
-                    >
-                      <Check className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : formattedValue ? (
-                  <button onClick={handleValueEdit} className="flex items-center gap-1.5 group/val">
-                    <Coins className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span className="text-base font-bold text-emerald-700 dark:text-emerald-400 group-hover/val:underline">
-                      {formattedValue}
-                    </span>
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/90 opacity-0 group-hover/val:opacity-100 transition-opacity" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleValueEdit}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-emerald-300 dark:border-emerald-600/50 bg-emerald-50/60 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group/val"
-                  >
-                    <Coins className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                      {t("pipeline.addValue")}
-                    </span>
-                    <Pencil className="h-3 w-3 text-emerald-400/90 opacity-0 group-hover/val:opacity-100 transition-opacity" />
-                  </button>
-                )}
-
-                {insights?.score !== undefined && (
-                  <div className="flex items-center gap-1">
-                    <TrendingUp className="h-4 w-4 text-indigo-500" />
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {insights.score}% {t("pipeline.score")}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Temperature */}
-          <div className="ld-qualification mb-5">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {isLead && <Thermometer size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.temperature")}
-                {insights?.isManualTemperature && (
-                  <span className="ms-2 normal-case font-semibold text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-500/30 px-1.5 py-0.5 rounded-full">
-                    {t("pipeline.temperatureManual")}
-                  </span>
-                )}
-              </span>
-              {insights?.isManualTemperature && (
-                <button
-                  onClick={() => handleTemperatureChange(null)}
-                  disabled={updateTemperature.isPending}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  {t("pipeline.temperatureAuto")}
-                </button>
-              )}
-            </div>
-
-            <div className="flex gap-1 p-1 bg-muted/40 rounded-lg">
-              {TEMPERATURES.map((temp) => {
-                const isActive = currentTemp === temp.value;
-                return (
-                  <button
-                    key={temp.value}
-                    onClick={() => handleTemperatureChange(temp.value)}
-                    disabled={updateTemperature.isPending}
-                    aria-pressed={isActive}
-                    data-temperature={temp.value}
-                    className={`flex-1 h-8 rounded text-xs font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 ${
-                      isActive ? temp.active : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${temp.dot}`} />
-                    {t(`pipeline.temperatures.${temp.value}`)}
-                  </button>
-                );
-              })}
-            </div>
-
-            {stageSuggestion && (
-              <div className="mt-2.5 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/15 border border-amber-200/70 dark:border-amber-500/20">
-                <ArrowRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
-                  {t("pipeline.moveTo", { stage: "" }).replace("<1></1>", "")}<span className="font-semibold">{t(`pipeline.clientStatuses.${stageSuggestion}` as any)}</span>?
-                </p>
-                <button
-                  onClick={() => handleStatusChange(stageSuggestion)}
-                  disabled={updateStatus.isPending}
-                  className="text-sm font-semibold text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 transition-colors disabled:opacity-50 shrink-0"
-                >
-                  {t("pipeline.move")}
-                </button>
-                <button
-                  onClick={() => setStageSuggestion(null)}
-                  className="text-amber-400 hover:text-amber-600 transition-colors shrink-0"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Pipeline stage */}
-          <div className="ld-stage-panel">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {isLead && <Workflow size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.pipelineStage")}
-              </span>
-              <Select
-                value={currentStatus}
-                onValueChange={handleStatusChange}
-                disabled={updateStatus.isPending}
-              >
-                <SelectTrigger aria-label={t("pipeline.pipelineStage")} size="sm" className="h-8 text-sm w-auto border-border/50 gap-2 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    {!isLead && <span className={`w-2 h-2 rounded-full ${STAGE_DOT[currentStatus] ?? "bg-gray-400"}`} />}
-                    <SelectValue />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {(isLead ? LEAD_STAGES : CLIENT_STAGES).map((stage) => (
-                    <SelectItem key={stage} value={stage} className="text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-1.5 h-1.5 rounded-full ${STAGE_DOT[stage] ?? "bg-gray-400"}`} />
-                        {stage}
-                      </div>
-                    </SelectItem>
-                  ))}
+              <Select value={temp ?? "none"} onValueChange={value => changeTemperature(value === "auto" ? null : value as LeadTemperature)} disabled={updateTemperature.isPending}>
+                <SelectTrigger size="sm" aria-label={t("pipeline.temperature")} className={`ld-temp-trigger ${temp ? TEMP_TONE[temp].pill : ""}`}><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent align="end">
+                  {temp === null && <SelectItem value="none" disabled>—</SelectItem>}
+                  {TEMPERATURES.map(value => <SelectItem key={value} value={value}><span className={`size-2 rounded-full ${TEMP_TONE[value].dot}`} />{t(`pipeline.temperatures.${value}`)}</SelectItem>)}
+                  {insights?.isManualTemperature && <SelectItem value="auto"><RotateCcw className="size-3.5" />{t("pipeline.temperatureAuto")}</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <LeadContactActions lead={client} />
+              <span className="flex-1" />
+              <AgentContextButton scope={{ area: "leads", clientId: client.id }} onOpen={onClose} />
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={convertLead.isPending}
+                onClick={() => convertLead.mutate(client.id, { onSuccess: () => { onClose(); onConverted?.(); } })}>
+                <UserCheck className="size-4" />{convertLead.isPending ? t("leadsLayout.converting") : t("leadsLayout.convert")}<ArrowRight className="size-4 rtl:rotate-180" />
+              </Button>
+            </div>
+          </section>
 
-            {/* Percentage progress bar */}
-            {(() => {
-              const progressStages = isLead ? LEAD_PROGRESS_STAGES : CLIENT_PROGRESS_STAGES;
-              const progressIdx = progressStages.indexOf(currentStatus);
-              const isTerminal = currentStatus === "Lost" || currentStatus === "Churned" || currentStatus === "Inactive";
-              const pct = progressIdx >= 0
-                ? Math.round((progressIdx / (progressStages.length - 1)) * 100)
-                : 0;
-              return (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-muted-foreground">
-                      {isTerminal
-                        ? currentStatus
-                        : `Step ${progressIdx + 1} of ${progressStages.length}`}
-                    </span>
-                    <span className={`text-xs font-bold ${isTerminal ? "text-rose-500" : "text-indigo-600 dark:text-indigo-400"}`}>
-                      {isTerminal ? "—" : `${pct}%`}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${isTerminal ? "bg-rose-400" : "bg-indigo-500"}`}
-                      style={{ width: isTerminal ? "100%" : `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })()}
+          {suggestion && (
+            <div className="ld-suggestion" role="status">
+              <ArrowRight aria-hidden="true" className="size-4 shrink-0 rtl:rotate-180" />
+              <p className="flex-1">{t("leadsLayout.moveSuggestion", { stage: stageName(suggestion) })}</p>
+              <button type="button" className="font-semibold" disabled={updateStatus.isPending} onClick={() => changeStatus(suggestion)}>{t("pipeline.move")}</button>
+              <button type="button" aria-label={t("leadsLayout.dismiss")} onClick={() => setSuggestion(null)}><X className="size-4" /></button>
+            </div>
+          )}
 
-            {/* Existing follow-up badge */}
-            {client.followUpAt && !showFollowUp && (() => {
-              const date = new Date(client.followUpAt);
-              const overdue = isPast(date);
-              const daysLeft = differenceInDays(date, new Date());
-              return (
-                <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border ${
-                  overdue
-                    ? "bg-rose-50 dark:bg-rose-900/15 border-rose-200 dark:border-rose-500/30"
-                    : "bg-indigo-50 dark:bg-indigo-900/15 border-indigo-200 dark:border-indigo-500/30"
-                }`}>
-                  <Bell className={`h-3.5 w-3.5 shrink-0 ${overdue ? "text-rose-500" : "text-indigo-500"}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold ${overdue ? "text-rose-700 dark:text-rose-300" : "text-indigo-700 dark:text-indigo-300"}`}>
-                      {overdue ? t("pipeline.followUpOverdue") : daysLeft === 0 ? t("pipeline.followUpToday") : t("pipeline.followUpInDays", { count: daysLeft })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{format(date, "d MMM yyyy")}</p>
-                    {client.followUpNote && (
-                      <p className="text-xs text-foreground/80 mt-0.5 break-words">{client.followUpNote}</p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setShowFollowUp(true)}
-                    className={`text-xs font-semibold transition-colors shrink-0 ${overdue ? "text-rose-600 hover:text-rose-800" : "text-indigo-600 hover:text-indigo-800"}`}
-                  >
-                    {t("pipeline.followUpChange")}
-                  </button>
-                  <button
-                    onClick={() => cancelFollowUp.mutate({ clientId: client.id, followUpAt: null, followUpNote: null })}
-                    disabled={cancelFollowUp.isPending}
-                    className="text-muted-foreground/90 hover:text-rose-500 transition-colors shrink-0"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              );
-            })()}
-
-            {/* Set follow-up (only when there's nothing scheduled yet) */}
-            {!client.followUpAt && !showFollowUp && (
-              <button
-                onClick={() => setShowFollowUp(true)}
-                className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/15 transition-colors w-full"
-              >
-                <Bell className="h-3.5 w-3.5 shrink-0" />
-                <span className="text-xs font-semibold">{t("pipeline.followUpSet")}</span>
-              </button>
-            )}
-
-            {/* Follow-up picker */}
-            {showFollowUp && (
-              <FollowUpPicker
-                clientId={client.id}
-                onDismiss={() => setShowFollowUp(false)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Assign to + Tags (leads only) */}
-        {isLead && (
-          <div className="ld-assignment px-6 pt-4 pb-1 shrink-0 space-y-3">
-            {/* Assign to */}
-            <div>
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                {t("leadsLayout.assigned")}
-              </span>
-              <Select
-                value={client.assignedTo ?? "unassigned"}
-                onValueChange={(v) => {
-                  const userId = v === "unassigned" ? null : v;
-                  assignLead.mutate({ leadId: client.id, userId }, {
-                    onSuccess: () => toast.success(userId ? "Lead assigned" : "Assignment removed"),
-                  });
-                }}
-              >
-                <SelectTrigger aria-label={t("leadsLayout.assigned")} className="h-9 text-sm">
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                    <SelectValue placeholder="Unassigned" />
-                  </div>
-                </SelectTrigger>
+          <section className="ld-props" aria-label={t("leadsLayout.properties")}>
+            <Property label={t("leadsLayout.colStage")} wide>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">{closed ? stageName(status) : step >= 0 ? t("pipeline.stepOf", { current: step + 1, total: SALES_STAGES.length }) : ""}</span>
+                <Select value={status} onValueChange={changeStatus} disabled={updateStatus.isPending}>
+                  <SelectTrigger size="sm" aria-label={t("pipeline.pipelineStage")} className="w-auto gap-2 font-medium"><span className={`size-2 rounded-full ${tone.dot}`} /><SelectValue /></SelectTrigger>
+                  <SelectContent>{LEAD_STAGES.map(stage => <SelectItem key={stage} value={stage}><span className={`size-2 rounded-full ${stageTone(stage).dot}`} />{stageName(stage)}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="ld-steps" aria-hidden="true">
+                {SALES_STAGES.map((stage, index) => <span key={stage} className={closed ? tone.bar : index <= step ? stageTone(SALES_STAGES[Math.max(step, 0)]).bar : ""} />)}
+              </div>
+            </Property>
+            <Property label={t("leadsLayout.colFollowUp")} wide><FollowUpBlock client={client} editing={followUpEditing} setEditing={setFollowUpEditing} /></Property>
+            <Property label={t("leadsLayout.value")}><ValueEditor client={client} /></Property>
+            <Property label={t("leadsLayout.assigned")}>
+              <Select value={client.assignedTo ?? "unassigned"} onValueChange={value => {
+                const userId = value === "unassigned" ? null : value;
+                assignLead.mutate({ leadId: client.id, userId }, { onSuccess: () => toast.success(t(userId ? "leadsLayout.assignedDone" : "leadsLayout.unassignedDone")) });
+              }}>
+                <SelectTrigger size="sm" aria-label={t("leadsLayout.assigned")} className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {members.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                  ))}
+                  <SelectItem value="unassigned">{t("leadsLayout.unassigned")}</SelectItem>
+                  {members.map(member => <SelectItem key={member.id} value={member.id}>{member.name}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
+            </Property>
+            <Property label={t("leadsLayout.score")} wide><ScoreMeter insights={insights} /></Property>
+            <Property label={t("leadsLayout.tags")} wide><TagsEditor client={client} /></Property>
+          </section>
 
-            {/* Tags */}
-            {allTags.length > 0 && (
-              <div>
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                  {t("leadsLayout.tags")}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {allTags.map((tag) => {
-                    const active = (client.tags ?? []).some((t: any) => t.id === tag.id);
-                    return (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const currentIds = (client.tags ?? []).map((t: any) => t.id);
-                          const newIds = active ? currentIds.filter((id: string) => id !== tag.id) : [...currentIds, tag.id];
-                          setLeadTags.mutate({ leadId: client.id, tagIds: newIds }, {
-                            onSuccess: () => toast.success(active ? `Removed "${tag.name}"` : `Added "${tag.name}"`),
-                            onError: (err) => toast.error("Failed to update tags", { description: (err as any)?.message }),
-                          });
-                        }}
-                        className="text-xs px-2.5 py-1.5 rounded-full font-medium cursor-pointer transition-all border-2"
-                        style={{
-                          backgroundColor: active ? tag.color : "transparent",
-                          borderColor: tag.color,
-                          color: active ? "#fff" : tag.color,
-                        }}
-                      >
-                        {tag.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Convert to Client (leads only) */}
-        {isLead && (
-          <div className="px-6 pt-3 pb-2 shrink-0">
-            <button
-              onClick={() =>
-                convertLead.mutate(client.id, {
-                  onSuccess: () => { onClose(); onConverted?.(); },
-                })
-              }
-              disabled={convertLead.isPending}
-              className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
-            >
-              <UserCheck className="h-4 w-4" />
-              {convertLead.isPending ? t("leadsLayout.converting") : t("leadsLayout.convert")}
-            </button>
-          </div>
-        )}
-
-        {/* Custom fields (leads only) — scrollable when data is long */}
-        {isLead && (
-          <div className="ld-custom-fields shrink-0">
-            <LeadCustomFieldsSection leadId={client.id} rawCustomFields={client.customFields} />
-          </div>
-        )}
-
-        {/* Activity label */}
-        <div className="ld-history-heading px-6 pt-4 pb-2 shrink-0">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            {isLead && <History size={16} aria-hidden="true" className="ld-label-icon" />}{t("pipeline.activity")}
-          </span>
-        </div>
-
-        <TimelineContainer className={isLead ? "ld-sheet-history" : "flex-1 min-h-0"}>
-          <div className="px-6 pb-4">
-            <ClientTimeline clientId={client.id} />
-          </div>
-        </TimelineContainer>
+          <Tabs value={tab} onValueChange={setTab} className="gap-0">
+            <TabsList className="ld-tabs">
+              <TabsTrigger value="activity">{t("leadsLayout.tabActivity")}</TabsTrigger>
+              <TabsTrigger value="details">{t("leadsLayout.tabDetails")}</TabsTrigger>
+              <TabsTrigger value="fields">{t("leadsLayout.fields")}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="activity" className="ld-tab-panel ld-sheet-history"><ClientTimeline clientId={client.id} /></TabsContent>
+            <TabsContent value="details" className="ld-tab-panel">
+              <dl className="ld-details">
+                <dt>{t("leadsLayout.emailLabel")}</dt><dd>{email ?? "—"}</dd>
+                <dt>{t("leadsLayout.phone")}</dt><dd dir="ltr">{client.phone || "—"}</dd>
+                <dt>{t("leadsLayout.source")}</dt><dd>{source}</dd>
+                <dt>{t("leadsLayout.industry")}</dt><dd>{client.businessIndustry || "—"}</dd>
+                <dt>{t("leadsLayout.created")}</dt><dd>{created ?? "—"}</dd>
+                <dt>{t("leadsLayout.lastContact")}</dt><dd>{client.lastInteractionAt ? new Date(client.lastInteractionAt).toLocaleDateString(i18n.language) : t("pipeline.noContactYet")}</dd>
+              </dl>
+            </TabsContent>
+            <TabsContent value="fields" className="ld-tab-panel ld-custom-fields"><LeadCustomFieldsSection leadId={client.id} rawCustomFields={client.customFields} /></TabsContent>
+          </Tabs>
         </div>
       </SheetContent>
     </Sheet>
