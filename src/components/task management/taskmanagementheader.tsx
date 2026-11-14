@@ -1,320 +1,219 @@
-import { ChevronDown, CirclePlus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { CheckCircle2, ChevronDown, CirclePlus, KanbanSquare, List, Search } from "lucide-react";
 import { PageWrapper } from "../common/pagewrapper";
 import { Button } from "../ui/button";
-import { Center } from "../ui/center";
-import { Stack } from "../ui/stack";
-import KanbanBoard, { initialTasks, Task as KanbanTask } from "./kanbanboard";
-import { Flex } from "../ui/flex";
-import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
 import { Input } from "../ui/input";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
 import { CustomDropdown, CustomDropdownItem } from "../ui/custom-dropdown";
+import { KanbanSkeleton } from "@/components/skeletons";
 import { useFetchTasks } from "@/hooks/usefetchtasks";
 import { useFetchOrganizationUsers } from "@/hooks/usefetchorganizationusers";
 import { useFetchProjects } from "@/hooks/usefetchprojects";
 import { useFetchCustomFields } from "@/hooks/usecustomfields";
-// removed client-specific hooks
 import { useUpdateTaskStatus } from "@/hooks/useupdatetask";
-import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import KanbanBoard, { type Task } from "./kanbanboard";
+import { TaskListView } from "./TaskListView";
+import { TaskStats } from "./TaskBits";
 import { TaskDetailsModal } from "./taskdetailsmodal";
-import { useTranslation } from "react-i18next";
-import { KanbanSkeleton } from "@/components/skeletons";
+import { STATUS_LABEL, TASK_STATUSES, matchesStat, toStatusKey, type TaskStatFilter, type TaskStatusKey } from "./task-ui";
+import "@/components/leads/leads-layout.css";
+import "./tasks-layout.css";
 
 export const TaskManagementHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  // client-specific logic removed
+  const [params, setParams] = useSearchParams();
+  const view = params.get("view") === "list" ? "list" : "board";
 
   const [search, setSearch] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
-  const [selectedTask, setSelectedTask] = useState<KanbanTask | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const hasInitializedProject = useRef(false);
+  const [stat, setStat] = useState<TaskStatFilter>(null);
+  const [hideCompleted, setHideCompleted] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const orgTasks = useFetchTasks();
   const orgUsers = useFetchOrganizationUsers();
   const orgProjects = useFetchProjects();
   const { data: customFieldsData } = useFetchCustomFields("project");
-
-  const tasksResponse = orgTasks.data;
-  const usersResponse = orgUsers.data;
-  const projectsResponse = orgProjects.data;
-
-  // Show skeleton while tasks or projects are loading
-  const isLoadingData =
-    orgTasks.isLoading || orgTasks.isFetching ||
-    orgProjects.isLoading || orgProjects.isFetching;
-
   const updateTaskStatus = useUpdateTaskStatus();
+  const isLoading = orgTasks.isLoading || orgProjects.isLoading;
 
-  const realTasks = tasksResponse?.data || [];
-  const users = usersResponse?.data?.userMembers || [];
-  const projects = projectsResponse?.data || [];
+  const users = orgUsers.data?.data?.userMembers || [];
+  const projects = orgProjects.data?.data || [];
 
-  // Set first project as default when projects are loaded (only once)
-  // But allow user to select "All Projects" to see all tasks
-  useEffect(() => {
-    if (projects.length > 0 && !hasInitializedProject.current) {
-      setSelectedProjects([projects[0].id]);
-      hasInitializedProject.current = true;
-    }
-  }, [projects]);
-
-  // Helper function to map API status to KanbanBoard status
-  const mapStatusToKanban = (apiStatus: string) => {
-    const statusMap: Record<string, string> = {
-      todo: "To Do",
-      in_progress: "In Progress",
-      updated: "Updated",
-      delay: "Delay",
-      changes: "Changes",
-      completed: "Completed",
-    };
-    return statusMap[apiStatus] || "To Do";
-  };
-
-  // Map real tasks to KanbanBoard format, or use initial tasks
-  const tasks: KanbanTask[] =
-    realTasks.length > 0
-      ? realTasks.map((task) => {
-          const project = projects.find((p) => p.id === task.projectId);
-          const assignee = users.find(
-            (u) =>
-              (u.user?.id === task.assigneeId || u.id === task.assigneeId) &&
-              u.user?.name,
-          );
-          return {
-            id: task.id,
-            title: task.title,
-            project: task.projectName || t("taskManagement.unknownProject"),
-            projectId: task.projectId,
-            dueDate: task.endDate
-              ? format(new Date(task.endDate), "dd MMM, yyyy")
-              : t("taskManagement.noDueDate"),
-            status: mapStatusToKanban(task.status) as any,
-            comments: [],
-            description: task.description,
-            assigneeName: assignee?.user?.name || task.assigneeName,
-            assigneeImage: task.assigneeImage,
-            creatorName: task.creatorName,
-            attachments: task.attachments,
-            parentId: task.parentId,
-            parentTitle: task.parentId
-              ? realTasks.find((rt) => rt.id === task.parentId)?.title
-              : undefined,
-            startAfter: task.startAfter ?? undefined,
-            finishBefore: task.finishBefore ?? undefined,
-            projectCustomFields: project?.customFields,
-          };
-        })
-      : initialTasks;
-  const setTasks = () => {}; // No-op since we're using real data
-
-  // Filter tasks by search query, selected users, and selected projects
-  // Show all tasks if no projects selected (user selected "All Projects")
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.title.toLowerCase().includes(search.toLowerCase()) ||
-      task.project.toLowerCase().includes(search.toLowerCase());
-
-    // For real tasks, we need to check the original data for assigneeId and projectId
-    const realTask = realTasks.find((rt) => rt.id === task.id);
-    const matchesUser =
-      selectedUsers.length === 0 ||
-      (realTask && selectedUsers.includes(realTask.assigneeId || ""));
-
-    // If no projects selected, show all tasks (user selected "All Projects")
-    // Otherwise, only show tasks from selected projects
-    const matchesProject =
-      selectedProjects.length === 0 ||
-      (realTask && selectedProjects.includes(realTask.projectId || ""));
-
-    return matchesSearch && matchesUser && matchesProject;
-  });
-
-  const handleUserToggle = (userId: string) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
-
-  const handleProjectToggle = (projectId: string) => {
-    setSelectedProjects((prev) =>
-      prev.includes(projectId)
-        ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId]
-    );
-  };
-
-  // Handle task status update from drag and drop
-  const handleStatusUpdate = (taskId: string, status: string) => {
-    updateTaskStatus.mutate({
-      taskId,
-      status: status as any,
+  // Memoized so the board keeps its optimistic moves until new data arrives.
+  const tasks = useMemo<Task[]>(() => {
+    const realTasks = orgTasks.data?.data || [];
+    const projectList = orgProjects.data?.data || [];
+    const members = orgUsers.data?.data?.userMembers || [];
+    return realTasks.map(task => {
+      const statusKey = toStatusKey(task.status);
+      const assignee = members.find(u => (u.user?.id === task.assigneeId || u.id === task.assigneeId) && u.user?.name);
+      const children = realTasks.filter(child => child.parentId === task.id);
+      return {
+        id: task.id,
+        title: task.title,
+        project: task.projectName || t("taskManagement.unknownProject"),
+        projectId: task.projectId,
+        dueDate: task.endDate ? format(new Date(task.endDate), "dd MMM, yyyy") : t("taskManagement.noDueDate"),
+        endDate: task.endDate ?? null,
+        status: STATUS_LABEL[statusKey],
+        statusKey,
+        comments: [],
+        description: task.description,
+        assigneeId: task.assigneeId,
+        assigneeName: assignee?.user?.name || task.assigneeName,
+        assigneeImage: task.assigneeImage,
+        creatorName: task.creatorName,
+        attachments: task.attachments,
+        parentId: task.parentId,
+        parentTitle: task.parentId ? realTasks.find(rt => rt.id === task.parentId)?.title : undefined,
+        subtasks: children.length ? { done: children.filter(c => c.status === "completed").length, total: children.length } : undefined,
+        startAfter: task.startAfter ?? undefined,
+        finishBefore: task.finishBefore ?? undefined,
+        projectCustomFields: projectList.find(p => p.id === task.projectId)?.customFields,
+      };
     });
+  }, [orgTasks.data, orgProjects.data, orgUsers.data, t]);
+
+  // Project, assignee and search scope everything, the summary cards included.
+  const scoped = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return tasks.filter(task =>
+      (!query || task.title.toLowerCase().includes(query) || task.project.toLowerCase().includes(query)) &&
+      (selectedUsers.length === 0 || selectedUsers.includes(task.assigneeId || "")) &&
+      (selectedProjects.length === 0 || selectedProjects.includes(task.projectId || "")));
+  }, [tasks, search, selectedUsers, selectedProjects]);
+  const visible = useMemo(() => {
+    const now = new Date();
+    return scoped.filter(task => matchesStat(task, stat, now));
+  }, [scoped, stat]);
+
+  // A stat card shows only the columns it can contain.
+  const hiddenStatuses: TaskStatusKey[] = stat === "completed" ? TASK_STATUSES.filter(s => s !== "completed")
+    : hideCompleted || stat ? ["completed"] : [];
+  const showProject = selectedProjects.length !== 1;
+  const filtersOn = Boolean(search || selectedUsers.length || selectedProjects.length || stat || hideCompleted);
+
+  const toggle = (setter: typeof setSelectedUsers, id: string) =>
+    setter(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
+  const clearFilters = () => { setSearch(""); setSelectedUsers([]); setSelectedProjects([]); setStat(null); setHideCompleted(false); };
+  const setView = (next: "board" | "list") => setParams(prev => {
+    const out = new URLSearchParams(prev);
+    if (next === "list") out.set("view", "list"); else out.delete("view");
+    return out;
+  }, { replace: true });
+
+  const handleStatusUpdate = (taskId: string, status: TaskStatusKey) => updateTaskStatus.mutate({ taskId, status });
+  // The create form takes the project (when one is selected) and a typed title.
+  const handleAddTask = (_status?: TaskStatusKey, title?: string) => {
+    const query = new URLSearchParams();
+    if (selectedProjects.length === 1) query.set("projectId", selectedProjects[0]);
+    if (title) query.set("title", title);
+    const qs = query.toString();
+    navigate(`/dashboard/task-management/create-task${qs ? `?${qs}` : ""}`);
   };
 
-  // Handle task click to open modal
-  const handleTaskClick = (task: KanbanTask) => {
-    setSelectedTask(task);
-    setIsModalOpen(true);
+  const projectLabel = selectedProjects.length === 0 ? t("tasksLayout.allProjects")
+    : selectedProjects.length === 1 ? projects.find(p => p.id === selectedProjects[0])?.projectName || t("tasksLayout.allProjects")
+    : t("tasksLayout.nProjects", { count: selectedProjects.length });
+  const userName = (id: string) => {
+    const user = users.find(u => (u.user?.id || u.id) === id);
+    return user?.user?.name || `${user?.firstname ?? ""} ${user?.lastname ?? ""}`.trim();
   };
-
-  // Close modal
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedTask(null);
-  };
+  const usersLabel = selectedUsers.length === 0 ? t("tasksLayout.assignees")
+    : selectedUsers.length === 1 ? userName(selectedUsers[0]) || t("tasksLayout.assignees")
+    : t("tasksLayout.nAssignees", { count: selectedUsers.length });
 
   return (
-    <PageWrapper className="mt-6 p-4">
-      <Stack className="gap-4 py-2">
-        <Center className="justify-between max-sm:flex-col max-sm:items-start gap-2">
-          <Stack className="gap-1">
-            <h1 className="text-foreground text-3xl max-sm:text-xl font-medium">
-              {t("appSidebar.tasksManagement")}
-            </h1>
-            <h1 className={`max-sm:text-sm text-[#616572]`}>
-              {t("taskManagement.subtitle")}
-            </h1>
-          </Stack>
-
-            <Button
-              variant="outline"
-              className="bg-black text-white border border-border  rounded-full px-6 py-5 flex items-center gap-2 cursor-pointer"
-              onClick={() => navigate("/dashboard/task-management/create-task")}
-            >
-              <CirclePlus className="size-5 text-white" />
-              {t("taskManagement.createTask")}
+    <PageWrapper className="mt-6 p-4 tasks-workspace">
+      <div className="flex flex-col gap-5 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl max-sm:text-xl font-medium">{t("tasksLayout.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("tasksLayout.description")}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="ld-view-toggle" role="group" aria-label={t("tasksLayout.view")}>
+              <Button variant="ghost" size="sm" aria-pressed={view === "board"} onClick={() => setView("board")}>
+                <KanbanSquare aria-hidden="true" className="size-4" />{t("tasksLayout.board")}
+              </Button>
+              <Button variant="ghost" size="sm" aria-pressed={view === "list"} onClick={() => setView("list")}>
+                <List aria-hidden="true" className="size-4" />{t("tasksLayout.list")}
+              </Button>
+            </div>
+            <Button className="ld-primary h-11 px-5" onClick={() => handleAddTask()}>
+              <CirclePlus aria-hidden="true" className="size-5" />{t("tasksLayout.newTask")}
             </Button>
-        </Center>
+          </div>
+        </div>
 
-        <Flex className="justify-between max-sm:items-start flex-col lg:flex-row items-center w-full gap-4">
-          <Flex className={cn("relative md:ms-auto w-full")}>
-            <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-5.5 w-5.5 text-gray-300 font-light" />
-            <Input
-              type="search"
-              placeholder={t("taskManagement.searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-115 lg:w-80 xl:w-[400px] py-4 ps-10 bg-card h-10  placeholder:text-foreground  placeholder:text-[15px] border border-border rounded-md focus:outline-none active:border-border focus:ring-0 focus:ring-offset-0"
-            />
-          </Flex>
+        <TaskStats tasks={scoped} active={stat} onSelect={setStat} />
 
-          <Flex className="max-md:w-full justify-between gap-2">
-            {/* <CalendarComponent
-              range={range}
-              setRange={(range) => setRange(range as DateRange)}
-            /> */}
-
-            <CustomDropdown
-              align="end"
-              className="w-56"
-              trigger={
-                <Button
-                  variant="ghost"
-                  aria-haspopup="dialog"
-                  className={cn(
-                    "cursor-pointer bg-card border border-border rounded-full h-10 w-36 text-foreground shadow-none flex p-3 justify-between overflow-hidden"
-                  )}
-                >
-                  <ChevronDown />
-                  {selectedProjects.length > 0
-                    ? selectedProjects.length === 1
-                      ? projects.find((p) => p.id === selectedProjects[0])
-                          ?.projectName || t("taskManagement.projects")
-                      : t("taskManagement.nProjects", {
-                          count: selectedProjects.length,
-                        })
-                    : t("taskManagement.projects")}
-                </Button>
-              }
-            >
-              <CustomDropdownItem
-                checked={selectedProjects.length === 0}
-                onClick={() => setSelectedProjects([])}
-              >
-                {t("taskManagement.allProjects")}
+        <div className="ld-toolbar">
+          <label className="ld-search">
+            <span className="sr-only">{t("tasksLayout.searchLabel")}</span>
+            <Search aria-hidden="true" className="size-4" />
+            <Input type="search" value={search} placeholder={t("tasksLayout.search")} onChange={e => setSearch(e.target.value)} />
+          </label>
+          <CustomDropdown align="end" className="w-64" trigger={
+            <Button variant="outline" aria-haspopup="dialog" className="h-10 gap-2 max-w-[260px]">
+              <span className="text-muted-foreground">{t("tasksLayout.project")}</span>
+              <strong className="font-semibold truncate">{projectLabel}</strong>
+              <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
+            </Button>
+          }>
+            <CustomDropdownItem checked={selectedProjects.length === 0} onClick={() => setSelectedProjects([])}>
+              {t("taskManagement.allProjects")}
+            </CustomDropdownItem>
+            {projects.map(project => (
+              <CustomDropdownItem key={project.id} checked={selectedProjects.includes(project.id)} onClick={() => toggle(setSelectedProjects, project.id)}>
+                <span className="truncate">{project.projectName}</span>
               </CustomDropdownItem>
-              {projects.map((project) => (
-                <CustomDropdownItem
-                  key={project.id}
-                  checked={selectedProjects.includes(project.id)}
-                  onClick={() => handleProjectToggle(project.id)}
-                >
-                  {project.projectName.length > 10
-                    ? project.projectName.slice(0, 20) + "..."
-                    : project.projectName}
-                </CustomDropdownItem>
-              ))}
-            </CustomDropdown>
-
-            <CustomDropdown
-              align="end"
-              className="w-56"
-              trigger={
-                <Button
-                  variant="ghost"
-                  aria-haspopup="dialog"
-                  className={cn(
-                    "ms-auto cursor-pointer bg-card border border-border rounded-full h-10 w-32 text-foreground shadow-none flex p-3 gap-8 overflow-hidden"
-                  )}
-                >
-                  <ChevronDown />
-                  {selectedUsers.length > 0
-                    ? selectedUsers.length === 1
-                      ? users.find((u) => u.user?.id === selectedUsers[0])
-                          ?.user?.name ||
-                        users.find((u) => u.user?.id === selectedUsers[0])
-                          ?.firstname ||
-                        t("taskManagement.users")
-                      : t("taskManagement.nUsers", {
-                          count: selectedUsers.length,
-                        })
-                    : t("taskManagement.users")}
-                </Button>
-              }
-            >
-              <CustomDropdownItem
-                checked={selectedUsers.length === 0}
-                onClick={() => setSelectedUsers([])}
-              >
-                {t("taskManagement.allUsers")}
+            ))}
+          </CustomDropdown>
+          <CustomDropdown align="end" className="w-60" trigger={
+            <Button variant="outline" aria-haspopup="dialog" className="h-10 gap-2 max-w-[220px]">
+              <span className="truncate">{usersLabel}</span>
+              <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
+            </Button>
+          }>
+            <CustomDropdownItem checked={selectedUsers.length === 0} onClick={() => setSelectedUsers([])}>
+              {t("tasksLayout.allAssignees")}
+            </CustomDropdownItem>
+            {users.map(user => (
+              <CustomDropdownItem key={user.id} checked={selectedUsers.includes(user.user?.id || user.id)} onClick={() => toggle(setSelectedUsers, user.user?.id || user.id)}>
+                {user.user?.name || `${user.firstname} ${user.lastname}`.trim()}
               </CustomDropdownItem>
-              {users.map((user) => (
-                <CustomDropdownItem
-                  key={user.id}
-                  checked={selectedUsers.includes(user.user?.id || user.id)}
-                  onClick={() => handleUserToggle(user.user?.id || user.id)}
-                >
-                  {user.user?.name || `${user.firstname} ${user.lastname}`.trim()}
-                </CustomDropdownItem>
-              ))}
-            </CustomDropdown>
-          </Flex>
-        </Flex>
-      </Stack>
+            ))}
+          </CustomDropdown>
+          <Button variant="outline" className={cn("h-10 gap-2", hideCompleted && "border-[var(--ld-ink)] text-[var(--ld-ink)]")}
+            aria-pressed={hideCompleted} onClick={() => setHideCompleted(value => !value)}>
+            <CheckCircle2 aria-hidden="true" className="size-4" />{t("tasksLayout.hideCompleted")}
+          </Button>
+        </div>
 
-      <KanbanBoard
-        tasks={tasks}
-        setTasks={setTasks}
-        filteredTasks={isLoadingData ? [] : filteredTasks}
-        onStatusUpdate={handleStatusUpdate}
-        onTaskClick={handleTaskClick}
-        projectCustomFieldsData={customFieldsData?.data}
-      />
+        {isLoading ? (
+          <KanbanSkeleton columns={5} cardsPerColumn={3} />
+        ) : filtersOn && visible.length === 0 ? (
+          <div className="tk-empty">
+            {t("tasksLayout.empty")}
+            <Button variant="outline" size="sm" onClick={clearFilters}>{t("tasksLayout.clearFilters")}</Button>
+          </div>
+        ) : view === "list" ? (
+          <TaskListView tasks={visible} showProject={showProject} hiddenStatuses={hiddenStatuses}
+            onTaskClick={setSelectedTask} onStatusUpdate={handleStatusUpdate} onAddTask={handleAddTask} />
+        ) : (
+          <KanbanBoard tasks={visible} showProject={showProject} hiddenStatuses={hiddenStatuses}
+            onStatusUpdate={handleStatusUpdate} onTaskClick={setSelectedTask} onAddTask={handleAddTask}
+            projectCustomFieldsData={customFieldsData?.data} />
+        )}
+      </div>
 
-      {/* Kanban skeleton overlay while loading */}
-      {isLoadingData && (
-        <KanbanSkeleton columns={5} cardsPerColumn={3} />
-      )}
-
-      {/* Task Details Modal */}
       {selectedTask && (
         <TaskDetailsModal
           task={{
@@ -335,12 +234,9 @@ export const TaskManagementHeader = () => {
             finishBefore: selectedTask.finishBefore,
           }}
           allTasks={tasks}
-          onOpenTask={(taskId) => {
-            const t = tasks.find((x) => x.id === taskId);
-            if (t) setSelectedTask(t);
-          }}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
+          onOpenTask={taskId => setSelectedTask(tasks.find(x => x.id === taskId) ?? null)}
+          isOpen={Boolean(selectedTask)}
+          onClose={() => setSelectedTask(null)}
         />
       )}
     </PageWrapper>

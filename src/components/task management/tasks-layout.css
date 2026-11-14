@@ -1,0 +1,94 @@
+/* Tasks: soft (50%) status fills, full-strength text. Orange means overdue only.
+   Summary cards, toolbar, view toggle and search reuse the ld-* classes from leads-layout.css. */
+.tasks-workspace {
+ --ld-blue:#079dc5; --ld-ink:#11718c;
+ --ld-tint:color-mix(in srgb,#1797ba 5%,var(--card));
+ --ld-line:color-mix(in srgb,var(--border) 80%,var(--card));
+ color:var(--foreground); min-width:0;
+}
+.dark .tasks-workspace { --ld-ink:#67cce6; }
+.tasks-workspace .ld-primary { background:#111318; color:white; gap:8px; border-radius:999px; }
+.tasks-workspace .ld-primary:hover { background:#2a2d35; }
+.dark .tasks-workspace .ld-primary { background:#079dc5; }
+
+/* Status tones: --tone is the fill (used at 50%), --ink the readable text on light surfaces */
+.tk-tone-todo { --tone:#5B60FE; --ink:#3E43D6; }
+.tk-tone-in_progress { --tone:#FFA632; --ink:#8A4B00; }
+.tk-tone-delay { --tone:#FF0080; --ink:#B0005A; }
+.tk-tone-changes { --tone:#4DCDC9; --ink:#1A6B68; }
+.tk-tone-updated { --tone:#A94DCD; --ink:#7A2E99; }
+.tk-tone-completed { --tone:#2FB67C; --ink:#14704A; }
+.dark .tk-tone-todo { --ink:#A5A8FF; } .dark .tk-tone-in_progress { --ink:#FFC57A; } .dark .tk-tone-delay { --ink:#FF7AB8; }
+.dark .tk-tone-changes { --ink:#7FE0DC; } .dark .tk-tone-updated { --ink:#D49AEA; } .dark .tk-tone-completed { --ink:#6EDCAA; }
+
+.tk-count { min-width:22px; height:22px; padding:0 7px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:var(--card); color:var(--foreground); font-size:.75rem; font-weight:600; }
+
+/* Due date chips */
+.tk-due { display:inline-flex; align-items:center; gap:5px; font-size:.75rem; font-weight:500; white-space:nowrap; color:var(--muted-foreground); }
+.tk-due-overdue, .tk-due-today, .tk-due-week { padding:2px 7px; border-radius:6px; }
+.tk-due-overdue { background:color-mix(in srgb,#fb923c 18%,var(--card)); color:#9a3412; }
+.tk-due-today, .tk-due-week { background:color-mix(in srgb,#1797ba 10%,var(--card)); color:var(--ld-ink); }
+.tk-due-done { text-decoration:line-through; }
+.dark .tk-due-overdue { color:#fdba74; }
+
+.tk-avatar { width:26px; height:26px; flex:none; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; font-size:.6875rem; font-weight:600; overflow:hidden; }
+.tk-avatar img { width:100%; height:100%; object-fit:cover; }
+.tk-meta { display:inline-flex; align-items:center; gap:4px; font-size:.75rem; color:var(--muted-foreground); }
+
+/* Board */
+.tk-board-scroll { overflow-x:auto; padding:2px 2px 8px; }
+.tk-board { display:flex; align-items:flex-start; gap:12px; width:max-content; min-width:100%; }
+.tk-column { width:284px; flex:none; display:flex; flex-direction:column; gap:8px; border-radius:14px; transition:box-shadow .15s; }
+.tk-column.is-over { box-shadow:0 0 0 2px var(--ld-blue); }
+.tk-column-head { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:44px; padding-inline:14px 6px; border-radius:12px; background:color-mix(in srgb,var(--tone) 50%,var(--card)); }
+.tk-column-title { display:flex; align-items:center; gap:8px; min-width:0; font-weight:600; font-size:.9375rem; }
+.tk-head-actions { display:flex; align-items:center; gap:2px; }
+.tk-icon-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; color:var(--foreground); background:transparent; cursor:pointer; }
+.tk-icon-btn:hover { background:color-mix(in srgb,var(--card) 70%,transparent); }
+.tk-column-body { display:flex; flex-direction:column; gap:8px; min-height:80px; max-height:calc(100vh - 380px); overflow-y:auto; padding:2px; }
+.tk-drop-hint { display:flex; align-items:center; justify-content:center; min-height:96px; padding:12px; text-align:center; border:1.5px dashed var(--ld-line); border-radius:12px; font-size:.8125rem; color:var(--muted-foreground); }
+.tk-add { display:flex; align-items:center; gap:6px; min-height:40px; padding-inline:10px; border-radius:10px; font-size:.8125rem; font-weight:500; color:var(--muted-foreground); cursor:pointer; }
+.tk-add:hover { background:var(--ld-tint); color:var(--foreground); }
+.tk-collapsed { width:52px; flex:none; min-height:420px; display:flex; flex-direction:column; align-items:center; gap:12px; padding:12px 0; border-radius:12px; background:color-mix(in srgb,var(--tone) 50%,var(--card)); color:var(--foreground); cursor:pointer; transition:box-shadow .15s; }
+.tk-collapsed.is-over { box-shadow:0 0 0 2px var(--ld-blue); }
+.tk-collapsed-label { writing-mode:vertical-rl; font-weight:600; font-size:.9375rem; }
+
+.tk-card { position:relative; display:flex; flex-direction:column; gap:10px; padding:12px; background:var(--card); border:1px solid var(--ld-line); border-radius:12px; box-shadow:0 1px 2px rgb(15 23 42 / .05); cursor:pointer; touch-action:none; transition:border-color .15s, box-shadow .15s; }
+.tk-card:hover { border-color:color-mix(in srgb,var(--ld-blue) 55%,var(--ld-line)); }
+.tk-card.is-dragging { opacity:.5; }
+.tk-card.is-overlay { cursor:grabbing; box-shadow:0 12px 28px rgb(15 23 42 / .18); width:260px; }
+.tk-card-title { margin:0; font-size:.875rem; font-weight:600; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.tk-project { align-self:flex-start; max-width:100%; padding:2px 8px; border-radius:6px; background:var(--ld-tint); border:1px solid var(--ld-line); font-size:.75rem; color:var(--muted-foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tk-card-foot { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.tk-card-foot .tk-comments { margin-inline-start:auto; }
+.tk-comments-panel { position:absolute; inset-inline:0; top:calc(100% + 4px); z-index:50; background:var(--background); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgb(15 23 42 / .18); overflow:hidden; cursor:default; }
+
+/* List (grouped by status) */
+.tk-list { display:flex; flex-direction:column; gap:20px; }
+.tk-group-toggle { display:inline-flex; align-items:center; gap:10px; min-height:40px; padding-inline:4px; border-radius:8px; cursor:pointer; text-align:start; }
+.tk-group-toggle:hover { background:var(--ld-tint); }
+.tk-group-toggle svg { color:var(--ink); transition:transform .15s; }
+.tk-group-toggle[aria-expanded=false] svg { transform:rotate(-90deg); }
+[dir=rtl] .tk-group-toggle[aria-expanded=false] svg { transform:rotate(90deg); }
+.tk-group-name { font-size:1.0625rem; font-weight:600; color:var(--ink); }
+.tk-group-count { font-size:.8125rem; color:var(--muted-foreground); }
+.tk-table-card { border:1px solid var(--ld-line); border-radius:12px; overflow:hidden; background:var(--card); }
+.tk-table-scroll { overflow-x:auto; }
+.tk-table { width:100%; min-width:960px; border-collapse:collapse; font-size:.875rem; }
+.tk-table th { padding:10px 12px; font-size:.75rem; font-weight:600; color:var(--muted-foreground); text-align:start; white-space:nowrap; background:var(--ld-tint); border-bottom:1px solid var(--ld-line); }
+.tk-table td { padding:0 12px; height:46px; border-bottom:1px solid var(--ld-line); }
+.tk-table th + th, .tk-table td + td { border-inline-start:1px solid var(--ld-line); }
+.tk-table tbody tr { cursor:pointer; transition:background .12s; }
+.tk-table tbody tr:hover { background:var(--ld-tint); }
+.tk-table .tk-strip { width:6px; padding:0; background:var(--tone); border-bottom-color:var(--tone); }
+.tk-table .tk-strip + th, .tk-table .tk-strip + td { border-inline-start:0; }
+.tk-table .tk-center { text-align:center; }
+.tk-row-title { font-weight:500; }
+.tk-status-cell { width:170px; padding:0 !important; background:color-mix(in srgb,var(--tone) 50%,var(--card)); }
+.tk-status-cell button { width:100%; height:46px; justify-content:center; border:0; border-radius:0; background:transparent; font-weight:600; font-size:.8125rem; box-shadow:none; }
+.tk-table tfoot td { height:44px; border-bottom:0; }
+.tk-table tfoot .tk-strip { opacity:.5; }
+.tk-add-input { width:100%; height:40px; border:0; background:transparent; font-size:.875rem; color:var(--foreground); }
+.tk-add-input:focus-visible { outline:2px solid var(--ld-blue); outline-offset:-2px; border-radius:6px; }
+.tk-more { font-size:.8125rem; font-weight:600; color:var(--ld-ink); cursor:pointer; }
+.tk-empty { display:flex; flex-direction:column; align-items:center; gap:10px; padding:48px 16px; text-align:center; color:var(--muted-foreground); font-size:.875rem; border:1.5px dashed var(--ld-line); border-radius:14px; }
