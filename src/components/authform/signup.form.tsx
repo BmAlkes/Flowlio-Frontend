@@ -22,6 +22,8 @@ import { Anchor } from "../ui/anchor";
 import { Flex } from "../ui/flex";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
+import { Checkbox } from "../ui/checkbox";
+import { LEGAL_VERSION } from "@/configs/legal.config";
 
 const formSchema = z.object({
   username: z.string().min(1, { message: "Required field" }),
@@ -39,6 +41,10 @@ const formSchema = z.object({
     .min(1, { message: "Required field" })
     .max(50, { message: "Maximum 50 characters are allowed" }),
   rememberMe: z.boolean(),
+  // LGPD: explicit acceptance of the Terms and Privacy Policy before creating the account.
+  acceptTerms: z.boolean().refine((value) => value, {
+    message: "You must accept the Terms of Service and Privacy Policy",
+  }),
 });
 
 export const SignUpForm: FC = () => {
@@ -71,6 +77,7 @@ export const SignUpForm: FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       rememberMe: true,
+      acceptTerms: false,
       createpassword: "",
       email: ``,
       username: ``,
@@ -88,7 +95,8 @@ export const SignUpForm: FC = () => {
           name: data.username,
           email: data.email,
           password: data.createpassword,
-        },
+          termsVersion: LEGAL_VERSION,
+        } as Parameters<typeof authClient.signUp.email>[0],
         {
           onRequest: () => {
             setIsLoading(true);
@@ -238,6 +246,37 @@ export const SignUpForm: FC = () => {
                     </button>
                   </Box>
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="acceptTerms"
+            render={({ field }) => (
+              <FormItem>
+                <Flex className="items-start gap-2">
+                  <FormControl>
+                    <Checkbox
+                      id="accept-terms"
+                      checked={field.value}
+                      onCheckedChange={(checked) => field.onChange(checked === true)}
+                      className="mt-0.5"
+                    />
+                  </FormControl>
+                  <label htmlFor="accept-terms" className="text-sm text-foreground/90 leading-snug cursor-pointer">
+                    I have read and accept the{" "}
+                    <a href="/terms-of-service" target="_blank" rel="noreferrer" className="underline text-blue-500">
+                      Terms of Service
+                    </a>{" "}
+                    and the{" "}
+                    <a href="/privacy-policy" target="_blank" rel="noreferrer" className="underline text-blue-500">
+                      Privacy Policy
+                    </a>
+                    .
+                  </label>
+                </Flex>
                 <FormMessage />
               </FormItem>
             )}

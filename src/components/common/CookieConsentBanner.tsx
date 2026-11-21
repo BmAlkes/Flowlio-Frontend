@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { GeneralModal } from "@/components/common/generalmodal";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import {
   getStoredConsent,
   acceptAllConsent,
@@ -20,6 +21,7 @@ import { loadMetaPixel } from "@/utils/loadMetaPixel";
 export const OPEN_COOKIE_PREFERENCES_EVENT = "open-cookie-preferences";
 
 export function CookieConsentBanner() {
+  const { t } = useTranslation();
   const [showBanner, setShowBanner] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -75,27 +77,26 @@ export function CookieConsentBanner() {
             <Flex className="items-start gap-3 flex-1 min-w-0">
               <Cookie className="h-5 w-5 text-[#1797B9] shrink-0 mt-0.5" />
               <p className="text-sm text-foreground/90 leading-relaxed">
-                We use cookies to run Flowlio, understand how it's used, and — only with your
-                permission — for marketing. See our{" "}
+                {t("privacy.cookieBanner.text")}{" "}
                 <Link to="/privacy-policy" className="underline hover:text-foreground">
-                  Privacy Policy
-                </Link>{" "}
-                for details. We do not sell your personal data.
+                  {t("privacy.cookieBanner.policyLink")}
+                </Link>
+                . {t("privacy.cookieBanner.notSold")}
               </p>
             </Flex>
             <Flex className="items-center gap-2 shrink-0 flex-wrap">
               <Button variant="outline" size="sm" onClick={() => setShowPreferences(true)}>
-                Manage Preferences
+                {t("privacy.cookieBanner.manage")}
               </Button>
               <Button variant="outline" size="sm" onClick={handleRejectNonEssential}>
-                Reject Non-Essential
+                {t("privacy.cookieBanner.reject")}
               </Button>
               <Button
                 size="sm"
                 onClick={handleAcceptAll}
                 className="bg-[#1797B9] hover:bg-[#1797B9]/80 text-white"
               >
-                Accept All
+                {t("privacy.cookieBanner.acceptAll")}
               </Button>
             </Flex>
           </Flex>
@@ -106,27 +107,27 @@ export function CookieConsentBanner() {
         <Stack className="gap-5">
           <Flex className="items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Cookie className="h-4 w-4" /> Cookie Preferences
+              <Cookie className="h-4 w-4" /> {t("privacy.cookieBanner.title")}
             </h2>
             <button
               onClick={() => setShowPreferences(false)}
               className="text-muted-foreground hover:text-foreground"
+              aria-label={t("privacy.cookieBanner.close")}
             >
               <X className="h-4 w-4" />
             </button>
           </Flex>
 
           <p className="text-sm text-muted-foreground">
-            Choose which categories of cookies you're comfortable with. You can change this at
-            any time from the "Cookie Settings" link in the footer.
+            {t("privacy.cookieBanner.intro")}
           </p>
 
           <Stack className="gap-4">
             <Flex className="items-start justify-between gap-4 border border-border rounded-lg p-3">
               <Box>
-                <p className="text-sm font-medium text-foreground">Necessary</p>
+                <p className="text-sm font-medium text-foreground">{t("privacy.cookieBanner.necessary")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Required for login, security, and core functionality. Cannot be disabled.
+                  {t("privacy.cookieBanner.necessaryDesc")}
                 </p>
               </Box>
               <Switch checked disabled />
@@ -134,9 +135,9 @@ export function CookieConsentBanner() {
 
             <Flex className="items-start justify-between gap-4 border border-border rounded-lg p-3">
               <Box>
-                <p className="text-sm font-medium text-foreground">Analytics</p>
+                <p className="text-sm font-medium text-foreground">{t("privacy.cookieBanner.analytics")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Helps us understand how Flowlio is used so we can improve it.
+                  {t("privacy.cookieBanner.analyticsDesc")}
                 </p>
               </Box>
               <Switch checked={analytics} onCheckedChange={setAnalytics} />
@@ -144,9 +145,9 @@ export function CookieConsentBanner() {
 
             <Flex className="items-start justify-between gap-4 border border-border rounded-lg p-3">
               <Box>
-                <p className="text-sm font-medium text-foreground">Marketing</p>
+                <p className="text-sm font-medium text-foreground">{t("privacy.cookieBanner.marketing")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Meta Pixel — measures ad performance. No use until you enable this.
+                  {t("privacy.cookieBanner.marketingDesc")}
                 </p>
               </Box>
               <Switch checked={marketing} onCheckedChange={setMarketing} />
@@ -155,13 +156,13 @@ export function CookieConsentBanner() {
 
           <Flex className="justify-end gap-2 pt-1">
             <Button variant="outline" onClick={handleRejectNonEssential}>
-              Reject Non-Essential
+              {t("privacy.cookieBanner.reject")}
             </Button>
             <Button
               onClick={handleSavePreferences}
               className="bg-[#1797B9] hover:bg-[#1797B9]/80 text-white"
             >
-              Save Preferences
+              {t("privacy.cookieBanner.save")}
             </Button>
           </Flex>
         </Stack>
