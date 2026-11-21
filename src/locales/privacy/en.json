@@ -50,5 +50,7 @@
     "completedToast": "Request completed.",
     "failed": "Could not complete the request.",
     "hint": "Before completing an owner's request, delete the organization under Companies. Completing anonymizes the requester's account."
-  }
+  },
+  "exportOrganization": "Export organization data",
+  "exportOrganizationHint": "Downloads everything your organization stores in Flowlio (projects, tasks, clients, invoices...) as a JSON file. Use it as a backup or to take your data to another tool."
 }

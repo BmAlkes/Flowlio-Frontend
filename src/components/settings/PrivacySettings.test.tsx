@@ -53,3 +53,17 @@ it("tells organization owners that their request is reviewed instead of instant"
   await userEvent.click(screen.getByRole("button", { name: "privacy.requestDeletion" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 });
+
+it("only organization owners can export the whole organization", async () => {
+  wrap();
+  expect(screen.queryByRole("button", { name: "privacy.exportOrganization" })).toBeNull();
+  cleanup();
+  session.owner = true;
+  api.get.mockResolvedValue({ data: new Blob(["{}"]) });
+  Object.assign(URL, { createObjectURL: vi.fn(() => "blob:x"), revokeObjectURL: vi.fn() });
+  const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  wrap();
+  await userEvent.click(screen.getByRole("button", { name: "privacy.exportOrganization" }));
+  await waitFor(() => expect(api.get).toHaveBeenCalledWith("/organizations/export", { responseType: "blob" }));
+  click.mockRestore();
+});

@@ -1,11 +1,11 @@
 import type { LegalDoc } from "@/components/legal/LegalDocument";
-import { LEGAL, legalVersionLabel } from "@/configs/legal.config";
+import { LEGAL, legalContact, legalVersionLabel } from "@/configs/legal.config";
 
 export const termsEn: LegalDoc = {
   title: "Terms of Service",
   updated: `Last updated: ${legalVersionLabel("en")}`,
   intro: [
-    `These Terms govern the use of the ${LEGAL.productName} platform ("Service"), operated by ${LEGAL.companyName}, CNPJ ${LEGAL.cnpj} ("Flowlio", "we"). By creating an account or using the Service, you confirm that you have read and accepted these Terms and the Privacy Policy. The Portuguese version prevails in case of conflict.`,
+    `These Terms govern the use of the ${LEGAL.productName} platform ("Service"), a product of ${LEGAL.companyName} ("Flowlio", "we"). By creating an account or using the Service, you confirm that you have read and accepted these Terms and the Privacy Policy. The Portuguese version prevails in case of conflict.`,
   ],
   sections: [
     {
@@ -118,15 +118,14 @@ export const termsEn: LegalDoc = {
     {
       title: "12. Governing law and jurisdiction",
       body: [
-        `These Terms are governed by the laws of the Federative Republic of Brazil. The courts of ${LEGAL.forumCity} have jurisdiction over disputes, without prejudice to a consumer's right to sue in their own domicile.`,
+        "For users in Brazil, these Terms are governed by the laws of the Federative Republic of Brazil, including the LGPD and the Consumer Protection Code. Disputes will be settled in the courts of the user's domicile. Before any legal action, the parties will try to resolve the matter amicably through the contact channels below.",
       ],
     },
     {
       title: "13. Contact",
       body: [
         `Support: ${LEGAL.supportEmail}`,
-        `Privacy and data protection: ${LEGAL.privacyEmail}`,
-        `${LEGAL.companyName} — ${LEGAL.address}`,
+        `Privacy and data protection: ${legalContact("en")}`,
       ],
     },
   ],

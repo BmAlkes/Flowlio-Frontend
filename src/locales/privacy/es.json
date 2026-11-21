@@ -50,5 +50,7 @@
     "completedToast": "Solicitud completada.",
     "failed": "No se pudo completar la solicitud.",
     "hint": "Antes de completar la solicitud de un propietario, elimina la organización en Empresas. Completar anonimiza la cuenta del solicitante."
-  }
+  },
+  "exportOrganization": "Exportar datos de la organización",
+  "exportOrganizationHint": "Descarga todo lo que tu organización guarda en Flowlio (proyectos, tareas, clientes, facturas...) en un archivo JSON. Sirve como copia de seguridad o para llevar tus datos a otra herramienta."
 }

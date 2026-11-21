@@ -26,16 +26,22 @@ export function PrivacySettings() {
   const [confirmed, setConfirmed] = useState(false);
   const isOwner = Boolean((user?.user as { isOrganizationOwner?: boolean } | undefined)?.isOrganizationOwner);
 
+  const download = (blob: Blob, name: string) => {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${name}-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success(t("privacy.exportReady"));
+  };
   const exportData = useMutation({
     mutationFn: async () => (await axios.get("/user/privacy/export", { responseType: "blob" })).data as Blob,
-    onSuccess: (blob) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `flowlio-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      toast.success(t("privacy.exportReady"));
-    },
+    onSuccess: (blob) => download(blob, "flowlio-meus-dados"),
+    onError: () => toast.error(t("privacy.exportFailed")),
+  });
+  const exportOrganization = useMutation({
+    mutationFn: async () => (await axios.get("/organizations/export", { responseType: "blob" })).data as Blob,
+    onSuccess: (blob) => download(blob, "flowlio-organizacao"),
     onError: () => toast.error(t("privacy.exportFailed")),
   });
 
@@ -83,6 +89,12 @@ export function PrivacySettings() {
           {exportData.isPending ? <Loader2 className="size-3.5 me-2 animate-spin" /> : <Download className="size-3.5 me-2" />}
           {t("privacy.export")}
         </Button>
+        {isOwner && (
+          <Button variant="outline" size="sm" disabled={exportOrganization.isPending} onClick={() => exportOrganization.mutate()} title={t("privacy.exportOrganizationHint")}>
+            {exportOrganization.isPending ? <Loader2 className="size-3.5 me-2 animate-spin" /> : <Download className="size-3.5 me-2" />}
+            {t("privacy.exportOrganization")}
+          </Button>
+        )}
         <Button variant="outline" size="sm" onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_PREFERENCES_EVENT))}>
           {t("privacy.cookies")}
         </Button>

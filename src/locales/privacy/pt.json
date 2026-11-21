@@ -50,5 +50,7 @@
     "completedToast": "Pedido concluído.",
     "failed": "Não foi possível concluir o pedido.",
     "hint": "Antes de concluir um pedido de dono, exclua a organização em Empresas. Concluir anonimiza a conta do solicitante."
-  }
+  },
+  "exportOrganization": "Exportar dados da organização",
+  "exportOrganizationHint": "Baixa tudo o que sua organização guarda na Flowlio (projetos, tarefas, clientes, faturas...) em um arquivo JSON. Serve como cópia de segurança e para levar seus dados para outra ferramenta."
 }

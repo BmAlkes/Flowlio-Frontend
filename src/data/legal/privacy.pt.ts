@@ -1,5 +1,5 @@
 import type { LegalDoc } from "@/components/legal/LegalDocument";
-import { LEGAL, legalVersionLabel } from "@/configs/legal.config";
+import { LEGAL, legalContact, legalVersionLabel } from "@/configs/legal.config";
 
 export const privacyPt: LegalDoc = {
   title: "Política de Privacidade",
@@ -11,8 +11,8 @@ export const privacyPt: LegalDoc = {
     {
       title: "1. Quem somos (controlador)",
       body: [
-        `${LEGAL.companyName}, inscrita no CNPJ sob nº ${LEGAL.cnpj}, com sede em ${LEGAL.address} ("Flowlio", "nós").`,
-        `Encarregado pelo tratamento de dados pessoais (DPO): ${LEGAL.dpoName} — ${LEGAL.privacyEmail}.`,
+        `A ${LEGAL.productName} é um produto da ${LEGAL.companyName} ("Flowlio", "nós"), que é a controladora dos dados descritos nesta Política.`,
+        `Canal do Encarregado pelo tratamento de dados pessoais: ${legalContact("pt")}. Como agente de tratamento de pequeno porte, mantemos este canal de comunicação com os titulares nos termos da Resolução CD/ANPD nº 2/2022.`,
       ],
     },
     {
@@ -46,7 +46,8 @@ export const privacyPt: LegalDoc = {
         {
           title: "3.3 Recebidos de integrações que você ativa",
           bullets: [
-            "Google Agenda: eventos, horários, descrições e participantes dos calendários que você conectar, com permissão de leitura e escrita.",
+            "Google Agenda: eventos, horários, descrições e participantes dos calendários que você conectar, com permissão de leitura e escrita. Usamos esses dados apenas para sincronizar sua agenda com a Flowlio; não os usamos para publicidade, não os vendemos e não os usamos para treinar modelos de IA.",
+            "O uso e a transferência, para qualquer outro aplicativo, de informações recebidas das APIs do Google seguem a Política de Dados do Usuário dos Serviços de API do Google (Google API Services User Data Policy), incluindo os requisitos de Uso Limitado (Limited Use).",
             "Pagamentos: confirmação e status das transações informados pelo processador de pagamento. Não armazenamos números de cartão.",
           ],
         },
@@ -140,7 +141,7 @@ export const privacyPt: LegalDoc = {
           ["Marketing", "Medir o desempenho dos nossos anúncios", "Meta (Facebook) Pixel", "Sim"],
         ],
       },
-      links: [{ label: "Política de Privacidade da Meta", href: "https://www.facebook.com/privacy/policy/" }],
+      links: [{ label: "Política de Privacidade da Meta", href: "https://www.facebook.com/privacy/policy/" }, { label: "Google API Services User Data Policy", href: "https://developers.google.com/terms/api-services-user-data-policy" }],
     },
     {
       title: "10. Seus direitos (LGPD art. 18)",
@@ -156,7 +157,7 @@ export const privacyPt: LegalDoc = {
         "Petição à Autoridade Nacional de Proteção de Dados (ANPD) — www.gov.br/anpd.",
       ],
       body: [
-        `Para exercer qualquer direito, use as opções em Configurações ou escreva para ${LEGAL.privacyEmail}. Respondemos em até 15 dias (art. 19). Podemos pedir informações para confirmar sua identidade. Quando você exclui a conta, removemos ou anonimizamos seus dados pessoais; guardamos apenas o que a lei exige (como registros de acesso por 6 meses e dados fiscais). Se você é dono de uma Organização, a exclusão encerra a Organização e é concluída em até 15 dias.`,
+        `Para exercer qualquer direito, use as opções em Configurações ou fale conosco: ${legalContact("pt")}. Respondemos em até 15 dias (art. 19). Podemos pedir informações para confirmar sua identidade. Quando você exclui a conta, removemos ou anonimizamos seus dados pessoais; guardamos apenas o que a lei exige (como registros de acesso por 6 meses e dados fiscais). Se você é dono de uma Organização, a exclusão encerra a Organização e é concluída em até 15 dias.`,
       ],
     },
     {
@@ -181,8 +182,7 @@ export const privacyPt: LegalDoc = {
     {
       title: "14. Contato",
       body: [
-        `Encarregado (DPO): ${LEGAL.dpoName} — ${LEGAL.privacyEmail}`,
-        `${LEGAL.companyName} — CNPJ ${LEGAL.cnpj} — ${LEGAL.address}`,
+        `${LEGAL.companyName} — privacidade e proteção de dados: ${legalContact("pt")}`,
         `Suporte geral: ${LEGAL.supportEmail}`,
       ],
     },

@@ -1,11 +1,11 @@
 import type { LegalDoc } from "@/components/legal/LegalDocument";
-import { LEGAL, legalVersionLabel } from "@/configs/legal.config";
+import { LEGAL, legalContact, legalVersionLabel } from "@/configs/legal.config";
 
 export const termsPt: LegalDoc = {
   title: "Termos de Uso",
   updated: `Última atualização: ${legalVersionLabel("pt")}`,
   intro: [
-    `Estes Termos regem o uso da plataforma ${LEGAL.productName} ("Serviço"), operada por ${LEGAL.companyName}, CNPJ ${LEGAL.cnpj} ("Flowlio", "nós"). Ao criar uma conta ou usar o Serviço, você declara ter lido e aceito estes Termos e a Política de Privacidade.`,
+    `Estes Termos regem o uso da plataforma ${LEGAL.productName} ("Serviço"), um produto da ${LEGAL.companyName} ("Flowlio", "nós"). Ao criar uma conta ou usar o Serviço, você declara ter lido e aceito estes Termos e a Política de Privacidade.`,
   ],
   sections: [
     {
@@ -118,15 +118,14 @@ export const termsPt: LegalDoc = {
     {
       title: "12. Lei aplicável e foro",
       body: [
-        `Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de ${LEGAL.forumCity} para resolver controvérsias, ressalvado ao consumidor o direito de propor ação no foro do seu domicílio.`,
+        "Para usuários no Brasil, estes Termos são regidos pelas leis da República Federativa do Brasil, incluindo a LGPD e o Código de Defesa do Consumidor. As controvérsias serão resolvidas no foro do domicílio do usuário. Antes de qualquer medida judicial, as partes buscarão resolver a questão amigavelmente pelos canais de contato abaixo.",
       ],
     },
     {
       title: "13. Contato",
       body: [
         `Suporte: ${LEGAL.supportEmail}`,
-        `Privacidade e proteção de dados: ${LEGAL.privacyEmail}`,
-        `${LEGAL.companyName} — ${LEGAL.address}`,
+        `Privacidade e proteção de dados: ${legalContact("pt")}`,
       ],
     },
   ],

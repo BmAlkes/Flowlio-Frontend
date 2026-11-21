@@ -1,5 +1,5 @@
 import type { LegalDoc } from "@/components/legal/LegalDocument";
-import { LEGAL, legalVersionLabel } from "@/configs/legal.config";
+import { LEGAL, legalContact, legalVersionLabel } from "@/configs/legal.config";
 
 export const privacyEn: LegalDoc = {
   title: "Privacy Policy",
@@ -11,8 +11,8 @@ export const privacyEn: LegalDoc = {
     {
       title: "1. Who we are (controller)",
       body: [
-        `${LEGAL.companyName}, CNPJ ${LEGAL.cnpj}, headquartered at ${LEGAL.address} ("Flowlio", "we").`,
-        `Data Protection Officer (Encarregado): ${LEGAL.dpoName} — ${LEGAL.privacyEmail}.`,
+        `${LEGAL.productName} is a product of ${LEGAL.companyName} ("Flowlio", "we"), the controller of the data described in this Policy.`,
+        `Data protection contact (Encarregado channel): ${legalContact("en")}. As a small-scale processing agent, we keep this channel for data subjects under ANPD Resolution CD/ANPD No. 2/2022.`,
       ],
     },
     {
@@ -46,7 +46,8 @@ export const privacyEn: LegalDoc = {
         {
           title: "3.3 Received from integrations you enable",
           bullets: [
-            "Google Calendar: events, times, descriptions and attendees of the calendars you connect, with read and write access.",
+            "Google Calendar: events, times, descriptions and attendees of the calendars you connect, with read and write access. We use this data only to sync your calendar with Flowlio; we do not use it for advertising, do not sell it and do not use it to train AI models.",
+            "Flowlio's use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy, including the Limited Use requirements.",
             "Payments: transaction confirmation and status from the payment processor. We do not store card numbers.",
           ],
         },
@@ -140,7 +141,7 @@ export const privacyEn: LegalDoc = {
           ["Marketing", "Measure the performance of our ads", "Meta (Facebook) Pixel", "Yes"],
         ],
       },
-      links: [{ label: "Meta Privacy Policy", href: "https://www.facebook.com/privacy/policy/" }],
+      links: [{ label: "Meta Privacy Policy", href: "https://www.facebook.com/privacy/policy/" }, { label: "Google API Services User Data Policy", href: "https://developers.google.com/terms/api-services-user-data-policy" }],
     },
     {
       title: "10. Your rights (LGPD art. 18)",
@@ -156,7 +157,7 @@ export const privacyEn: LegalDoc = {
         "Filing a complaint with the Brazilian Data Protection Authority (ANPD) — www.gov.br/anpd.",
       ],
       body: [
-        `To exercise any right, use the options in Settings or write to ${LEGAL.privacyEmail}. We reply within 15 days (art. 19). We may ask for information to confirm your identity. When you delete your account, we remove or anonymize your personal data and keep only what the law requires (such as access logs for 6 months and tax records). If you own an Organization, deletion closes the Organization and is completed within 15 days.`,
+        `To exercise any right, use the options in Settings or contact us: ${legalContact("en")}. We reply within 15 days (art. 19). We may ask for information to confirm your identity. When you delete your account, we remove or anonymize your personal data and keep only what the law requires (such as access logs for 6 months and tax records). If you own an Organization, deletion closes the Organization and is completed within 15 days.`,
       ],
     },
     {
@@ -181,8 +182,7 @@ export const privacyEn: LegalDoc = {
     {
       title: "14. Contact",
       body: [
-        `Data Protection Officer: ${LEGAL.dpoName} — ${LEGAL.privacyEmail}`,
-        `${LEGAL.companyName} — CNPJ ${LEGAL.cnpj} — ${LEGAL.address}`,
+        `${LEGAL.companyName} — privacy and data protection: ${legalContact("en")}`,
         `General support: ${LEGAL.supportEmail}`,
       ],
     },
