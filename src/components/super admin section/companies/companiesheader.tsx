@@ -2,6 +2,7 @@ import { PageWrapper } from "@/components/common/pagewrapper";
 import { Center } from "@/components/ui/center";
 import { Stack } from "@/components/ui/stack";
 import { CompaniesTable } from "./companiestable";
+import { PendingSignupsPanel } from "./PendingSignupsPanel";
 import { useTranslation } from "react-i18next";
 
 export const CompaniesHeader = () => {
@@ -19,6 +20,7 @@ export const CompaniesHeader = () => {
         </Stack>
       </Center>
 
+      <PendingSignupsPanel />
       <CompaniesTable />
     </PageWrapper>
   );

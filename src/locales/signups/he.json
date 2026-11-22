@@ -1,0 +1,59 @@
+{
+  "title": "הרשמות שלא הושלמו",
+  "description": "אנשים שיצרו חשבון אבל לא בחרו תוכנית או עצרו בתשלום. שלחו להם מייל ושאלו מה קרה; הם עונים בלחיצה אחת.",
+  "show": "הצג רשימה",
+  "hide": "הסתר רשימה",
+  "empty": "אין הרשמות שלא הושלמו.",
+  "stats": {
+    "total": "לא הושלמו",
+    "noPlan": "ללא תוכנית",
+    "checkout": "עצרו בתשלום",
+    "answered": "ענו",
+    "canRemind": "אפשר לשלוח מייל"
+  },
+  "reasonsTitle": "למה עצרו",
+  "reasons": {
+    "price": "המחיר",
+    "missing_feature": "חסרה יכולת",
+    "too_complex": "היה מסובך",
+    "payment_problem": "בעיה בתשלום",
+    "just_exploring": "רק הסתכלו",
+    "other": "סיבה אחרת"
+  },
+  "stage": {
+    "no_plan": "לא בחר תוכנית",
+    "checkout": "עצר בתשלום"
+  },
+  "columns": {
+    "person": "אדם",
+    "stoppedAt": "היכן עצר",
+    "signedUp": "נרשם",
+    "lastSeen": "כניסה אחרונה",
+    "followUp": "פנייה"
+  },
+  "select": "בחר",
+  "selectEligible": "בחר את כל מי שאפשר לשלוח לו ({{count}})",
+  "language": "שפת המייל",
+  "send": "שלח מייל ({{count}})",
+  "unverified": "המייל לא אומת",
+  "daysAgo_one": "לפני יום {{count}}",
+  "daysAgo_two": "לפני {{count}} ימים",
+  "daysAgo_other": "לפני {{count}} ימים",
+  "notContacted": "עדיין לא נוצר קשר",
+  "reminded_one": "מייל {{count}} ב-{{date}}",
+  "reminded_two": "{{count}} מיילים, האחרון ב-{{date}}",
+  "reminded_other": "{{count}} מיילים, האחרון ב-{{date}}",
+  "blocked": {
+    "opted_out": "ביקש לא לקבל",
+    "answered": "כבר ענה",
+    "max_reminders": "הגיע למגבלת המיילים",
+    "recent_reminder": "להמתין 7 ימים",
+    "too_new": "נרשם היום"
+  },
+  "confirmTitle": "לשלוח מייל ל-{{count}} אנשים?",
+  "confirmBody": "כל אדם יקבל מייל ששואל למה לא השלים את ההרשמה, עם תשובות בלחיצה אחת, כפתור להמשך ואפשרות להפסיק לקבל. לכל היותר 2 מיילים לאדם, בהפרש של 7 ימים.",
+  "cancel": "ביטול",
+  "confirmSend": "שלח",
+  "sentToast": "נשלח ל-{{sent}}. {{skipped}} דולגו.",
+  "failed": "לא ניתן היה לשלוח את המיילים."
+}
