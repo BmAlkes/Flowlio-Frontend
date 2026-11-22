@@ -124,6 +124,7 @@ export const privacyPt: LegalDoc = {
           ["Notificações no app", "12 meses"],
           ["IP e navegador nos registros de auditoria", "12 meses (depois o registro é anonimizado)"],
           ["Monitoramento técnico de erros", "30 dias"],
+          ["Cópias de segurança (backup) de cada organização", "Cópias diárias guardadas por 7 dias; excluídas junto com a organização"],
           ["Registro dos pedidos de titulares (seção 10)", "5 anos, para comprovar o atendimento"],
         ],
       },

@@ -124,6 +124,7 @@ export const privacyEn: LegalDoc = {
           ["In-app notifications", "12 months"],
           ["IP and browser in audit logs", "12 months (then the record is anonymized)"],
           ["Technical error monitoring", "30 days"],
+          ["Backups of each organization", "Daily copies kept for 7 days; deleted together with the organization"],
           ["Log of data subject requests (section 10)", "5 years, as proof of compliance"],
         ],
       },
