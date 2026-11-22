@@ -29,10 +29,20 @@ it("shows why people stopped and emails only the selected eligible people after 
   await userEvent.click(screen.getByRole("button", { name: /signups.show/ }));
   expect((screen.getByRole("checkbox", { name: "bia@x.test" }) as HTMLButtonElement).disabled).toBe(true);
   await userEvent.click(screen.getByRole("checkbox", { name: "ana@x.test" }));
-  await userEvent.click(screen.getByRole("button", { name: /signups.send/ }));
+  await userEvent.click(screen.getByRole("button", { name: "signups.send" }));
   expect(api.post).not.toHaveBeenCalled();
   await userEvent.click(await screen.findByRole("button", { name: "signups.confirmSend" }));
   await waitFor(() => expect(api.post).toHaveBeenCalledWith("/superadmin/pending-signups/remind", { userIds: ["ana"], language: "pt" }));
+});
+
+it("sends a test of the chosen version to the super admin", async () => {
+  api.get.mockResolvedValue({ data: { data: [], summary: { ...summary, total: 0, answered: 0 } } });
+  api.post.mockResolvedValue({ data: { data: { email: "me@x.test" } } });
+  wrap();
+  await userEvent.click(await screen.findByRole("button", { name: /signups.show/ }));
+  await userEvent.selectOptions(screen.getByRole("combobox", { name: /signups.testVersion/ }), "checkout");
+  await userEvent.click(screen.getByRole("button", { name: /signups.sendTest/ }));
+  await waitFor(() => expect(api.post).toHaveBeenCalledWith("/superadmin/pending-signups/test", { language: "pt", stage: "checkout" }));
 });
 
 it("stays hidden for sub admins", async () => {

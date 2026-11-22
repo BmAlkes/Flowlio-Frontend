@@ -53,5 +53,10 @@
   "cancel": "Cancel",
   "confirmSend": "Send",
   "sentToast": "Sent to {{sent}}. {{skipped}} skipped.",
-  "failed": "Couldn't send the emails."
+  "failed": "Couldn't send the emails.",
+  "testHint": "Before sending, email yourself a test. The answer buttons work, but nothing is recorded.",
+  "testVersion": "Version",
+  "sendTest": "Send me a test",
+  "testSent": "Test email sent to {{email}}.",
+  "testFailed": "Couldn't send the test email."
 }

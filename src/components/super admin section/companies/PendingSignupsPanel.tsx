@@ -58,6 +58,12 @@ export function PendingSignupsPanel() {
     },
     onError: () => toast.error(t("signups.failed")),
   });
+  const [testStage, setTestStage] = useState<"no_plan" | "checkout">("no_plan");
+  const sendTest = useMutation({
+    mutationFn: async () => (await axios.post<{ data: { email: string } }>("/superadmin/pending-signups/test", { language, stage: testStage })).data.data,
+    onSuccess: (result) => toast.success(t("signups.testSent", { email: result.email })),
+    onError: () => toast.error(t("signups.testFailed")),
+  });
 
   const signups = useMemo(() => query.data?.data ?? [], [query.data]);
   const eligible = useMemo(() => signups.filter((s) => !s.blockedBy).map((s) => s.id), [signups]);
@@ -126,6 +132,29 @@ export function PendingSignupsPanel() {
         </>
       )}
 
+      {open && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed p-3">
+          <p className="text-sm text-muted-foreground basis-full">{t("signups.testHint")}</p>
+          <label className="flex items-center gap-2 text-sm">
+            {t("signups.language")}
+            <select className="rounded-md border bg-background px-2 py-1 text-sm" value={language} onChange={(event) => setLanguage(event.target.value as "pt" | "en")}>
+              <option value="pt">Português</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            {t("signups.testVersion")}
+            <select className="rounded-md border bg-background px-2 py-1 text-sm" value={testStage} onChange={(event) => setTestStage(event.target.value as "no_plan" | "checkout")}>
+              <option value="no_plan">{t("signups.stage.no_plan")}</option>
+              <option value="checkout">{t("signups.stage.checkout")}</option>
+            </select>
+          </label>
+          <Button size="sm" variant="outline" disabled={sendTest.isPending} onClick={() => sendTest.mutate()}>
+            {sendTest.isPending ? <Loader2 className="size-4 me-2 animate-spin" aria-hidden="true" /> : <Mail className="size-4 me-2" aria-hidden="true" />}
+            {t("signups.sendTest")}
+          </Button>
+        </div>
+      )}
       {open && signups.length === 0 && !query.isLoading && <p className="text-sm text-muted-foreground">{t("signups.empty")}</p>}
       {open && signups.length > 0 && (
         <div className="space-y-3">
@@ -134,14 +163,7 @@ export function PendingSignupsPanel() {
               <Checkbox checked={allEligibleSelected} disabled={eligible.length === 0} onCheckedChange={(checked) => setSelected(checked ? new Set(eligible) : new Set())} />
               {t("signups.selectEligible", { count: eligible.length })}
             </label>
-            <label className="flex items-center gap-2 text-sm ms-auto">
-              {t("signups.language")}
-              <select className="rounded-md border bg-background px-2 py-1 text-sm" value={language} onChange={(event) => setLanguage(event.target.value as "pt" | "en")}>
-                <option value="pt">Português</option>
-                <option value="en">English</option>
-              </select>
-            </label>
-            <Button size="sm" disabled={selected.size === 0 || remind.isPending} onClick={() => setConfirming(true)}>
+            <Button size="sm" className="ms-auto" disabled={selected.size === 0 || remind.isPending} onClick={() => setConfirming(true)}>
               <Mail className="size-4 me-2" aria-hidden="true" />
               {t("signups.send", { count: selected.size })}
             </Button>
