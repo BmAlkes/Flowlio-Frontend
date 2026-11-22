@@ -1,39 +1,32 @@
-import React, { useState } from "react";
-import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
-import { useDroppable, useDraggable } from "@dnd-kit/core";
-import { Box } from "../ui/box";
-import { Flex } from "../ui/flex";
-import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { TooltipContent } from "../ui/tooltip";
-import { Tooltip, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { GripVertical, MessageCircleMore } from "lucide-react";
-import { CommentThread } from "@/components/common/CommentThread";
+import { useEffect, useState, type ReactNode } from "react";
+import { DndContext, DragOverlay, PointerSensor, closestCenter, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { ListChecks, MessageCircleMore, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CommentThread } from "@/components/common/CommentThread";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { cn } from "@/lib/utils";
+import { DueChip, TaskAvatar } from "./TaskBits";
+import { STATUS_I18N, TASK_STATUSES, statusToneClass, type StatusLabel, type TaskStatusKey } from "./task-ui";
 
-// Task type
 export type Task = {
   id: string;
   title: string;
   project: string;
-  projectId?: string; // Add projectId for fetching comments
+  projectId?: string;
   dueDate: string;
-  status: StatusType;
+  status: StatusLabel;
+  statusKey: TaskStatusKey;
+  endDate?: string | null;
   comments?: { id: string; text: string; timestamp: Date }[];
-  // Additional fields for modal
   description?: string;
+  assigneeId?: string;
   assigneeName?: string;
   assigneeImage?: string;
   creatorName?: string;
-  attachments?: Array<{
-    id: string;
-    name: string;
-    url: string;
-    size: number;
-    type: string;
-  }>;
+  attachments?: Array<{ id: string; name: string; url: string; size: number; type: string }>;
   parentId?: string;
   parentTitle?: string;
+  subtasks?: { done: number; total: number };
   startAfter?: string | null;
   finishBefore?: string | null;
   projectCustomFields?: Record<string, any>;
@@ -48,359 +41,204 @@ export type CustomFieldDefinition = {
 
 export const initialTasks: Task[] = [];
 
-type StatusType =
-  | "To Do"
-  | "In Progress"
-  | "Delay"
-  | "Changes"
-  | "Updated"
-  | "Completed";
-
-const STATUS_COLORS: Record<StatusType, string> = {
-  "To Do": "#5B60FE",
-  "In Progress": "#FFA632",
-  Delay: "#FF0080",
-  Changes: "#4DCDC9",
-  Updated: "#A94DCD",
-  Completed: "#CD4D4F",
-};
-
-const STATUS_COLUMNS: StatusType[] = [
-  "To Do",
-  "In Progress",
-  "Delay",
-  "Changes",
-  "Updated",
-  "Completed",
-];
-
-const KANBAN_STATUS_I18N_KEY: Record<StatusType, string> = {
-  "To Do": "taskManagement.statusColumns.toDo",
-  "In Progress": "taskManagement.statusColumns.inProgress",
-  Delay: "taskManagement.statusColumns.delay",
-  Changes: "taskManagement.statusColumns.changes",
-  Updated: "taskManagement.statusColumns.updated",
-  Completed: "taskManagement.statusColumns.completed",
-};
-
-// Draggable Task Card
-function DraggableTask({
-  task,
-  onTaskClick,
-  projectCustomFieldsDefinitions,
-}: {
-  task: Task;
-  onTaskClick?: (task: Task) => void;
-  projectCustomFieldsDefinitions?: CustomFieldDefinition[];
-}) {
-  const { t } = useTranslation();
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: task.id,
-    });
-
-  const [showComments, setShowComments] = useState(false);
-
-  const commentCount = task.comments?.length ?? 0;
-  const statusColor = STATUS_COLORS[task.status] ?? "#5B60FE";
-
+function CustomFieldDots({ task, fields }: { task: Task; fields?: CustomFieldDefinition[] }) {
+  if (!task.projectCustomFields || !fields?.length) return null;
+  const dots = fields.flatMap(field => {
+    if (field.type !== "select") return [];
+    const value = task.projectCustomFields?.[field.id];
+    const option = value ? field.options?.find(opt => opt.label === value) : undefined;
+    return option ? [{ field, value, color: option.color }] : [];
+  });
+  if (!dots.length) return null;
   return (
-    <Box className="relative mb-3 w-full">
-      <Box
-        className={cn(
-          "bg-card rounded-xl border border-border shadow-sm overflow-hidden transition-all duration-200 w-full",
-          "hover:shadow-md hover:border-border/80 cursor-pointer",
-          isDragging && "opacity-50 shadow-xl scale-105"
-        )}
-        style={{
-          transform: transform
-            ? `translate(${transform.x}px, ${transform.y}px)`
-            : undefined,
-        }}
-        ref={setNodeRef}
-        onClick={(e) => {
-          if (!isDragging && !e.defaultPrevented && onTaskClick) {
-            onTaskClick(task);
-          }
-        }}
-      >
-        {/* Status accent bar */}
-        <div className="h-1 w-full" style={{ backgroundColor: statusColor }} />
-
-        <div className="p-3">
-          {/* Title row */}
-          <Flex className="w-full justify-between items-start gap-2 mb-3">
-            <Flex
-              className="font-semibold text-foreground text-sm leading-snug cursor-grab gap-1.5 flex-1 min-w-0"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="text-muted-foreground size-3.5 shrink-0 mt-0.5" />
-              <span className="line-clamp-2">{task.title}</span>
-            </Flex>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setShowComments(!showComments);
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "relative w-7 h-7 p-0 rounded-full shrink-0 border transition-colors",
-                      showComments
-                        ? "bg-[#0c89af] border-[#0c89af] text-white"
-                        : "border-border text-muted-foreground hover:border-[#0c89af] hover:text-[#0c89af]"
-                    )}
-                  >
-                    <MessageCircleMore className="size-3.5" />
-                    {commentCount > 0 && (
-                      <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-[#0c89af] text-white text-xs font-bold rounded-full flex items-center justify-center">
-                        {commentCount > 9 ? "9+" : commentCount}
-                      </span>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">
-                  {t("taskManagement.viewComments")}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Flex>
-
-          {/* Meta info */}
-          <div
-            className="flex flex-col gap-1.5 pointer-events-none"
-            style={{ userSelect: "none" }}
-          >
-            <Flex className="gap-1.5 text-xs text-muted-foreground items-center">
-              <img src="/dashboard/analytics.svg" className="size-3.5 shrink-0" alt="" />
-              <span className="text-foreground font-medium truncate">{task.project}</span>
-            </Flex>
-
-            <Flex className="gap-1.5 text-xs text-muted-foreground items-center">
-              <img src="/dashboard/calendericonfordraging.svg" className="size-3.5 shrink-0" alt="" />
-              <span className="text-red-500 font-medium">{task.dueDate}</span>
-            </Flex>
-          </div>
-
-          {/* Custom Field Colors */}
-          {task.projectCustomFields &&
-            projectCustomFieldsDefinitions &&
-            projectCustomFieldsDefinitions.length > 0 && (
-              <Flex className="mt-2.5 gap-1.5 flex-wrap pointer-events-none">
-                {projectCustomFieldsDefinitions.map((field) => {
-                  if (field.type !== "select") return null;
-                  const value = task.projectCustomFields?.[field.id];
-                  if (!value) return null;
-                  const option = field.options?.find((opt) => opt.label === value);
-                  if (!option) return null;
-                  return (
-                    <TooltipProvider key={field.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className="w-3 h-3 rounded-full border border-white shadow-sm pointer-events-auto"
-                            style={{ backgroundColor: option.color }}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-xs px-2 py-1">
-                          {field.name}: {value}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  );
-                })}
-              </Flex>
-            )}
-        </div>
-      </Box>
-
-      {/* Comments panel — positioned below the card */}
-      {showComments && task.projectId && (
-        <div
-          className="absolute left-0 right-0 top-full mt-1 z-50 bg-background border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Panel header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/50">
-            <Flex className="gap-1.5 items-center">
-              <MessageCircleMore className="size-3.5 text-[#0c89af]" />
-              <span className="text-xs font-semibold text-foreground">
-                {t("taskManagement.viewComments")}
-              </span>
-            </Flex>
-            <button
-              onClick={() => setShowComments(false)}
-              className="w-5 h-5 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <span className="text-xs">✕</span>
-            </button>
-          </div>
-
-          <div className="p-3">
-            <CommentThread
-              projectId={task.projectId}
-              taskId={task.id}
-              canComment
-              maxHeight="11rem"
-              showHeader={false}
-            />
-          </div>
-        </div>
-      )}
-    </Box>
+    <span className="flex gap-1.5 flex-wrap">
+      {dots.map(({ field, value, color }) => (
+        <TooltipProvider key={field.id}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="w-3 h-3 rounded-full border border-white shadow-sm" style={{ backgroundColor: color }} />
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="text-xs px-2 py-1">{field.name}: {value}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
+    </span>
   );
 }
 
-// Droppable Column
-function DroppableColumn({
-  status,
-  children,
-}: {
-  status: StatusType;
-  children: React.ReactNode;
+function CardBody({ task, showProject, fields, onComments, commentsOpen }: {
+  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; onComments?: () => void; commentsOpen?: boolean;
+}) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="tk-card-title">{task.title}</h3>
+        <TaskAvatar name={task.assigneeName} image={task.assigneeImage} id={task.assigneeId} />
+      </div>
+      {showProject && <span className="tk-project" title={task.project}>{task.project}</span>}
+      <div className="tk-card-foot">
+        <DueChip endDate={task.endDate} status={task.statusKey} />
+        {task.subtasks && task.subtasks.total > 0 && (
+          <span className="tk-meta" title={t("tasksLayout.subtasks")}>
+            <ListChecks aria-hidden="true" className="size-3.5" />
+            {task.subtasks.done}/{task.subtasks.total}
+          </span>
+        )}
+        <CustomFieldDots task={task} fields={fields} />
+        {onComments && (
+          <button type="button" className={cn("tk-icon-btn tk-comments size-7", commentsOpen && "text-[#0c89af]")}
+            aria-label={t("taskManagement.viewComments")} aria-expanded={commentsOpen}
+            onPointerDown={e => e.stopPropagation()}
+            onClick={e => { e.stopPropagation(); onComments(); }}>
+            <MessageCircleMore aria-hidden="true" className="size-4" />
+          </button>
+        )}
+      </div>
+    </>
+  );
+}
+
+function DraggableTask({ task, showProject, fields, onTaskClick }: {
+  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; onTaskClick?: (task: Task) => void;
+}) {
+  const { t } = useTranslation();
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
+  const [showComments, setShowComments] = useState(false);
+
+  return (
+    <div className="relative">
+      <div ref={setNodeRef} {...listeners} {...attributes} role="button" tabIndex={0}
+        className={cn("tk-card", isDragging && "is-dragging")}
+        onClick={() => !isDragging && onTaskClick?.(task)}
+        onKeyDown={e => { if (e.key === "Enter") onTaskClick?.(task); }}>
+        <CardBody task={task} showProject={showProject} fields={fields}
+          commentsOpen={showComments} onComments={task.projectId ? () => setShowComments(open => !open) : undefined} />
+      </div>
+      {showComments && task.projectId && (
+        <div className="tk-comments-panel" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/50">
+            <span className="flex gap-1.5 items-center text-xs font-semibold">
+              <MessageCircleMore aria-hidden="true" className="size-3.5 text-[#0c89af]" />
+              {t("taskManagement.viewComments")}
+            </span>
+            <button type="button" className="tk-icon-btn size-7" aria-label={t("taskManagement.closeComments")} onClick={() => setShowComments(false)}>
+              <X aria-hidden="true" className="size-3.5" />
+            </button>
+          </div>
+          <div className="p-3">
+            <CommentThread projectId={task.projectId} taskId={task.id} canComment maxHeight="11rem" showHeader={false} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Column({ status, count, collapsed, onToggle, onAdd, children }: {
+  status: TaskStatusKey; count: number; collapsed: boolean; onToggle: () => void; onAdd?: () => void; children: ReactNode;
 }) {
   const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id: status });
+  const name = t(STATUS_I18N[status]);
+
+  if (collapsed) {
+    return (
+      <button ref={setNodeRef} type="button" className={cn("tk-collapsed", statusToneClass(status), isOver && "is-over")}
+        aria-label={t("tasksLayout.expandColumn", { status: name })} onClick={onToggle}>
+        <span className="tk-count">{count}</span>
+        <span className="tk-collapsed-label">{name}</span>
+      </button>
+    );
+  }
 
   return (
-    <Flex
-      className={cn(
-        "flex-col w-[280px] shrink-0 bg-card rounded-xl border-1 border-border",
-        "overflow-hidden max-h-[700px] transition-all duration-200",
-        isOver && "border-dashed border-blue-400 bg-blue-50/30"
-      )}
-      ref={setNodeRef}
-    >
-      <Box
-        className="text-base font-semibold text-white w-full px-4 py-3 flex items-center justify-between"
-        style={{ backgroundColor: STATUS_COLORS[status] }}
-      >
-        <span>{t(KANBAN_STATUS_I18N_KEY[status])}</span>
-        <span className="text-xs opacity-90">
-          {React.Children.count(children)}
+    <section ref={setNodeRef} aria-label={name} className={cn("tk-column", statusToneClass(status), isOver && "is-over")}>
+      <div className="tk-column-head">
+        <span className="tk-column-title"><span className="truncate">{name}</span><span className="tk-count">{count}</span></span>
+        <span className="tk-head-actions">
+          {onAdd && (
+            <button type="button" className="tk-icon-btn" aria-label={t("tasksLayout.addTaskIn", { status: name })} onClick={onAdd}>
+              <Plus aria-hidden="true" className="size-4" />
+            </button>
+          )}
+          {status === "completed" && (
+            <button type="button" className="tk-icon-btn" aria-label={t("tasksLayout.collapseColumn", { status: name })} onClick={onToggle}>
+              <X aria-hidden="true" className="size-4" />
+            </button>
+          )}
         </span>
-      </Box>
-      <Box className="flex-1 overflow-y-auto overflow-x-hidden p-2 w-full">{children}</Box>
-    </Flex>
+      </div>
+      <div className="tk-column-body">
+        {count === 0 ? <div className="tk-drop-hint">{t("tasksLayout.dropHere")}</div> : children}
+      </div>
+      {onAdd && (
+        <button type="button" className="tk-add" onClick={onAdd}>
+          <Plus aria-hidden="true" className="size-3.5" />{t("tasksLayout.addTask")}
+        </button>
+      )}
+    </section>
   );
 }
 
 interface KanbanBoardProps {
   tasks: Task[];
-  setTasks: (tasks: Task[]) => void;
-  filteredTasks: Task[];
-  onStatusUpdate?: (taskId: string, status: string) => void;
+  showProject: boolean;
+  hiddenStatuses?: TaskStatusKey[];
+  onStatusUpdate?: (taskId: string, status: TaskStatusKey) => void;
   onTaskClick?: (task: Task) => void;
+  onAddTask?: (status: TaskStatusKey) => void;
   projectCustomFieldsData?: CustomFieldDefinition[];
 }
 
-export default function KanbanBoard({
-  tasks,
-  setTasks,
-  filteredTasks,
-  onStatusUpdate,
-  onTaskClick,
-  projectCustomFieldsData,
-}: KanbanBoardProps) {
-  const { t } = useTranslation();
+export default function KanbanBoard({ tasks, showProject, hiddenStatuses = [], onStatusUpdate, onTaskClick, onAddTask, projectCustomFieldsData }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  // Completed tasks pile up, so that column starts folded.
+  const [collapsed, setCollapsed] = useState<Set<TaskStatusKey>>(() => new Set(["completed"]));
+  // Keep a dropped card in its new column until the refetched tasks arrive.
+  const [moved, setMoved] = useState<Record<string, TaskStatusKey>>({});
+  useEffect(() => setMoved({}), [tasks]);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
+  const shown = TASK_STATUSES.filter(status => !hiddenStatuses.includes(status));
+  const statusOf = (task: Task) => moved[task.id] ?? task.statusKey;
+  const toggle = (status: TaskStatusKey) => setCollapsed(prev => {
+    const next = new Set(prev);
+    if (next.has(status)) next.delete(status); else next.add(status);
+    return next;
+  });
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveTask(null);
-
-    if (!over) return;
-    if (active.id === over.id) return;
-
-    // If dropped on a column, update status
-    const overStatus = STATUS_COLUMNS.find((col) => col === over.id);
-
-    if (overStatus) {
-      // Update local state immediately for better UX
-      setTasks(
-        tasks.map((task: Task) =>
-          task.id === active.id ? { ...task, status: overStatus } : task
-        )
-      );
-
-      // Call API to update status
-      if (onStatusUpdate) {
-        // Convert KanbanBoard status back to API status
-        const apiStatus = mapKanbanToApiStatus(overStatus);
-        onStatusUpdate(active.id as string, apiStatus);
-      }
-    }
-  };
-
-  // Helper function to map KanbanBoard status to API status
-  const mapKanbanToApiStatus = (kanbanStatus: string) => {
-    const statusMap: Record<string, string> = {
-      "To Do": "todo",
-      "In Progress": "in_progress",
-      Updated: "updated",
-      Delay: "delay",
-      Changes: "changes",
-      Completed: "completed",
-    };
-    return statusMap[kanbanStatus] || "todo";
+    const target = TASK_STATUSES.find(status => status === over?.id);
+    const task = tasks.find(item => item.id === active.id);
+    if (!target || !task || statusOf(task) === target) return;
+    setMoved(prev => ({ ...prev, [task.id]: target }));
+    onStatusUpdate?.(task.id, target);
   };
 
   return (
-    <Box className="w-full">
-      <div className="w-full overflow-x-auto mt-5 bg-muted/20 rounded-lg pb-2">
-      <div className="flex items-start gap-4 min-h-[600px] p-3 w-max min-w-full">
-        <DndContext
-          collisionDetection={closestCenter}
-          onDragStart={(event) => {
-            const task = tasks.find((t) => t.id === event.active.id);
-            setActiveTask(task || null);
-          }}
-          onDragEnd={handleDragEnd}
-          onDragCancel={() => setActiveTask(null)}
-        >
-          {STATUS_COLUMNS.map((status) => (
-            <DroppableColumn key={status} status={status}>
-              {filteredTasks
-                .filter((task) => task.status === status)
-                .map((task) => (
-                  <DraggableTask
-                    key={task.id}
-                    task={task}
-                    onTaskClick={onTaskClick}
-                    projectCustomFieldsDefinitions={projectCustomFieldsData}
-                  />
+    <div className="tk-board-scroll">
+      <div className="tk-board">
+        <DndContext sensors={sensors} collisionDetection={closestCenter}
+          onDragStart={event => setActiveTask(tasks.find(task => task.id === event.active.id) ?? null)}
+          onDragEnd={handleDragEnd} onDragCancel={() => setActiveTask(null)}>
+          {shown.map(status => {
+            const items = tasks.filter(task => statusOf(task) === status);
+            return (
+              <Column key={status} status={status} count={items.length} collapsed={shown.length > 1 && collapsed.has(status)}
+                onToggle={() => toggle(status)} onAdd={onAddTask && status !== "completed" ? () => onAddTask(status) : undefined}>
+                {items.map(task => (
+                  <DraggableTask key={task.id} task={task} showProject={showProject} fields={projectCustomFieldsData} onTaskClick={onTaskClick} />
                 ))}
-            </DroppableColumn>
-          ))}
+              </Column>
+            );
+          })}
           <DragOverlay>
-            {activeTask ? (
-              <Box className="bg-card rounded-lg border-2 border-blue-400 p-4 min-w-[240px] shadow-xl">
-                <Flex className="flex-col w-full items-start gap-2">
-                  <Box className="font-semibold text-foreground text-sm leading-tight">
-                    {activeTask.title}
-                  </Box>
-                  <Box className="text-muted-foreground text-sm">
-                    {t("taskManagement.dragOverlayProject")}{" "}
-                    <span className="font-medium">{activeTask.project}</span>
-                  </Box>
-                </Flex>
-                <Flex className="justify-end mt-3">
-                  <Box className="text-red-500 text-xs font-medium bg-red-50 px-2 py-1 rounded">
-                    {activeTask.dueDate}
-                  </Box>
-                </Flex>
-              </Box>
-            ) : null}
+            {activeTask ? <div className="tk-card is-overlay"><CardBody task={activeTask} showProject={showProject} /></div> : null}
           </DragOverlay>
         </DndContext>
       </div>
-      </div>
-    </Box>
+    </div>
   );
 }

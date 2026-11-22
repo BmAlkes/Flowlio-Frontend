@@ -89,7 +89,12 @@
     "set_task_status": "Mudar status da tarefa",
     "create_event": "Adicionar evento ao calendário",
     "create_lead": "Cadastrar lead",
-    "log_time": "Registrar horas"
+    "log_time": "Registrar horas",
+    "reschedule_event": "Remarcar evento",
+    "delete_event": "Cancelar evento",
+    "create_project": "Criar projeto",
+    "add_client_note": "Adicionar nota no cliente",
+    "message_client": "Enviar mensagem ao cliente"
   },
   "prompts": {
     "default": {
@@ -166,7 +171,9 @@
     "AUDIO_EMPTY": "A gravação ficou vazia. Tente de novo.",
     "AUDIO_TOO_LARGE": "A gravação está longa demais. Fale por menos de 2 minutos.",
     "AUDIO_UNSUPPORTED": "Este navegador grava áudio num formato que o Lio não consegue ler.",
-    "NO_SPEECH": "O Lio não ouviu nenhuma palavra. Tente de novo mais perto do microfone."
+    "NO_SPEECH": "O Lio não ouviu nenhuma palavra. Tente de novo mais perto do microfone.",
+    "DUPLICATE_PROJECT": "Já existe um projeto com esse nome.",
+    "CLIENT_EMAIL_REQUIRED": "Esse cliente não tem email cadastrado."
   },
   "fields": {
     "title": "Título",
@@ -218,5 +225,20 @@
     "stop": "Parar gravação",
     "recording": "Gravando… {{seconds}}s",
     "transcribing": "Transcrevendo…"
-  }
+  },
+  "interactionTypes": {
+    "note": "Nota",
+    "call": "Ligação",
+    "email": "Email",
+    "meeting": "Reunião"
+  },
+  "interactionType": "Tipo",
+  "content": "Conteúdo",
+  "subject": "Assunto",
+  "message": "Mensagem",
+  "projectName": "Nome do projeto",
+  "confirmMessage": "Revisei esta mensagem e autorizo o envio por email ao cliente.",
+  "internalNote": "Interno · o cliente não vê",
+  "emailedTo": "Email para o cliente",
+  "removesEvent": "Remove da sua agenda"
 }

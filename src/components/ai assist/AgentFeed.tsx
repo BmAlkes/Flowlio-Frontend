@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AgentAnswer } from './AgentAnswer';
 import { LioAvatar } from './LioAvatar';
-import { taskStatuses, type AgentAction, type AgentRun, type TaskStatus } from './agent-context';
+import { clientFacing, interactionTypes, taskStatuses, type AgentAction, type AgentRun, type InteractionType, type TaskStatus } from './agent-context';
 
 // datetime-local wants the local wall time without a zone
 const toLocalInput=(iso:string)=>{const d=new Date(iso);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);};
@@ -44,13 +44,19 @@ export function AgentTurn({run,latest,onConfirm,onRefresh,onCancel}:{run:AgentRu
 
 // Edits the server would reject keep the confirm button off
 const ready=(action:AgentAction)=>action.type==='create_event'?action.endHour>action.startHour&&!!action.title.trim()
- :action.type==='create_lead'?!!action.name.trim()&&/^\S+@\S+\.\S+$/.test(action.email.trim()):true;
+ :action.type==='reschedule_event'?action.endHour>action.startHour
+ :action.type==='create_lead'?!!action.name.trim()&&/^\S+@\S+\.\S+$/.test(action.email.trim())
+ :action.type==='create_project'?!!action.name.trim()&&!(action.startDate&&action.endDate&&action.startDate>action.endDate)
+ :action.type==='add_client_note'?!!action.content.trim()
+ :action.type==='message_client'?!!action.subject.trim()&&!!action.message.trim():true;
+// Cancelling an event has nothing to edit.
+const editable=(action:AgentAction)=>action.type!=='delete_event';
 
 function ActionCard({run,index,action,legacy,onConfirm}:{run:AgentRun;index:number;action:AgentAction;legacy:boolean;onConfirm:ConfirmAction}){
  const {t,i18n}=useTranslation();
  const [edit,setEdit]=useState<AgentAction|null>(null),[editing,setEditing]=useState(false),[share,setShare]=useState(false),[saving,setSaving]=useState(false);
  const current=edit??action;const receipt=run.receipts.find(r=>r.index===index);const done=!!receipt||legacy;
- const pending=run.state==='ready'&&!done;const sharing=current.type==='client_request';const label=t(`agent.actions.${current.type}`);
+ const pending=run.state==='ready'&&!done;const sharing=clientFacing(current);const label=t(`agent.actions.${current.type}`);
  const sourceTitle=(id:string)=>run.sources.find(s=>s.id===id)?.title;
  const day=(d:string|null)=>d?new Date(d.length===10?`${d}T00:00:00`:d).toLocaleDateString(i18n.language,{day:'numeric',month:'short'}):null;
  const person=(id:string|null)=>id?run.members.find(m=>m.id===id)?.name:null;
@@ -67,6 +73,11 @@ function ActionCard({run,index,action,legacy,onConfirm}:{run:AgentRun;index:numb
   case 'create_event':return[current.title,[day(current.date),`${hour(current.startHour)} – ${hour(current.endHour)}`,t(`agent.calendarTypes.${current.calendarType}`)]];
   case 'create_lead':return[current.name,[current.email,current.phone,current.businessIndustry,current.followUpAt?t('agent.followupOn',{date:when(current.followUpAt)}):null]];
   case 'log_time':return[sourceTitle(current.taskId)??current.taskId,[day(current.date),t('agent.duration',{hours:Math.floor(current.minutes/60),minutes:String(current.minutes%60).padStart(2,'0')}),short(current.description)]];
+  case 'reschedule_event':return[sourceTitle(current.eventId)??current.eventId,[`→ ${day(current.date)}`,`${hour(current.startHour)} – ${hour(current.endHour)}`]];
+  case 'delete_event':return[sourceTitle(current.eventId)??current.eventId,[t('agent.removesEvent')]];
+  case 'create_project':return[current.name,[current.clientId?sourceTitle(current.clientId):null,range(current.startDate,current.endDate),short(current.description)]];
+  case 'add_client_note':return[sourceTitle(current.clientId)??current.clientId,[t(`agent.interactionTypes.${current.interactionType}`),short(current.content),t('agent.internalNote')]];
+  case 'message_client':return[current.subject,[`${t('agent.emailedTo')}: ${sourceTitle(current.clientId)??current.clientId}`,short(current.message)]];
  }})();
  async function confirm(){setSaving(true);const ok=await onConfirm(run,index,edit,share);setSaving(false);if(ok)setEditing(false);}
  return <div className={`ai-action${done?' is-done':''}`}>
@@ -74,9 +85,9 @@ function ActionCard({run,index,action,legacy,onConfirm}:{run:AgentRun;index:numb
   <p className="ai-action-title">{title}</p>
   {meta.some(Boolean)&&<p className="ai-action-meta">{meta.filter(Boolean).join(' · ')}</p>}
   {editing&&pending&&<ActionEditor action={current} run={run} index={index} disabled={saving} onChange={value=>{setEdit(value);setShare(false);}}/>}
-  {pending&&sharing&&<label className="ai-action-share"><input type="checkbox" checked={share} disabled={saving} onChange={e=>setShare(e.target.checked)}/>{t('agent.confirmSharing')}</label>}
+  {pending&&sharing&&<label className="ai-action-share"><input type="checkbox" checked={share} disabled={saving} onChange={e=>setShare(e.target.checked)}/>{t(current.type==='message_client'?'agent.confirmMessage':'agent.confirmSharing')}</label>}
   {pending&&<div className="ai-action-buttons">
-   <Button variant="ghost" size="sm" disabled={saving} aria-expanded={editing} onClick={()=>setEditing(v=>!v)}><Pencil className="size-3.5"/>{editing?t('agent.doneEditing'):t('agent.edit')}</Button>
+   {editable(current)&&<Button variant="ghost" size="sm" disabled={saving} aria-expanded={editing} onClick={()=>setEditing(v=>!v)}><Pencil className="size-3.5"/>{editing?t('agent.doneEditing'):t('agent.edit')}</Button>}
    <Button size="sm" disabled={saving||(sharing&&!share)||!ready(current)} aria-label={`${t('agent.confirmAction')}: ${label}`} onClick={confirm}>{saving?<Loader2 className="size-3.5 animate-spin"/>:<Check className="size-3.5"/>}{t('agent.confirmAction')}</Button>
   </div>}
   {receipt&&<Link to={receipt.href} className="ai-action-link">{t('agent.open')}: {receipt.title}<ArrowUpRight className="size-3.5"/></Link>}
@@ -93,9 +104,16 @@ function ActionEditor({action,run,index,disabled,onChange}:{action:AgentAction;r
   {action.type==='followup'&&<><label className="block text-xs">{t('agent.followupDate')}<Input className="mt-1" value={action.date} onChange={e=>onChange({...action,date:e.target.value})}/></label><label className="block text-xs">{t('agent.note')}<Textarea className="mt-1" value={action.note} maxLength={2000} onChange={e=>onChange({...action,note:e.target.value})}/></label></>}
   {action.type==='client_request'&&<label className="block text-xs">{t('agent.questions')}<Textarea className="mt-1" value={action.questions.join('\n')} onChange={e=>onChange({...action,questions:e.target.value.split('\n').filter(Boolean)})}/></label>}
   {action.type==='set_task_status'&&<label className="block text-xs">{t('agent.status')}<select className={`${selectClass} mt-1`} value={action.status} onChange={e=>onChange({...action,status:e.target.value as TaskStatus})}>{taskStatuses.map(s=><option key={s} value={s}>{t(`agent.taskStatus.${s}`)}</option>)}</select></label>}
-  {(action.type==='create_event'||action.type==='log_time')&&<label className="block text-xs">{t('agent.day')}<Input type="date" className="mt-1" value={action.date} onChange={e=>e.target.value&&onChange({...action,date:e.target.value})}/></label>}
-  {action.type==='create_event'&&<><div className="grid grid-cols-2 gap-2">{(['startHour','endHour'] as const).map(field=><label key={field} className="text-xs min-w-0">{t(`agent.${field}`)}<select className={`${selectClass} mt-1`} value={action[field]} onChange={e=>onChange({...action,[field]:Number(e.target.value)})}>{Array.from({length:24},(_,h)=><option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>)}</select></label>)}</div>
-   {action.endHour<=action.startHour&&<p className="text-xs text-destructive">{t('agent.hoursOrder')}</p>}
+  {action.type==='create_project'&&<><label className="block text-xs">{t('agent.projectName')}<Input className="mt-1" value={action.name} maxLength={160} onChange={e=>onChange({...action,name:e.target.value})}/></label>
+   <div className="grid grid-cols-2 gap-2">{(['startDate','endDate'] as const).map(field=><label key={field} className="text-xs min-w-0">{t(`agent.${field}`)}<Input type="date" className="mt-1 max-w-full" value={action[field]??''} onChange={e=>onChange({...action,[field]:e.target.value||null})}/></label>)}</div></>}
+  {action.type==='add_client_note'&&<><label className="block text-xs">{t('agent.interactionType')}<select className={`${selectClass} mt-1`} value={action.interactionType} onChange={e=>onChange({...action,interactionType:e.target.value as InteractionType})}>{interactionTypes.map(v=><option key={v} value={v}>{t(`agent.interactionTypes.${v}`)}</option>)}</select></label>
+   <label className="block text-xs">{t('agent.content')}<Textarea className="mt-1" value={action.content} maxLength={4000} onChange={e=>onChange({...action,content:e.target.value})}/></label></>}
+  {action.type==='message_client'&&<><label className="block text-xs">{t('agent.subject')}<Input className="mt-1" value={action.subject} maxLength={160} onChange={e=>onChange({...action,subject:e.target.value})}/></label>
+   <label className="block text-xs">{t('agent.message')}<Textarea className="mt-1 min-h-32" value={action.message} maxLength={4000} onChange={e=>onChange({...action,message:e.target.value})}/></label></>}
+  {(action.type==='create_event'||action.type==='reschedule_event'||action.type==='log_time')&&<label className="block text-xs">{t('agent.day')}<Input type="date" className="mt-1" value={action.date} onChange={e=>e.target.value&&onChange({...action,date:e.target.value})}/></label>}
+  {(action.type==='create_event'||action.type==='reschedule_event')&&<><div className="grid grid-cols-2 gap-2">{(['startHour','endHour'] as const).map(field=><label key={field} className="text-xs min-w-0">{t(`agent.${field}`)}<select className={`${selectClass} mt-1`} value={action[field]} onChange={e=>onChange({...action,[field]:Number(e.target.value)})}>{Array.from({length:24},(_,h)=><option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>)}</select></label>)}</div>
+   {action.endHour<=action.startHour&&<p className="text-xs text-destructive">{t('agent.hoursOrder')}</p>}</>}
+  {action.type==='create_event'&&<>
    <label className="block text-xs">{t('agent.calendarType')}<select className={`${selectClass} mt-1`} value={action.calendarType} onChange={e=>onChange({...action,calendarType:e.target.value as typeof action.calendarType})}>{(['meeting','education','personal'] as const).map(v=><option key={v} value={v}>{t(`agent.calendarTypes.${v}`)}</option>)}</select></label></>}
   {action.type==='log_time'&&<label className="block text-xs">{t('agent.minutes')}<Input type="number" className="mt-1" min={1} max={1440} step={5} value={action.minutes} onChange={e=>onChange({...action,minutes:Math.max(1,Math.min(1440,Math.round(Number(e.target.value)||1)))})}/></label>}
   {action.type==='create_lead'&&<>

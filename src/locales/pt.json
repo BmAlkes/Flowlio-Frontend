@@ -1142,5 +1142,20 @@
       "live": "Mudanças no Google aparecem em segundos.",
       "periodic": "Sincroniza a cada 15 minutos."
     }
+  },
+  "whatsappLio": {
+    "title": "Lio no WhatsApp",
+    "description": "Pergunte ao Lio sobre o seu trabalho, mande áudios e confirme ações pelo seu WhatsApp. Só o seu número é conectado, com o mesmo acesso que você tem no Flowlio.",
+    "connect": "Conectar WhatsApp",
+    "connected": "Conectado ao {{phone}}",
+    "disconnect": "Desconectar",
+    "theNumber": "o número do Flowlio",
+    "sendCode": "Envie esta mensagem do seu WhatsApp para {{number}}:",
+    "open": "Abrir WhatsApp",
+    "waiting_one": "Aguardando a sua mensagem… o código expira em {{count}} minuto",
+    "waiting_other": "Aguardando a sua mensagem… o código expira em {{count}} minutos",
+    "expired": "O código expirou. Gere um novo.",
+    "failed": "Não foi possível atualizar o WhatsApp. Tente de novo.",
+    "howTo": "Mande uma pergunta ou um áudio para {{number}}. O Lio pergunta antes de mudar qualquer coisa. Escreva \"novo\" para começar outra conversa."
   }
 }
