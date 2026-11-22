@@ -34,6 +34,8 @@ import { SettingsPayPal } from "./settingspaypal";
 import { UpdateProfileImageContent } from "./updateprofileimagecontent";
 import { useTranslation } from "react-i18next";
 import { DetailsPageSkeleton } from "@/components/skeletons";
+import { PrivacyRequestsAdmin } from "./PrivacyRequestsAdmin";
+import { OrganizationDataAdmin } from "./OrganizationDataAdmin";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -110,6 +112,9 @@ export const SuperAdminSettingsHeader = ({ user }: { user: any }) => {
       <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
 
       <OperationsSettingsLink global />
+
+      {user.role === "superadmin" && <PrivacyRequestsAdmin />}
+      {user.role === "superadmin" && <OrganizationDataAdmin />}
 
       <Stack className="gap-8">
         {/* Profile Information Section */}

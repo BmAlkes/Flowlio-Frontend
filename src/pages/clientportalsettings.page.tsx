@@ -1,6 +1,7 @@
 import { Box } from "@/components/ui/box";
 import { Stack } from "@/components/ui/stack";
 import { ViewerSettingsHeader } from "@/components/viewer section/viewer settings/viewersettingsheader";
+import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { ClientBillingSettings } from "@/components/client management/clientbillingsettings";
 
 /**
@@ -15,6 +16,7 @@ const ClientPortalSettingsPage = () => {
       <ViewerSettingsHeader />
       <Stack className="px-8 max-md:px-3 pb-8">
         <ClientBillingSettings />
+        <PrivacySettings />
       </Stack>
     </Box>
   );

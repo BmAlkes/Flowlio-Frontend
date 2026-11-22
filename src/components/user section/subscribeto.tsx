@@ -71,6 +71,13 @@ export const SubscribeTo = () => {
                 {newsletterMutation.isPending ? "Joining..." : "Join"}
               </button>
             </Flex>
+            {/* LGPD: consent notice for marketing email */}
+            <p className="mt-2 text-xs text-white/80 max-sm:text-center">
+              By joining you agree to receive Flowlio news by email. Unsubscribe at any time.{" "}
+              <Link to="/privacy-policy" className="underline">
+                Privacy Policy
+              </Link>
+            </p>
           </form>
         </Stack>
       </Flex>
