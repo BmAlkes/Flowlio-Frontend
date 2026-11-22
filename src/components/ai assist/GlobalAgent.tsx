@@ -73,8 +73,8 @@ export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,histo
  const receive=(value:AgentRun)=>{setTurns(list=>list.some(r=>r.id===value.id)?list.map(r=>r.id===value.id?value:r):[...list,value].slice(-10));void cache.invalidateQueries({queryKey:['agent-history',dataScope]});};
  const projects=context.data?.projects??context.data?.sources.filter(s=>s.kind==='project').map(s=>({id:s.id,title:s.title}))??[];
  const projectTitle=scope.projectId?projects.find(p=>p.id===scope.projectId)?.title:undefined;
- async function generate(){
-  const text=prompt.trim();if(request.current||!text)return;setError('');setBusy(true);setAsking(text);setPrompt('');setHistoryOpen(false);setScopeOpen(false);
+ async function generate(spoken?:string){
+  const text=(spoken??prompt).trim();if(request.current||!text)return;setError('');setBusy(true);setAsking(text);setPrompt('');setHistoryOpen(false);setScopeOpen(false);
   const current={id:crypto.randomUUID(),controller:new AbortController()};request.current=current;
   try{const response=await axios.post<{data:AgentRun}>('/ai/agent',{id:current.id,conversationId,scope,prompt:text,language:['en','pt','es','he'].includes(i18n.language.split('-')[0])?i18n.language.split('-')[0]:'en',mode:automatic?'internal':'review'},{signal:current.controller.signal,timeout:120000});receive(response.data.data);if(response.data.data.state==='applied')void cache.invalidateQueries();}
   catch(e){if(!current.controller.signal.aborted){setError(failure(e));setPrompt(text);try{receive((await axios.get<{data:AgentRun}>(`/ai/agent/${current.id}`)).data.data);}catch{/* The generation error remains visible. */}}}
@@ -88,6 +88,9 @@ export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,histo
  function changeScope(value:AgentScope){setScope(value);setAutomatic(false);setError('');}
  const canAuto=context.data?.capabilities.some(v=>v==='create_task'||v==='plan_task');
  const canSend=!!prompt.trim()&&!context.isPending&&!context.isError;
+ // A voice note finishes after an async transcription: it sends with the current prompt and conversation, not those from when recording began.
+ const voice=useRef({prompt,generate:(text:string)=>{void generate(text);}});
+ voice.current={prompt,generate:(text:string)=>{if(context.isPending||context.isError||request.current)setPrompt(text);else void generate(text);}};
  const sourceStatus=context.isPending?t('agent.loading'):context.isError?t('agent.contextFailed'):context.data?.sources.length?t('agent.sourceCount',{count:context.data.sources.length}):t('agent.onDemand');
  return <div className="ai-workspace flex min-h-0 flex-1 flex-col">
   <div className="ai-toolbar">
@@ -113,7 +116,7 @@ export function AgentWorkspace({initialScope,initialPrompt='',extraHistory,histo
    <label htmlFor="agent-prompt" className="sr-only">{t('agent.request')}</label>
    <div className="ai-input">
     <Textarea id="agent-prompt" rows={1} maxLength={8000} value={prompt} disabled={busy} onChange={e=>setPrompt(e.target.value)} placeholder={t('agent.placeholder')} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();if(canSend&&!busy)void generate();}}}/>
-    {!busy&&<VoiceButton disabled={context.isPending||context.isError} onText={text=>{setError('');setPrompt(current=>current.trim()?`${current.trimEnd()} ${text}`:text);document.getElementById('agent-prompt')?.focus();}} onError={e=>setError(failure(e))}/>}
+    {!busy&&<VoiceButton disabled={context.isPending||context.isError} onText={text=>{setError('');const typed=voice.current.prompt.trim();voice.current.generate(typed?`${typed} ${text}`:text);}} onError={e=>setError(failure(e))}/>}
     {busy?<Button type="button" size="icon" variant="outline" aria-label={t('agent.cancel')} onClick={cancel}><Square className="size-3.5"/></Button>:<Button type="submit" size="icon" aria-label={t('agent.generate')} disabled={!canSend}><ArrowUp className="size-4"/></Button>}
    </div>
    <div className="ai-composer-foot">
