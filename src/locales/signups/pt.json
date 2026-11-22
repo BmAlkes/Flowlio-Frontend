@@ -1,0 +1,57 @@
+{
+  "title": "Cadastros incompletos",
+  "description": "Pessoas que criaram conta mas não escolheram um plano ou pararam no pagamento. Envie um email perguntando o que aconteceu; elas respondem com um clique.",
+  "show": "Ver lista",
+  "hide": "Esconder lista",
+  "empty": "Nenhum cadastro incompleto.",
+  "stats": {
+    "total": "Incompletos",
+    "noPlan": "Sem plano",
+    "checkout": "Pararam no pagamento",
+    "answered": "Responderam",
+    "canRemind": "Podem receber email"
+  },
+  "reasonsTitle": "Por que pararam",
+  "reasons": {
+    "price": "O preço",
+    "missing_feature": "Faltou funcionalidade",
+    "too_complex": "Achou complicado",
+    "payment_problem": "Problema no pagamento",
+    "just_exploring": "Só estava conhecendo",
+    "other": "Outro motivo"
+  },
+  "stage": {
+    "no_plan": "Não escolheu plano",
+    "checkout": "Parou no pagamento"
+  },
+  "columns": {
+    "person": "Pessoa",
+    "stoppedAt": "Onde parou",
+    "signedUp": "Cadastro",
+    "lastSeen": "Último acesso",
+    "followUp": "Contato"
+  },
+  "select": "Selecionar",
+  "selectEligible": "Selecionar quem pode receber ({{count}})",
+  "language": "Idioma do email",
+  "send": "Enviar email ({{count}})",
+  "unverified": "email não confirmado",
+  "daysAgo_one": "há {{count}} dia",
+  "daysAgo_other": "há {{count}} dias",
+  "notContacted": "Ainda não contatado",
+  "reminded_one": "{{count}} email em {{date}}",
+  "reminded_other": "{{count}} emails, último em {{date}}",
+  "blocked": {
+    "opted_out": "Pediu para não receber",
+    "answered": "Já respondeu",
+    "max_reminders": "Limite de emails atingido",
+    "recent_reminder": "Aguardar 7 dias",
+    "too_new": "Cadastro de hoje"
+  },
+  "confirmTitle": "Enviar email para {{count}} pessoa(s)?",
+  "confirmBody": "Cada pessoa recebe um email perguntando por que não concluiu o cadastro, com respostas de um clique, um botão para continuar e a opção de não receber mais. No máximo 2 emails por pessoa, com 7 dias de intervalo.",
+  "cancel": "Cancelar",
+  "confirmSend": "Enviar",
+  "sentToast": "Enviado para {{sent}}. {{skipped}} ignorado(s).",
+  "failed": "Não foi possível enviar os emails."
+}

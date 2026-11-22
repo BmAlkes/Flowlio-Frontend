@@ -1,0 +1,57 @@
+{
+  "title": "Unfinished signups",
+  "description": "People who created an account but never picked a plan or stopped at payment. Email them to ask what happened; they answer with one click.",
+  "show": "Show list",
+  "hide": "Hide list",
+  "empty": "No unfinished signups.",
+  "stats": {
+    "total": "Unfinished",
+    "noPlan": "No plan",
+    "checkout": "Stopped at payment",
+    "answered": "Answered",
+    "canRemind": "Can be emailed"
+  },
+  "reasonsTitle": "Why they stopped",
+  "reasons": {
+    "price": "The price",
+    "missing_feature": "Missing feature",
+    "too_complex": "Felt complicated",
+    "payment_problem": "Payment problem",
+    "just_exploring": "Just looking around",
+    "other": "Something else"
+  },
+  "stage": {
+    "no_plan": "No plan picked",
+    "checkout": "Stopped at payment"
+  },
+  "columns": {
+    "person": "Person",
+    "stoppedAt": "Stopped at",
+    "signedUp": "Signed up",
+    "lastSeen": "Last seen",
+    "followUp": "Follow-up"
+  },
+  "select": "Select",
+  "selectEligible": "Select everyone who can be emailed ({{count}})",
+  "language": "Email language",
+  "send": "Send email ({{count}})",
+  "unverified": "email not confirmed",
+  "daysAgo_one": "{{count}} day ago",
+  "daysAgo_other": "{{count}} days ago",
+  "notContacted": "Not contacted yet",
+  "reminded_one": "{{count}} email on {{date}}",
+  "reminded_other": "{{count}} emails, last on {{date}}",
+  "blocked": {
+    "opted_out": "Asked not to be emailed",
+    "answered": "Already answered",
+    "max_reminders": "Email limit reached",
+    "recent_reminder": "Wait 7 days",
+    "too_new": "Signed up today"
+  },
+  "confirmTitle": "Email {{count}} person(s)?",
+  "confirmBody": "Each person gets an email asking why they didn't finish signing up, with one-click answers, a button to continue and a way to stop these emails. At most 2 emails per person, 7 days apart.",
+  "cancel": "Cancel",
+  "confirmSend": "Send",
+  "sentToast": "Sent to {{sent}}. {{skipped}} skipped.",
+  "failed": "Couldn't send the emails."
+}
