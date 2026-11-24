@@ -19,6 +19,7 @@ vi.mock("react-i18next", () => ({useTranslation: () => ({t: (key: string) => key
 
 beforeEach(() => {
   vi.clearAllMocks();
+  localStorage.clear();
   state.scope = "org-a";
   state.user = {role: "user", isOrganizationOwner: true, isOrganizationManager: false, organizationId: "org-a", organization: {name: "Organization A"}};
   state.currencies = {"org-a": null, "org-b": null};
@@ -114,4 +115,13 @@ it.each(["manager", "member", "client"])("does not offer organization currency s
   expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   expect(state.get).not.toHaveBeenCalledWith("/organizations/financial-settings");
   expect(state.put).not.toHaveBeenCalled();
+});
+
+it("keeps the guide as a small reopen button when the welcome is put off, without hiding it for good", async () => {
+  const {user} = setup();
+  await user.click(await screen.findByRole("button", {name: "coreOnboarding.notNow"}));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(state.patch).not.toHaveBeenCalled();
+  await user.click(screen.getByRole("button", {name: /coreOnboarding.reopen/}));
+  expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "5");
 });

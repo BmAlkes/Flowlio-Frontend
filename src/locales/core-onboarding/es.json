@@ -11,7 +11,7 @@
   "progress": "Progreso de primeros pasos",
   "completed": "¡Todo listo! Puedes cerrar esta lista.",
   "done": "Completado",
-  "dismiss": "Ocultar lista",
+  "dismiss": "Cerrar lista",
   "start": "Empezar",
   "refresh": "Comprobar progreso",
   "error": "No se pudo ocultar la lista. Inténtalo de nuevo.",
@@ -21,5 +21,8 @@
   "currencyReady": "Moneda de la organización guardada. Ya puedes continuar con los siguientes pasos.",
   "step_create_task": "Agrega una tarea a un proyecto",
   "step_invite_member": "Invita a alguien del equipo",
-  "later": "Elegir después"
+  "later": "Elegir después",
+  "minimize": "Minimizar",
+  "reopen": "Abrir primeros pasos",
+  "notNow": "Ahora no"
 }

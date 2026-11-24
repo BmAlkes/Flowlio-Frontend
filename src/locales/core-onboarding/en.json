@@ -11,7 +11,7 @@
   "progress": "Onboarding progress",
   "completed": "All done! You can close this list.",
   "done": "Completed",
-  "dismiss": "Hide checklist",
+  "dismiss": "Close list",
   "start": "Get started",
   "refresh": "Check progress",
   "error": "Could not hide the checklist. Try again.",
@@ -21,5 +21,8 @@
   "currencyReady": "Organization currency saved. You can continue with your next steps.",
   "step_create_task": "Add a task to a project",
   "step_invite_member": "Invite a teammate",
-  "later": "Choose later"
+  "later": "Choose later",
+  "minimize": "Minimize",
+  "reopen": "Open first steps",
+  "notNow": "Not now"
 }

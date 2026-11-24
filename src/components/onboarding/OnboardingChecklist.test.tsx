@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
@@ -9,7 +9,7 @@ vi.mock("@/hooks/useOnboarding", () => ({ useOnboarding: () => state }));
 vi.mock("@/providers/user.provider", () => ({ useUser: () => ({data: {user: {role: "user", isOrganizationOwner: state.owner}}}) }));
 vi.mock("@/components/settings/CurrencySettings", () => ({CurrencySettings: ({showReconciliation}: {showReconciliation?: boolean}) => <div data-testid="currency-setup" data-historical={String(showReconciliation)} />}));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
-beforeEach(() => { vi.clearAllMocks(); state.owner = true; state.data.role = "admin"; state.steps = {create_client: null, create_project: {completedAt: "2026-09-21"}, create_task: null}; state.dismissError = false; state.showOnboarding = true; });
+beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); state.allDone = false; state.owner = true; state.data.role = "admin"; state.steps = {create_client: null, create_project: {completedAt: "2026-09-21"}, create_task: null}; state.dismissError = false; state.showOnboarding = true; });
 it("keeps regular members on their dashboard routes rather than viewer-only pages", () => {
   state.owner = false; state.data.role = "member"; state.steps = {complete_task: null, log_time: null, update_profile: null};
   render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
@@ -29,6 +29,23 @@ it("supports keyboard collapse and has no manual refresh", async () => {
   const user = userEvent.setup(); render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
   const toggle = screen.getByRole("button", { name: /coreOnboarding.title/ }); toggle.focus(); await user.keyboard("{Enter}"); expect(toggle).toHaveAttribute("aria-expanded", "false");
   await user.keyboard("{Enter}"); expect(screen.queryByRole("button", { name: "coreOnboarding.refresh" })).toBeNull();
+});
+it("minimizes to a small button that reopens the checklist, and remembers it", async () => {
+  const user = userEvent.setup(); const view = render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
+  await user.click(screen.getByRole("button", { name: "coreOnboarding.minimize" }));
+  expect(screen.queryByRole("complementary")).toBeNull();
+  expect(state.dismiss).not.toHaveBeenCalled();
+  view.unmount(); render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
+  await user.click(screen.getByRole("button", { name: "coreOnboarding.reopen (1/3)" }));
+  expect(screen.getByRole("link", { name: "coreOnboarding.step_create_client" })).toBeInTheDocument();
+  expect(localStorage.length).toBe(0);
+});
+it("offers closing the checklist for good only when every step is done", async () => {
+  render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
+  expect(screen.queryByRole("button", { name: "coreOnboarding.dismiss" })).toBeNull();
+  cleanup(); state.allDone = true; render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>);
+  await userEvent.click(screen.getByRole("button", { name: "coreOnboarding.dismiss" }));
+  expect(state.dismiss).toHaveBeenCalledOnce();
 });
 it("shows a failed dismissal", () => { state.dismissError = true; render(<MemoryRouter><OnboardingChecklist /></MemoryRouter>); expect(screen.getByRole("alert")).toHaveTextContent("coreOnboarding.error"); });
 it("lets Escape close the welcome dialog without dismissing the persisted checklist", async () => { const onStart = vi.fn(), onDismiss = vi.fn(); render(<OnboardingWelcomeModal onStart={onStart} onDismiss={onDismiss} />); await userEvent.keyboard("{Escape}"); expect(onStart).toHaveBeenCalledOnce(); expect(onDismiss).not.toHaveBeenCalled(); });
