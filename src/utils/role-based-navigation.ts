@@ -10,7 +10,7 @@ import { GroupIcon, TaskManagementIcon } from "@/components/customeIcons";
 import { MessageCircleQuestion, MessageCircleMore, Inbox, PlugZap } from "lucide-react";
 import type { NavItem } from "@/components/admin/appsidebar";
 import { BadgeDollarSign, TrendingUp } from "lucide-react";
-import { FolderOpen, ListTodo, FileText, Zap, Activity, History } from "lucide-react";
+import { FolderOpen, ListTodo, FileText, Zap, Activity, History, PenTool } from "lucide-react";
 
 // Client portal – project / tasks / invoices / media + self-service profile (PUT /user/profile)
 const clientNavItems: NavItem[] = [
@@ -127,6 +127,11 @@ const operatorNavItems: NavItem[] = [
     icon: React.createElement(TaskManagementIcon),
   },
   {
+    title: "whiteboards",
+    url: "/dashboard/whiteboards",
+    icon: React.createElement(PenTool),
+  },
+  {
     url: "/dashboard/time-tracking",
     title: "timeTracking",
     icon: React.createElement(Clock),
@@ -179,6 +184,11 @@ const userNavItems: NavItem[] = [
     url: "/dashboard/calender",
     title: "calendar",
     icon: React.createElement(IoCalendarOutline),
+  },
+  {
+    title: "whiteboards",
+    url: "/dashboard/whiteboards",
+    icon: React.createElement(PenTool),
   },
   {
     url: "/dashboard/time-tracking",
@@ -248,6 +258,11 @@ const userOrgOwnerNavItems: NavItem[] = [
     url: "/dashboard/calender",
     title: "calendar",
     icon: React.createElement(IoCalendarOutline),
+  },
+  {
+    title: "whiteboards",
+    url: "/dashboard/whiteboards",
+    icon: React.createElement(PenTool),
   },
   {
     url: "/dashboard/time-tracking",
@@ -409,6 +424,11 @@ const subAdminNavItems: NavItem[] = [
     url: "/dashboard/calender",
     title: "calendar",
     icon: React.createElement(IoCalendarOutline),
+  },
+  {
+    title: "whiteboards",
+    url: "/dashboard/whiteboards",
+    icon: React.createElement(PenTool),
   },
 
   {

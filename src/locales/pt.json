@@ -137,7 +137,8 @@
     "subscriptions": "Assinaturas",
     "financial": "Financeiro",
     "workspace": "Espaço de Trabalho",
-    "generalSettings": "Geral"
+    "generalSettings": "Geral",
+    "whiteboards": "Whiteboards"
   },
   "superadmin": {
     "companies": {
