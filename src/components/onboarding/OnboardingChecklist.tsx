@@ -1,4 +1,4 @@
-﻿import { useId, useState } from "react";
+import { useId, useState } from "react";
 import { Link } from "react-router";
 import { Check, ChevronDown, X } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
@@ -11,7 +11,8 @@ import { OnboardingCurrencySetup } from "./OnboardingCurrencySetup";
 const routes: Record<string, string> = {
   create_client: "/dashboard/client-management/create-client",
   create_project: "/dashboard/project/create-project",
-  approve_delivery: "/dashboard/project",
+  create_task: "/dashboard/task-management/create-task",
+  invite_member: "/dashboard/user-management/add-user-members",
   complete_task: "/dashboard/task-management",
   log_time: "/dashboard/time-tracking",
   update_profile: "/dashboard/settings",
@@ -19,7 +20,7 @@ const routes: Record<string, string> = {
 
 export function OnboardingChecklist() {
   const { t } = useTranslation();
-  const { data, steps, totalSteps, completedSteps, allDone, showOnboarding, dismiss, isLoading, dismissPending, dismissError, refresh, isRefreshing } = useOnboarding();
+  const { data, steps, totalSteps, completedSteps, allDone, showOnboarding, dismiss, isLoading, dismissPending, dismissError } = useOnboarding();
   const { data: session } = useUser();
   const [open, setOpen] = useState(true);
   const [currencyOpen, setCurrencyOpen] = useState(false);
@@ -36,7 +37,6 @@ export function OnboardingChecklist() {
     {open && <div id={contentId} className="space-y-3 p-3">
       <p className="text-xs text-muted-foreground">{t(allDone ? "coreOnboarding.completed" : "coreOnboarding.evidence")}</p>
       <ul className="space-y-1">{Object.entries(steps).filter(([key]) => key !== "configure_currency" || canConfigureCurrency).map(([key, step]) => <li key={key}>{step?.completedAt ? <span className="flex items-center gap-2 rounded-md p-2 text-sm text-muted-foreground"><Check aria-hidden="true" className="size-4 shrink-0 text-[#11718c] dark:text-[#55bdd9]" /><span>{t(`coreOnboarding.step_${key}`)}</span><span className="sr-only">{t("coreOnboarding.done")}</span></span> : key === "configure_currency" ? <button type="button" className="block w-full rounded-md p-2 text-start text-sm hover:bg-muted focus-visible:outline-2 focus-visible:outline-[#1797ba]" onClick={() => setCurrencyOpen(true)}>{t("coreOnboarding.step_configure_currency")}</button> : <Link className="block rounded-md p-2 text-sm hover:bg-muted focus-visible:outline-2 focus-visible:outline-[#1797ba]" to={routes[key] ?? "/dashboard"}>{t(`coreOnboarding.step_${key}`)}</Link>}</li>)}</ul>
-      <Button variant="ghost" size="sm" disabled={isRefreshing} onClick={refresh}>{t("coreOnboarding.refresh")}</Button>
     </div>}
     {dismissError && <p role="alert" className="px-3 pb-3 text-xs">{t("coreOnboarding.error")}</p>}
   </aside>

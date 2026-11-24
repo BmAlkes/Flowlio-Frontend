@@ -104,6 +104,20 @@ export const useActivateFreePlan = () => {
   });
 };
 
+/** Starts a paid plan's free trial without payment; creates the organization of a new account. */
+export const useStartTrial = () => {
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<ActivateFreeResult & { trialEndsAt: string | null }>, ErrorWithMessage, { planId: string; organizationName?: string; country?: string }>({
+    mutationFn: async ({ planId, organizationName, country }) => {
+      const response = await axios.post("/subscriptions/start-trial", { planId, organizationName, country });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription-status"] });
+    },
+  });
+};
+
 export const useCancelSubscription = () => {
   const queryClient = useQueryClient();
 

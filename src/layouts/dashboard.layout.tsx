@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 // import { SubscriptionGuard } from "@/components/common/subscriptionguard";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { TrialBanner, TrialEndedGate } from "@/components/subscription/TrialStatus";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { GlobalCommandPalette } from "@/components/common/GlobalCommandPalette";
 
@@ -91,6 +92,7 @@ export const DashboardLayout = () => {
         <AppSidebar navItems={navItems} />
         <SidebarInset className="bg-transparent overflow-auto">
           <HorizontalNavbar />
+          <TrialBanner />
           <Box className="pb-2">
             <ErrorBoundary section="this page" resetKey={location.pathname}>
               <Outlet />
@@ -99,6 +101,7 @@ export const DashboardLayout = () => {
         </SidebarInset>
       </SidebarProvider>
       <OnboardingProvider />
+      <TrialEndedGate />
       <GlobalCommandPalette />
     </Box>
     // </SubscriptionGuard>

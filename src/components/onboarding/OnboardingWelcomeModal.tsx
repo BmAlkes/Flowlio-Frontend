@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { OnboardingCurrencySetup } from "./OnboardingCurrencySetup";
@@ -22,6 +22,6 @@ export function OnboardingWelcomeModal({ organizationName, member, currencyStep 
       <OnboardingCurrencySetup configured={currencyConfigured} />
     </>}
     <p className="text-xs text-muted-foreground">{t("coreOnboarding.evidence")}</p>
-    <div className="flex flex-wrap gap-2"><Button type="button" disabled={currencyStep && !currencyConfigured} onClick={onStart}>{t("coreOnboarding.start")}</Button><Button type="button" variant="ghost" onClick={onDismiss}>{t("coreOnboarding.dismiss")}</Button></div>
+    <div className="flex flex-wrap gap-2"><Button type="button" onClick={onStart}>{t(currencyStep && !currencyConfigured ? "coreOnboarding.later" : "coreOnboarding.start")}</Button><Button type="button" variant="ghost" onClick={onDismiss}>{t("coreOnboarding.dismiss")}</Button></div>
   </DialogContent></Dialog>;
 }
