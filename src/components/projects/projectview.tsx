@@ -32,6 +32,7 @@ import {
   Upload,
   Copy,
   Loader2,
+  PenTool,
 } from "lucide-react";
 import { useSaveProjectAsTemplate } from "@/hooks/useProjectTemplates";
 import { Badge } from "../ui/badge";
@@ -839,6 +840,7 @@ export const ProjectView = () => {
               {showProjectFinancials && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/project/view/${project.id}/profitability`}><BarChart3 className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />{t("profitability.title")}</Link></Button>}
               {showAudit && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/settings/audit?projectId=${encodeURIComponent(project.id)}`}><History className="h-4 w-4 shrink-0 text-[#1797ba]" />{t("audit.title")}</Link></Button>}
               {(showAudit || isClient) && <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`${isClient ? "/clients/projects/view" : "/dashboard/project/view"}/${encodeURIComponent(project.id)}/changes`}><GitPullRequestArrow className="h-4 w-4 shrink-0 text-[#1797ba]" />{t("scope.title")}</Link></Button>}
+              <Button asChild variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start"><Link to={`/dashboard/whiteboards?projectId=${encodeURIComponent(project.id)}`}><PenTool className="h-4 w-4 shrink-0 text-[#1797ba]" />{t("whiteboards.title")}</Link></Button>
               <Button variant="ghost" className="h-auto min-h-10 w-full justify-start whitespace-normal py-2 text-start" onClick={() => { setTemplateNameInput(project.projectName || ""); setIsSaveTemplateModalOpen(true); }}><Copy className="h-4 w-4 shrink-0 text-purple-600 dark:text-purple-400" />{t("projectView.template")}</Button>
             </CardContent>
           </Card>}

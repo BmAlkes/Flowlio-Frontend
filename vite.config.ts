@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import path from "path";
-import { copyFileSync, readFileSync, writeFileSync } from "fs";
+import { copyFileSync, cpSync, readFileSync, writeFileSync } from "fs";
 
 // Cloudflare Pages serves unknown paths from 404.html with a 404 status. Public pages that
 // crawlers check (Meta, search engines) get their own copy so they answer 200, with their
@@ -24,9 +24,18 @@ const copyIndexTo404: import("vite").Plugin = {
   },
 };
 
+// The whiteboard editor loads its fonts from /excalidraw-assets/ in production instead of a third-party CDN.
+const copyExcalidrawFonts: import("vite").Plugin = {
+  name: "copy-excalidraw-fonts",
+  apply: "build",
+  closeBundle() {
+    cpSync("node_modules/@excalidraw/excalidraw/dist/prod/fonts", "dist/excalidraw-assets/fonts", { recursive: true });
+  },
+};
+
 export default defineConfig({
   define: { "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.CF_PAGES_COMMIT_SHA || process.env.APP_VERSION || "development") },
-  plugins: [react(), tailwindcss(), copyIndexTo404],
+  plugins: [react(), tailwindcss(), copyIndexTo404, copyExcalidrawFonts],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

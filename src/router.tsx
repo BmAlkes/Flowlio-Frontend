@@ -57,6 +57,8 @@ const SettingsPage = lazy(() => import("./pages/settings.page"));
 const OperationsPage = lazy(() => import("./pages/operations.page"));
 const ProjectProfitabilityPage = lazy(() => import("./pages/project-profitability.page"));
 const WorkflowsPage = lazy(() => import("./pages/workflows.page"));
+const WhiteboardsPage = lazy(() => import("./pages/whiteboards.page"));
+const WhiteboardPage = lazy(() => import("./pages/whiteboard.page"));
 const AttentionPage = lazy(() => import("./pages/attention.page"));
 const AuditPage = lazy(() => import("./pages/audit.page"));
 const ClientPendingPage = lazy(() => import("./pages/client-pending.page"));
@@ -466,6 +468,8 @@ const AppRoutes = () => {
           element={<LazyWrapper component={CalenderPage} />}
           path="calender"
         />
+        <Route path="whiteboards" element={<LazyWrapper component={WhiteboardsPage} />} />
+        <Route path="whiteboards/:id" element={<LazyWrapper component={WhiteboardPage} />} />
         <Route
           element={<LazyWrapper component={AiAssistPage} />}
           path="ai-assist"

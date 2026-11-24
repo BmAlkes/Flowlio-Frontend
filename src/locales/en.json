@@ -138,7 +138,8 @@
     "subscriptions": "Subscriptions",
     "financial": "Financial",
     "workspace": "Workspace",
-    "generalSettings": "General"
+    "generalSettings": "General",
+    "whiteboards": "Whiteboards"
   },
   "superadmin": {
     "companies": {
