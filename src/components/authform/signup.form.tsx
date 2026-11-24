@@ -5,14 +5,15 @@ import {
   FormField,
   FormMessage,
   FormControl,
+  FormDescription,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormWrapper } from "./formwrapper";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { authClient, useUser } from "@/providers/user.provider";
 import type { FC } from "react";
 import { z } from "zod";
@@ -24,176 +25,169 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
 import { Checkbox } from "../ui/checkbox";
 import { LEGAL_VERSION } from "@/configs/legal.config";
+import { useTranslation } from "react-i18next";
+import { useFetchPublicPlans } from "@/hooks/usefetchplans";
+import { useActivateFreePlan, useStartTrial } from "@/hooks/usesubscription";
+import { chooseStart, countryFromLocale, type StartPath } from "@/features/signup/start-plan";
 
-const formSchema = z.object({
-  username: z.string().min(1, { message: "Required field" }),
-  createpassword: z
-    .string()
-    .min(8, "Invalid Password")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
-    ),
-  email: z
-    .string()
-    .email({ message: "Invalid Email" })
-    .min(1, { message: "Required field" })
-    .max(50, { message: "Maximum 50 characters are allowed" }),
-  rememberMe: z.boolean(),
-  // LGPD: explicit acceptance of the Terms and Privacy Policy before creating the account.
-  acceptTerms: z.boolean().refine((value) => value, {
-    message: "You must accept the Terms of Service and Privacy Policy",
-  }),
-});
+const inputClass =
+  "bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm";
+
+/** What the chosen plan means for the person signing up, shown above the form. */
+function planNote(start: StartPath, t: (key: string, options?: Record<string, unknown>) => string) {
+  if (start.kind === "free") return t("conversion.signup.planFree", { name: start.plan.name });
+  if (start.kind === "trial") return t("conversion.signup.planTrial", { name: start.plan.name, count: start.trialDays });
+  if (start.kind === "checkout") return t("conversion.signup.planCheckout", { name: start.plan.name });
+  return null;
+}
 
 export const SignUpForm: FC = () => {
+  const { t } = useTranslation();
   useEffect(() => {
     scrollTo(0, 0);
-    document.title = "Sign Up - Flowlio";
-  }, []);
+    document.title = `${t("conversion.signup.title")} - Flowlio`;
+  }, [t]);
   const navigate = useNavigate();
   const { refetchUser } = useUser();
-  const { selectedPlanIndex, selectedPlanId } = usePlanSelectionStore();
+  const { selectedPlanId, setOrganizationData, clearPlanSelection } = usePlanSelectionStore();
+  const { data: plansResponse } = useFetchPublicPlans();
+  const activateFree = useActivateFreePlan();
+  const startTrial = useStartTrial();
+  const start = useMemo(() => chooseStart(plansResponse?.data ?? [], selectedPlanId), [plansResponse?.data, selectedPlanId]);
 
-  // Check if plan is selected, if not redirect to pricing
-  useEffect(() => {
-    if (selectedPlanIndex === null || !selectedPlanId) {
-      // No plan selected, redirect to pricing first
-      toast.info("Please select a plan first");
-      navigate("/pricing", {
-        state: {
-          fromSignup: true,
-        },
-        replace: true,
-      });
-    }
-  }, [selectedPlanIndex, selectedPlanId, navigate]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [stage, setStage] = useState<"idle" | "creating" | "starting">("idle");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        username: z.string().trim().min(1, { message: t("conversion.signup.errors.required") }),
+        organizationName: z.string().trim().min(1, { message: t("conversion.signup.errors.required") }).max(120),
+        createpassword: z
+          .string()
+          .min(8, t("conversion.signup.errors.passwordMin"))
+          .regex(/[A-Z]/, t("conversion.signup.errors.passwordUpper"))
+          .regex(/[^A-Za-z0-9]/, t("conversion.signup.errors.passwordSymbol")),
+        email: z
+          .string()
+          .min(1, { message: t("conversion.signup.errors.required") })
+          .email({ message: t("conversion.signup.errors.email") })
+          .max(50, { message: t("conversion.signup.errors.emailMax") }),
+        rememberMe: z.boolean(),
+        // LGPD: explicit acceptance of the Terms and Privacy Policy before creating the account.
+        acceptTerms: z.boolean().refine((value) => value, { message: t("conversion.signup.errors.terms") }),
+      }),
+    [t],
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      rememberMe: true,
-      acceptTerms: false,
-      createpassword: "",
-      email: ``,
-      username: ``,
-    },
+    defaultValues: { rememberMe: true, acceptTerms: false, createpassword: "", email: "", username: "", organizationName: "" },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    setError(null);
-
+  /** After the account exists: start the free plan or the trial right away, or continue to checkout. */
+  const startPlan = async (organizationName: string) => {
+    const country = countryFromLocale();
     try {
-      // Create the user account
+      if (start.kind === "free" || start.kind === "trial") {
+        setStage("starting");
+        const input = { planId: start.plan.id, organizationName, country };
+        if (start.kind === "free") await activateFree.mutateAsync(input);
+        else await startTrial.mutateAsync(input);
+        clearPlanSelection();
+        await refetchUser().catch(() => undefined);
+        toast.success(t("conversion.signup.created"));
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+      setOrganizationData({ organizationName });
+      toast.success(t("conversion.signup.created"));
+      if (start.kind === "checkout") {
+        navigate("/checkout", { replace: true, state: { fromSignup: true, createOrganization: true, selectedPlanId: start.plan.id } });
+      } else {
+        navigate("/pricing", { replace: true, state: { fromSignup: true, pendingAccount: true } });
+      }
+    } catch {
+      setOrganizationData({ organizationName });
+      toast.error(t("conversion.signup.startFailed"));
+      navigate("/pricing", { replace: true, state: { fromSignup: true, pendingAccount: true } });
+    }
+  };
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setStage("creating");
+    setError(null);
+    try {
       await authClient.signUp.email(
         {
-          name: data.username,
+          name: data.username.trim(),
           email: data.email,
           password: data.createpassword,
           termsVersion: LEGAL_VERSION,
         } as Parameters<typeof authClient.signUp.email>[0],
         {
-          onRequest: () => {
-            setIsLoading(true);
-            console.log("🔄 Signup request initiated for:", data.email);
-          },
-          onSuccess: async (response) => {
-            console.log("✅ Signup successful, response:", response);
-            toast.success("Account created successfully!");
-
-            // SIMPLIFIED FLOW: Just wait for session, then redirect based on store
-            // Wait for Better Auth session to be established
+          onSuccess: async () => {
+            // Give Better Auth a moment to set the session cookie, then load the new user.
             await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            // Refetch user data to ensure session is loaded (silently, don't block on errors)
-            try {
-              await refetchUser();
-            } catch (error) {
-              console.error("Error refetching user:", error);
-              // Continue anyway - session might still be established
-            }
-
-            // SIMPLIFIED: Check store for plan ID - that's our source of truth
-            if (selectedPlanId) {
-              console.log("✅ Plan ID in store, redirecting to checkout");
-              navigate("/checkout", {
-                state: {
-                  fromSignup: true,
-                  pendingPayment: false,
-                },
-                replace: true,
-              });
-              setIsLoading(false);
-              return;
-            }
-
-            // If no plan in store, redirect to pricing
-            console.log("⚠️ No plan ID in store, redirecting to pricing");
-            navigate("/pricing", {
-              state: {
-                fromSignup: true,
-                pendingAccount: true,
-              },
-              replace: true,
-            });
-            setIsLoading(false);
-            return;
+            await refetchUser().catch(() => undefined);
+            await startPlan(data.organizationName.trim());
+            setStage("idle");
           },
-          onError: (ctx: any) => {
-            let errorMessage = "Signup failed. Please try again.";
-
-            if (ctx?.error?.message) {
-              errorMessage = ctx.error.message;
-            } else if (ctx?.error?.status === 500) {
-              errorMessage = "Server error. Please try again later.";
-            } else if (ctx?.error?.status === 400) {
-              errorMessage =
-                "Invalid signup data. Please check your information.";
-            }
-
-            toast.error(errorMessage);
-            setError(errorMessage);
-            setIsLoading(false);
+          onError: (ctx: { error?: { message?: string } }) => {
+            const message = ctx?.error?.message || t("conversion.signup.failed");
+            toast.error(message);
+            setError(message);
+            setStage("idle");
           },
-        }
+        },
       );
-    } catch (error) {
-      console.error("💥 Unexpected signup error:", error);
-      setIsLoading(false);
-      setError("An unexpected error occurred. Please try again.");
+    } catch {
+      setError(t("conversion.signup.failed"));
+      setStage("idle");
     }
   };
 
+  const busy = stage !== "idle";
+  const note = planNote(start, t);
+
   return (
-    <FormWrapper
-      description="A Seamless Way to Manage Your Dashboard"
-      logoSource="/logo/logowithtext.png"
-      label="Create an account"
-    >
+    <FormWrapper description={t("conversion.signup.description")} logoSource="/logo/logowithtext.png" label={t("conversion.signup.title")}>
       <Form {...form}>
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
+        <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(onSubmit)}>
+          {note && (
+            <Flex className="mt-3 items-center justify-between gap-2 rounded-xl border border-[#1797B9]/30 bg-[#1797B9]/5 px-4 py-2 text-sm">
+              <span>{note}</span>
+              <Link to="/pricing" className="shrink-0 text-[#11718c] underline dark:text-[#55bdd9]">
+                {t("conversion.signup.changePlan")}
+              </Link>
+            </Flex>
+          )}
+
           <FormField
             control={form.control}
             name="username"
             render={({ field }) => (
-              <FormItem className="mt-4">
-                <FormLabel className="font-normal">Username</FormLabel>
+              <FormItem className="mt-2">
+                <FormLabel className="font-normal">{t("conversion.signup.name")}</FormLabel>
                 <FormControl>
-                  <Input
-                    size="lg"
-                    placeholder="Enter username here"
-                    {...field}
-                    className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
-                  />
+                  <Input size="lg" autoComplete="name" placeholder={t("conversion.signup.namePlaceholder")} {...field} className={inputClass} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="organizationName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-normal">{t("conversion.signup.organization")}</FormLabel>
+                <FormControl>
+                  <Input size="lg" autoComplete="organization" placeholder={t("conversion.signup.organizationPlaceholder")} {...field} className={inputClass} />
+                </FormControl>
+                <FormDescription className="text-xs">{t("conversion.signup.organizationHint")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -204,14 +198,9 @@ export const SignUpForm: FC = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-normal">Email</FormLabel>
+                <FormLabel className="font-normal">{t("conversion.signup.email")}</FormLabel>
                 <FormControl>
-                  <Input
-                    size="lg"
-                    placeholder="Enter email here"
-                    {...field}
-                    className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm"
-                  />
+                  <Input size="lg" type="email" autoComplete="email" placeholder={t("conversion.signup.emailPlaceholder")} {...field} className={inputClass} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -223,29 +212,29 @@ export const SignUpForm: FC = () => {
             name="createpassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-normal">Create Password</FormLabel>
-                <FormControl>
-                  <Box className="relative">
+                <FormLabel className="font-normal">{t("conversion.signup.password")}</FormLabel>
+                <Box className="relative">
+                  <FormControl>
                     <Input
                       size="lg"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Create a New Password"
-                      className="bg-background rounded-full border border-border placeholder:text-muted-foreground focus:border-gray-400 placeholder:text-sm pe-12"
+                      autoComplete="new-password"
+                      placeholder={t("conversion.signup.passwordPlaceholder")}
+                      className={`${inputClass} pe-12`}
                       {...field}
                     />
-                    <button
+                  </FormControl>
+                  <button
                       type="button"
+                      aria-label={t("conversion.signup.password")}
+                      aria-pressed={showPassword}
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
-                      {showPassword ? (
-                        <IoEyeOff size={20} />
-                      ) : (
-                        <IoEye size={20} />
-                      )}
+                      {showPassword ? <IoEyeOff size={20} /> : <IoEye size={20} />}
                     </button>
-                  </Box>
-                </FormControl>
+                </Box>
+                <FormDescription className="text-xs">{t("conversion.signup.passwordHint")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -258,21 +247,16 @@ export const SignUpForm: FC = () => {
               <FormItem>
                 <Flex className="items-start gap-2">
                   <FormControl>
-                    <Checkbox
-                      id="accept-terms"
-                      checked={field.value}
-                      onCheckedChange={(checked) => field.onChange(checked === true)}
-                      className="mt-0.5"
-                    />
+                    <Checkbox id="accept-terms" checked={field.value} onCheckedChange={(checked) => field.onChange(checked === true)} className="mt-0.5" />
                   </FormControl>
                   <label htmlFor="accept-terms" className="text-sm text-foreground/90 leading-snug cursor-pointer">
-                    I have read and accept the{" "}
+                    {t("conversion.signup.termsBefore")}{" "}
                     <a href="/terms-of-service" target="_blank" rel="noreferrer" className="underline text-blue-500">
-                      Terms of Service
+                      {t("conversion.signup.terms")}
                     </a>{" "}
-                    and the{" "}
+                    {t("conversion.signup.and")}{" "}
                     <a href="/privacy-policy" target="_blank" rel="noreferrer" className="underline text-blue-500">
-                      Privacy Policy
+                      {t("conversion.signup.privacy")}
                     </a>
                     .
                   </label>
@@ -284,22 +268,22 @@ export const SignUpForm: FC = () => {
 
           <Flex className="justify-end gap-0">
             <Anchor to="/auth/signin" className="text-sm text-blue-500">
-              Already have an account?
+              {t("conversion.signup.haveAccount")}
             </Anchor>
           </Flex>
 
           {error && (
-            <Box className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+            <Box role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg dark:bg-red-950/40 dark:border-red-900">
+              <p className="text-red-600 text-sm dark:text-red-300">{error}</p>
             </Box>
           )}
 
           <Button
             size="xl"
-            disabled={isLoading}
+            disabled={busy}
             className="bg-[#1797B9] text-white rounded-full cursor-pointer hover:bg-[#1797B9]/80 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {stage === "creating" ? t("conversion.signup.submitting") : stage === "starting" ? t("conversion.signup.starting") : t("conversion.signup.submit")}
           </Button>
         </form>
       </Form>

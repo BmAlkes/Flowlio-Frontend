@@ -26,7 +26,7 @@ beforeEach(() => {
     if (url === "/organizations/financial-settings") return {data: {data: {currencyCode: state.currencies[state.scope]}}};
     if (url !== "/onboarding") throw Error(`Unexpected endpoint: ${url}`);
     const role = state.user.isOrganizationOwner ? "admin" : state.user.isOrganizationManager ? "manager" : "member";
-    const workSteps = role === "member" ? {complete_task: null, log_time: null, update_profile: null} : {create_client: null, create_project: null, approve_delivery: null};
+    const workSteps = role === "member" ? {complete_task: null, log_time: null, update_profile: null} : {create_client: null, create_project: null, create_task: null, invite_member: null};
     const steps = role === "admin" ? {configure_currency: state.currencies[state.scope] ? {completedAt: "2026-09-29"} : null, ...workSteps} : workSteps;
     return {data: {data: {role, dismissed: false, completedAt: null, steps}}};
   });
@@ -49,18 +49,17 @@ async function currencySelect() {
   return select;
 }
 
-it("requires an explicitly saved currency and keeps the welcome open after saving", async () => {
+it("lets the owner skip currency for now and keeps the welcome open after saving it", async () => {
   const {user} = setup();
   const select = await currencySelect();
   expect(select).toHaveValue("");
-  const next = screen.getByRole("button", {name: "coreOnboarding.start"});
-  expect(next).toBeDisabled();
+  expect(screen.getByRole("button", {name: "coreOnboarding.later"})).toBeEnabled();
   await user.selectOptions(select, "ILS");
-  expect(next).toBeDisabled();
   await user.click(screen.getByRole("checkbox", {name: "core.financialSettings.confirm"}));
   await user.click(screen.getByRole("button", {name: "core.financialSettings.save"}));
   expect(await screen.findByText("coreOnboarding.currencyReady")).toHaveAttribute("role", "status");
   expect(screen.getByRole("dialog")).toBeInTheDocument();
+  const next = screen.getByRole("button", {name: "coreOnboarding.start"});
   expect(next).toBeEnabled();
   expect(state.put).toHaveBeenCalledWith("/organizations/financial-settings", {currencyCode: "ILS", previousCurrencyCode: null, confirm: true});
   expect(state.get).not.toHaveBeenCalledWith("/organizations/financial-settings/unresolved");
@@ -68,7 +67,7 @@ it("requires an explicitly saved currency and keeps the welcome open after savin
   await user.click(next);
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
-  expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "4");
+  expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuemax", "5");
 });
 
 it("keeps the currency step incomplete after a failed or stale save", async () => {
@@ -78,7 +77,7 @@ it("keeps the currency step incomplete after a failed or stale save", async () =
   await user.click(screen.getByRole("checkbox"));
   await user.click(screen.getByRole("button", {name: "core.financialSettings.save"}));
   expect(await screen.findByRole("alert")).toHaveTextContent("core.financialSettings.saveError");
-  expect(screen.getByRole("button", {name: "coreOnboarding.start"})).toBeDisabled();
+  expect(screen.getByRole("button", {name: "coreOnboarding.later"})).toBeEnabled();
   expect(state.currencies["org-a"]).toBeNull();
   expect(state.patch).not.toHaveBeenCalled();
 });
@@ -92,7 +91,7 @@ it("clears an unfinished currency choice and consent when the organization chang
   rerender();
   expect(await screen.findByRole("combobox")).toHaveValue("");
   expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
-  expect(screen.getByRole("button", {name: "coreOnboarding.start"})).toBeDisabled();
+  expect(screen.getByRole("button", {name: "coreOnboarding.later"})).toBeEnabled();
   expect(state.put).not.toHaveBeenCalled();
 });
 

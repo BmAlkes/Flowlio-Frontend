@@ -34,8 +34,10 @@ import {
 } from "@/hooks/usePayPalPayment";
 import { usePlanSelectionStore } from "@/store/planSelection.store";
 import type { IPlan } from "@/types";
-import { useSubscriptionStatus, useActivateFreePlan } from "@/hooks/usesubscription";
+import { useSubscriptionStatus, useActivateFreePlan, useStartTrial } from "@/hooks/usesubscription";
 import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { countryFromLocale, trialDaysOf } from "@/features/signup/start-plan";
 
 // Function to convert database features to display format
 const formatPlanFeatures = (planFeatures: any) => {
@@ -62,13 +64,14 @@ const formSchema = z.object({
 });
 
 const CheckoutPage = () => {
+  const { t } = useTranslation();
   useEffect(() => {
     scrollTo(0, 0);
     document.title = "Checkout - Flowlio";
   }, []);
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: userData, isLoading: userLoading } = useUser();
+  const { data: userData, isLoading: userLoading, refetchUser } = useUser();
   const { data: plansResponse, isLoading: plansLoading } =
     useFetchPublicPlans();
   const { data: subscriptionStatus } = useSubscriptionStatus({
@@ -77,6 +80,7 @@ const CheckoutPage = () => {
   const createSubscriptionMutation = useCreatePayPalSubscription();
   const activateSubscriptionMutation = useActivatePayPalSubscription();
   const activateFreePlanMutation = useActivateFreePlan();
+  const startTrialMutation = useStartTrial();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBackendDemoMode, setIsBackendDemoMode] = useState<boolean | null>(
     null
@@ -88,6 +92,7 @@ const CheckoutPage = () => {
     selectedPlanIndex: storePlanIndex,
     selectedPlanId: storePlanId,
     organizationName: storeOrgName,
+    clearPlanSelection,
   } = usePlanSelectionStore();
 
   const selectedPlanIndex = location.state?.selectedPlan ?? storePlanIndex;
@@ -123,33 +128,40 @@ const CheckoutPage = () => {
         ? plansArray.find((p: IPlan) => p.id === planIdToUse) || null
         : null;
 
-  // Detect free plan ($0) and handler — must be after selectedPlan declaration
+  // Free plans and trials start without payment; a trial only for accounts that have no organization yet.
   const isFreePlan = selectedPlan ? Number(selectedPlan.price) === 0 : false;
+  const trialDays = selectedPlan ? trialDaysOf(selectedPlan) : 0;
+  const hasOrganization = !!(userData?.user?.organizationId || userData?.user?.organization?.id);
+  const canStartTrial = !!selectedPlan && !isFreePlan && trialDays > 0 && !hasOrganization;
 
-  const handleActivateFreePlan = async () => {
+  const startWithoutPayment = async (mode: "free" | "trial") => {
     if (!selectedPlan) return;
-
     if (createOrganization) {
       const isValid = await form.trigger(["organizationName", "country"]);
       if (!isValid) return;
     }
-
     setIsProcessing(true);
     try {
       const formData = form.getValues();
-      await activateFreePlanMutation.mutateAsync({
+      const input = {
         planId: selectedPlan.id,
-        organizationName: createOrganization ? formData.organizationName : undefined,
-        country: createOrganization ? formData.country : undefined,
-      });
-      toast.success(`"${selectedPlan.name}" plan activated!`);
+        organizationName: formData.organizationName?.trim() || storeOrgName || undefined,
+        country: formData.country || undefined,
+      };
+      if (mode === "free") await activateFreePlanMutation.mutateAsync(input);
+      else await startTrialMutation.mutateAsync(input);
+      clearPlanSelection();
+      await refetchUser().catch(() => undefined);
+      toast.success(t("conversion.checkout.activated"));
       navigate("/dashboard", { replace: true });
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || "Failed to activate plan");
+      toast.error(err?.response?.data?.message || t("conversion.checkout.failed"));
     } finally {
       setIsProcessing(false);
     }
   };
+  const handleActivateFreePlan = () => startWithoutPayment("free");
+  const handleStartTrial = () => startWithoutPayment("trial");
 
   // Get plan details with dynamic features from database - memoize to prevent unnecessary re-renders
   const planDetails = useMemo(() => {
@@ -182,7 +194,7 @@ const CheckoutPage = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       organizationName: pendingOrgData?.organizationName || storeOrgName || "",
-      country: pendingOrgData?.country || "",
+      country: pendingOrgData?.country || COUNTRIES.find((country) => country.code === countryFromLocale())?.code || "",
     },
   });
 
@@ -212,7 +224,7 @@ const CheckoutPage = () => {
       hasHandledRedirect.current = true;
 
       // If no plan, redirect back to pricing
-      toast.info("Please select a plan first");
+      toast.info(t("conversion.checkout.selectPlanFirst"));
       navigate("/pricing", {
         state: {
           fromSignup: fromSignup,
@@ -385,7 +397,7 @@ const CheckoutPage = () => {
       });
 
       if (activateResponse.data?.status === "ACTIVE") {
-        toast.success("Subscription activated successfully!");
+        toast.success(t("conversion.checkout.subscribed"));
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1500);
@@ -604,7 +616,8 @@ const CheckoutPage = () => {
         currency: "USD",
         vault: true,
         intent: "subscription",
-        disableFunding: "credit,card" as const,
+        // Cards are allowed: many people have no PayPal account.
+        disableFunding: "credit" as const,
       }
       : { clientId: "", currency: "USD" as const, vault: false }; // Use empty string, not "sb" to avoid sandbox detection
 
@@ -627,11 +640,10 @@ const CheckoutPage = () => {
               />
               <Box className="flex-1">
                 <h3 className="font-semibold text-orange-900 mb-1">
-                  Trial Period Ended
+                  {t("conversion.checkout.trialEndedTitle")}
                 </h3>
                 <p className="text-orange-700 text-sm mt-1">
-                  Your trial period has ended. Please purchase a subscription to
-                  continue using our services.
+                  {t("conversion.checkout.trialEndedBody")}
                 </p>
               </Box>
             </Flex>
@@ -646,9 +658,15 @@ const CheckoutPage = () => {
                 {plan?.title || selectedPlan?.name || "Plan Details"}
               </h2>
               <p className="text-lg mb-1">
-                {formatPrice(plan?.price || selectedPlan?.price)} /{" "}
-                {plan?.duration || "Trial"}
+                {isFreePlan
+                  ? t("conversion.checkout.free")
+                  : `${formatPrice(selectedPlan?.price)} ${t(String(selectedPlan?.durationType ?? "").startsWith("year") ? "conversion.checkout.perYear" : "conversion.checkout.perMonth")}`}
               </p>
+              {canStartTrial && (
+                <p className="mb-2 text-sm font-semibold text-[#11718c] dark:text-[#55bdd9]">
+                  {t("conversion.checkout.trialDays", { count: trialDays })}
+                </p>
+              )}
               <p className="mb-4">
                 {plan?.description ||
                   selectedPlan?.description ||
@@ -657,7 +675,7 @@ const CheckoutPage = () => {
 
               {plan?.features && plan.features.length > 0 ? (
                 <>
-                  <h3 className="font-semibold mb-2">Included Services:</h3>
+                  <h3 className="font-semibold mb-2">{t("conversion.checkout.includes")}</h3>
                   <ul className="mb-4 list-disc ps-5">
                     {plan.features.map((feature: string, idx: number) => (
                       <li key={idx} className="text-sm">
@@ -666,18 +684,12 @@ const CheckoutPage = () => {
                     ))}
                   </ul>
                 </>
-              ) : (
-                <Box className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="text-yellow-700 text-sm">
-                    Features not available for this plan
-                  </p>
-                </Box>
-              )}
+              ) : null}
 
               {/* User Info Display */}
               {userData?.user && (
                 <Box className="mt-4 p-4 bg-card rounded-lg">
-                  <h4 className="font-semibold mb-2">Purchasing for:</h4>
+                  <h4 className="font-semibold mb-2">{t("conversion.checkout.purchasingFor")}</h4>
                   <p className="text-sm text-muted-foreground">{userData.user.name}</p>
                   <p className="text-sm text-muted-foreground">{userData.user.email}</p>
                 </Box>
@@ -689,7 +701,7 @@ const CheckoutPage = () => {
               {createOrganization && (
                 <>
                   <h2 className="text-xl font-semibold mb-4 font-Outfit">
-                    Organization Details
+                    {t("conversion.checkout.orgDetails")}
                   </h2>
                   <FormField
                     control={form.control}
@@ -697,12 +709,12 @@ const CheckoutPage = () => {
                     render={({ field }) => (
                       <FormItem className="mb-4">
                         <FormLabel className="font-normal">
-                          Organization Name *
+                          {t("conversion.checkout.orgName")} *
                         </FormLabel>
                         <FormControl>
                           <Input
                             className="border rounded-lg p-2 w-full bg-card h-12"
-                            placeholder="Enter your organization name"
+                            placeholder={t("conversion.checkout.orgNamePlaceholder")}
                             {...field}
                           />
                         </FormControl>
@@ -715,11 +727,11 @@ const CheckoutPage = () => {
                     name="country"
                     render={({ field }) => (
                       <FormItem className="mb-4">
-                        <FormLabel className="font-normal">Country *</FormLabel>
+                        <FormLabel className="font-normal">{t("conversion.checkout.country")} *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="border rounded-lg w-full bg-card h-12">
-                              <SelectValue placeholder="Select your country" />
+                              <SelectValue placeholder={t("conversion.checkout.countryPlaceholder")} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -737,7 +749,7 @@ const CheckoutPage = () => {
                 </>
               )}
 
-              <h3 className="font-semibold mb-4">Payment Method</h3>
+              <h3 className="font-semibold mb-4">{t("conversion.checkout.payment")}</h3>
 
               {/* DEMO PAYMENT COMMENTED OUT FOR PRODUCTION - Only real PayPal payments allowed */}
               {/* Show demo button if PayPal is not fully configured OR backend is in demo mode OR still checking */}
@@ -777,7 +789,7 @@ const CheckoutPage = () => {
                   </Box> */}
 
               {/* Configuration Instructions - Show error if PayPal not configured */}
-              {!isPayPalFullyConfigured && (
+              {import.meta.env.DEV && !isFreePlan && !checkingBackendMode && !isPayPalFullyConfigured && (
                 <Box className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="font-semibold text-yellow-800 mb-2">
                     PayPal Not Configured
@@ -838,87 +850,55 @@ const CheckoutPage = () => {
               {/* </> */}
               {/* ) : null} */}
               {/* DEMO MODE REMOVED - Only show PayPal buttons when configured */}
-              {isPayPalFullyConfigured && shouldLoadPayPalSDK && (
+              {isFreePlan ? (
+                <Box className="mb-4">
+                  <button type="button" onClick={handleActivateFreePlan} disabled={isProcessing} className="w-full py-3.5 rounded-xl bg-[#1797B9] hover:bg-[#1797B9]/90 text-white font-bold text-sm transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2">
+                    {isProcessing ? <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" aria-hidden="true" /> {t("conversion.checkout.activating")}</> : t("conversion.checkout.activateFree", { name: selectedPlan?.name ?? "" })}
+                  </button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">{t("conversion.checkout.noPayment")}</p>
+                </Box>
+              ) : (
                 <>
-                  {/* Warning if sandbox mode detected but should be live */}
-                  {(paypalMode !== "live" ||
-                    paypalClientId?.startsWith("sb-") ||
-                    paypalClientId?.includes("sandbox")) && (
-                      <Box className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="font-semibold text-red-800 mb-2">
-                          ⚠️ Sandbox Mode Detected
-                        </p>
-                        <p className="text-red-700 text-sm mb-2">
-                          Your PayPal is configured in sandbox mode. For real
-                          payments, you need:
-                        </p>
-                        <ul className="text-xs text-red-600 list-disc list-inside space-y-1">
-                          <li>
-                            A <strong>LIVE</strong> PayPal Client ID (not sandbox)
-                          </li>
-                          <li>
-                            Frontend: <code>VITE_PAYPAL_MODE=live</code> in .env
-                          </li>
-                          <li>
-                            Backend: <code>PAYPAL_MODE=live</code> in .env
-                          </li>
-                        </ul>
-                      </Box>
-                    )}
-                  {/* Free plan — bypass PayPal */}
-                  {isFreePlan ? (
+                  {canStartTrial && (
                     <Box className="mb-4">
-                      <button
-                        onClick={handleActivateFreePlan}
-                        disabled={isProcessing}
-                        className="w-full py-3.5 rounded-xl bg-[#1797B9] hover:bg-[#1797B9]/90 text-white font-bold text-sm transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        {isProcessing ? (
-                          <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> Activating…</>
-                        ) : (
-                          `Activate ${selectedPlan?.name ?? "Free"} Plan — $0`
-                        )}
+                      <button type="button" onClick={handleStartTrial} disabled={isProcessing} className="w-full py-3.5 rounded-xl bg-[#1797B9] hover:bg-[#1797B9]/90 text-white font-bold text-sm transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2">
+                        {isProcessing ? <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" aria-hidden="true" /> {t("conversion.checkout.activating")}</> : t("conversion.checkout.startTrial", { count: trialDays })}
                       </button>
-                      <p className="text-xs text-muted-foreground text-center mt-2">No payment required</p>
+                      <p className="text-xs text-muted-foreground text-center mt-2">{t("conversion.checkout.trialNoCard")}</p>
+                      <p className="mt-5 text-sm font-medium text-center">{t("conversion.checkout.orPayNow")}</p>
                     </Box>
-                  ) : (
-                    /* PayPal Buttons - Only show when fully configured */
+                  )}
+                  {import.meta.env.DEV && isPayPalFullyConfigured && (paypalMode !== "live" || paypalClientId?.startsWith("sb-") || paypalClientId?.includes("sandbox")) && (
+                    <Box className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                      PayPal sandbox mode (only visible in development).
+                    </Box>
+                  )}
+                  {isPayPalFullyConfigured && shouldLoadPayPalSDK ? (
                     <Box className="mb-4 bg-card rounded-lg p-4 border border-border">
                       <PayPalButtons
                         createSubscription={handlePayPalCreateSubscription}
                         onApprove={handlePayPalApprove}
                         onError={handlePayPalError}
                         onCancel={() => {
-                          toast.info("Payment cancelled");
+                          toast.info(t("conversion.checkout.cancelled"));
                           setIsProcessing(false);
                         }}
                         disabled={isProcessing}
-                        style={{
-                          layout: "vertical",
-                          color: "blue",
-                          shape: "rect",
-                          label: "paypal",
-                        }}
+                        style={{ layout: "vertical", color: "blue", shape: "rect", label: "paypal" }}
                       />
                     </Box>
+                  ) : (
+                    !checkingBackendMode && !import.meta.env.DEV && (
+                      <p role="alert" className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                        {t("conversion.checkout.paymentUnavailable")}
+                      </p>
+                    )
                   )}
-
-                  {/* PayPal Info Box for Sandbox */}
-                  {/* <Box className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
-                    <p className="font-semibold text-blue-800 mb-1">
-                      PayPal Sandbox Mode
-                    </p>
-                    <p className="text-blue-700">
-                      Use PayPal sandbox test accounts to complete the purchase.
-                      No real money will be charged.
-                    </p>
-                  </Box> */}
                 </>
               )}
 
               <div className="text-xs text-muted-foreground mt-4">
-                By completing your purchase, you agree to the company's Terms of
-                Service
+                {t("conversion.checkout.agree")}
               </div>
             </Box>
           </Flex>
