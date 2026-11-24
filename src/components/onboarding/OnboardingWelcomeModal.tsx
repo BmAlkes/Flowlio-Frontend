@@ -22,6 +22,6 @@ export function OnboardingWelcomeModal({ organizationName, member, currencyStep 
       <OnboardingCurrencySetup configured={currencyConfigured} />
     </>}
     <p className="text-xs text-muted-foreground">{t("coreOnboarding.evidence")}</p>
-    <div className="flex flex-wrap gap-2"><Button type="button" onClick={onStart}>{t(currencyStep && !currencyConfigured ? "coreOnboarding.later" : "coreOnboarding.start")}</Button><Button type="button" variant="ghost" onClick={onDismiss}>{t("coreOnboarding.dismiss")}</Button></div>
+    <div className="flex flex-wrap gap-2"><Button type="button" onClick={onStart}>{t(currencyStep && !currencyConfigured ? "coreOnboarding.later" : "coreOnboarding.start")}</Button><Button type="button" variant="ghost" onClick={onDismiss}>{t("coreOnboarding.notNow")}</Button></div>
   </DialogContent></Dialog>;
 }

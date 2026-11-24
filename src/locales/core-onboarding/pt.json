@@ -11,7 +11,7 @@
   "progress": "Progresso dos primeiros passos",
   "completed": "Tudo pronto! Você pode fechar esta lista.",
   "done": "Concluído",
-  "dismiss": "Ocultar checklist",
+  "dismiss": "Fechar lista",
   "start": "Começar",
   "refresh": "Conferir progresso",
   "error": "Não foi possível ocultar o checklist. Tente novamente.",
@@ -21,5 +21,8 @@
   "currencyReady": "Moeda da organização salva. Você já pode continuar com os próximos passos.",
   "step_create_task": "Adicione uma tarefa a um projeto",
   "step_invite_member": "Convide alguém da equipe",
-  "later": "Escolher depois"
+  "later": "Escolher depois",
+  "minimize": "Minimizar",
+  "reopen": "Abrir primeiros passos",
+  "notNow": "Agora não"
 }

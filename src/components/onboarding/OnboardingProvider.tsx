@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { OnboardingWelcomeModal } from "./OnboardingWelcomeModal";
 import { OnboardingChecklist } from "./OnboardingChecklist";
+import { writeOnboardingMinimized } from "./onboarding-minimized";
 import { useUser } from "@/providers/user.provider";
 import { useUserProfile } from "@/hooks/useuserprofile";
 import { useDataScope } from "@/hooks/useDataScope";
@@ -14,7 +15,7 @@ export function OnboardingProvider() {
 function ScopedOnboardingProvider() {
   const { data: userData } = useUser();
   const { data: userProfile } = useUserProfile();
-  const { data, isLoading, isFirstVisit, showOnboarding, dismiss } = useOnboarding();
+  const { data, isLoading, isFirstVisit, showOnboarding } = useOnboarding();
   const [showModal, setShowModal] = useState(false);
 
   // Block onboarding while a demo user hasn't changed their password yet
@@ -42,8 +43,9 @@ function ScopedOnboardingProvider() {
           currencyConfigured={!!data.steps.configure_currency?.completedAt}
           onStart={() => setShowModal(false)}
           onDismiss={() => {
+            // Not now: keep the guide as a small button in the corner instead of hiding it for good.
+            writeOnboardingMinimized(true);
             setShowModal(false);
-            dismiss();
           }}
         />
       )}
