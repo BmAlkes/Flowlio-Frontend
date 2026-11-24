@@ -111,8 +111,21 @@ export function guessMapping(headers: string[], kind: ImportKind): Mapping {
   return mapping;
 }
 
-/** Builds the request rows. `fixedProject` fills the project for task imports that have no project column. */
-export function buildRows(kind: ImportKind, rows: { cells: Cell[]; group: string | null }[], mapping: Mapping, fixedProject = "") {
+/** Monday's internal columns, never worth keeping. */
+const IGNORED_EXTRA = new Set(["item id", "id do item", "subitems", "subelementos", "creation log", "last updated"]);
+
+/** Columns not mapped to a Flowlio field and with some data: offered to be kept as custom fields. */
+export function extraColumns(headers: string[], rows: { cells: Cell[] }[], mapping: Mapping) {
+  const used = new Set(Object.values(mapping).filter(index => index != null && index >= 0));
+  return headers.flatMap((header, index) => {
+    const name = header.trim();
+    if (!name || used.has(index) || IGNORED_EXTRA.has(normalizeLabel(name))) return [];
+    return rows.some(row => cellText(row.cells[index]) !== "") ? [{ index, name: name.slice(0, 100) }] : [];
+  });
+}
+
+/** Builds the request rows. `fixedProject` fills the project for task imports that have no project column; `extra` are kept columns. */
+export function buildRows(kind: ImportKind, rows: { cells: Cell[]; group: string | null }[], mapping: Mapping, fixedProject = "", extra: { index: number; name: string }[] = []) {
   const value = (row: { cells: Cell[]; group: string | null }, key: FieldKey) => {
     const index = mapping[key];
     if (index == null) return "";
@@ -120,9 +133,12 @@ export function buildRows(kind: ImportKind, rows: { cells: Cell[]; group: string
     return cellText(row.cells[index]);
   };
   const raw = (row: { cells: Cell[]; group: string | null }, key: FieldKey): Cell => (mapping[key] == null || mapping[key] === GROUP ? value(row, key) : row.cells[mapping[key]!]);
+  const extras = (row: { cells: Cell[] }): Record<string, string> =>
+    Object.fromEntries(extra.map(column => [column.name, cellText(row.cells[column.index])] as const).filter(([, cell]) => cell !== ""));
   return rows.map(row => {
     if (kind !== "tasks") {
       return {
+        extra: extras(row),
         name: value(row, "name"), email: value(row, "email"), phone: value(row, "phone"), cpfcnpj: value(row, "cpfcnpj"),
         businessIndustry: value(row, "businessIndustry"), address: value(row, "address"), status: value(row, "status"), note: value(row, "note"),
       };
@@ -138,6 +154,7 @@ export function buildRows(kind: ImportKind, rows: { cells: Cell[]; group: string
       startDate: toIsoDate(raw(row, "startDate")) ?? timelineStart,
       endDate: toIsoDate(raw(row, "endDate")) ?? timelineEnd,
       estimatedHours: value(row, "estimatedHours") || null,
+      extra: extras(row),
     };
   });
 }

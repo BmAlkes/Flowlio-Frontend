@@ -1,12 +1,45 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import type { Task } from "./kanbanboard";
 import { DueChip, TaskAvatar } from "./TaskBits";
 import { STATUS_I18N, TASK_STATUSES, statusToneClass, type TaskStatusKey } from "./task-ui";
+import type { CustomFieldDefinition } from "@/hooks/usecustomfields";
+import { compareFieldValues, type FormatContext } from "@/features/custom-fields/field-values";
+import { FieldCell, useTaskFieldValues } from "@/features/custom-fields/TaskFields";
+
+/** Custom field columns of the list, and how to show and edit them. */
+export type FieldColumns = { fields: CustomFieldDefinition[]; context: FormatContext; canEdit: boolean };
+type Sort = { fieldId: string; direction: 1 | -1 } | null;
+
+function FieldCells({ task, columns }: { task: Task; columns: FieldColumns }) {
+  const { values, save } = useTaskFieldValues(task.id, task.customFields);
+  return (
+    <>
+      {columns.fields.map(field => (
+        <td key={field.id} className="max-w-[220px]">
+          <FieldCell field={field} value={values[field.id]} context={columns.context} canEdit={columns.canEdit} onSave={value => save(field.id, value)} />
+        </td>
+      ))}
+    </>
+  );
+}
+
+function SortHeader({ field, sort, onSort }: { field: CustomFieldDefinition; sort: Sort; onSort: (fieldId: string) => void }) {
+  const { t } = useTranslation();
+  const active = sort?.fieldId === field.id;
+  return (
+    <th scope="col" aria-sort={active ? (sort!.direction === 1 ? "ascending" : "descending") : "none"}>
+      <button type="button" className="inline-flex items-center gap-1 font-[inherit]" onClick={() => onSort(field.id)} aria-label={t("customFields.sortBy", { field: field.name })}>
+        {field.name}
+        {active && (sort!.direction === 1 ? <ArrowUp className="size-3" aria-hidden="true" /> : <ArrowDown className="size-3" aria-hidden="true" />)}
+      </button>
+    </th>
+  );
+}
 
 const PAGE = 5; // Completed tasks show this many until expanded.
 
@@ -50,8 +83,8 @@ function AddRow({ status, colSpan, onAdd }: { status: TaskStatusKey; colSpan: nu
   );
 }
 
-function Group({ status, tasks, showProject, onTaskClick, onStatusUpdate, onAddTask }: {
-  status: TaskStatusKey; tasks: Task[]; showProject: boolean;
+function Group({ status, tasks, showProject, fieldColumns, sort, onSort, onTaskClick, onStatusUpdate, onAddTask }: {
+  status: TaskStatusKey; tasks: Task[]; showProject: boolean; fieldColumns?: FieldColumns; sort: Sort; onSort: (fieldId: string) => void;
   onTaskClick?: (task: Task) => void;
   onStatusUpdate?: (taskId: string, status: TaskStatusKey) => void;
   onAddTask?: (status: TaskStatusKey, title?: string) => void;
@@ -61,7 +94,7 @@ function Group({ status, tasks, showProject, onTaskClick, onStatusUpdate, onAddT
   const [showAll, setShowAll] = useState(status !== "completed");
   const name = t(STATUS_I18N[status]);
   const visible = showAll ? tasks : tasks.slice(0, PAGE);
-  const columns = showProject ? 5 : 4;
+  const columns = (showProject ? 5 : 4) + (fieldColumns?.fields.length ?? 0);
 
   return (
     <section aria-label={name} className={statusToneClass(status)}>
@@ -83,6 +116,7 @@ function Group({ status, tasks, showProject, onTaskClick, onStatusUpdate, onAddT
                   <th scope="col">{t("tasksLayout.dueDate")}</th>
                   {showProject && <th scope="col">{t("taskManagement.projects")}</th>}
                   <th scope="col" className="tk-center">{t("tasksLayout.subtasks")}</th>
+                  {fieldColumns?.fields.map(field => <SortHeader key={field.id} field={field} sort={sort} onSort={onSort} />)}
                 </tr>
               </thead>
               <tbody>
@@ -95,6 +129,7 @@ function Group({ status, tasks, showProject, onTaskClick, onStatusUpdate, onAddT
                     <td><DueChip endDate={task.endDate} status={task.statusKey} /></td>
                     {showProject && <td className="max-w-[260px] truncate text-muted-foreground" title={task.project}>{task.project}</td>}
                     <td className="tk-center text-muted-foreground">{task.subtasks?.total ? `${task.subtasks.done}/${task.subtasks.total}` : "—"}</td>
+                    {fieldColumns && <FieldCells task={task} columns={fieldColumns} />}
                   </tr>
                 ))}
                 {tasks.length > PAGE && status === "completed" && (
@@ -117,16 +152,29 @@ function Group({ status, tasks, showProject, onTaskClick, onStatusUpdate, onAddT
   );
 }
 
-export function TaskListView({ tasks, showProject, hiddenStatuses = [], onTaskClick, onStatusUpdate, onAddTask }: {
-  tasks: Task[]; showProject: boolean; hiddenStatuses?: TaskStatusKey[];
+export function TaskListView({ tasks, showProject, hiddenStatuses = [], fieldColumns, onTaskClick, onStatusUpdate, onAddTask }: {
+  tasks: Task[]; showProject: boolean; hiddenStatuses?: TaskStatusKey[]; fieldColumns?: FieldColumns;
   onTaskClick?: (task: Task) => void;
   onStatusUpdate?: (taskId: string, status: TaskStatusKey) => void;
   onAddTask?: (status: TaskStatusKey, title?: string) => void;
 }) {
+  const [sort, setSort] = useState<Sort>(null);
+  // Click once ascending, twice descending, a third time back to the normal order.
+  const onSort = (fieldId: string) => setSort(current => (current?.fieldId !== fieldId ? { fieldId, direction: 1 } : current.direction === 1 ? { fieldId, direction: -1 } : null));
+  const sortField = sort && fieldColumns?.fields.find(field => field.id === sort.fieldId);
+  const ordered = sortField
+    ? [...tasks].sort((a, b) => {
+      const result = compareFieldValues(sortField, a.customFields?.[sortField.id], b.customFields?.[sortField.id], fieldColumns!.context);
+      // Empty values stay last in both directions.
+      const aEmpty = a.customFields?.[sortField.id] == null, bEmpty = b.customFields?.[sortField.id] == null;
+      return aEmpty !== bEmpty ? result : result * sort!.direction;
+    })
+    : tasks;
   return (
     <div className="tk-list">
       {TASK_STATUSES.filter(status => !hiddenStatuses.includes(status)).map(status => (
-        <Group key={status} status={status} tasks={tasks.filter(task => task.statusKey === status)} showProject={showProject}
+        <Group key={status} status={status} tasks={ordered.filter(task => task.statusKey === status)} showProject={showProject}
+          fieldColumns={fieldColumns} sort={sort} onSort={onSort}
           onTaskClick={onTaskClick} onStatusUpdate={onStatusUpdate} onAddTask={onAddTask} />
       ))}
     </div>

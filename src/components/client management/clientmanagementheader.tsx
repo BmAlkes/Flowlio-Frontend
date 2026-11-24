@@ -8,7 +8,7 @@ import {
   GeneralModal,
   useGeneralModalDisclosure,
 } from "../common/generalmodal";
-import { CustomFieldsManager } from "../projects/customfields/CustomFieldsManager";
+import { FieldsManager } from "@/features/custom-fields/FieldsManager";
 import { Box } from "../ui/box";
 import { Flex } from "../ui/flex";
 import { ClientManagementTable } from "./clientmanagementtable";
@@ -61,7 +61,7 @@ export const ClientManagementHeader = () => {
           <h2 className="text-xl font-semibold mb-4">
             {t("clientManagement.manageCustomFieldsTitle")}
           </h2>
-          <CustomFieldsManager entityType="client" />
+          <FieldsManager entityType="client" />
         </Box>
       </GeneralModal>
     </PageWrapper>
