@@ -16,7 +16,7 @@ import {
   GeneralModal,
   useGeneralModalDisclosure,
 } from "../common/generalmodal";
-import { CustomFieldsManager } from "./customfields/CustomFieldsManager";
+import { FieldsManager } from "@/features/custom-fields/FieldsManager";
 import { useUser } from "@/providers/user.provider";
 
 export const ProjectHeader = () => {
@@ -91,7 +91,7 @@ export const ProjectHeader = () => {
         <GeneralModal {...customFieldsModal}>
           <Box className="p-1">
             <h2 className="text-xl font-semibold mb-4">Manage Custom Fields</h2>
-            <CustomFieldsManager entityType="project" />
+            <FieldsManager entityType="project" />
           </Box>
         </GeneralModal>
       )}

@@ -97,7 +97,10 @@
       "endDate": "Fecha límite",
       "timeline": "Timeline (inicio - fin)",
       "estimatedHours": "Horas estimadas"
-    }
+    },
+    "extraTitle": "Otras columnas de la hoja",
+    "extraTasks": "Las columnas marcadas se convierten en campos personalizados de las tareas (con el tipo detectado por sus valores) y aparecen en la Lista.",
+    "extraContacts": "Las columnas marcadas se guardan en el registro y aparecen en la ficha de cada lead o cliente."
   },
   "dataAdmin": {
     "title": "Copias por organización",

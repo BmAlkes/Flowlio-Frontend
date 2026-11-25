@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { CheckCircle2, ChevronDown, CirclePlus, KanbanSquare, List, Search } from "lucide-react";
+import { CheckCircle2, ChevronDown, CirclePlus, KanbanSquare, List, Search, SlidersHorizontal } from "lucide-react";
 import { PageWrapper } from "../common/pagewrapper";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -21,6 +21,12 @@ import { TaskDetailsModal } from "./taskdetailsmodal";
 import { STATUS_LABEL, TASK_STATUSES, matchesStat, toStatusKey, type TaskStatFilter, type TaskStatusKey } from "./task-ui";
 import "@/components/leads/leads-layout.css";
 import "./tasks-layout.css";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useUser } from "@/providers/user.provider";
+import { columnsFor } from "@/features/custom-fields/field-values";
+import { useFieldContext } from "@/features/custom-fields/FieldValue";
+import { useCanEditTaskFields } from "@/features/custom-fields/TaskFields";
+import { FieldsManager } from "@/features/custom-fields/FieldsManager";
 
 export const TaskManagementHeader = () => {
   const { t } = useTranslation();
@@ -39,6 +45,15 @@ export const TaskManagementHeader = () => {
   const orgUsers = useFetchOrganizationUsers();
   const orgProjects = useFetchProjects();
   const { data: customFieldsData } = useFetchCustomFields("project");
+  const { data: taskFieldsData } = useFetchCustomFields("task");
+  const fieldContext = useFieldContext();
+  const canEditFields = useCanEditTaskFields();
+  const { data: session } = useUser();
+  const sessionUser = session?.user;
+  const canManageFields = ["superadmin", "subadmin"].includes(sessionUser?.role ?? "") || (sessionUser?.role === "user" && Boolean(sessionUser.isOrganizationOwner || sessionUser.isOrganizationManager));
+  const [fieldsOpen, setFieldsOpen] = useState(false);
+  // Filter by one option of a list field, e.g. Priority = High.
+  const [fieldFilter, setFieldFilter] = useState<{ fieldId: string; value: string } | null>(null);
   const updateTaskStatus = useUpdateTaskStatus();
   const isLoading = orgTasks.isLoading || orgProjects.isLoading;
 
@@ -76,6 +91,7 @@ export const TaskManagementHeader = () => {
         startAfter: task.startAfter ?? undefined,
         finishBefore: task.finishBefore ?? undefined,
         projectCustomFields: projectList.find(p => p.id === task.projectId)?.customFields,
+        customFields: task.customFields,
       };
     });
   }, [orgTasks.data, orgProjects.data, orgUsers.data, t]);
@@ -86,8 +102,9 @@ export const TaskManagementHeader = () => {
     return tasks.filter(task =>
       (!query || task.title.toLowerCase().includes(query) || task.project.toLowerCase().includes(query)) &&
       (selectedUsers.length === 0 || selectedUsers.includes(task.assigneeId || "")) &&
-      (selectedProjects.length === 0 || selectedProjects.includes(task.projectId || "")));
-  }, [tasks, search, selectedUsers, selectedProjects]);
+      (selectedProjects.length === 0 || selectedProjects.includes(task.projectId || "")) &&
+      (!fieldFilter || task.customFields?.[fieldFilter.fieldId] === fieldFilter.value));
+  }, [tasks, search, selectedUsers, selectedProjects, fieldFilter]);
   const visible = useMemo(() => {
     const now = new Date();
     return scoped.filter(task => matchesStat(task, stat, now));
@@ -97,11 +114,15 @@ export const TaskManagementHeader = () => {
   const hiddenStatuses: TaskStatusKey[] = stat === "completed" ? TASK_STATUSES.filter(s => s !== "completed")
     : hideCompleted || stat ? ["completed"] : [];
   const showProject = selectedProjects.length !== 1;
-  const filtersOn = Boolean(search || selectedUsers.length || selectedProjects.length || stat || hideCompleted);
+  const filtersOn = Boolean(search || selectedUsers.length || selectedProjects.length || stat || hideCompleted || fieldFilter);
+  const taskFields = taskFieldsData?.data ?? [];
+  const fieldColumns = { fields: columnsFor(taskFields, selectedProjects.length === 1 ? selectedProjects[0] : null), context: fieldContext, canEdit: canEditFields };
+  const filterableFields = taskFields.filter(field => field.type === "select" && (!field.projectId || selectedProjects.length !== 1 || field.projectId === selectedProjects[0]));
+  const filterField = fieldFilter && taskFields.find(field => field.id === fieldFilter.fieldId);
 
   const toggle = (setter: typeof setSelectedUsers, id: string) =>
     setter(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
-  const clearFilters = () => { setSearch(""); setSelectedUsers([]); setSelectedProjects([]); setStat(null); setHideCompleted(false); };
+  const clearFilters = () => { setSearch(""); setSelectedUsers([]); setSelectedProjects([]); setStat(null); setHideCompleted(false); setFieldFilter(null); };
   const setView = (next: "board" | "list") => setParams(prev => {
     const out = new URLSearchParams(prev);
     if (next === "list") out.set("view", "list"); else out.delete("view");
@@ -146,6 +167,11 @@ export const TaskManagementHeader = () => {
                 <List aria-hidden="true" className="size-4" />{t("tasksLayout.list")}
               </Button>
             </div>
+            {canManageFields && (
+              <Button variant="outline" className="h-11" onClick={() => setFieldsOpen(true)}>
+                <SlidersHorizontal aria-hidden="true" className="size-4" />{t("customFields.manage")}
+              </Button>
+            )}
             <Button className="ld-primary h-11 px-5" onClick={() => handleAddTask()}>
               <CirclePlus aria-hidden="true" className="size-5" />{t("tasksLayout.newTask")}
             </Button>
@@ -191,6 +217,24 @@ export const TaskManagementHeader = () => {
               </CustomDropdownItem>
             ))}
           </CustomDropdown>
+          {filterableFields.length > 0 && (
+            <CustomDropdown align="end" className="w-64" trigger={
+              <Button variant="outline" aria-haspopup="dialog" className="h-10 gap-2 max-w-[240px]">
+                <SlidersHorizontal aria-hidden="true" className="size-4 shrink-0" />
+                <span className="truncate">{filterField ? `${filterField.name}: ${fieldFilter!.value}` : t("customFields.filter")}</span>
+                <ChevronDown aria-hidden="true" className="size-4 shrink-0" />
+              </Button>
+            }>
+              <CustomDropdownItem checked={!fieldFilter} onClick={() => setFieldFilter(null)}>{t("customFields.noFilter")}</CustomDropdownItem>
+              {filterableFields.flatMap(field => (field.options ?? []).map(option => (
+                <CustomDropdownItem key={`${field.id}:${option.label}`} checked={fieldFilter?.fieldId === field.id && fieldFilter.value === option.label}
+                  onClick={() => setFieldFilter({ fieldId: field.id, value: option.label })}>
+                  <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: option.color }} aria-hidden="true" />
+                  <span className="truncate">{field.name}: {option.label}</span>
+                </CustomDropdownItem>
+              )))}
+            </CustomDropdown>
+          )}
           <Button variant="outline" className={cn("h-10 gap-2", hideCompleted && "border-[var(--ld-ink)] text-[var(--ld-ink)]")}
             aria-pressed={hideCompleted} onClick={() => setHideCompleted(value => !value)}>
             <CheckCircle2 aria-hidden="true" className="size-4" />{t("tasksLayout.hideCompleted")}
@@ -205,12 +249,12 @@ export const TaskManagementHeader = () => {
             <Button variant="outline" size="sm" onClick={clearFilters}>{t("tasksLayout.clearFilters")}</Button>
           </div>
         ) : view === "list" ? (
-          <TaskListView tasks={visible} showProject={showProject} hiddenStatuses={hiddenStatuses}
+          <TaskListView tasks={visible} showProject={showProject} hiddenStatuses={hiddenStatuses} fieldColumns={fieldColumns}
             onTaskClick={setSelectedTask} onStatusUpdate={handleStatusUpdate} onAddTask={handleAddTask} />
         ) : (
           <KanbanBoard tasks={visible} showProject={showProject} hiddenStatuses={hiddenStatuses}
             onStatusUpdate={handleStatusUpdate} onTaskClick={setSelectedTask} onAddTask={handleAddTask}
-            projectCustomFieldsData={customFieldsData?.data} />
+            projectCustomFieldsData={customFieldsData?.data} cardFields={{ fields: taskFields, context: fieldContext }} />
         )}
       </div>
 
@@ -232,12 +276,24 @@ export const TaskManagementHeader = () => {
             parentTitle: selectedTask.parentTitle,
             startAfter: selectedTask.startAfter,
             finishBefore: selectedTask.finishBefore,
+            customFields: selectedTask.customFields,
           }}
           allTasks={tasks}
           onOpenTask={taskId => setSelectedTask(tasks.find(x => x.id === taskId) ?? null)}
           isOpen={Boolean(selectedTask)}
           onClose={() => setSelectedTask(null)}
         />
+      )}
+      {fieldsOpen && (
+        <Dialog open onOpenChange={setFieldsOpen}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{t("customFields.manageTitle")}</DialogTitle>
+              <DialogDescription>{t("customFields.manageDescription")}</DialogDescription>
+            </DialogHeader>
+            <FieldsManager entityType="task" />
+          </DialogContent>
+        </Dialog>
       )}
     </PageWrapper>
   );

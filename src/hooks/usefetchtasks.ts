@@ -47,6 +47,8 @@ export interface Task {
   // Dependencies
   startAfter?: string | null;
   finishBefore?: string | null;
+  // Task custom field values, keyed by field id
+  customFields?: Record<string, unknown>;
 }
 
 export interface GetTasksResponse {

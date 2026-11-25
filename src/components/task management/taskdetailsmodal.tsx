@@ -1,4 +1,5 @@
 import { useUser } from "@/providers/user.provider";
+import { TaskFieldsPanel } from "@/features/custom-fields/TaskFields";
 import { AgentContextButton } from "@/components/ai assist/AgentContextButton";
 import { canCreateResources, canUpdateResources, canDeleteResources } from "@/utils/resourcePermissions";
 import React, { useState, useMemo } from "react";
@@ -65,6 +66,7 @@ interface TaskDetailsModalProps {
     parentTitle?: string;
     startAfter?: string | null;
     finishBefore?: string | null;
+    customFields?: Record<string, unknown>;
   };
   allTasks: TaskForMap[];
   onOpenTask: (taskId: string) => void;
@@ -487,6 +489,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
                   </span>
                 </Flex>
               </Box>
+
+              <TaskFieldsPanel taskId={task.id} projectId={task.projectId} initialValues={task.customFields} />
 
               {/* Due Date */}
               <Box className="bg-card rounded-xl p-4 border border-border">

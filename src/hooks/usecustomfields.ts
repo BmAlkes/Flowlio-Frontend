@@ -1,7 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axios } from "@/configs/axios.config";
+import { useDataScope } from "./useDataScope";
 
-export type CustomFieldType = "text" | "number" | "date" | "select" | "boolean";
+/** The first five types work on projects, clients and tasks; the rest are task-only. */
+export const BASIC_FIELD_TYPES = ["text", "number", "date", "select", "boolean"] as const;
+export const TASK_FIELD_TYPES = [...BASIC_FIELD_TYPES, "currency", "rating", "progress", "person", "url", "email", "phone"] as const;
+export type CustomFieldType = (typeof TASK_FIELD_TYPES)[number];
+export type CustomFieldEntity = "project" | "client" | "task";
 
 export interface OptionWithColor {
   label: string;
@@ -16,6 +21,9 @@ export interface CustomFieldDefinition {
   name: string;
   type: CustomFieldType;
   options?: OptionWithColor[];
+  /** Task fields only: the project the field belongs to, or null for every project. */
+  projectId?: string | null;
+  position?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,18 +33,22 @@ export interface CreateCustomFieldData {
   type: CustomFieldType;
   options?: OptionWithColor[];
   entityType?: string;
+  projectId?: string | null;
 }
 
 export interface UpdateCustomFieldData {
   id: string;
   name?: string;
   options?: OptionWithColor[];
+  position?: number;
 }
 
 // Fetch Custom Fields
-export const useFetchCustomFields = (entityType: string = "project") => {
+export const useFetchCustomFields = (entityType: string = "project", options?: { enabled?: boolean }) => {
+  const scope = useDataScope();
   return useQuery({
-    queryKey: ["custom-fields", entityType],
+    queryKey: ["custom-fields", entityType, scope],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       const response = await axios.get<{
         success: boolean;
@@ -95,6 +107,21 @@ export const useDeleteCustomField = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["custom-fields"] });
+    },
+  });
+};
+
+/** Sets (or clears, with null) custom field values on one task. */
+export const useSetTaskFieldValues = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ taskId, values }: { taskId: string; values: Record<string, unknown> }) => {
+      const response = await axios.patch<{ success: boolean; data: { id: string; customFields: Record<string, unknown> } }>(
+        `/tasks/${encodeURIComponent(taskId)}/custom-fields`, { values });
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 };

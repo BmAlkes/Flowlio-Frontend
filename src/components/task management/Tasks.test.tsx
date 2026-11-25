@@ -9,7 +9,8 @@ import { TaskManagementHeader } from "./taskmanagementheader";
 const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), patch: vi.fn() }));
 vi.mock("@/configs/axios.config", () => ({ axios: api }));
 vi.mock("@/hooks/useDataScope", () => ({ useDataScope: () => "org-a" }));
-vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: { id: "owner", role: "admin" } } }) }));
+const session = vi.hoisted(() => ({ user: { id: "owner", role: "admin" } as Record<string, unknown> }));
+vi.mock("@/providers/user.provider", () => ({ useUser: () => ({ data: { user: session.user } }) }));
 vi.mock("./taskdetailsmodal", () => ({ TaskDetailsModal: ({ task }: { task: { title: string } }) => <div role="dialog">{task.title}</div> }));
 vi.mock("@/hooks/usefetchprojects", () => ({
   useFetchProjects: () => ({ isLoading: false, data: { data: [{ id: "p1", projectName: "Site Studio" }, { id: "p2", projectName: "Landing" }] } }),
@@ -17,12 +18,17 @@ vi.mock("@/hooks/usefetchprojects", () => ({
 vi.mock("@/hooks/usefetchorganizationusers", () => ({
   useFetchOrganizationUsers: () => ({ data: { data: { userMembers: [{ id: "u1", firstname: "Ana Lima", lastname: "", user: { id: "u1", name: "Ana Lima" } }] } } }),
 }));
-vi.mock("@/hooks/usecustomfields", () => ({ useFetchCustomFields: () => ({ data: { data: [] } }) }));
+const fields = vi.hoisted(() => ({ task: [] as unknown[], save: vi.fn() }));
+vi.mock("@/hooks/usecustomfields", async importOriginal => ({
+  ...(await importOriginal<typeof import("@/hooks/usecustomfields")>()),
+  useFetchCustomFields: (entity: string) => ({ data: { data: entity === "task" ? fields.task : [] } }),
+  useSetTaskFieldValues: () => ({ mutate: fields.save, isPending: false }),
+}));
 
 const inDays = (days: number) => new Date(Date.now() + days * 86400000).toISOString();
 const task = (extra: Record<string, unknown>) => ({ projectId: "p1", projectName: "Site Studio", creatorId: "c", creatorName: "C", creatorEmail: "c@x.com", createdAt: inDays(-30), updatedAt: inDays(-1), ...extra });
 const tasks = [
-  task({ id: "late", title: "Check calendar", status: "delay", endDate: inDays(-8), assigneeId: "u1" }),
+  task({ id: "late", title: "Check calendar", status: "delay", endDate: inDays(-8), assigneeId: "u1", customFields: { prio: "High" } }),
   task({ id: "soon", title: "Wireframe home", status: "todo", endDate: inDays(3), projectId: "p2", projectName: "Landing" }),
   task({ id: "sub", title: "Pick colors", status: "completed", endDate: inDays(-2), parentId: "soon" }),
   task({ id: "done", title: "Project planning", status: "completed", endDate: inDays(-20) }),
@@ -32,6 +38,8 @@ afterEach(cleanup);
 beforeEach(() => {
   void i18n.changeLanguage("en");
   vi.clearAllMocks();
+  session.user = { id: "owner", role: "admin" };
+  fields.task = [];
   api.get.mockImplementation(async (url: string) => (url === "/tasks/all" ? { data: { success: true, data: tasks } } : { data: { success: true, data: [] } }));
   api.patch.mockResolvedValue({ data: { success: true } });
 });
@@ -79,4 +87,19 @@ it("lists tasks grouped by status and changes a status from the list", async () 
   await user.click(within(delay).getByRole("button", { name: "Change status of Check calendar" }));
   await user.click(await screen.findByRole("menuitem", { name: "In Progress" }));
   await waitFor(() => expect(api.patch).toHaveBeenCalledWith("/tasks/status/late", { status: "in_progress" }));
+});
+
+it("shows task fields as list columns, edits a value in its cell and filters by an option", async () => {
+  session.user = { id: "owner", role: "user", isOrganizationOwner: true };
+  fields.task = [{ id: "prio", name: "Priority", type: "select", entityType: "task", projectId: null, position: 0, options: [{ label: "High", color: "#ef4444" }, { label: "Low", color: "#10b981" }] }];
+  const user = setup("/dashboard/task-management?view=list");
+  const delay = await screen.findByRole("region", { name: "Delay" });
+  expect(within(delay).getByRole("columnheader", { name: /Priority/ })).toBeInTheDocument();
+  await user.click(within(delay).getByRole("button", { name: "Edit Priority" }));
+  await user.selectOptions(await screen.findByRole("combobox", { name: "Priority" }), "Low");
+  expect(fields.save).toHaveBeenCalledWith({ taskId: "late", values: { prio: "Low" } }, expect.anything());
+  await user.click(screen.getByRole("button", { name: /Filter by field/ }));
+  await user.click(await screen.findByText("Priority: Low"));
+  expect(screen.queryByText("Wireframe home")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Fields" })).toBeInTheDocument();
 });

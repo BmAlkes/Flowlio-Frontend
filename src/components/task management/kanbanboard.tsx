@@ -7,6 +7,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/
 import { cn } from "@/lib/utils";
 import { DueChip, TaskAvatar } from "./TaskBits";
 import { STATUS_I18N, TASK_STATUSES, statusToneClass, type StatusLabel, type TaskStatusKey } from "./task-ui";
+import type { CustomFieldDefinition as TaskFieldDefinition } from "@/hooks/usecustomfields";
+import { fieldsForTask, isEmpty, type FormatContext } from "@/features/custom-fields/field-values";
+import { FieldValue } from "@/features/custom-fields/FieldValue";
 
 export type Task = {
   id: string;
@@ -30,7 +33,28 @@ export type Task = {
   startAfter?: string | null;
   finishBefore?: string | null;
   projectCustomFields?: Record<string, any>;
+  /** Values of the organization's task fields, keyed by field id. */
+  customFields?: Record<string, unknown>;
 };
+
+/** Task field values shown on a card: the first three that are filled in. */
+export type CardFields = { fields: TaskFieldDefinition[]; context: FormatContext };
+
+function TaskFieldChips({ task, cardFields }: { task: Task; cardFields?: CardFields }) {
+  if (!cardFields || !task.customFields) return null;
+  const shown = fieldsForTask(cardFields.fields, task.projectId).filter(field => !isEmpty(task.customFields?.[field.id])).slice(0, 3);
+  if (!shown.length) return null;
+  return (
+    <span className="flex flex-wrap items-center gap-1.5 text-xs">
+      {shown.map(field => (
+        <span key={field.id} title={field.name} className="inline-flex max-w-full items-center gap-1">
+          {!["select", "rating", "progress"].includes(field.type) && <span className="text-muted-foreground">{field.name}:</span>}
+          <FieldValue field={field} value={task.customFields?.[field.id]} context={cardFields.context} compact />
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export type CustomFieldDefinition = {
   id: string;
@@ -66,8 +90,8 @@ function CustomFieldDots({ task, fields }: { task: Task; fields?: CustomFieldDef
   );
 }
 
-function CardBody({ task, showProject, fields, onComments, commentsOpen }: {
-  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; onComments?: () => void; commentsOpen?: boolean;
+function CardBody({ task, showProject, fields, cardFields, onComments, commentsOpen }: {
+  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; cardFields?: CardFields; onComments?: () => void; commentsOpen?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -77,6 +101,7 @@ function CardBody({ task, showProject, fields, onComments, commentsOpen }: {
         <TaskAvatar name={task.assigneeName} image={task.assigneeImage} id={task.assigneeId} />
       </div>
       {showProject && <span className="tk-project" title={task.project}>{task.project}</span>}
+      <TaskFieldChips task={task} cardFields={cardFields} />
       <div className="tk-card-foot">
         <DueChip endDate={task.endDate} status={task.statusKey} />
         {task.subtasks && task.subtasks.total > 0 && (
@@ -99,8 +124,8 @@ function CardBody({ task, showProject, fields, onComments, commentsOpen }: {
   );
 }
 
-function DraggableTask({ task, showProject, fields, onTaskClick }: {
-  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; onTaskClick?: (task: Task) => void;
+function DraggableTask({ task, showProject, fields, cardFields, onTaskClick }: {
+  task: Task; showProject: boolean; fields?: CustomFieldDefinition[]; cardFields?: CardFields; onTaskClick?: (task: Task) => void;
 }) {
   const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
@@ -112,7 +137,7 @@ function DraggableTask({ task, showProject, fields, onTaskClick }: {
         className={cn("tk-card", isDragging && "is-dragging")}
         onClick={() => !isDragging && onTaskClick?.(task)}
         onKeyDown={e => { if (e.key === "Enter") onTaskClick?.(task); }}>
-        <CardBody task={task} showProject={showProject} fields={fields}
+        <CardBody task={task} showProject={showProject} fields={fields} cardFields={cardFields}
           commentsOpen={showComments} onComments={task.projectId ? () => setShowComments(open => !open) : undefined} />
       </div>
       {showComments && task.projectId && (
@@ -189,9 +214,10 @@ interface KanbanBoardProps {
   onTaskClick?: (task: Task) => void;
   onAddTask?: (status: TaskStatusKey) => void;
   projectCustomFieldsData?: CustomFieldDefinition[];
+  cardFields?: CardFields;
 }
 
-export default function KanbanBoard({ tasks, showProject, hiddenStatuses = [], onStatusUpdate, onTaskClick, onAddTask, projectCustomFieldsData }: KanbanBoardProps) {
+export default function KanbanBoard({ tasks, showProject, hiddenStatuses = [], onStatusUpdate, onTaskClick, onAddTask, projectCustomFieldsData, cardFields }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   // Completed tasks pile up, so that column starts folded.
   const [collapsed, setCollapsed] = useState<Set<TaskStatusKey>>(() => new Set(["completed"]));
@@ -229,13 +255,13 @@ export default function KanbanBoard({ tasks, showProject, hiddenStatuses = [], o
               <Column key={status} status={status} count={items.length} collapsed={shown.length > 1 && collapsed.has(status)}
                 onToggle={() => toggle(status)} onAdd={onAddTask && status !== "completed" ? () => onAddTask(status) : undefined}>
                 {items.map(task => (
-                  <DraggableTask key={task.id} task={task} showProject={showProject} fields={projectCustomFieldsData} onTaskClick={onTaskClick} />
+                  <DraggableTask key={task.id} task={task} showProject={showProject} fields={projectCustomFieldsData} cardFields={cardFields} onTaskClick={onTaskClick} />
                 ))}
               </Column>
             );
           })}
           <DragOverlay>
-            {activeTask ? <div className="tk-card is-overlay"><CardBody task={activeTask} showProject={showProject} /></div> : null}
+            {activeTask ? <div className="tk-card is-overlay"><CardBody task={activeTask} showProject={showProject} cardFields={cardFields} /></div> : null}
           </DragOverlay>
         </DndContext>
       </div>

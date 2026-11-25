@@ -97,7 +97,10 @@
       "endDate": "Due date",
       "timeline": "Timeline (start - end)",
       "estimatedHours": "Estimated hours"
-    }
+    },
+    "extraTitle": "Other spreadsheet columns",
+    "extraTasks": "Checked columns become task custom fields (typed from their values) and show in the List.",
+    "extraContacts": "Checked columns are saved on the record and show on each lead or client page."
   },
   "dataAdmin": {
     "title": "Organization backups",

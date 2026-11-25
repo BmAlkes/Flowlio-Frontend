@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRows, dataRows, detectHeader, GROUP, guessMapping, splitTimeline, toIsoDate, type Cell } from "./spreadsheet";
+import { buildRows, dataRows, detectHeader, extraColumns, GROUP, guessMapping, splitTimeline, toIsoDate, type Cell } from "./spreadsheet";
 
 // Shape of a Monday.com board export: board title, group title, header repeated per group.
 const monday: Cell[][] = [
@@ -30,7 +30,7 @@ describe("spreadsheet import", () => {
     expect(mapping.project).toBeUndefined();
     const rows = dataRows(monday, headerIndex, headers);
     const byBoard = buildRows("tasks", rows, mapping, "Website Redesign");
-    expect(byBoard[0]).toEqual({ project: "Website Redesign", title: "Homepage", description: "Hero first", status: "Working on it", assigneeEmail: "ana@agency.test", startDate: "2026-03-01", endDate: "2026-03-10", estimatedHours: null });
+    expect(byBoard[0]).toEqual({ project: "Website Redesign", title: "Homepage", description: "Hero first", status: "Working on it", assigneeEmail: "ana@agency.test", startDate: "2026-03-01", endDate: "2026-03-10", estimatedHours: null, extra: {} });
     expect(byBoard[2].assigneeEmail).toBeNull();
     expect(buildRows("tasks", rows, { ...mapping, project: GROUP }).map(row => row.project)).toEqual(["Sprint 1", "Sprint 1", "Sprint 2"]);
   });
@@ -51,5 +51,16 @@ describe("spreadsheet import", () => {
     expect(toIsoDate("next week")).toBeNull();
     expect(splitTimeline("2026-03-01 - 2026-03-10")).toEqual(["2026-03-01", "2026-03-10"]);
     expect(splitTimeline("2026-03-01")).toEqual(["2026-03-01", "2026-03-01"]);
+  });
+
+  it("offers unmapped columns with data to be kept, skipping Monday's internal ones", () => {
+    const sheet: Cell[][] = [["Name", "Status", "Priority", "Budget", "Empty", "Item ID"], ["Home", "Done", "High", "1200", "", "991"], ["Blog", "", "Low", "", "", "992"]];
+    const { headerIndex, headers } = detectHeader(sheet, "tasks");
+    const rows = dataRows(sheet, headerIndex, headers);
+    const mapping = guessMapping(headers, "tasks");
+    const extra = extraColumns(headers, rows, mapping);
+    expect(extra.map(column => column.name)).toEqual(["Priority", "Budget"]);
+    const built = buildRows("tasks", rows, mapping, "Site", extra);
+    expect(built.map(row => row.extra)).toEqual([{ Priority: "High", Budget: "1200" }, { Priority: "Low" }]);
   });
 });

@@ -97,7 +97,10 @@
       "endDate": "Prazo",
       "timeline": "Timeline (início - fim)",
       "estimatedHours": "Horas estimadas"
-    }
+    },
+    "extraTitle": "Outras colunas da planilha",
+    "extraTasks": "Colunas marcadas viram campos personalizados das tarefas (com o tipo detectado pelos valores) e aparecem na Lista.",
+    "extraContacts": "Colunas marcadas ficam salvas no cadastro e aparecem na ficha de cada lead ou cliente."
   },
   "dataAdmin": {
     "title": "Backups por organização",

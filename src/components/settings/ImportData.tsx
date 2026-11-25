@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { GeneralModal } from "@/components/common/generalmodal";
 import { useUser } from "@/providers/user.provider";
 import {
-  buildRows, dataRows, detectHeader, fieldsFor, GROUP, guessMapping, MAX_ROWS, cellText,
+  buildRows, dataRows, detectHeader, extraColumns, fieldsFor, GROUP, guessMapping, MAX_ROWS, cellText,
   type Cell, type FieldKey, type ImportKind, type Mapping,
 } from "@/features/import/spreadsheet";
 
@@ -36,6 +36,8 @@ export function ImportData() {
   const [mapping, setMapping] = useState<Mapping>({});
   const [project, setProject] = useState("");
   const [fileError, setFileError] = useState<string | null>(null);
+  // Extra columns the person chose not to bring (by name); all are kept by default.
+  const [skippedExtra, setSkippedExtra] = useState<Set<string>>(new Set());
 
   const parsed = useMemo(() => {
     if (!sheet) return null;
@@ -43,7 +45,9 @@ export function ImportData() {
     const rows = headerIndex < 0 ? [] : dataRows(sheet.rows, headerIndex, headers);
     return { headerIndex, headers, rows, hasGroups: rows.some(row => row.group) };
   }, [sheet, kind]);
-  const built = useMemo(() => (parsed ? buildRows(kind, parsed.rows, mapping, project) : []), [parsed, kind, mapping, project]);
+  const extras = useMemo(() => (parsed ? extraColumns(parsed.headers, parsed.rows, mapping) : []), [parsed, mapping]);
+  const keptExtras = useMemo(() => extras.filter(column => !skippedExtra.has(column.name)), [extras, skippedExtra]);
+  const built = useMemo(() => (parsed ? buildRows(kind, parsed.rows, mapping, project, keptExtras) : []), [parsed, kind, mapping, project, keptExtras]);
   const fields = fieldsFor(kind);
   const missing = fields.filter(field => field.required && mapping[field.key] == null && !(field.key === "project" && project.trim()));
 
@@ -52,7 +56,7 @@ export function ImportData() {
     onSuccess: () => { void cache.invalidateQueries(); },
   });
 
-  const reset = () => { setSheet(null); setMapping({}); setProject(""); setFileError(null); submit.reset(); };
+  const reset = () => { setSheet(null); setMapping({}); setProject(""); setFileError(null); setSkippedExtra(new Set()); submit.reset(); };
   const choose = (next: ImportKind) => {
     setKind(next);
     if (sheet) {
@@ -148,13 +152,28 @@ export function ImportData() {
                       <Input value={project} onChange={event => setProject(event.target.value)} />
                     </label>
                   )}
+                  {extras.length > 0 && (
+                    <fieldset className="space-y-2 rounded-lg border border-border p-3">
+                      <legend className="px-1 text-sm font-medium">{t("privacy.import.extraTitle")}</legend>
+                      <p className="text-xs text-muted-foreground">{t(kind === "tasks" ? "privacy.import.extraTasks" : "privacy.import.extraContacts")}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {extras.map(column => (
+                          <label key={column.index} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs">
+                            <input type="checkbox" checked={!skippedExtra.has(column.name)}
+                              onChange={() => setSkippedExtra(current => { const next = new Set(current); if (next.has(column.name)) next.delete(column.name); else next.add(column.name); return next; })} />
+                            {column.name}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                  )}
                   {built.length > 0 && (
                     <div className="overflow-x-auto border border-border rounded-lg">
                       <table className="w-full text-xs">
                         <thead><tr className="bg-muted">{previewKeys.map(key => <th key={key} className="text-start px-2 py-1.5 font-medium">{t(`privacy.import.fields.${key}`)}</th>)}</tr></thead>
                         <tbody className="divide-y divide-border">
                           {built.slice(0, 5).map((row, index) => (
-                            <tr key={index}>{previewKeys.map(key => <td key={key} className="px-2 py-1.5">{String((row as Record<FieldKey, unknown>)[key] ?? "")}</td>)}</tr>
+                            <tr key={index}>{previewKeys.map(key => <td key={key} className="px-2 py-1.5">{String((row as Partial<Record<FieldKey, unknown>>)[key] ?? "")}</td>)}</tr>
                           ))}
                         </tbody>
                       </table>
