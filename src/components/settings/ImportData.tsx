@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { FileSpreadsheet, Loader2, Upload } from "lucide-react";
+import { FileSpreadsheet, Loader2, PlugZap, Upload } from "lucide-react";
+import { MondayImport } from "@/features/monday/MondayImport";
 import Papa from "papaparse";
 import { axios } from "@/configs/axios.config";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function ImportData() {
   const cache = useQueryClient();
   const user = data?.user as { isOrganizationOwner?: boolean; isOrganizationManager?: boolean } | undefined;
   const [open, setOpen] = useState(false);
+  const [mondayOpen, setMondayOpen] = useState(false);
   const [kind, setKind] = useState<ImportKind>("leads");
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [mapping, setMapping] = useState<Mapping>({});
@@ -94,7 +96,11 @@ export function ImportData() {
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{t("privacy.import.description")}</p>
         </div>
       </div>
-      <Button size="sm" variant="outline" onClick={() => { reset(); setOpen(true); }}><Upload className="size-3.5 me-2" />{t("privacy.import.start")}</Button>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={() => { reset(); setOpen(true); }}><Upload className="size-3.5 me-2" />{t("privacy.import.start")}</Button>
+        <Button size="sm" variant="outline" onClick={() => setMondayOpen(true)}><PlugZap className="size-3.5 me-2" />{t("monday.open")}</Button>
+      </div>
+      {mondayOpen && <MondayImport onClose={() => setMondayOpen(false)} />}
 
       <GeneralModal open={open} onOpenChange={next => { setOpen(next); if (!next) reset(); }} contentProps={{ className: "max-w-3xl" }}>
         <div className="space-y-4 max-h-[80vh] overflow-y-auto pe-1">
