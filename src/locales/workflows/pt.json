@@ -80,6 +80,7 @@
   "uncertainNote": "Confira o envio com o provedor antes de enviar manualmente. O reenvio automático está desativado para evitar duplicidade.",
   "navigation": "Automações",
   "readyMade": "Lembretes prontos",
-  "customRules": "Criar uma regra",
-  "readyMadeHint": "Escolha quais lembretes a equipe recebe. Cada lembrete explica quem recebe e quando."
+  "customRules": "Regras de projetos",
+  "readyMadeHint": "Escolha quais lembretes a equipe recebe. Cada lembrete explica quem recebe e quando.",
+  "taskRules": "Automações de tarefas"
 }
