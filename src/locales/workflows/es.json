@@ -80,6 +80,7 @@
   "uncertainNote": "Comprueba el envío con el proveedor antes de enviar manualmente. El reenvío automático está desactivado para evitar duplicados.",
   "navigation": "Automatizaciones",
   "readyMade": "Recordatorios listos",
-  "customRules": "Crear una regla",
-  "readyMadeHint": "Elige los recordatorios del equipo. Cada uno explica quién lo recibe y cuándo."
+  "customRules": "Reglas de proyectos",
+  "readyMadeHint": "Elige los recordatorios del equipo. Cada uno explica quién lo recibe y cuándo.",
+  "taskRules": "Automatizaciones de tareas"
 }

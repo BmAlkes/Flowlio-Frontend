@@ -57,6 +57,7 @@ const SettingsPage = lazy(() => import("./pages/settings.page"));
 const OperationsPage = lazy(() => import("./pages/operations.page"));
 const ProjectProfitabilityPage = lazy(() => import("./pages/project-profitability.page"));
 const WorkflowsPage = lazy(() => import("./pages/workflows.page"));
+const TaskAutomationsPage = lazy(() => import("./pages/task-automations.page"));
 const WhiteboardsPage = lazy(() => import("./pages/whiteboards.page"));
 const WhiteboardPage = lazy(() => import("./pages/whiteboard.page"));
 const AttentionPage = lazy(() => import("./pages/attention.page"));
@@ -487,6 +488,7 @@ const AppRoutes = () => {
           path="settings/automations"
         />
         <Route path="settings/workflows" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={WorkflowsPage} /></AdminManagerOrOrgOwnerRoute>} />
+        <Route path="settings/task-automations" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={TaskAutomationsPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route path="settings/operations" element={<AdminManagerOrOrgOwnerRoute><LazyWrapper component={OperationsPage} /></AdminManagerOrOrgOwnerRoute>} />
         <Route
           element={

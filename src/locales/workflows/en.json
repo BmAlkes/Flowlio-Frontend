@@ -80,6 +80,7 @@
   "uncertainNote": "Check delivery with the provider before sending anything manually. Automatic resend is disabled to avoid duplicates.",
   "navigation": "Automations",
   "readyMade": "Ready-made reminders",
-  "customRules": "Create a rule",
-  "readyMadeHint": "Choose which reminders your team receives. Each reminder explains who receives it and when."
+  "customRules": "Project rules",
+  "readyMadeHint": "Choose which reminders your team receives. Each reminder explains who receives it and when.",
+  "taskRules": "Task automations"
 }
