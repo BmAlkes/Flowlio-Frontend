@@ -8,7 +8,7 @@ export function groupAgencyNavigation(items: NavItem[]): NavItem[] {
   const groups = [
     ["agencyHome", ["dashboard", "attention"]],
     ["agencyClients", ["clientManagement", "leads", "proposals"]],
-    ["agencyWork", ["projects", "tasksManagement", "calendar", "whiteboards", "timeTracking", "mediaCenter", "comments", "aiAssistance"]],
+    ["agencyWork", ["projects", "tasksManagement", "calendar", "whiteboards", "timeTracking", "mediaCenter", "conversations", "aiAssistance"]],
     ["agencyFinance", ["invoices", "revenue", "reports", "paymentLinks"]],
     ["agencyTeam", ["teamCapacity", "userManagement"]],
   ] as const;

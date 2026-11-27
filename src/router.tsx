@@ -249,6 +249,8 @@ const ClientTasksPage = lazy(() => import("./pages/clienttasks.page"));
 const ClientInvoicesPage = lazy(() => import("./pages/clientinvoices.page"));
 const ClientProposalsPage = lazy(() => import("./pages/clientproposals.page"));
 const ClientActivityPage = lazy(() => import("./pages/clientactivity.page"));
+const ConversationsPage = lazy(() => import("./pages/conversations.page"));
+const ClientConversationsPage = lazy(() => import("./pages/client-conversations.page"));
 const OrgProposalsPage = lazy(() => import("./pages/proposals.page"));
 const CommentsPage = lazy(() =>
   import("./pages/comments.page").then((module) => ({
@@ -631,6 +633,7 @@ const AppRoutes = () => {
           element={<LazyWrapper component={CommentsPage} />}
           path="comments"
         />
+        <Route path="conversations" element={<LazyWrapper component={ConversationsPage} />} />
         <Route element={<LazyWrapper component={InboxPage} />} path="inbox" />
         <Route index element={<LazyWrapper component={DashboardPage} />} />
         <Route path="*" element={<LazyWrapper component={NotFound} />} />
@@ -765,6 +768,7 @@ const AppRoutes = () => {
           path="activity"
           element={<LazyWrapper component={ClientActivityPage} />}
         />
+        <Route path="conversations" element={<LazyWrapper component={ClientConversationsPage} />} />
         <Route
           path="media-center"
           element={<LazyWrapper component={ClientMediaCenterPage} />}

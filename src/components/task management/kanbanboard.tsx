@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { DndContext, DragOverlay, PointerSensor, closestCenter, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { ListChecks, MessageCircleMore, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { CommentThread } from "@/components/common/CommentThread";
+import { ContextConversation } from "@/features/conversations/ContextConversation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 import { DueChip, TaskAvatar } from "./TaskBits";
@@ -152,7 +152,7 @@ function DraggableTask({ task, showProject, fields, cardFields, onTaskClick }: {
             </button>
           </div>
           <div className="p-3">
-            <CommentThread projectId={task.projectId} taskId={task.id} canComment maxHeight="11rem" showHeader={false} />
+            <ContextConversation context={{ taskId: task.id }} className="flex h-72 flex-col" />
           </div>
         </div>
       )}

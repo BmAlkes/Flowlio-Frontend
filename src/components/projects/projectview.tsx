@@ -49,7 +49,7 @@ import { Flex } from "../ui/flex";
 import { Input } from "../ui/input";
 import { Stack } from "../ui/stack";
 import { useFetchProjectComments } from "@/hooks/usefetchprojectcomments";
-import { CommentThread } from "@/components/common/CommentThread";
+import { ContextConversation } from "@/features/conversations/ContextConversation";
 import { Skeleton } from "../ui/skeleton";
 import {
   Select,
@@ -926,20 +926,13 @@ export const ProjectView = () => {
       {/* Comments Modal */}
       <GeneralModal
         {...{ open: open && selectedImage === null, onOpenChange }}
-        contentProps={{ className: "overflow-hidden max-sm:p-3 max-w-lg" }}
+        contentProps={{ className: "overflow-hidden max-sm:p-3 max-w-2xl" }}
       >
         <Box>
           <Box className="mb-4 text-lg font-semibold">
-            Project Comments — {project.projectName}
+            {t("conversations.title")} — {project.projectName}
           </Box>
-          {id && (
-            <CommentThread
-              projectId={id}
-              canComment
-              maxHeight="20rem"
-              showHeader={false}
-            />
-          )}
+          {id && <ContextConversation context={{ projectId: id }} className="flex h-[30rem] flex-col" />}
         </Box>
       </GeneralModal>
       {/* File Version History Modal */}

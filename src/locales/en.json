@@ -139,7 +139,8 @@
     "financial": "Financial",
     "workspace": "Workspace",
     "generalSettings": "General",
-    "whiteboards": "Whiteboards"
+    "whiteboards": "Whiteboards",
+    "conversations": "Conversations"
   },
   "superadmin": {
     "companies": {
