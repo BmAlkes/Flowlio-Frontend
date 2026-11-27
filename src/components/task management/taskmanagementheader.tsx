@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
@@ -95,6 +95,15 @@ export const TaskManagementHeader = () => {
       };
     });
   }, [orgTasks.data, orgProjects.data, orgUsers.data, t]);
+
+  // ?task=<id> (from a conversation or notification) opens that task once.
+  const linkedTask = params.get("task");
+  useEffect(() => {
+    if (!linkedTask || !tasks.length) return;
+    const found = tasks.find(task => task.id === linkedTask);
+    if (found) setSelectedTask(found);
+    setParams(prev => { const out = new URLSearchParams(prev); out.delete("task"); return out; }, { replace: true });
+  }, [linkedTask, tasks, setParams]);
 
   // Project, assignee and search scope everything, the summary cards included.
   const scoped = useMemo(() => {

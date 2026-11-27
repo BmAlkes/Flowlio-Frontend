@@ -138,7 +138,8 @@
     "financial": "Financiero",
     "workspace": "Espacio de Trabajo",
     "generalSettings": "General",
-    "whiteboards": "Pizarras"
+    "whiteboards": "Pizarras",
+    "conversations": "Conversaciones"
   },
   "superadmin": {
     "companies": {

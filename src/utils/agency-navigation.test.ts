@@ -12,7 +12,7 @@ describe("agency navigation", () => {
     expect(items.filter(item => !item.section).map(item => item.title)).toEqual(["agencyHome", "agencyClients", "agencyWork", "agencyFinance", "agencyTeam"]);
     const urls = items.flatMap(item => item.subItems ?? [item]).map(item => item.url);
     expect(new Set(urls).size).toBe(urls.length);
-    for (const route of ["project", "task-management", "client-management", "leads", "calender", "time-tracking", "attention", "team-capacity", "user-management", "invoice", "revenue", "reports", "payment-links", "proposals", "ai-assist", "comments", "client-management/media-center", "inbox", "support", "settings", "settings/operations", "settings/audit", "settings/automations", "settings/integrations", "subscription"]) {
+    for (const route of ["project", "task-management", "client-management", "leads", "calender", "time-tracking", "attention", "team-capacity", "user-management", "invoice", "revenue", "reports", "payment-links", "proposals", "ai-assist", "conversations", "client-management/media-center", "inbox", "support", "settings", "settings/operations", "settings/audit", "settings/automations", "settings/integrations", "subscription"]) {
       expect(hasRouteAccess("user", `/dashboard/${route}`, true)).toBe(true);
     }
   });

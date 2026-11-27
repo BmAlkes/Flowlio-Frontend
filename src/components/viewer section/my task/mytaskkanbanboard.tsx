@@ -16,7 +16,7 @@ import {
 import { Stack } from "@/components/ui/stack";
 import { Button } from "@/components/ui/button";
 import { Download, Eye, File, FileText, Image, X } from "lucide-react";
-import { CommentThread } from "@/components/common/CommentThread";
+import { ContextConversation } from "@/features/conversations/ContextConversation";
 
 // Status keys for consistency
 type StatusType =
@@ -358,13 +358,7 @@ function TaskDetailModalContent({
 
         {/* Comments */}
         {task.projectId && (
-          <CommentThread
-            projectId={task.projectId}
-            taskId={task.id}
-            canComment
-            maxHeight="12rem"
-            showHeader
-          />
+          <ContextConversation context={{ taskId: task.id }} className="flex h-72 flex-col" />
         )}
 
         <hr className="border-border" />

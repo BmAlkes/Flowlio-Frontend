@@ -42,8 +42,8 @@ const clientNavItems: NavItem[] = [
     icon: React.createElement(FileText),
   },
   {
-    title: "messages",
-    url: "/clients/activity",
+    title: "conversations",
+    url: "/clients/conversations",
     icon: React.createElement(MessageCircleQuestion),
   },
   {
@@ -137,8 +137,8 @@ const operatorNavItems: NavItem[] = [
     icon: React.createElement(Clock),
   },
   {
-    url: "/dashboard/comments",
-    title: "comments",
+    url: "/dashboard/conversations",
+    title: "conversations",
     icon: React.createElement(MessageCircleMore),
   },
   {
@@ -201,8 +201,8 @@ const userNavItems: NavItem[] = [
     icon: React.createElement(LuWandSparkles),
   },
   {
-    url: "/dashboard/comments",
-    title: "comments",
+    url: "/dashboard/conversations",
+    title: "conversations",
     icon: React.createElement(MessageCircleMore),
   },
   {
@@ -327,8 +327,8 @@ const userOrgOwnerNavItems: NavItem[] = [
         icon: React.createElement(TbReportSearch),
       },
       {
-        url: "/dashboard/comments",
-        title: "comments",
+        url: "/dashboard/conversations",
+        title: "conversations",
         icon: React.createElement(MessageCircleMore),
       },
       {

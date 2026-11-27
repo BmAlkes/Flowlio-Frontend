@@ -23,7 +23,7 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useFetchSubtasks } from "@/hooks/usefetchtasks";
-import { CommentThread } from "@/components/common/CommentThread";
+import { ContextConversation } from "@/features/conversations/ContextConversation";
 import { useDeleteTask } from "@/hooks/usedeletetask";
 import { useGetCurrentOrgUserMembers } from "@/hooks/usegetallusermembers";
 import { Box } from "../ui/box";
@@ -376,14 +376,8 @@ export const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
 
               {/* Comments */}
               {task.projectId && (
-                <Box className="bg-muted/50 rounded-xl p-4">
-                  <CommentThread
-                    projectId={task.projectId}
-                    taskId={task.id}
-                    canComment
-                    maxHeight="15rem"
-                    showHeader
-                  />
+                <Box className="overflow-hidden rounded-xl border border-border bg-card">
+                  <ContextConversation context={{ taskId: task.id }} className="flex h-[26rem] flex-col" />
                 </Box>
               )}
 
